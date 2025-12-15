@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SNOW: SUBITIZING MOUSE - v14.3 Visual Polish</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,600;0,800;1,900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    /* --- SNOW STYLE PALETTE --- */
+    --bg-dark: #0d0d0d;
+
+    /* Grade Colors */
+    --g-exc: #fff700;  /* Marvelous (Gold) */
+    --g-perf: #00ffff; /* Excellent (Cyan) */
+    --g-grt: #00ff33;  /* Great (Green) */
+    --g-good: #ffcc00; /* Good (Light Orange / Amber) */
+    --g-ok:   #a0a0a0; /* OK (Grey) */
+    --g-miss: #ff0000; /* Miss (Red) */
+
+    /* Player Slot Colors */
+    --c-easy: #44d62c;   /* Green */
+    --c-normal: #0091ff; /* Blue */
+    --c-hard: #ffcc00;   /* Yellow */
+    --c-extreme: #ff001e;/* Red */
+
+    --font-ui: 'Kanit', sans-serif;
+    --font-num: 'Roboto Mono', monospace;
+
+    /* Layout */
+    --kb-height: 260px;
+    --footer-height: 90px;
+
+    /* Block Config */
+    --block-size-3d: 28px;
+    --block-size-2d: 27px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font-ui);
+    background-color: var(--bg-dark);
+    color: #fff;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed; width: 100%;
+    user-select: none;
+    background-image:
+        linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111),
+        linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+  }
+
+  .app-container {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 8px;
+    background: radial-gradient(circle at center, #222 0%, #050505 100%);
+    position: relative; z-index: 1;
+    transition: background 0.5s;
+  }
+
+  .app-container.theme-easy { background: radial-gradient(circle at center, rgba(68, 214, 44, 0.22) 0%, #050505 100%); }
+  .app-container.theme-normal { background: radial-gradient(circle at center, rgba(0, 145, 255, 0.25) 0%, #050505 100%); }
+  .app-container.theme-hard { background: radial-gradient(circle at center, rgba(255, 204, 0, 0.28) 0%, #050505 100%); }
+  .app-container.theme-extreme { background: radial-gradient(circle at center, rgba(255, 0, 30, 0.28) 0%, #000000 100%); }
+
+  .app-container.theme-easy #slot-1 { background: rgba(68, 214, 44, 0.06); box-shadow: 0 0 18px rgba(68, 214, 44, 0.35); }
+  .app-container.theme-normal #slot-1 { background: rgba(0, 145, 255, 0.06); box-shadow: 0 0 18px rgba(0, 145, 255, 0.35); }
+  .app-container.theme-hard #slot-1 { background: rgba(255, 204, 0, 0.08); box-shadow: 0 0 18px rgba(255, 204, 0, 0.4); }
+  .app-container.theme-extreme #slot-1 {
+      flex: 100;
+      border: none;
+      background: rgba(255, 0, 0, 0.05);
+      justify-content: flex-end;
+      align-items: center;
+      box-shadow: 0 0 22px rgba(255, 0, 0, 0.45);
+  }
+  .app-container.theme-extreme #slot-2,
+  .app-container.theme-extreme #slot-3 { display: none !important; }
+
+  .app-container.showing-result .stage-area { visibility: hidden; }
+
+  .stage-area {
+    flex: 1;
+    height: calc(100% - 34px);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    position: relative; overflow: hidden;
+    max-height: calc(100vh - var(--kb-height) - 16px - 34px);
+    perspective: 900px;
+  }
+
+  /* Flash Overlay */
+  .slot-flash-overlay {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 20; opacity: 0; transform-origin: bottom;
+  }
+  .flash-exc .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 247, 0, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-perf .slot-flash-overlay { background: linear-gradient(to top, rgba(0, 255, 255, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-grt .slot-flash-overlay { background: linear-gradient(to top, rgba(0, 255, 51, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-good .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 204, 0, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-ok .slot-flash-overlay { background: linear-gradient(to top, rgba(160, 160, 160, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-miss .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 0, 0, 0.9) 0%, transparent 100%); animation: flashBeam 0.3s ease-out forwards; }
+  @keyframes flashBeam { 0% { opacity: 1; height: 10%; } 100% { opacity: 0; height: 100%; } }
+
+  /* SHUTTER EFFECT */
+  #fail-shutter {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background:
+          repeating-linear-gradient(45deg, #1a1a1a, #1a1a1a 10px, #222 10px, #222 20px),
+          linear-gradient(to bottom, #000, #333);
+      background-blend-mode: multiply;
+      display: flex; align-items: center; justify-content: center;
+      transform: translateY(-100%);
+      z-index: 5500; pointer-events: none;
+      transition: transform 0.2s cubic-bezier(0.8, 0, 0.2, 1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      border-bottom: 8px solid #444;
+  }
+  #fail-shutter.active { transform: translateY(0); pointer-events: auto; }
+
+  #victory-shutter {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
+      background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 100%);
+      z-index: 5500; pointer-events: none;
+      display: flex; align-items: flex-end; justify-content: center;
+      transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(4px);
+  }
+  #victory-shutter.active { height: 100%; pointer-events: auto; animation: beamPulse 0.8s ease-out forwards; }
+  @keyframes beamPulse {
+      0% { opacity: 0; height: 0%; }
+      30% { opacity: 1; height: 100%; background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(0, 145, 255, 0.5) 50%, rgba(0,0,0,0) 100%); }
+      100% { opacity: 0; height: 100%; background: transparent; }
+  }
+
+  .mode-label {
+      position: absolute; top: 15px; right: 15px;
+      font-size: 9px; font-weight: 900; font-style: italic; letter-spacing: 1px;
+      padding: 4px 20px; transform: skewX(-15deg);
+      background: #000; color: #fff;
+      z-index: 90; display: none; text-transform: uppercase;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      border: 3px solid #fff;
+      -webkit-text-stroke: 1px transparent;
+  }
+  .mode-label.show { display: block; }
+
+  #btn-mode-toggle {
+      position: absolute; top: 6px; left: 8px;
+      pointer-events: auto;
+      background: #333; border: 2px solid #777; color: #ccc;
+      border-radius: 4px; padding: 6px 14px;
+      font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic;
+      cursor: pointer; z-index: 2200;
+      display: flex; align-items: center; gap: 6px; transition: all 0.1s;
+      transform: skewX(-15deg);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
+  }
+  #btn-mode-toggle span.check { font-size: 14px; color: #999; font-weight: 900; }
+  #btn-mode-toggle span.label { letter-spacing: 1px; }
+  #btn-mode-toggle:active { transform: skewX(-15deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
+  #btn-mode-toggle.disabled { opacity: 0.1; pointer-events: none; }
+  #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 10px rgba(208, 0, 255, 0.4); }
+  #btn-mode-toggle.random-on span.check { color: #d000ff; text-shadow: 0 0 5px #d000ff; }
+
+  #conveyor-wrapper {
+    width: 100%; height: 100%;
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 8px; padding: 20px 10px 0 10px;
+    transform-style: preserve-3d; pointer-events: none;
+  }
+  .slot {
+    flex: 1; height: calc(100% - 34px);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    position: relative; transform-style: preserve-3d;
+    background: rgba(0,0,0,0.3); border-radius: 4px 4px 0 0;
+    border: 2px solid rgba(255,255,255,0.1); border-bottom: none;
+    transition: flex 0.3s, opacity 0.3s; overflow: hidden;
+  }
+  #slot-1 { background: rgba(255,255,255,0.05); border: none; z-index: 10; position: relative; }
+
+  .slot-timer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; filter: none; }
+  .timer-path { fill: none; stroke-linecap: butt; stroke-linejoin: round; transition: stroke 0.1s linear; }
+
+  .cluster-container { display: flex; align-items: flex-end; gap: 3px; padding-bottom: 12px; transform-style: preserve-3d; transition: transform 0.1s; }
+  .block-column { display: flex; flex-direction: column-reverse; gap: 3px; width: 27px; transform-style: preserve-3d; }
+  .block { width: var(--block-size-2d); height: var(--block-size-2d); border-radius: 2px; box-shadow: inset 2px 2px 0 rgba(255,255,255,0.4), inset -2px -2px 0 rgba(0,0,0,0.3), 3px 3px 5px rgba(0,0,0,0.5); border: 1px solid rgba(0,0,0,0.2); position: relative; }
+  .cluster-container.random-layout { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; padding: 0; }
+  .block.block-random { position: absolute; z-index: 10; }
+  .block.mode-easy { background: var(--c-easy); }
+  .block.mode-normal { background: var(--c-normal); }
+  .block.mode-hard { background: var(--c-hard); }
+  .block.mode-extreme { background: var(--c-extreme); border: 1px solid #7f1d1d; }
+
+  /* 3D CUBES */
+  .cluster-container.real-3d { position: absolute; bottom: 10%; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(25deg); }
+  .cube { width: var(--block-size-3d); height: var(--block-size-3d); position: absolute; transform-style: preserve-3d; }
+  .face { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(0,0,0,0.3); opacity: 0.9; }
+  .face-front { transform: translateZ(calc(var(--block-size-3d)/2)); }
+  .face-back { transform: rotateY(180deg) translateZ(calc(var(--block-size-3d)/2)); }
+  .face-right { transform: rotateY(90deg) translateZ(calc(var(--block-size-3d)/2)); }
+  .face-left { transform: rotateY(-90deg) translateZ(calc(var(--block-size-3d)/2)); }
+  .face-top { transform: rotateX(90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(1.2); }
+  .face-bottom { transform: rotateX(-90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(0.6); }
+  .cube.mode-easy .face { background: var(--c-easy); box-shadow: inset 0 0 5px rgba(255,255,255,0.4); }
+  .cube.mode-normal .face { background: var(--c-normal); box-shadow: inset 0 0 5px rgba(255,255,255,0.4); }
+  .cube.mode-hard .face { background: var(--c-hard); box-shadow: inset 0 0 5px rgba(255,255,255,0.4); }
+  .cube.mode-extreme .face { background: var(--c-extreme); border-color: #500; }
+
+  /* KEYBOARD */
+  .virtual-keyboard { position: relative; width: 100%; height: var(--kb-height); background: linear-gradient(135deg, #050a14 0%, #001529 100%); padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; z-index: 3000; border-top: 4px solid rgba(255,255,255,0.1); pointer-events: auto; box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5); }
+  .virtual-keyboard::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px; pointer-events: none; }
+  .kb-key { background: linear-gradient(180deg, rgba(30, 60, 90, 0.9) 0%, rgba(10, 20, 40, 0.95) 100%); border-radius: 4px; border: 1px solid rgba(100, 200, 255, 0.3); box-shadow: 0 4px 0 rgba(0, 10, 20, 0.8), inset 0 1px 0 rgba(255,255,255,0.2); color: #fff; font-family: var(--font-ui); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; }
+  .kb-key:active, .kb-key.active-state { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0); background: linear-gradient(180deg, #ffcc00 0%, #ff8800 100%); color: #000; border-color: #fff; }
+  .kb-key-main { font-size: 32px; font-weight: 900; font-style: italic; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .kb-key.disabled { opacity: 0.2; pointer-events: none; box-shadow: none; border-color: transparent; }
+  .kb-key.ripple::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.5); opacity: 0; pointer-events: none; animation: keyFlash 0.2s ease-out; }
+  @keyframes keyFlash { 0% { opacity: 0.8; } 100% { opacity: 0; } }
+
+  #bottom-ui-container { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--footer-height); display: none; align-items: center; justify-content: center; padding: 0 15px 15px 15px; z-index: 3100; pointer-events: auto; transition: opacity 0.2s, filter 0.2s; }
+  #mode-select-container { display: flex; width: 100%; gap: 12px; justify-content: center; height: 55px; }
+  .mode-btn { flex: 1; height: 100%; font-family: var(--font-ui); border: 3px solid #fff; border-radius: 4px; transform: skewX(-15deg); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); position: relative; padding: 4px 0; overflow: hidden; transition: transform 0.1s, box-shadow 0.1s; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+  .mode-btn:active { transform: skewX(-15deg) translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0); filter: brightness(1.2); }
+  .mode-easy { background: linear-gradient(160deg, #44d62c 0%, #1a600d 100%); }
+  .mode-normal { background: linear-gradient(160deg, #0091ff 0%, #004080 100%); }
+  .mode-hard { background: linear-gradient(160deg, #ffcc00 0%, #806600 100%); }
+  .mode-extreme { background: linear-gradient(160deg, #ff001e 0%, #80000f 100%); }
+  .mode-val { font-size: 15px; font-weight: 900; font-style: italic; text-transform: uppercase; white-space: nowrap; z-index: 1; display: flex; align-items: center; gap: 4px; }
+  .mode-btn.locked { opacity: 0.3; filter: grayscale(1); pointer-events: none; border-color: #333; color: #555; background: #000; }
+  .mode-btn.locked .mode-val { display: none; }
+  .mode-btn.locked::after { content: '🔒'; font-size: 24px; display: block; z-index:1; }
+  .bottom-ui-dimmed { opacity: 0.25; filter: grayscale(0.6); pointer-events: none; }
+
+  #tutorial-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 4000; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+  #tutorial-overlay.active { opacity: 1; pointer-events: auto; }
+  .tute-item { position: absolute; display: flex; flex-direction: column; align-items: center; color: #fff; filter: drop-shadow(0 0 8px rgba(0,0,0,0.8)); }
+  #tute-count, #tute-input { display: none !important; }
+  #tute-central-msg { top: 290px; left: 50%; transform: translateX(-50%); width: 100%; z-index: 5000; display:flex; justify-content:center; flex-direction: column; align-items: center; gap: 16px; }
+  .tute-arrow { color: var(--g-perf); animation: bounceArrow 1.5s infinite; }
+  .tute-text { font-size: 28px; font-weight: 900; font-style: italic; letter-spacing: 2px; text-shadow: 3px 3px 0 #000; }
+  .tute-big-msg { font-size: 56px; font-weight: 900; font-style: italic; transition: transform 0.1s; letter-spacing: -2px; text-shadow: 5px 5px 0 #000; color: #fff; display:none; margin-bottom: 160px; z-index: 5001; }
+  .tute-big-msg.pop { transform: scale(1.5); }
+  @keyframes bounceArrow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+
+  .tute-start-btn { padding: 14px 40px; border-radius: 4px; border: 4px solid #fff; background: #0091ff; color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.5); font-size: 32px; font-weight: 900; font-style: italic; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; box-shadow: 8px 8px 0 #000; transform: skewX(-10deg); transition: transform 0.1s, box-shadow 0.1s; position: relative; overflow: visible; z-index: 10; }
+  .tute-start-btn:active { transform: skewX(-10deg) translateY(4px); box-shadow: 4px 4px 0 #000; }
+  .tute-start-btn::before { content: ''; position: absolute; inset: -8px; border-radius: inherit; border: 6px solid rgba(0, 145, 255, 0.9); opacity: 0; pointer-events: none; animation: modeSelectPulse 0.9s ease-out infinite; z-index: -1; }
+  @keyframes modeSelectPulse { 0% { transform: scale(0.95); opacity: 1; border-width: 6px; } 40% { opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; border-width: 0px; } }
+
+  .tute-mode-select { display: none; width: 90%; max-width: 460px; flex-direction: row; gap: 10px; justify-content: center; }
+  .tute-mode-select .mode-btn { height: 70px; }
+
+  .eval-effect { position: fixed; top: calc(20% - 30px - 3.0cm); left: 50%; transform: translateX(-50%) scale(0.35); font-size: 80px; font-weight: 900; font-style: italic; letter-spacing: -4px; z-index: 10000; pointer-events: none; -webkit-text-stroke: 3px #000; text-shadow: 6px 6px 0px rgba(0,0,0,0.5); animation: SNOWHit 0.5s forwards; white-space: nowrap; }
+  @keyframes SNOWHit { 0% { transform: translateX(-50%) scale(0.15) rotate(-15deg); opacity: 0; } 20% { opacity: 1; transform: translateX(-50%) scale(0.8) rotate(0deg); } 40% { transform: translateX(-50%) scale(0.7); } 90% { opacity: 1; transform: translateX(-50%) scale(0.7); } 100% { transform: translateX(-50%) scale(0.8) translateY(-20px); opacity: 0; } }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  /* Modified Result Card for Transparency & Polish */
+  .result-card {
+      width: 100%; height: 100%;
+      background: rgba(10, 12, 16, 0.93); /* Dark, slightly transparent background */
+      display: flex; flex-direction: column;
+      position: relative; color: #fff;
+      overflow: hidden;
+      backdrop-filter: blur(8px); /* Blur effect behind the card */
+      transition: background 0.5s;
+  }
+  /* GOD Mode Aura Background */
+  .result-card.god-aura {
+      background: radial-gradient(circle at center, rgba(100, 80, 0, 0.4) 0%, rgba(10, 12, 16, 0.95) 70%);
+  }
+
+  .result-scroll-area { flex: 1; overflow-y: hidden; display: flex; flex-direction: column; padding: 20px; padding-bottom: 90px; position:relative; z-index:2; }
+  .res-header-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; flex-shrink: 0; position: relative; border-bottom: 2px solid #fff; }
+  .res-title { font-size: 28px; font-weight: 900; font-style: italic; letter-spacing: -2px; text-shadow: 2px 2px 0 #000; }
+
+  .res-status-msg {
+      font-size: 42px; font-weight: 900; font-style: italic;
+      margin-top: 10px; display: none;
+      text-transform: uppercase; letter-spacing: -2px;
+      -webkit-text-stroke: 1px #fff;
+      transform: skewX(-10deg) scale(1, 1.2);
+      filter: drop-shadow(0 0 10px rgba(0, 145, 255, 0.8));
+  }
+  .res-status-msg.show { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { from { transform: translateY(8px) scale(0.96) skewX(-10deg); opacity: 0; } to { transform: translateY(0) scale(1) skewX(-10deg); opacity: 1; } }
+
+  /* Fix for the 'R' cut-off: Brighter bottom gradient and shadow */
+  .status-clear {
+      background: linear-gradient(to bottom, #fff 10%, #66b2ff 60%, #0055aa 100%);
+      -webkit-background-clip: text;
+      color: transparent;
+      /* Using text-shadow simulation via filter since color is transparent */
+      filter: drop-shadow(0 2px 0px rgba(0,0,0,0.5)) drop-shadow(0 0 10px rgba(0, 145, 255, 0.6));
+  }
+
+  .res-unlock-wrapper { display: none; justify-content: center; margin-top: 10px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .res-unlock-wrapper.show { display: flex; }
+  .res-unlock-wrapper .mode-btn {
+      width: 180px; height: 50px; pointer-events: none; transform: skewX(-15deg);
+      border-width: 4px; box-shadow: 0 0 15px rgba(255,255,255,0.5), inset 0 0 20px rgba(255,255,255,0.3);
+  }
+  .res-unlock-wrapper .mode-val { font-size: 22px; font-weight: 900; background: linear-gradient(to bottom, #fff 0%, #ddd 100%); -webkit-background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.5)); }
+
+  .res-mode-label { font-size: 9px; font-weight: 900; font-style: italic; padding: 4px 20px; background: #000; border-radius: 4px; letter-spacing: 1px; border: 3px solid #fff; transform: skewX(-15deg); }
+  .rank-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; padding-bottom: 10px; position: relative; flex-shrink: 0; z-index: 5; }
+  .rank-wrapper { display: flex; align-items: flex-end; justify-content: center; position: relative; }
+  .rank-char { font-size: 100px; line-height: 0.8; font-weight: 900; font-style: italic; transform: skewX(-10deg); margin-right: 10px; padding-right: 10px; -webkit-text-stroke: 3px #000; filter: drop-shadow(5px 5px 0 rgba(0,0,0,0.5)); }
+
+  /* Enhanced GOD Rank Glow */
+  .rank-god {
+      background: linear-gradient(135deg, #fff 0%, #ffd700 40%, #ffaa00 100%);
+      -webkit-background-clip: text; color: transparent;
+      filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 10px #ffaa00);
+  }
+  .rank-z { background: linear-gradient(to bottom, #ef4444 0%, #7f1d1d 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #ef4444); }
+  .rank-s { background: linear-gradient(to bottom, #fde047 0%, #eab308 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #eab308); }
+  .rank-a { background: linear-gradient(to bottom, #67e8f9 0%, #06b6d4 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #06b6d4); }
+  .rank-b { background: linear-gradient(to bottom, #86efac 0%, #22c55e 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #22c55e); }
+  .rank-c { background: linear-gradient(to bottom, #fb923c 0%, #ea580c 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #ea580c); }
+  .rank-f { color: #ffffff; background: none; -webkit-background-clip: initial; filter: none; text-shadow: none; font-weight: 900; }
+  .res-msg-platinum, .res-msg-nice { color: #ffffff !important; background: none !important; -webkit-background-clip: initial !important; filter: none !important; text-shadow: none !important; font-weight: 900; }
+
+  .nav-btn { pointer-events: auto; background: #333; color: #fff; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; flex-shrink: 0; }
+  .nav-btn:active { background: #fff; color:#000; transform: scale(0.9); }
+  .nav-btn:disabled { opacity: 0; pointer-events: none; }
+
+  .new-record-badge {
+      background: linear-gradient(135deg, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+      color: #5e4b15;
+      border: 3px solid #fff;
+      font-size: 18px; font-weight: 900; font-style: italic; padding: 6px 14px; border-radius: 4px;
+      display: none; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 4px 4px 0 rgba(0,0,0,0.8);
+      transform: skewX(-10deg) scale(1.1);
+      margin-bottom: 5px;
+      position: relative; z-index: 9999;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .new-record-badge.show { display: inline-block; }
+
+  .score-row-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 5px; margin-bottom: 5px; position: relative; z-index: 5000; }
+  .total-score-box { font-family: var(--font-ui); text-align: center; font-size: 32px; font-weight: 900; font-style: italic; color: #fff; text-shadow: 3px 3px 0 #000; letter-spacing: -1px; line-height: 1.0; }
+  .total-score-box span.total-label { font-size: 12px; color: #aaa; display: block; margin-bottom: 2px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 1px 1px 0 #000; font-weight: 700; }
+  .total-avg-label { display: block; margin-top: 4px; font-weight: 700; font-style: italic; text-shadow: 1px 1px 0 #000; }
+  .total-avg-label .avg-text { font-size: 0.5em; color: #888; letter-spacing: 2px; margin-right: 4px; }
+  .total-avg-label .avg-value { font-size: 1em; color: #fff; }
+
+  /* Next Rank line */
+  .next-rank-line { margin-top: 8px; font-size: 18px; font-weight: 900; letter-spacing: 1px; opacity: 0.92; text-shadow: 1px 1px 0 #000; }
+
+  .detail-table { width: 100%; margin-bottom: 5px; border-collapse: collapse; font-family: var(--font-num); font-size: 13px; }
+  .detail-table th { text-align: left; color: #ccc; border-bottom: 2px solid #555; padding: 4px 4px; font-family: var(--font-ui); font-style: italic; font-weight: 900; font-size: 12px;}
+  .detail-table td { border-bottom: 1px solid #333; padding: 4px 4px; }
+  .detail-table tr:last-child td { border-bottom: none; }
+  .dt-grade { font-weight: 700; font-family: var(--font-ui); font-style: italic; width: 35%; text-shadow: 1px 1px 0 #000; }
+  .dt-count { text-align: right; width: 15%;}
+  .dt-avg { text-align: right; width: 20%; color: #999; font-size: 12px; }
+  .dt-score { text-align: right; font-weight: 700; color: #fff; width: 30%; }
+  .dt-sub { font-size: 10px; color: #666; margin-left: 4px; }
+
+  .miss-log-container { background: transparent; padding: 0; margin-bottom: 0px; display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+  .miss-title { font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 4px; font-style: italic; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; text-shadow: 1px 1px 0 #000;}
+  .miss-scroll-wrapper { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .feedback-row { display: flex; flex-direction: column; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+  .fb-body { position: relative; height: 140px; display: flex; align-items: center; justify-content: center; overflow: hidden; transform-style: preserve-3d; perspective: 600px; }
+  .fb-body-inner { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+  .fb-body-inner.fb-2d { transform: scale(0.7); display:flex; justify-content:center; align-items:flex-end; }
+  .fb-body-inner.fb-3d { transform: scale(0.7); margin-top: 2cm; }
+  .fb-body-inner.fb-extreme { transform: scale(0.45); }
+  .fb-footer { position: absolute; top: 4px; right: 6px; display: flex; justify-content: flex-end; align-items: center; padding: 2px 6px; background: linear-gradient(to left, rgba(0,0,0,0.85), transparent); font-size: 10px; font-weight: 900; font-family: var(--font-num); color: #ccc; text-shadow: 1px 1px 2px #000; z-index: 10; border-radius: 3px; }
+  .fb-val-correct { color: var(--c-easy); margin-left: 4px; font-size: 11px;}
+  .fb-val-wrong { color: var(--g-miss); margin-left: 4px; font-size: 11px;}
+  .fb-lbl { margin-left: 6px; color: #fff; font-size: 9px; letter-spacing: 1px;}
+
+  .result-footer { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--footer-height); padding: 0 15px 15px 15px; background: linear-gradient(to top, #000 85%, transparent); display: flex; align-items: center; justify-content: center; gap: 8px; z-index: 10; }
+
+  .unified-btn {
+      flex: 0;
+      width: auto;
+      min-width: 140px;
+      max-width: 180px;
+      height: 36px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 40%, #c0c0c0 100%);
+      color: #111;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 900;
+      font-style: italic;
+      border: 3px solid #ffffff;
+      border-radius: 4px;
+      cursor: pointer;
+      transform: skewX(-10deg);
+      box-shadow: 0 0 12px rgba(255,255,255,0.4), 0 0 18px rgba(200,200,200,0.5);
+      transition: all 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 10px;
+      position: relative;
+      z-index: 10000;
+      text-shadow: none;
+  }
+  .unified-btn:active {
+      transform: skewX(-10deg) translateY(2px);
+      box-shadow: 0 0 6px rgba(0,0,0,0.5);
+      background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 40%, #a0a0a0 100%);
+  }
+  .unified-btn::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      border: 4px solid rgba(255, 255, 255, 0.8);
+      opacity: 0;
+      pointer-events: none;
+      animation: modeSelectPulse 1.2s ease-out infinite;
+      z-index: -1;
+  }
+</style>
+</head>
+<body>
+
+  <div class="app-container" id="app-wrapper">
+    <div class="stage-area">
+      <div id="fail-shutter"></div>
+      <div id="victory-shutter"></div>
+      <div id="hud-mode-label" class="mode-label">EASY</div>
+
+      <div id="tutorial-overlay">
+          <button id="btn-mode-toggle" onclick="toggleDimensionMode()">
+              <span class="check">☐</span><span class="label">RANDOM</span>
+          </button>
+
+          <div id="tute-count" class="tute-item"></div>
+          <div id="tute-input" class="tute-item"></div>
+
+          <div id="tute-central-msg" class="tute-item">
+              <button id="tute-start-btn" class="tute-start-btn">MODE SELECT</button>
+
+              <div id="tute-mode-select" class="tute-mode-select">
+                  <button class="mode-btn mode-easy" onclick="handleModeSelect('EASY', this)">
+                      <div class="mode-val">EASY</div>
+                  </button>
+                  <button class="mode-btn mode-normal" onclick="handleModeSelect('NORMAL', this)">
+                      <div class="mode-val">NORMAL</div>
+                  </button>
+                  <button class="mode-btn mode-hard" onclick="handleModeSelect('HARD', this)">
+                      <div class="mode-val">HARD</div>
+                  </button>
+                  <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)">
+                      <div class="mode-val">EXTREME</div>
+                  </button>
+              </div>
+
+              <div id="tute-big-msg" class="tute-big-msg">READY</div>
+          </div>
+      </div>
+
+      <div id="conveyor-wrapper">
+        <div id="slot-1" class="slot">
+          <div id="flash-overlay-1" class="slot-flash-overlay"></div>
+          <div id="view-1" style="flex:1; display:flex; justify-content:center; align-items:flex-end; width:100%; height:100%;"></div>
+        </div>
+        <div id="slot-2" class="slot">
+          <div id="view-2" style="flex:1; display:flex; justify-content:center; align-items:flex-end;"></div>
+        </div>
+        <div id="slot-3" class="slot">
+          <div id="view-3" style="flex:1; display:flex; justify-content:center; align-items:flex-end;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="virtual-keyboard" id="virtual-keyboard">
+        <button class="kb-key" data-key="1"><div class="kb-key-main">1</div></button>
+        <button class="kb-key" data-key="2"><div class="kb-key-main">2</div></button>
+        <button class="kb-key" data-key="3"><div class="kb-key-main">3</div></button>
+        <button class="kb-key" data-key="4"><div class="kb-key-main">4</div></button>
+        <button class="kb-key" data-key="5"><div class="kb-key-main">5</div></button>
+        <button class="kb-key" data-key="6"><div class="kb-key-main">6</div></button>
+        <button class="kb-key" data-key="7"><div class="kb-key-main">7</div></button>
+        <button class="kb-key" data-key="8"><div class="kb-key-main">8</div></button>
+        <button class="kb-key" data-key="9"><div class="kb-key-main">9</div></button>
+        <div class="kb-key" style="visibility:hidden"></div>
+        <button class="kb-key" data-key="0"><div class="kb-key-main">0</div></button>
+        <button class="kb-key" data-key="DEL"><div class="kb-key-main" style="font-size:18px;">DEL</div></button>
+    </div>
+
+    <div id="bottom-ui-container">
+        <div id="mode-select-container">
+            <button class="mode-btn mode-easy active-mode" onclick="handleModeSelect('EASY', this)">
+                <div class="mode-val">EASY</div>
+            </button>
+            <button class="mode-btn mode-normal" onclick="handleModeSelect('NORMAL', this)">
+                <div class="mode-val">NORMAL</div>
+            </button>
+            <button class="mode-btn mode-hard" onclick="handleModeSelect('HARD', this)">
+                <div class="mode-val">HARD</div>
+            </button>
+            <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)">
+                <div class="mode-val">EXTREME</div>
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <div id="result-modal" class="modal-overlay">
+    <div id="result-card-container" class="result-card">
+      <div class="result-scroll-area">
+        <div class="res-header-row">
+            <div class="res-title">RESULT</div>
+            <div id="res-mode-label" class="res-mode-label">NORMAL</div>
+        </div>
+
+        <div class="rank-section">
+            <div class="rank-wrapper">
+                <div id="res-rank-char" class="rank-char">S</div>
+                <div class="rank-label-text" style="font-size:14px;color:#888;font-weight:900;font-style:italic;">RANK</div>
+            </div>
+
+            <div id="res-status-msg" class="res-status-msg">STAGE CLEAR</div>
+            <div id="res-unlock-wrapper" class="res-unlock-wrapper"></div>
+
+            <div id="res-msg" style="font-size:24px;font-weight:900;margin-top:5px;font-style:italic;color:var(--g-miss);"></div>
+        </div>
+
+        <div id="result-details">
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>JUDGE</th>
+                        <th style="text-align:right">COUNT</th>
+                        <th style="text-align:right">AVG(s)</th>
+                        <th style="text-align:right">SCORE</th>
+                    </tr>
+                </thead>
+                <tbody id="detail-table-body"></tbody>
+            </table>
+
+            <div class="score-row-container">
+                <div id="new-record-badge" class="badge-common new-record-badge">🏆 NEW RECORD</div>
+                <div id="res-total-box" class="total-score-box"></div>
+            </div>
+
+            <div id="miss-log" class="miss-log-container">
+                <div class="miss-title">FEEDBACK</div>
+                <div id="miss-items-row" class="miss-scroll-wrapper"></div>
+            </div>
+        </div>
+      </div>
+
+      <div class="result-footer">
+          <button id="hist-prev" class="nav-btn"><i data-lucide="chevron-left"></i></button>
+          <button class="unified-btn" onclick="resetToIdle()">ONE MORE GAME</button>
+          <button id="hist-next" class="nav-btn"><i data-lucide="chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+<script>
+    lucide.createIcons();
+
+    const CONFIG = {
+        capPerItemSec: 0.1,
+        capCh: 36000,
+        ranks: { god: 12000, z: 11520, s: 9000, a: 6000, b: 3600, c: 2400, f: 0 },
+        extremeRanks: { god: 3600, z: 1800, s: 1050, a: 720, b: 600, c: 400, f: 0 }
+    };
+
+    const RANK_ORDER = ['GOD', 'Z', 'S', 'A', 'B', 'C', 'D', 'F'];
+
+    const MODES = {
+        'EASY':   { count: 10, time: 3.0, color: 'var(--c-easy)',   type: 'STD' },
+        'NORMAL': { count: 10, time: 2.5, color: 'var(--c-normal)', type: 'STD' },
+        'HARD':   { count: 10, time: 2.5, color: 'var(--c-hard)',   type: 'STD' },
+        'EXTREME':{ count: 10, time: 5.0, color: 'var(--c-extreme)', type: 'EXT' }
+    };
+
+    const STATE = {
+        status: 'IDLE',
+        is3DMode: false,
+        isRandomMode: false,
+        randomAtPlay: false,
+        score: 0,
+        queue: [],
+        current: null,
+        currentModeKey: 'EASY',
+        rafId: null,
+        lapStartTime: 0,
+        totalPlayTime: 0,
+        currentInput: '',
+        statsDetail: { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } },
+        missedLog: [],
+        questionCount: 0,
+        generatedCount: 0,
+        isExtreme: false,
+        isInputBlocked: false,
+        saveData: {
+            ranks2D: { EASY: null, NORMAL: null, HARD: null, EXTREME: null },
+            ranks3D: { EASY: null, NORMAL: null, HARD: null, EXTREME: null },
+            bestCH: 0,
+            bestEasyCH: 0,
+            modeScores: { EASY: 0, NORMAL: 0, HARD: 0, EXTREME: 0 }
+        },
+        history: [],
+        historyIndex: 0,
+        hasPlayedOnce: false,
+
+        /* ③④ 連続回避（モード方針に合わせて使用） */
+        lastCount: null,
+        lastShapeSig: null
+    };
+
+    const UI = {
+        appWrapper: document.getElementById('app-wrapper'),
+        view1: document.getElementById('view-1'),
+        view2: document.getElementById('view-2'),
+        view3: document.getElementById('view-3'),
+        slot1: document.getElementById('slot-1'),
+        slot2: document.getElementById('slot-2'),
+        slot3: document.getElementById('slot-3'),
+        failShutter: document.getElementById('fail-shutter'),
+        victoryShutter: document.getElementById('victory-shutter'),
+        tutorialOverlay: document.getElementById('tutorial-overlay'),
+        tuteBigMsg: document.getElementById('tute-big-msg'),
+        hudModeLabel: document.getElementById('hud-mode-label'),
+        btnModeToggle: document.getElementById('btn-mode-toggle'),
+        resultModal: document.getElementById('result-modal'),
+        resultCardContainer: document.getElementById('result-card-container'), // Added
+        resRankChar: document.getElementById('res-rank-char'),
+        resMsg: document.getElementById('res-msg'),
+        resStatusMsg: document.getElementById('res-status-msg'),
+        resUnlockWrapper: document.getElementById('res-unlock-wrapper'),
+        resModeLabel: document.getElementById('res-mode-label'),
+        resTotalBox: document.getElementById('res-total-box'),
+        newRecordBadge: document.getElementById('new-record-badge'),
+        missLog: document.getElementById('miss-log'),
+        missItemsRow: document.getElementById('miss-items-row'),
+        detailTableBody: document.getElementById('detail-table-body'),
+        histPrev: document.getElementById('hist-prev'),
+        histNext: document.getElementById('hist-next'),
+        bottomUi: document.getElementById('bottom-ui-container'),
+        tuteCount: document.getElementById('tute-count'),
+        tuteInput: document.getElementById('tute-input'),
+        tuteStartBtn: document.getElementById('tute-start-btn'),
+        tuteModeSelect: document.getElementById('tute-mode-select'),
+        virtualKeyboard: document.getElementById('virtual-keyboard'),
+        timerPathL: null,
+        timerPathR: null
+    };
+
+    const KB = { keys: {} };
+
+    function getModeDisplayName(key) { return key; }
+
+    function isRankHigherOrEqual(current, target) {
+        if (!current) return false;
+        return RANK_ORDER.indexOf(current) <= RANK_ORDER.indexOf(target);
+    }
+
+    function getRankFromScore(score, modeName) {
+        let thresholds = (modeName === 'EXTREME') ? CONFIG.extremeRanks : CONFIG.ranks;
+        if(score >= thresholds.god) return 'GOD';
+        if(score >= thresholds.z) return 'Z';
+        if(score >= thresholds.s) return 'S';
+        if(score >= thresholds.a) return 'A';
+        if(score >= thresholds.b) return 'B';
+        if(score >= thresholds.c) return 'C';
+        return 'D';
+    }
+
+    /* ② タイマーSVG安定化：getTotalLength() を使う前提の署名 */
+    function setupSlotTimerSVG() {
+        const container = UI.slot1;
+        const existing = container.querySelector('.slot-timer-svg');
+        if(existing) existing.remove();
+
+        const w = container.offsetWidth;
+        const h = container.offsetHeight;
+
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("class", "slot-timer-svg");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+        svg.style.position = 'absolute';
+        svg.style.left = '0';
+        svg.style.top = '0';
+
+        const cx = w / 2;
+
+        const pathStrL = `M ${cx} ${h} L 0 ${h} L 0 0 L ${cx} 0`;
+        const pathStrR = `M ${cx} ${h} L ${w} ${h} L ${w} 0 L ${cx} 0`;
+
+        const pathL = document.createElementNS(ns, "path");
+        pathL.setAttribute("d", pathStrL);
+        pathL.setAttribute("class", "timer-path");
+        pathL.style.strokeWidth = "7px";
+
+        const pathR = document.createElementNS(ns, "path");
+        pathR.setAttribute("d", pathStrR);
+        pathR.setAttribute("class", "timer-path");
+        pathR.style.strokeWidth = "7px";
+
+        svg.appendChild(pathL);
+        svg.appendChild(pathR);
+        container.appendChild(svg);
+
+        UI.timerPathL = pathL;
+        UI.timerPathR = pathR;
+
+        // ★安定化対応：ここで全長を取得してセットする
+        const lenL = pathL.getTotalLength();
+        const lenR = pathR.getTotalLength();
+
+        pathL.style.strokeDasharray = lenL;
+        pathL.style.strokeDashoffset = 0;
+        pathR.style.strokeDasharray = lenR;
+        pathR.style.strokeDashoffset = 0;
+    }
+
+    function updateTimerSVG(pct, color) {
+        if (!UI.timerPathL || !UI.timerPathR) return;
+
+        // ★安定化対応：毎回TotalLengthを取り直して計算（サイズ変更時にも強い）
+        const totalLenL = UI.timerPathL.getTotalLength();
+        const totalLenR = UI.timerPathR.getTotalLength();
+
+        const offsetL = totalLenL * (1 - pct);
+        const offsetR = totalLenR * (1 - pct);
+
+        UI.timerPathL.style.strokeDashoffset = offsetL;
+        UI.timerPathR.style.strokeDashoffset = offsetR;
+
+        UI.timerPathL.style.stroke = color;
+        UI.timerPathR.style.stroke = color;
+    }
+
+    function resetTimerVisuals() {
+        if (!UI.timerPathL || !UI.timerPathR) return;
+        UI.timerPathL.style.transition = 'none';
+        UI.timerPathR.style.transition = 'none';
+
+        UI.timerPathL.style.strokeDashoffset = 0;
+        UI.timerPathR.style.strokeDashoffset = 0;
+
+        void UI.timerPathL.offsetWidth;
+
+        UI.timerPathL.style.transition = 'stroke 0.1s linear';
+        UI.timerPathR.style.transition = 'stroke 0.1s linear';
+    }
+
+    function updateThemeClass() {
+        UI.appWrapper.classList.remove('theme-easy','theme-normal','theme-hard','theme-extreme');
+        const key = STATE.currentModeKey;
+        if (key === 'EASY') UI.appWrapper.classList.add('theme-easy');
+        else if (key === 'NORMAL') UI.appWrapper.classList.add('theme-normal');
+        else if (key === 'HARD') UI.appWrapper.classList.add('theme-hard');
+        else if (key === 'EXTREME') UI.appWrapper.classList.add('theme-extreme');
+    }
+
+    window.onload = () => {
+        ['1','2','3','4','5','6','7','8','9','0','DEL'].forEach(k => {
+            KB.keys[k] = document.querySelector(`.kb-key[data-key="${k}"]`);
+        });
+
+        resetToIdle();
+
+        UI.histPrev.addEventListener('click', () => changeHistory(-1));
+        UI.histNext.addEventListener('click', () => changeHistory(1));
+
+        if (UI.tuteStartBtn) {
+            UI.tuteStartBtn.addEventListener('click', handleTapToStart);
+        }
+
+        const keys = document.querySelectorAll('.kb-key');
+        keys.forEach(k => {
+            if(!k.dataset.key) return;
+            k.addEventListener('touchstart', (e) => { e.preventDefault(); triggerKey(k); }, {passive: false});
+            k.addEventListener('mousedown', (e) => { e.preventDefault(); triggerKey(k); });
+            const clearState = () => k.classList.remove('active-state');
+            k.addEventListener('touchend', clearState);
+            k.addEventListener('mouseup', clearState);
+            k.addEventListener('mouseleave', clearState);
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if(e.repeat) return;
+
+            if ((e.key === '.' || e.code === 'NumpadDecimal') && STATE.status === 'IDLE') {
+                e.preventDefault();
+                toggleDimensionMode();
+                return;
+            }
+
+            if (STATE.isInputBlocked) {
+                if(STATE.status === 'GAMEOVER' && e.key === 'Enter') resetToIdle();
+                return;
+            }
+
+            if(STATE.status === 'PLAYING') {
+                const mode = MODES[STATE.currentModeKey];
+                if (mode.type === 'EXT') {
+                    if (e.key >= '0' && e.key <= '9') {
+                        animateKey(e.key); processInputExtreme(e.key);
+                    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                        animateKey('DEL'); processInputExtreme('DEL');
+                    }
+                } else {
+                    if(e.key >= '1' && e.key <= '9') {
+                        animateKey(e.key); processInput(parseInt(e.key, 10));
+                    }
+                }
+            } else if(STATE.status === 'IDLE') {
+                if(e.key === 'Enter') handleModeSelect(STATE.currentModeKey);
+                if(e.key === '1') handleModeSelect('EASY');
+                if(e.key === '2') handleModeSelect('NORMAL');
+                if(e.key === '3') handleModeSelect('HARD');
+                if(e.key === '4') handleModeSelect('EXTREME');
+            } else if(STATE.status === 'GAMEOVER') {
+                if(e.key === 'Enter') resetToIdle();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+             if (STATE.status === 'PLAYING') setupSlotTimerSVG();
+        });
+
+        updateModeButtons(STATE.currentModeKey);
+    };
+
+    function animateKey(kVal) {
+        const btn = KB.keys[kVal];
+        if(btn && !btn.classList.contains('disabled')) {
+            btn.classList.add('active-state');
+            triggerRipple(btn);
+            setTimeout(() => btn.classList.remove('active-state'), 100);
+        }
+    }
+
+    function updateKeyboardLayoutForMode() {
+        const mode = MODES[STATE.currentModeKey];
+        if (mode.type === 'EXT') {
+            if(KB.keys['0']) KB.keys['0'].classList.remove('disabled');
+            if(KB.keys['DEL']) KB.keys['DEL'].classList.remove('disabled');
+        } else {
+            if(KB.keys['0']) KB.keys['0'].classList.add('disabled');
+            if(KB.keys['DEL']) KB.keys['DEL'].classList.add('disabled');
+        }
+    }
+
+    function triggerKey(k) {
+        if (STATE.isInputBlocked || k.classList.contains('disabled')) return;
+        k.classList.add('active-state');
+        triggerRipple(k);
+
+        if(STATE.status === 'PLAYING') {
+            const valStr = k.dataset.key;
+            const mode = MODES[STATE.currentModeKey];
+            if (mode.type === 'EXT') processInputExtreme(valStr);
+            else {
+                let val = parseInt(valStr, 10);
+                if (!Number.isNaN(val)) processInput(val);
+            }
+        }
+    }
+
+    function handleTapToStart() {
+        if (STATE.status !== 'IDLE') return;
+        if (STATE.isInputBlocked) return;
+        if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
+        if (UI.tuteModeSelect) {
+            UI.tuteModeSelect.style.display = 'flex';
+            checkUnlocks();
+        }
+    }
+
+    function toggleDimensionMode() {
+        if (STATE.status !== 'IDLE') return;
+        if (STATE.isInputBlocked) return;
+        STATE.isRandomMode = !STATE.isRandomMode;
+        updateToggleButtonText();
+        resetToIdle();
+    }
+
+    function updateToggleButtonText() {
+        if(STATE.isRandomMode) {
+            UI.btnModeToggle.classList.add('random-on');
+            UI.btnModeToggle.innerHTML = `<span class="check">☑</span><span class="label">RANDOM</span>`;
+        } else {
+            UI.btnModeToggle.classList.remove('random-on');
+            UI.btnModeToggle.innerHTML = `<span class="check">☐</span><span class="label">RANDOM</span>`;
+        }
+    }
+
+    function resetToIdle() {
+        STATE.status = 'IDLE';
+        STATE.isInputBlocked = false;
+
+        UI.appWrapper.classList.remove('showing-result');
+
+        STATE.isExtreme = (STATE.currentModeKey === 'EXTREME');
+        updateThemeClass();
+
+        UI.resultModal.classList.remove('show');
+        UI.virtualKeyboard.style.visibility = 'visible';
+
+        const oldSvg = UI.slot1.querySelector('.slot-timer-svg');
+        if(oldSvg) oldSvg.remove();
+
+        UI.slot1.style.border = '4px solid rgba(255,255,255,0.1)';
+        UI.slot1.style.borderBottom = 'none';
+
+        UI.failShutter.classList.remove('active');
+        UI.failShutter.style.display = 'flex';
+
+        UI.victoryShutter.classList.remove('active');
+        UI.victoryShutter.style.transition = 'none';
+        UI.victoryShutter.style.height = '0%';
+        void UI.victoryShutter.offsetHeight;
+        setTimeout(() => {
+            UI.victoryShutter.style.transition = 'height 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        }, 50);
+
+        UI.tutorialOverlay.classList.add('active');
+        UI.hudModeLabel.classList.remove('show');
+
+        const evals = document.querySelectorAll('.eval-effect');
+        evals.forEach(e => e.remove());
+
+        updateToggleButtonText();
+        UI.btnModeToggle.classList.remove('disabled');
+
+        UI.view1.innerHTML = ''; UI.view2.innerHTML = ''; UI.view3.innerHTML = '';
+
+        checkUnlocks();
+        document.querySelectorAll('.mode-btn').forEach(b => {
+            b.style.transform = 'skewX(-15deg)';
+            setTimeout(() => { b.style.transform = ''; }, 50);
+        });
+        updateModeButtons(STATE.currentModeKey);
+        UI.bottomUi.classList.remove('bottom-ui-dimmed');
+
+        UI.tuteBigMsg.style.display = 'none';
+        UI.tuteBigMsg.classList.remove('pop');
+
+        if (!STATE.hasPlayedOnce) {
+            if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'inline-flex';
+            if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
+        } else {
+            if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
+            if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'flex';
+        }
+
+        updateKeyboardLayoutForMode();
+    }
+
+    function currentRanksStore() { return STATE.saveData.ranks2D; }
+
+    function checkUnlocks() {
+        const ranks = currentRanksStore();
+        const easyRank   = ranks['EASY'];
+        const normalRank = ranks['NORMAL'];
+        const hardRank   = ranks['HARD'];
+        const bestEasyCH = STATE.saveData.bestEasyCH || 0;
+
+        const isNormalLocked = !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
+        const isHardLocked   = !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
+        const isExtremeLocked= !(bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
+
+        const setLock = (sel, locked) => {
+            document.querySelectorAll(sel).forEach(btn => {
+                if(locked) btn.classList.add('locked');
+                else btn.classList.remove('locked');
+            });
+        };
+
+        setLock('.mode-easy', false);
+        setLock('.mode-normal', isNormalLocked);
+        setLock('.mode-hard', isHardLocked);
+        setLock('.mode-extreme', isExtremeLocked);
+    }
+
+    function isModeLocked(modeKey) {
+        const ranks = currentRanksStore();
+        const easyRank   = ranks['EASY'];
+        const normalRank = ranks['NORMAL'];
+        const hardRank   = ranks['HARD'];
+        const bestEasyCH = STATE.saveData.bestEasyCH || 0;
+
+        if (modeKey === 'EASY') return false;
+        if (modeKey === 'NORMAL') return !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
+        if (modeKey === 'HARD') return !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
+        if (modeKey === 'EXTREME') return !(bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
+        return true;
+    }
+
+    function handleModeSelect(modeKey, btnEl) {
+        if(STATE.status !== 'IDLE') return;
+        if(STATE.isInputBlocked) return;
+        if (isModeLocked(modeKey)) return;
+
+        if (btnEl) triggerRipple(btnEl);
+
+        STATE.currentModeKey = modeKey;
+        STATE.isExtreme = (modeKey === 'EXTREME');
+        updateThemeClass();
+
+        updateModeButtons(modeKey);
+        startCountdown();
+    }
+
+    function updateModeButtons(activeKey) {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.remove('active-mode');
+            if (btn.classList.contains('mode-easy') && activeKey === 'EASY') btn.classList.add('active-mode');
+            if (btn.classList.contains('mode-normal') && activeKey === 'NORMAL') btn.classList.add('active-mode');
+            if (btn.classList.contains('mode-hard') && activeKey === 'HARD') btn.classList.add('active-mode');
+            if (btn.classList.contains('mode-extreme') && activeKey === 'EXTREME') btn.classList.add('active-mode');
+        });
+    }
+
+    function startCountdown() {
+        STATE.status = 'COUNTDOWN';
+        STATE.isInputBlocked = true;
+        STATE.hasPlayedOnce = true;
+
+        UI.btnModeToggle.classList.add('disabled');
+        UI.bottomUi.classList.add('bottom-ui-dimmed');
+
+        const seq = ['READY', '3', '2', '1'];
+        let idx = 0;
+        UI.tuteBigMsg.style.display = 'block';
+        UI.tuteBigMsg.innerText = seq[0];
+        UI.tuteBigMsg.classList.add('pop');
+
+        if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
+        if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
+
+        const mode = MODES[STATE.currentModeKey];
+
+        UI.hudModeLabel.innerText = `${STATE.currentModeKey}${STATE.isRandomMode ? ' [R]' : ''}`;
+        UI.hudModeLabel.style.borderColor = mode.color;
+        UI.hudModeLabel.style.color = mode.color;
+        UI.hudModeLabel.classList.add('show');
+
+        const timer = setInterval(() => {
+            idx++;
+            UI.tuteBigMsg.classList.remove('pop');
+            void UI.tuteBigMsg.offsetWidth;
+
+            if(idx < seq.length) {
+                UI.tuteBigMsg.innerText = seq[idx];
+                UI.tuteBigMsg.classList.add('pop');
+            } else {
+                clearInterval(timer);
+                UI.tutorialOverlay.classList.remove('active');
+                UI.tuteBigMsg.style.display = 'none';
+                startGame();
+            }
+        }, 600);
+    }
+
+    function startGame() {
+        STATE.status = 'PLAYING';
+        STATE.isInputBlocked = false;
+        STATE.score = 0;
+        STATE.questionCount = 0;
+        STATE.generatedCount = 0;
+        STATE.totalPlayTime = 0;
+        STATE.missedLog = [];
+        STATE.queue = [];
+        STATE.currentInput = '';
+        STATE.statsDetail = { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } };
+        STATE.randomAtPlay = STATE.isRandomMode;
+
+        /* ③④：連続回避の直前情報をリセット */
+        STATE.lastCount = null;
+        STATE.lastShapeSig = null;
+
+        UI.slot1.style.border = 'none';
+        setupSlotTimerSVG();
+
+        addQueueItem(); addQueueItem(); addQueueItem();
+        STATE.current = STATE.queue.shift();
+        renderQueue();
+
+        resetTimerVisuals();
+
+        STATE.lapStartTime = Date.now();
+        if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
+        updateKeyboardLayoutForMode();
+        gameLoop();
+    }
+
+    function gameLoop() {
+        if(STATE.status !== 'PLAYING') return;
+
+        const now = Date.now();
+        const mode = MODES[STATE.currentModeKey];
+        const currentLap = (now - STATE.lapStartTime) / 1000;
+
+        if(currentLap > mode.time) {
+            handleMiss("TIME", "-", STATE.current.count);
+            return;
+        }
+
+        const maxTime = mode.time;
+        const pct = Math.max(0, 1 - (currentLap / maxTime));
+
+        let colorCode = '#a0a0a0';
+        if (mode.type === 'EXT') {
+             if (currentLap <= 2.0) colorCode = '#fff700';
+             else if (currentLap <= 3.5) colorCode = '#00ffff';
+             else if (currentLap <= 5.0) colorCode = '#00ff33';
+             else colorCode = '#ff0000';
+        } else {
+             if (currentLap <= 0.4) colorCode = '#fff700';
+             else if (currentLap <= 1.0) colorCode = '#00ffff';
+             else if (currentLap <= 1.5) colorCode = '#00ff33';
+             else if (currentLap <= 2.0) colorCode = '#ffcc00';
+             else colorCode = '#a0a0a0';
+        }
+
+        updateTimerSVG(pct, colorCode);
+        STATE.rafId = requestAnimationFrame(gameLoop);
+    }
+
+    function processInput(val) {
+        if(!STATE.current || STATE.isInputBlocked) return;
+        checkAnswer(val);
+    }
+
+    function processInputExtreme(key) {
+        if(!STATE.current || STATE.isInputBlocked) return;
+        if (key === 'DEL') {
+            STATE.currentInput = STATE.currentInput.slice(0, -1);
+            return;
+        }
+        if (STATE.currentInput.length < 2) STATE.currentInput += key;
+        if (STATE.currentInput.length === 2) {
+            const val = parseInt(STATE.currentInput, 10);
+            checkAnswer(val);
+            STATE.currentInput = '';
+        }
+    }
+
+    function checkAnswer(val) {
+        const now = Date.now();
+        let delta = (now - STATE.lapStartTime) / 1000;
+
+        if(val === STATE.current.count) {
+            const effectiveTime = Math.max(delta, CONFIG.capPerItemSec);
+            STATE.totalPlayTime += effectiveTime;
+
+            let gradeKey = "ok";
+            let gradeLabel = "OK";
+            const modeName = STATE.currentModeKey;
+
+            if (modeName === 'EXTREME') {
+                if (delta <= 2.0) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
+                else if (delta <= 3.5) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
+                else if (delta <= 5.0) { gradeKey = "great"; gradeLabel = "GREAT"; }
+                else { gradeKey = "good"; gradeLabel = "GOOD"; }
+            } else {
+                if (delta <= 0.4) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
+                else if (delta <= 1.0) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
+                else if (delta <= 1.5) { gradeKey = "great"; gradeLabel = "GREAT"; }
+                else if (delta <= 2.0) { gradeKey = "good"; gradeLabel = "GOOD"; }
+            }
+
+            STATE.statsDetail[gradeKey].count++;
+            STATE.statsDetail[gradeKey].time += effectiveTime;
+
+            triggerEvalEffect(gradeLabel);
+            flashSlot(gradeLabel);
+
+            const mode = MODES[STATE.currentModeKey];
+            if(STATE.questionCount >= mode.count - 1) {
+                UI.view1.innerHTML = '';
+                gameOver("FINISHED");
+            } else {
+                nextQuestion();
+            }
+
+        } else {
+            handleMiss("TYPE", val, STATE.current.count);
+        }
+    }
+
+    function flashSlot(grade) {
+        const container = UI.slot1;
+        const old = container.querySelector('.slot-flash-overlay');
+        if(old) old.remove();
+
+        const el = document.createElement('div');
+        el.className = 'slot-flash-overlay';
+
+        let cls = 'flash-ok';
+        if(grade==='MARVELOUS') cls='flash-exc';
+        else if(grade==='EXCELLENT') cls='flash-perf';
+        else if(grade==='GREAT') cls='flash-grt';
+        else if(grade==='GOOD') cls='flash-good';
+        else if(grade==='MISS') cls='flash-miss';
+
+        container.classList.remove('flash-exc','flash-perf','flash-grt','flash-good','flash-ok','flash-miss');
+        container.classList.add(cls);
+        container.appendChild(el);
+    }
+
+    function handleMiss(reason, input, answer) {
+        let shapeCopy = STATE.is3DMode ? STATE.current.shape.map(r => [...r]) : [...STATE.current.shape];
+        let layoutCopy = STATE.current.shape._rndPositions
+            ? STATE.current.shape._rndPositions.map(p => ({ x: p.x, y: p.y }))
+            : null;
+
+        STATE.missedLog.push({
+            input: input,
+            answer: answer,
+            shape: shapeCopy,
+            layout: layoutCopy,
+            mode: STATE.currentModeKey,     // ★⑤に必要
+            is3D: STATE.is3DMode,
+            isRandom: STATE.randomAtPlay
+        });
+        STATE.totalPlayTime += (Date.now() - STATE.lapStartTime) / 1000;
+        if (reason === "TIME") gameOver("TIME OVER");
+        else {
+            flashSlot("MISS");
+            gameOver("NICE TRY");
+        }
+    }
+
+    function nextQuestion() {
+        STATE.questionCount++;
+        if(STATE.queue.length < 3) addQueueItem();
+        STATE.current = STATE.queue.shift();
+        renderQueue();
+
+        resetTimerVisuals();
+
+        STATE.lapStartTime = Date.now();
+        STATE.currentInput = '';
+    }
+
+    function triggerEvalEffect(text) {
+        document.querySelectorAll('.eval-effect').forEach(e => e.remove());
+        const el = document.createElement('div');
+        el.className = 'eval-effect';
+        el.innerText = text;
+
+        let color = "#fff";
+        if(text === "MARVELOUS") color = "var(--g-exc)";
+        else if(text === "EXCELLENT") color = "var(--g-perf)";
+        else if(text === "GREAT") color = "var(--g-grt)";
+        else if(text === "GOOD") color = "var(--g-good)";
+
+        el.style.color = color;
+        el.style.webkitTextStroke = "3px #000";
+
+        document.body.appendChild(el);
+        setTimeout(() => { if(el && el.parentNode) el.parentNode.removeChild(el); }, 1000);
+    }
+
+    /* ④：形比較用の署名（random配置でも形を鍛えるので座標ではなく形） */
+    function shapeSignature(shapeData, is3D) {
+        try {
+            if (!shapeData) return 'null';
+            if (is3D && Array.isArray(shapeData[0])) {
+                return '3D:' + shapeData.map(row => row.join(',')).join('|');
+            }
+            if (Array.isArray(shapeData)) {
+                return '2D:' + shapeData.join(',');
+            }
+            return 'u';
+        } catch(e) {
+            return 'err';
+        }
+    }
+
+    /* ③④：EASYはcount連続禁止 / NORMAL以上はshape連続禁止 */
+    function addQueueItem() {
+        const modeKey = STATE.currentModeKey;
+        const mode = MODES[modeKey];
+        if(STATE.generatedCount >= mode.count) {
+            STATE.queue.push({ count: null, shape: [] });
+            return;
+        }
+
+        let n;
+
+        // ★連続回避のためのリトライループ
+        const maxAttempts = 20;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            
+            // 抽選ロジック
+            if (modeKey === 'EASY') {
+                const r = Math.random() * 100;
+                if (r < 28) n = 2;
+                else if (r < 56) n = 3;
+                else if (r < 85) n = 4;
+                else n = 5;
+            }
+            else if (modeKey === 'NORMAL') {
+                const r = Math.random() * 100;
+                if (r < 15) n = 1 + Math.floor(Math.random() * 3);
+                else if (r > 90) n = 8 + Math.floor(Math.random() * 2);
+                else n = 4 + Math.floor(Math.random() * 4);
+            }
+            else if (modeKey === 'HARD') {
+                const r = Math.random() * 100;
+                if (r < 3) n = 2; else if (r < 8) n = 3; else n = 4 + Math.floor(Math.random() * 6);
+            }
+            else if (modeKey === 'EXTREME') {
+                const q = STATE.generatedCount + 1;
+                let min, max;
+                if (q === 1) { min=10; max=13; }
+                else if (q <= 3) { min=14; max=20; }
+                else if (q <= 5) { min=21; max=27; }
+                else if (q <= 7) { min=28; max=32; }
+                else if (q <= 9) { min=33; max=37; }
+                else { min=38; max=42; }
+                n = Math.floor(min + Math.random() * (max - min + 1));
+            }
+
+            let maxH = 6;
+            if(modeKey === 'EASY') maxH = 3;
+            else if(modeKey === 'NORMAL') maxH = 5;
+            else if(modeKey === 'HARD') maxH = 7;
+            else if(modeKey === 'EXTREME') maxH = 9;
+
+            let shapeData, trueCount, sig;
+            if (STATE.is3DMode) {
+                shapeData = generateStadium3D_Strict(n, (modeKey === 'EXTREME' ? 9 : 3), maxH);
+            } else {
+                shapeData = generateShape2D_Connected(n, (modeKey === 'EXTREME' ? 9 : 3), maxH);
+            }
+
+            trueCount = 0;
+            if (STATE.is3DMode) shapeData.forEach(r => r.forEach(h => trueCount += h));
+            else shapeData.forEach(h => trueCount += h);
+            if(trueCount === 0 && n > 0) trueCount = 1;
+
+            sig = shapeSignature(shapeData, STATE.is3DMode);
+
+            // ③ EASY: 同じ「数」の連続禁止
+            const avoidSameCount = (modeKey === 'EASY');
+            const isSameCount = (STATE.lastCount !== null && trueCount === STATE.lastCount);
+
+            // ④ NORMAL以上: 同じ「形状」の連続禁止
+            const avoidSameShape = (modeKey !== 'EASY');
+            const isSameShape = (STATE.lastShapeSig !== null && sig === STATE.lastShapeSig);
+
+            // 条件に引っかかったら再抽選 (continue)
+            if (avoidSameCount && isSameCount) continue;
+            if (avoidSameShape && isSameShape) continue;
+
+            // 問題なければループを抜けて採用
+            STATE.lastCount = trueCount;
+            STATE.lastShapeSig = sig;
+            STATE.queue.push({ count: trueCount, shape: shapeData });
+            break;
+        }
+
+        STATE.generatedCount++;
+    }
+
+    function generateShape2D_Connected(n, cols, maxHeight) {
+        const arr = new Array(cols).fill(0);
+        let currentIdx = Math.floor(cols / 2);
+        arr[currentIdx]++;
+        let placed = 1;
+
+        while(placed < n) {
+            let candidates = [];
+            for(let i=0; i<cols; i++) {
+                let isAdj = false;
+                if(arr[i] > 0) isAdj = true;
+                if(i > 0 && arr[i-1] > 0) isAdj = true;
+                if(i < cols-1 && arr[i+1] > 0) isAdj = true;
+                if(isAdj && arr[i] < maxHeight) candidates.push(i);
+            }
+            if(candidates.length === 0) break;
+            const pick = candidates[Math.floor(Math.random() * candidates.length)];
+            arr[pick]++;
+            placed++;
+        }
+        return arr;
+    }
+
+    function generateStadium3D_Strict(n, size, maxHeight) {
+        const grid = Array(size).fill(0).map(() => Array(size).fill(0));
+        let placed = 0;
+        while(placed < n) {
+            let candidates = [];
+            for(let x=0; x<size; x++) {
+                for(let z=0; z<size; z++) {
+                    const h = grid[x][z];
+                    if (h >= maxHeight) continue;
+                    let canRaise = true;
+                    if (x < size-1 && (h + 1) > grid[x+1][z]) canRaise = false;
+                    if (z < size-1 && (h + 1) > grid[x][z+1]) canRaise = false;
+                    if (canRaise) candidates.push({x, z});
+                }
+            }
+            if (candidates.length === 0) break;
+            const pick = candidates[Math.floor(Math.random() * candidates.length)];
+            grid[pick.x][pick.z]++;
+            placed++;
+        }
+        return grid;
+    }
+
+    function renderQueue() {
+        renderShape(UI.view1, STATE.current ? STATE.current.shape : [], STATE.is3DMode, STATE.randomAtPlay, STATE.currentModeKey);
+        renderShape(UI.view2, STATE.queue[0] ? STATE.queue[0].shape : [], STATE.is3DMode, STATE.randomAtPlay, STATE.currentModeKey);
+        renderShape(UI.view3, STATE.queue[1] ? STATE.queue[1].shape : [], STATE.is3DMode, STATE.randomAtPlay, STATE.currentModeKey);
+    }
+
+    /* ★⑤対応：modeKeyOverrideで「過去記録のモード色」を反映できる */
+    function renderShape(el, shapeData, is3D, useRandom, modeKeyOverride) {
+        el.innerHTML = '';
+        if(!shapeData) return;
+
+        const mk = modeKeyOverride || STATE.currentModeKey;
+        const modeClass = 'mode-' + mk.toLowerCase();
+        const randomMode = (useRandom !== undefined) ? useRandom : STATE.isRandomMode;
+
+        if(is3D) {
+            if(!Array.isArray(shapeData[0])) { render2D(el, shapeData, modeClass, randomMode); return; }
+            render3D(el, shapeData, modeClass);
+        } else {
+            if(shapeData.length > 0 && Array.isArray(shapeData[0])) {
+                let flat = [];
+                shapeData.forEach(r => r.forEach(h => { if(h>0) flat.push(h); }));
+                render2D(el, flat, modeClass, randomMode);
+            } else {
+                render2D(el, shapeData, modeClass, randomMode);
+            }
+        }
+    }
+
+    function render2D(el, arr, modeClass, randomMode) {
+        let totalBlocks = 0;
+        if(Array.isArray(arr)) totalBlocks = arr.reduce((sum, h) => sum + h, 0);
+        if (totalBlocks <= 0) return;
+
+        if (randomMode) {
+            const container = document.createElement('div');
+            container.className = 'cluster-container random-layout';
+            el.appendChild(container);
+
+            let positions = arr._rndPositions;
+
+            if (!positions || positions.length !== totalBlocks) {
+                positions = [];
+                const used = [];
+
+                const rect = el.getBoundingClientRect();
+                const containerW = rect.width || window.innerWidth;
+                const containerH = rect.height || (window.innerHeight * 0.5);
+                const blockS = 27;
+
+                const topBandPct = 28;
+                const bottomBandPct = 8;
+                const sideMarginPct = 6;
+
+                for (let i = 0; i < totalBlocks; i++) {
+                    let bestCandidate = null;
+
+                    for(let attempt=0; attempt<2000; attempt++) {
+                         const xp = sideMarginPct + Math.random() * (100 - sideMarginPct*2);
+                         const yp = topBandPct + Math.random() * (100 - topBandPct - bottomBandPct);
+
+                         const xPx = (xp / 100) * containerW;
+                         const yPx = (yp / 100) * containerH;
+
+                         const l1 = xPx - blockS/2;
+                         const t1 = yPx - blockS/2;
+                         const r1 = l1 + blockS;
+                         const b1 = t1 + blockS;
+
+                         let isStrictlyOverlapping = false;
+                         for(let u of used) {
+                             const l2 = u.px.l, t2 = u.px.t, r2 = u.px.r, b2 = u.px.b;
+                             if (!(r1 <= l2 || l1 >= r2 || b1 <= t2 || t1 >= b2)) {
+                                 isStrictlyOverlapping = true;
+                                 break;
+                             }
+                         }
+
+                         if (!isStrictlyOverlapping) {
+                             bestCandidate = {
+                                 pct: {x: xp, y: yp},
+                                 px: {l: l1, t: t1, r: r1, b: b1}
+                             };
+                             break;
+                         }
+                    }
+
+                    if (!bestCandidate) {
+                         const xp = sideMarginPct + Math.random() * (100 - sideMarginPct*2);
+                         const yp = topBandPct + Math.random() * (100 - topBandPct - bottomBandPct);
+                         bestCandidate = { pct: {x: xp, y: yp}, px: {l:0, t:0, r:0, b:0} };
+                    }
+
+                    used.push(bestCandidate);
+                    positions.push(bestCandidate.pct);
+                }
+                arr._rndPositions = positions;
+            }
+
+            positions.forEach(p => {
+                const b = document.createElement('div');
+                b.className = 'block ' + modeClass + ' block-random';
+                b.style.left = p.x + '%';
+                b.style.top  = p.y + '%';
+                b.style.transform = 'translate(-50%, -50%)';
+                container.appendChild(b);
+            });
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'cluster-container';
+        arr.forEach(h => {
+            if(h === 0) return;
+            const col = document.createElement('div'); col.className = 'block-column';
+            for(let i=0; i<h; i++) {
+                const b = document.createElement('div'); b.className = 'block ' + modeClass;
+                col.appendChild(b);
+            }
+            container.appendChild(col);
+        });
+        el.appendChild(container);
+    }
+
+    function render3D(el, grid, modeClass) {
+        const container = document.createElement('div'); container.className = 'cluster-container real-3d';
+        const style = getComputedStyle(document.body);
+        const blockSize = parseInt(style.getPropertyValue('--block-size-3d'));
+        const gridSize = grid.length;
+        const offset = (gridSize * blockSize) / 2 - (blockSize / 2);
+
+        let cubes = [];
+        grid.forEach((row, xIdx) => {
+            row.forEach((height, zIdx) => {
+                if(height === 0) return;
+                for(let y=0; y<height; y++) {
+                    const tx = (xIdx * blockSize) - offset;
+                    const tz = (zIdx * blockSize) - offset;
+                    const ty = y * blockSize;
+
+                    cubes.push({
+                        html: createCubeHTML(modeClass, tx, ty, tz),
+                        sortKey: (xIdx - zIdx)
+                    });
+                }
+            });
+        });
+        cubes.sort((a, b) => a.sortKey - b.sortKey);
+        cubes.forEach(c => container.appendChild(c.html));
+        el.appendChild(container);
+    }
+
+    function createCubeHTML(modeClass, tx, ty, tz) {
+        const cube = document.createElement('div');
+        cube.className = 'cube ' + modeClass;
+        cube.style.transform = `translateX(${tx}px) translateY(${-ty}px) translateZ(${tz}px)`;
+        ['front','back','left','right','top','bottom'].forEach(face => {
+            const f = document.createElement('div'); f.className = 'face face-' + face;
+            cube.appendChild(f);
+        });
+        return cube;
+    }
+
+    function triggerRipple(el) {
+        if (!el) return;
+        el.classList.remove('ripple');
+        void el.offsetWidth;
+        el.classList.add('ripple');
+        setTimeout(() => el.classList.remove('ripple'), 350);
+    }
+
+    function gameOver(reason) {
+        if(STATE.status === 'GAMEOVER') return;
+        STATE.status = 'GAMEOVER';
+        STATE.isInputBlocked = true;
+
+        if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
+        document.querySelectorAll('.kb-key').forEach(k => k.classList.remove('active-state'));
+
+        if(reason === "FINISHED") UI.victoryShutter.classList.add('active');
+        else UI.failShutter.classList.add('active');
+
+        const answeredCount = (reason === 'FINISHED') ? MODES[STATE.currentModeKey].count : STATE.questionCount;
+        const totalSec = Math.max(0.1, STATE.totalPlayTime);
+        let ch = Math.floor((answeredCount / totalSec) * 3600);
+        if(ch > CONFIG.capCh) ch = CONFIG.capCh;
+
+        const resultData = {
+            modeName: STATE.currentModeKey,
+            is3D: STATE.is3DMode,
+            isRandom: STATE.randomAtPlay,
+            score: ch,
+            totalTime: totalSec.toFixed(2),
+            count: answeredCount,
+            reason: reason,
+            missedLog: [...STATE.missedLog],
+            statsDetail: JSON.parse(JSON.stringify(STATE.statsDetail)),
+            isNewRecord: false,
+            unlockEvent: null,
+            rank: 'F'
+        };
+
+        const wasNormalLocked = isModeLocked('NORMAL');
+        const wasHardLocked   = isModeLocked('HARD');
+        const wasExtremeLocked= isModeLocked('EXTREME');
+
+        if (reason === "FINISHED") {
+            resultData.rank = getRankFromScore(ch, STATE.currentModeKey);
+
+            const rankStore = currentRanksStore();
+            const currentSavedRank = rankStore[STATE.currentModeKey];
+            const newRankIdx = RANK_ORDER.indexOf(resultData.rank);
+            const oldRankIdx = currentSavedRank ? RANK_ORDER.indexOf(currentSavedRank) : 99;
+            if (newRankIdx < oldRankIdx) rankStore[STATE.currentModeKey] = resultData.rank;
+
+            const previousBestModeScore = STATE.saveData.modeScores[STATE.currentModeKey] || 0;
+            const previousBestEasyCH = STATE.saveData.bestEasyCH || 0;
+
+            if (ch > previousBestModeScore) { STATE.saveData.modeScores[STATE.currentModeKey] = ch; resultData.isNewRecord = true; }
+            if (STATE.currentModeKey === 'EASY' && ch > previousBestEasyCH) STATE.saveData.bestEasyCH = ch;
+            if (ch > (STATE.saveData.bestCH || 0)) STATE.saveData.bestCH = ch;
+
+            const nowNormalLocked = isModeLocked('NORMAL');
+            const nowHardLocked   = isModeLocked('HARD');
+            const nowExtremeLocked= isModeLocked('EXTREME');
+
+            if (wasExtremeLocked && !nowExtremeLocked) resultData.unlockEvent = 'EXTREME';
+            else if (wasHardLocked && !nowHardLocked) resultData.unlockEvent = 'HARD';
+            else if (wasNormalLocked && !nowNormalLocked) resultData.unlockEvent = 'NORMAL';
+        }
+
+        STATE.history.push(resultData);
+        STATE.historyIndex = STATE.history.length - 1;
+
+        setTimeout(() => { showHistoryResult(STATE.historyIndex); }, 1000);
+    }
+
+    function changeHistory(delta) {
+        const newIdx = STATE.historyIndex + delta;
+        if(newIdx >= 0 && newIdx < STATE.history.length) {
+            STATE.historyIndex = newIdx;
+            showHistoryResult(newIdx);
+        }
+    }
+
+    /* ① 次ランクまで表示：NEXT <RANK>: +xxxx ch */
+    function computeNextRankLine(data) {
+        if (data.reason !== 'FINISHED') return '';
+        const idx = RANK_ORDER.indexOf(data.rank);
+        if (idx <= 0) return `<div class="next-rank-line">MAX RANK</div>`; // GOD
+
+        const nextRank = RANK_ORDER[idx - 1];
+        const thresholds = (data.modeName === 'EXTREME') ? CONFIG.extremeRanks : CONFIG.ranks;
+
+        const map = { GOD:'god', Z:'z', S:'s', A:'a', B:'b', C:'c', D:'f', F:'f' };
+        const key = map[nextRank];
+        const target = (thresholds && key in thresholds) ? thresholds[key] : null;
+        if (target === null) return '';
+
+        const need = Math.max(0, target - data.score);
+        
+        // ★① GOD または Z の場合に隠蔽対応 (Z追加)
+        const label = (nextRank === 'GOD' || nextRank === 'Z') ? '???' : nextRank;
+        
+        return `<div class="next-rank-line">NEXT RANK ${label}: +${need.toLocaleString()} ch</div>`;
+    }
+
+    function showHistoryResult(index) {
+        STATE.isInputBlocked = false;
+        const data = STATE.history[index];
+
+        UI.virtualKeyboard.style.visibility = 'hidden';
+
+        const oldSvg = UI.slot1.querySelector('.slot-timer-svg');
+        if(oldSvg) oldSvg.remove();
+        UI.slot1.style.border = 'none';
+
+        UI.failShutter.style.display = 'none';
+
+        UI.histPrev.disabled = (index === 0);
+        UI.histNext.disabled = (index === STATE.history.length - 1);
+        UI.histPrev.style.opacity = (index === 0) ? '0' : '1';
+        UI.histNext.style.opacity = (index === STATE.history.length - 1) ? '0' : '1';
+
+        const modeLabel = getModeDisplayName(data.modeName);
+        UI.resModeLabel.innerText = data.isRandom ? `${modeLabel} (RND)` : modeLabel;
+        const modeColor = MODES[data.modeName].color;
+        UI.resModeLabel.style.color = modeColor;
+        UI.resModeLabel.style.borderColor = modeColor;
+
+        let rankClass = 'rank-d';
+        if (data.rank === 'GOD') rankClass = 'rank-god';
+        else if (data.rank === 'Z') rankClass = 'rank-z';
+        else if (data.rank === 'S') rankClass = 'rank-s';
+        else if (data.rank === 'A') rankClass = 'rank-a';
+        else if (data.rank === 'B') rankClass = 'rank-b';
+        else if (data.rank === 'C') rankClass = 'rank-c';
+        else if (data.rank === 'F') rankClass = 'rank-f';
+
+        UI.resRankChar.innerText = data.rank;
+        UI.resRankChar.className = 'rank-char ' + rankClass;
+
+        // Apply GOD Aura background effect if rank is GOD
+        if (data.rank === 'GOD') {
+            UI.resultCardContainer.classList.add('god-aura');
+        } else {
+            UI.resultCardContainer.classList.remove('god-aura');
+        }
+
+        UI.resMsg.innerText = (data.reason === "FINISHED") ? "" : data.reason;
+        UI.resMsg.className = "";
+        if (data.reason === "NICE TRY") UI.resMsg.classList.add("res-msg-nice");
+        else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
+
+        UI.resStatusMsg.classList.remove('show');
+        UI.resStatusMsg.className = 'res-status-msg';
+        UI.resStatusMsg.innerText = '';
+
+        UI.resUnlockWrapper.classList.remove('show');
+        UI.resUnlockWrapper.innerHTML = '';
+
+        if (data.reason === "FINISHED") {
+            if (data.unlockEvent) {
+                let ulColorClass = 'mode-normal';
+                if(data.unlockEvent === 'HARD') ulColorClass = 'mode-hard';
+                if(data.unlockEvent === 'EXTREME') ulColorClass = 'mode-extreme';
+                UI.resUnlockWrapper.innerHTML = `
+                    <div class="mode-btn ${ulColorClass}">
+                        <div class="mode-val">UNLOCKED</div>
+                    </div>
+                `;
+                UI.resUnlockWrapper.classList.add('show');
+            } else {
+                UI.resStatusMsg.innerText = "STAGE CLEAR";
+                UI.resStatusMsg.classList.add('status-clear');
+                UI.resStatusMsg.classList.add('show');
+            }
+        }
+
+        UI.newRecordBadge.classList.remove('show');
+        if (data.isNewRecord) UI.newRecordBadge.classList.add('show');
+
+        if(data.score > 0) {
+            const avgTime = (data.totalTime / data.count).toFixed(1);
+            const nextLine = computeNextRankLine(data);
+            UI.resTotalBox.innerHTML = `
+                <span class="total-label">TOTAL SCORE</span>
+                ${Number(data.score).toLocaleString()} <span style="font-size:16px;">ch</span>
+                <span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgTime}s</span></span>
+                ${nextLine}`;
+        } else {
+            UI.resTotalBox.innerHTML = `
+                <span class="total-label">TOTAL SCORE</span>
+                0 <span style="font-size:16px;">ch</span>`;
+        }
+
+        UI.detailTableBody.innerHTML = '';
+        const gradeList = [
+            { k:'marvelous', l:'MARVELOUS', c:'var(--g-exc)' },
+            { k:'excellent', l:'EXCELLENT', c:'var(--g-perf)' },
+            { k:'great', l:'GREAT', c:'var(--g-grt)' },
+            { k:'good', l:'GOOD', c:'var(--g-good)' },
+            { k:'ok', l:'OK', c:'var(--g-ok)' }
+        ];
+
+        gradeList.forEach(g => {
+            const info = data.statsDetail[g.k];
+            if(info && info.count > 0) {
+                const avg = info.time / info.count;
+                let localScore = Math.floor((1 / Math.max(CONFIG.capPerItemSec, avg)) * 3600);
+                if(localScore > CONFIG.capCh) localScore = CONFIG.capCh;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="dt-grade" style="color:${g.c}">${g.l}</td>
+                    <td class="dt-count">${info.count}</td>
+                    <td class="dt-avg">${avg.toFixed(1)}s</td>
+                    <td class="dt-score">${localScore.toLocaleString()} <span class="dt-sub">ch</span></td>
+                `;
+                UI.detailTableBody.appendChild(tr);
+            }
+        });
+
+        UI.missItemsRow.innerHTML = '';
+        if(data.missedLog.length > 0) {
+            UI.missLog.style.display = 'flex';
+            data.missedLog.forEach(m => {
+                const row = document.createElement('div'); row.className = 'feedback-row';
+                const body = document.createElement('div'); body.className = 'fb-body';
+                const inner = document.createElement('div');
+
+                let cls = 'fb-body-inner';
+                cls += m.is3D ? ' fb-3d' : ' fb-2d';
+                if (m.mode === 'EXTREME') cls += ' fb-extreme';
+                inner.className = cls;
+
+                if (m.layout && Array.isArray(m.shape)) {
+                    m.shape._rndPositions = m.layout.map(p => ({ x: p.x, y: p.y }));
+                }
+
+                /* ⑤：過去の記録に応じたモード色を反映（m.modeを渡す） */
+                renderShape(inner, m.shape, m.is3D, m.isRandom, m.mode);
+
+                body.appendChild(inner);
+
+                const footer = document.createElement('div'); footer.className = 'fb-footer';
+                footer.innerHTML = `<span class="fb-lbl">INP</span><span class="fb-val-wrong">${m.input}</span> <span class="fb-lbl">ANS</span><span class="fb-val-correct">${m.answer}</span>`;
+
+                row.appendChild(body);
+                row.appendChild(footer);
+                UI.missItemsRow.appendChild(row);
+            });
+        } else {
+            UI.missLog.style.display = 'none';
+        }
+
+        UI.appWrapper.classList.add('showing-result');
+        UI.resultModal.classList.add('show');
+        UI.bottomUi.classList.remove('bottom-ui-dimmed');
+    }
+</script>
+</body>
+</html>
