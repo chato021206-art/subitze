@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SNOW: SUBITIZING MOUSE - v14.3 Visual Polish</title>
+<title>SNOW: SUBITIZING MOUSE - v14.5 Nice Try Fix</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,600;0,800;1,900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
@@ -263,17 +263,15 @@
   .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
-  /* Modified Result Card for Transparency & Polish */
   .result-card {
       width: 100%; height: 100%;
-      background: rgba(10, 12, 16, 0.93); /* Dark, slightly transparent background */
+      background: rgba(10, 12, 16, 0.93);
       display: flex; flex-direction: column;
       position: relative; color: #fff;
       overflow: hidden;
-      backdrop-filter: blur(8px); /* Blur effect behind the card */
+      backdrop-filter: blur(8px);
       transition: background 0.5s;
   }
-  /* GOD Mode Aura Background */
   .result-card.god-aura {
       background: radial-gradient(circle at center, rgba(100, 80, 0, 0.4) 0%, rgba(10, 12, 16, 0.95) 70%);
   }
@@ -293,12 +291,10 @@
   .res-status-msg.show { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { from { transform: translateY(8px) scale(0.96) skewX(-10deg); opacity: 0; } to { transform: translateY(0) scale(1) skewX(-10deg); opacity: 1; } }
 
-  /* Fix for the 'R' cut-off: Brighter bottom gradient and shadow */
   .status-clear {
       background: linear-gradient(to bottom, #fff 10%, #66b2ff 60%, #0055aa 100%);
       -webkit-background-clip: text;
       color: transparent;
-      /* Using text-shadow simulation via filter since color is transparent */
       filter: drop-shadow(0 2px 0px rgba(0,0,0,0.5)) drop-shadow(0 0 10px rgba(0, 145, 255, 0.6));
   }
 
@@ -315,7 +311,8 @@
   .rank-wrapper { display: flex; align-items: flex-end; justify-content: center; position: relative; }
   .rank-char { font-size: 100px; line-height: 0.8; font-weight: 900; font-style: italic; transform: skewX(-10deg); margin-right: 10px; padding-right: 10px; -webkit-text-stroke: 3px #000; filter: drop-shadow(5px 5px 0 rgba(0,0,0,0.5)); }
 
-  /* Enhanced GOD Rank Glow */
+  .rank-char.rank-nicetry { font-size: 40px; -webkit-text-stroke: 2px #000; margin-right: 0; padding-right: 0; color: #fff; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+
   .rank-god {
       background: linear-gradient(135deg, #fff 0%, #ffd700 40%, #ffaa00 100%);
       -webkit-background-clip: text; color: transparent;
@@ -354,7 +351,6 @@
   .total-avg-label .avg-text { font-size: 0.5em; color: #888; letter-spacing: 2px; margin-right: 4px; }
   .total-avg-label .avg-value { font-size: 1em; color: #fff; }
 
-  /* Next Rank line */
   .next-rank-line { margin-top: 8px; font-size: 18px; font-weight: 900; letter-spacing: 1px; opacity: 0.92; text-shadow: 1px 1px 0 #000; }
 
   .detail-table { width: 100%; margin-bottom: 5px; border-collapse: collapse; font-family: var(--font-num); font-size: 13px; }
@@ -389,17 +385,17 @@
       min-width: 140px;
       max-width: 180px;
       height: 36px;
-      background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 40%, #c0c0c0 100%);
-      color: #111;
+      background: linear-gradient(135deg, #0091ff 0%, #0066cc 100%);
+      color: #fff;
       font-family: var(--font-ui);
       font-size: 14px;
       font-weight: 900;
       font-style: italic;
-      border: 3px solid #ffffff;
+      border: 2px solid #66b2ff;
       border-radius: 4px;
       cursor: pointer;
       transform: skewX(-10deg);
-      box-shadow: 0 0 12px rgba(255,255,255,0.4), 0 0 18px rgba(200,200,200,0.5);
+      box-shadow: 0 0 12px rgba(0, 145, 255, 0.4), 0 0 18px rgba(0, 102, 204, 0.5);
       transition: all 0.1s;
       display: flex;
       align-items: center;
@@ -407,19 +403,19 @@
       margin: 0 10px;
       position: relative;
       z-index: 10000;
-      text-shadow: none;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   }
   .unified-btn:active {
       transform: skewX(-10deg) translateY(2px);
       box-shadow: 0 0 6px rgba(0,0,0,0.5);
-      background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 40%, #a0a0a0 100%);
+      background: linear-gradient(135deg, #007acc 0%, #0055aa 100%);
   }
   .unified-btn::before {
       content: '';
       position: absolute;
       inset: -4px;
       border-radius: inherit;
-      border: 4px solid rgba(255, 255, 255, 0.8);
+      border: 4px solid rgba(0, 145, 255, 0.8);
       opacity: 0;
       pointer-events: none;
       animation: modeSelectPulse 1.2s ease-out infinite;
@@ -523,7 +519,7 @@
         <div class="rank-section">
             <div class="rank-wrapper">
                 <div id="res-rank-char" class="rank-char">S</div>
-                <div class="rank-label-text" style="font-size:14px;color:#888;font-weight:900;font-style:italic;">RANK</div>
+                <div id="res-rank-label-text" class="rank-label-text" style="font-size:14px;color:#888;font-weight:900;font-style:italic;">RANK</div>
             </div>
 
             <div id="res-status-msg" class="res-status-msg">STAGE CLEAR</div>
@@ -634,8 +630,9 @@
         hudModeLabel: document.getElementById('hud-mode-label'),
         btnModeToggle: document.getElementById('btn-mode-toggle'),
         resultModal: document.getElementById('result-modal'),
-        resultCardContainer: document.getElementById('result-card-container'), // Added
+        resultCardContainer: document.getElementById('result-card-container'), 
         resRankChar: document.getElementById('res-rank-char'),
+        resRankLabelText: document.getElementById('res-rank-label-text'), // Added
         resMsg: document.getElementById('res-msg'),
         resStatusMsg: document.getElementById('res-status-msg'),
         resUnlockWrapper: document.getElementById('res-unlock-wrapper'),
@@ -674,10 +671,10 @@
         if(score >= thresholds.a) return 'A';
         if(score >= thresholds.b) return 'B';
         if(score >= thresholds.c) return 'C';
-        return 'D';
+        return 'D'; 
     }
 
-    /* ② タイマーSVG安定化：getTotalLength() を使う前提の署名 */
+    /* ② タイマーSVG安定化：getTotalLength() を使用 */
     function setupSlotTimerSVG() {
         const container = UI.slot1;
         const existing = container.querySelector('.slot-timer-svg');
@@ -718,7 +715,6 @@
         UI.timerPathL = pathL;
         UI.timerPathR = pathR;
 
-        // ★安定化対応：ここで全長を取得してセットする
         const lenL = pathL.getTotalLength();
         const lenR = pathR.getTotalLength();
 
@@ -731,7 +727,6 @@
     function updateTimerSVG(pct, color) {
         if (!UI.timerPathL || !UI.timerPathR) return;
 
-        // ★安定化対応：毎回TotalLengthを取り直して計算（サイズ変更時にも強い）
         const totalLenL = UI.timerPathL.getTotalLength();
         const totalLenR = UI.timerPathR.getTotalLength();
 
@@ -1711,16 +1706,33 @@
         UI.resModeLabel.style.borderColor = modeColor;
 
         let rankClass = 'rank-d';
+        let displayText = data.rank;
+        let isNiceTry = false;
+
         if (data.rank === 'GOD') rankClass = 'rank-god';
         else if (data.rank === 'Z') rankClass = 'rank-z';
         else if (data.rank === 'S') rankClass = 'rank-s';
         else if (data.rank === 'A') rankClass = 'rank-a';
         else if (data.rank === 'B') rankClass = 'rank-b';
         else if (data.rank === 'C') rankClass = 'rank-c';
-        else if (data.rank === 'F') rankClass = 'rank-f';
+        else if (data.rank === 'F') {
+            // ★Fランクの場合は "NICE TRY" に置き換え
+            rankClass = 'rank-nicetry';
+            displayText = "NICE TRY";
+            isNiceTry = true;
+        } else {
+            rankClass = 'rank-f'; 
+        }
 
-        UI.resRankChar.innerText = data.rank;
+        UI.resRankChar.innerText = displayText;
         UI.resRankChar.className = 'rank-char ' + rankClass;
+
+        // ★NICE TRY時は「RANK」ラベルを消す
+        if (isNiceTry) {
+            if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'none';
+        } else {
+            if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'block';
+        }
 
         // Apply GOD Aura background effect if rank is GOD
         if (data.rank === 'GOD') {
@@ -1729,10 +1741,17 @@
             UI.resultCardContainer.classList.remove('god-aura');
         }
 
-        UI.resMsg.innerText = (data.reason === "FINISHED") ? "" : data.reason;
-        UI.resMsg.className = "";
-        if (data.reason === "NICE TRY") UI.resMsg.classList.add("res-msg-nice");
-        else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
+        // ★NICE TRY時は下部のメッセージを消す（重複回避）
+        if (isNiceTry) {
+            UI.resMsg.innerText = "";
+            UI.resMsg.style.display = 'none';
+        } else {
+            UI.resMsg.innerText = (data.reason === "FINISHED") ? "" : data.reason;
+            UI.resMsg.style.display = 'block';
+            UI.resMsg.className = "";
+            if (data.reason === "NICE TRY") UI.resMsg.classList.add("res-msg-nice");
+            else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
+        }
 
         UI.resStatusMsg.classList.remove('show');
         UI.resStatusMsg.className = 'res-status-msg';
