@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SNOW: SUBITIZING NOW - v14.5 Nice Try Fix</title>
+<title>SNOW: SUBITIZING NOW - Hard 10-17 & Ext 13+</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,600;0,800;1,900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
@@ -72,7 +72,21 @@
 
   .app-container.theme-easy #slot-1 { background: rgba(68, 214, 44, 0.06); box-shadow: 0 0 18px rgba(68, 214, 44, 0.35); }
   .app-container.theme-normal #slot-1 { background: rgba(0, 145, 255, 0.06); box-shadow: 0 0 18px rgba(0, 145, 255, 0.35); }
-  .app-container.theme-hard #slot-1 { background: rgba(255, 204, 0, 0.08); box-shadow: 0 0 18px rgba(255, 204, 0, 0.4); }
+  
+  /* HARD MODE LAYOUT: Slot 1 & 2 half width */
+  .app-container.theme-hard #slot-1 { 
+      background: rgba(255, 204, 0, 0.08); 
+      box-shadow: 0 0 18px rgba(255, 204, 0, 0.4); 
+      flex: 1; 
+  }
+  .app-container.theme-hard #slot-2 {
+      flex: 1 !important; 
+      opacity: 0.8;
+      border-right: 1px solid rgba(255,255,255,0.1);
+  }
+  .app-container.theme-hard #slot-3 { display: none !important; }
+
+  /* EXTREME MODE LAYOUT */
   .app-container.theme-extreme #slot-1 {
       flex: 100;
       border: none;
@@ -566,18 +580,40 @@
 
     const CONFIG = {
         capPerItemSec: 0.1,
-        capCh: 36000,
-        ranks: { god: 12000, z: 11520, s: 9000, a: 6000, b: 3600, c: 2400, f: 0 },
-        extremeRanks: { god: 3600, z: 1800, s: 1050, a: 720, b: 600, c: 400, f: 0 }
+        capCh: 36000
     };
 
     const RANK_ORDER = ['GOD', 'Z', 'S', 'A', 'B', 'C', 'D', 'F'];
 
+    // ★カスタム判定ロジック & ランク個別設定
+    // ランク閾値は「そのモードのMarvelousタイムで全問正解」をSランク基準(高め)に設定
+    // 逆に言えば「全てギリギリMarv」ならS、「かなり速い」ならGOD
     const MODES = {
-        'EASY':   { count: 10, time: 3.0, color: 'var(--c-easy)',   type: 'STD' },
-        'NORMAL': { count: 10, time: 2.5, color: 'var(--c-normal)', type: 'STD' },
-        'HARD':   { count: 10, time: 2.5, color: 'var(--c-hard)',   type: 'STD' },
-        'EXTREME':{ count: 10, time: 5.0, color: 'var(--c-extreme)', type: 'EXT' }
+        'EASY': { 
+            count: 10, time: 3.0, color: 'var(--c-easy)', type: 'STD',
+            judgments: { marv: 0.5, exc: 1.0, great: 1.5, good: 2.0, ok: 3.0 }, // OKあり
+            // 理論値(0.5s*10=5s) -> 7200ch. GODはそれより上(神速)、SはMarv完走レベル
+            rankThresholds: { god: 12000, z: 10520, s: 7200, a: 5600, b: 3600, c: 1800, f: 0 }
+        },
+        'NORMAL': { 
+            count: 10, time: 3.5, color: 'var(--c-normal)', type: 'STD',
+            // 【変更】NormalのSランク4000に合わせてMarvelousを0.9に厳格化
+            judgments: { marv: 0.9, exc: 1.5, great: 2.0, good: 3.5 }, // OKなし
+            // S=4000ch. 理論値(0.9s*10=9s) -> 4000ch. 
+            rankThresholds: { god: 10000, z: 8800, s: 4000, a: 2800, b: 2000, c: 1200, f: 0 }
+        },
+        'HARD': { 
+            count: 10, time: 4.0, color: 'var(--c-hard)', type: 'HARD',
+            judgments: { marv: 1.5, exc: 2.0, great: 4.0 }, // OK, Goodなし (Greatまで)
+            // S=2400ch. 理論値(1.5s*10=15s) -> 2400ch. 
+            rankThresholds: { god: 6000, z: 4200, s: 2400, a: 1800, b: 1200, c: 900, f: 0 }
+        },
+        'EXTREME': { 
+            count: 10, time: 5.0, color: 'var(--c-extreme)', type: 'EXT',
+            judgments: { marv: 2.0, exc: 3.0, great: 5.0 }, // OK, Goodなし (Greatまで)
+            // S=1800ch. 理論値(2.0s*10=20s) -> 1800ch. 
+            rankThresholds: { god: 4500, z: 3000, s: 1800, a: 1200, b: 900, c: 600, f: 0 }
+        }
     };
 
     const STATE = {
@@ -610,9 +646,10 @@
         historyIndex: 0,
         hasPlayedOnce: false,
 
-        /* ③④ 連続回避（モード方針に合わせて使用） */
+        /* 連続回避用ステート */
         lastCount: null,
-        lastShapeSig: null
+        lastShapeSig: null,
+        consecutiveCountValue: 0, // 同じ数が連続した回数
     };
 
     const UI = {
@@ -632,7 +669,7 @@
         resultModal: document.getElementById('result-modal'),
         resultCardContainer: document.getElementById('result-card-container'), 
         resRankChar: document.getElementById('res-rank-char'),
-        resRankLabelText: document.getElementById('res-rank-label-text'), // Added
+        resRankLabelText: document.getElementById('res-rank-label-text'),
         resMsg: document.getElementById('res-msg'),
         resStatusMsg: document.getElementById('res-status-msg'),
         resUnlockWrapper: document.getElementById('res-unlock-wrapper'),
@@ -664,7 +701,8 @@
     }
 
     function getRankFromScore(score, modeName) {
-        let thresholds = (modeName === 'EXTREME') ? CONFIG.extremeRanks : CONFIG.ranks;
+        // モード別の閾値を使用
+        const thresholds = MODES[modeName].rankThresholds;
         if(score >= thresholds.god) return 'GOD';
         if(score >= thresholds.z) return 'Z';
         if(score >= thresholds.s) return 'S';
@@ -674,7 +712,6 @@
         return 'D'; 
     }
 
-    /* ② タイマーSVG安定化：getTotalLength() を使用 */
     function setupSlotTimerSVG() {
         const container = UI.slot1;
         const existing = container.querySelector('.slot-timer-svg');
@@ -810,6 +847,13 @@
                     } else if (e.key === 'Backspace' || e.key === 'Delete') {
                         animateKey('DEL'); processInputExtreme('DEL');
                     }
+                } else if (mode.type === 'HARD') {
+                     // HARD Mode logic (Now uses same buffered input as Extreme)
+                     if (e.key >= '0' && e.key <= '9') {
+                        animateKey(e.key); processInputExtreme(e.key);
+                    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                        animateKey('DEL'); processInputExtreme('DEL');
+                    }
                 } else {
                     if(e.key >= '1' && e.key <= '9') {
                         animateKey(e.key); processInput(parseInt(e.key, 10));
@@ -844,7 +888,7 @@
 
     function updateKeyboardLayoutForMode() {
         const mode = MODES[STATE.currentModeKey];
-        if (mode.type === 'EXT') {
+        if (mode.type === 'EXT' || mode.type === 'HARD') {
             if(KB.keys['0']) KB.keys['0'].classList.remove('disabled');
             if(KB.keys['DEL']) KB.keys['DEL'].classList.remove('disabled');
         } else {
@@ -862,6 +906,7 @@
             const valStr = k.dataset.key;
             const mode = MODES[STATE.currentModeKey];
             if (mode.type === 'EXT') processInputExtreme(valStr);
+            else if (mode.type === 'HARD') processInputExtreme(valStr); // Use Extreme (Buffered) input for Hard
             else {
                 let val = parseInt(valStr, 10);
                 if (!Number.isNaN(val)) processInput(val);
@@ -970,7 +1015,8 @@
 
         const isNormalLocked = !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
         const isHardLocked   = !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
-        const isExtremeLocked= !(bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
+        // EXTREME解放条件変更: Easy1万点 -> Zランク(11520)
+        const isExtremeLocked= !(bestEasyCH >= MODES['EASY'].rankThresholds.z || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
 
         const setLock = (sel, locked) => {
             document.querySelectorAll(sel).forEach(btn => {
@@ -995,7 +1041,7 @@
         if (modeKey === 'EASY') return false;
         if (modeKey === 'NORMAL') return !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
         if (modeKey === 'HARD') return !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
-        if (modeKey === 'EXTREME') return !(bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
+        if (modeKey === 'EXTREME') return !(bestEasyCH >= MODES['EASY'].rankThresholds.z || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
         return true;
     }
 
@@ -1078,9 +1124,10 @@
         STATE.statsDetail = { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } };
         STATE.randomAtPlay = STATE.isRandomMode;
 
-        /* ③④：連続回避の直前情報をリセット */
+        // Reset tracking vars
         STATE.lastCount = null;
         STATE.lastShapeSig = null;
+        STATE.consecutiveCountValue = 0;
 
         UI.slot1.style.border = 'none';
         setupSlotTimerSVG();
@@ -1111,20 +1158,19 @@
 
         const maxTime = mode.time;
         const pct = Math.max(0, 1 - (currentLap / maxTime));
+        const jud = mode.judgments;
 
         let colorCode = '#a0a0a0';
-        if (mode.type === 'EXT') {
-             if (currentLap <= 2.0) colorCode = '#fff700';
-             else if (currentLap <= 3.5) colorCode = '#00ffff';
-             else if (currentLap <= 5.0) colorCode = '#00ff33';
-             else colorCode = '#ff0000';
-        } else {
-             if (currentLap <= 0.4) colorCode = '#fff700';
-             else if (currentLap <= 1.0) colorCode = '#00ffff';
-             else if (currentLap <= 1.5) colorCode = '#00ff33';
-             else if (currentLap <= 2.0) colorCode = '#ffcc00';
-             else colorCode = '#a0a0a0';
-        }
+
+        // ★バーの色を判定基準に合わせて変化させる
+        if (currentLap <= jud.marv) colorCode = '#fff700'; // Marvelous
+        else if (currentLap <= jud.exc) colorCode = '#00ffff'; // Excellent
+        else if (currentLap <= jud.great) colorCode = '#00ff33'; // Great
+        
+        // Good/OKが存在するかチェックして色分け
+        else if (jud.good && currentLap <= jud.good) colorCode = '#ffcc00'; // Good
+        else if (jud.ok && currentLap <= jud.ok) colorCode = '#a0a0a0'; // OK
+        else colorCode = '#ff0000'; // Danger/Miss Zone
 
         updateTimerSVG(pct, colorCode);
         STATE.rafId = requestAnimationFrame(gameLoop);
@@ -1149,6 +1195,8 @@
         }
     }
 
+    /* HARD Input Logic is now merged into processInputExtreme */
+
     function checkAnswer(val) {
         const now = Date.now();
         let delta = (now - STATE.lapStartTime) / 1000;
@@ -1157,20 +1205,22 @@
             const effectiveTime = Math.max(delta, CONFIG.capPerItemSec);
             STATE.totalPlayTime += effectiveTime;
 
-            let gradeKey = "ok";
-            let gradeLabel = "OK";
-            const modeName = STATE.currentModeKey;
+            const mode = MODES[STATE.currentModeKey];
+            const jud = mode.judgments;
 
-            if (modeName === 'EXTREME') {
-                if (delta <= 2.0) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
-                else if (delta <= 3.5) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
-                else if (delta <= 5.0) { gradeKey = "great"; gradeLabel = "GREAT"; }
-                else { gradeKey = "good"; gradeLabel = "GOOD"; }
-            } else {
-                if (delta <= 0.4) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
-                else if (delta <= 1.0) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
-                else if (delta <= 1.5) { gradeKey = "great"; gradeLabel = "GREAT"; }
-                else if (delta <= 2.0) { gradeKey = "good"; gradeLabel = "GOOD"; }
+            let gradeKey = "miss";
+            let gradeLabel = "MISS";
+
+            // ★厳格化判定ロジック
+            if (delta <= jud.marv) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
+            else if (delta <= jud.exc) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
+            else if (delta <= jud.great) { gradeKey = "great"; gradeLabel = "GREAT"; }
+            else if (jud.good && delta <= jud.good) { gradeKey = "good"; gradeLabel = "GOOD"; }
+            else if (jud.ok && delta <= jud.ok) { gradeKey = "ok"; gradeLabel = "OK"; }
+            else {
+                // 許容判定より遅い場合は正解でもミス扱い (時間切れ同様)
+                handleMiss("SLOW", val, STATE.current.count);
+                return;
             }
 
             STATE.statsDetail[gradeKey].count++;
@@ -1179,7 +1229,6 @@
             triggerEvalEffect(gradeLabel);
             flashSlot(gradeLabel);
 
-            const mode = MODES[STATE.currentModeKey];
             if(STATE.questionCount >= mode.count - 1) {
                 UI.view1.innerHTML = '';
                 gameOver("FINISHED");
@@ -1223,16 +1272,18 @@
             answer: answer,
             shape: shapeCopy,
             layout: layoutCopy,
-            mode: STATE.currentModeKey,     // ★⑤に必要
+            mode: STATE.currentModeKey,
             is3D: STATE.is3DMode,
             isRandom: STATE.randomAtPlay
         });
         STATE.totalPlayTime += (Date.now() - STATE.lapStartTime) / 1000;
-        if (reason === "TIME") gameOver("TIME OVER");
-        else {
-            flashSlot("MISS");
-            gameOver("NICE TRY");
-        }
+        
+        let msg = "NICE TRY";
+        if (reason === "TIME") msg = "TIME OVER";
+        else if (reason === "SLOW") msg = "TOO SLOW"; // 遅すぎ判定用メッセージ
+
+        flashSlot("MISS");
+        gameOver(msg);
     }
 
     function nextQuestion() {
@@ -1266,7 +1317,6 @@
         setTimeout(() => { if(el && el.parentNode) el.parentNode.removeChild(el); }, 1000);
     }
 
-    /* ④：形比較用の署名（random配置でも形を鍛えるので座標ではなく形） */
     function shapeSignature(shapeData, is3D) {
         try {
             if (!shapeData) return 'null';
@@ -1282,7 +1332,6 @@
         }
     }
 
-    /* ③④：EASYはcount連続禁止 / NORMAL以上はshape連続禁止 */
     function addQueueItem() {
         const modeKey = STATE.currentModeKey;
         const mode = MODES[modeKey];
@@ -1292,9 +1341,8 @@
         }
 
         let n;
+        const maxAttempts = 50; // Increased attempts for safety
 
-        // ★連続回避のためのリトライループ
-        const maxAttempts = 20;
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             
             // 抽選ロジック
@@ -1306,38 +1354,42 @@
                 else n = 5;
             }
             else if (modeKey === 'NORMAL') {
+                // Removed 1 (Starts from 2), removed 0
                 const r = Math.random() * 100;
-                if (r < 15) n = 1 + Math.floor(Math.random() * 3);
-                else if (r > 90) n = 8 + Math.floor(Math.random() * 2);
-                else n = 4 + Math.floor(Math.random() * 4);
+                if (r < 10) n = 2;
+                else if (r < 25) n = 3;
+                else if (r > 90) n = 9;
+                else n = 4 + Math.floor(Math.random() * 5); // 4-8
             }
             else if (modeKey === 'HARD') {
-                const r = Math.random() * 100;
-                if (r < 3) n = 2; else if (r < 8) n = 3; else n = 4 + Math.floor(Math.random() * 6);
+                // 10 - 17 Random (8 varieties)
+                n = Math.floor(10 + Math.random() * 8); 
             }
             else if (modeKey === 'EXTREME') {
                 const q = STATE.generatedCount + 1;
                 let min, max;
-                if (q === 1) { min=10; max=13; }
-                else if (q <= 3) { min=14; max=20; }
-                else if (q <= 5) { min=21; max=27; }
-                else if (q <= 7) { min=28; max=32; }
-                else if (q <= 9) { min=33; max=37; }
-                else { min=38; max=42; }
+                if (q === 1) { min=13; max=16; } // Start higher (13+)
+                else if (q <= 3) { min=17; max=22; }
+                else if (q <= 5) { min=23; max=29; }
+                else if (q <= 7) { min=30; max=35; }
+                else if (q <= 9) { min=36; max=39; }
+                else { min=40; max=42; }
                 n = Math.floor(min + Math.random() * (max - min + 1));
             }
 
             let maxH = 6;
-            if(modeKey === 'EASY') maxH = 3;
-            else if(modeKey === 'NORMAL') maxH = 5;
-            else if(modeKey === 'HARD') maxH = 7;
-            else if(modeKey === 'EXTREME') maxH = 9;
+            let cols = 3; 
+
+            if(modeKey === 'EASY') { maxH = 3; cols = 3; }
+            else if(modeKey === 'NORMAL') { maxH = 5; cols = 3; }
+            else if(modeKey === 'HARD') { maxH = 6; cols = 4; } // Hard: 4x6
+            else if(modeKey === 'EXTREME') { maxH = 9; cols = 9; }
 
             let shapeData, trueCount, sig;
             if (STATE.is3DMode) {
-                shapeData = generateStadium3D_Strict(n, (modeKey === 'EXTREME' ? 9 : 3), maxH);
+                shapeData = generateStadium3D_Strict(n, cols, maxH);
             } else {
-                shapeData = generateShape2D_Connected(n, (modeKey === 'EXTREME' ? 9 : 3), maxH);
+                shapeData = generateShape2D_Connected(n, cols, maxH);
             }
 
             trueCount = 0;
@@ -1347,19 +1399,30 @@
 
             sig = shapeSignature(shapeData, STATE.is3DMode);
 
-            // ③ EASY: 同じ「数」の連続禁止
-            const avoidSameCount = (modeKey === 'EASY');
-            const isSameCount = (STATE.lastCount !== null && trueCount === STATE.lastCount);
+            // ■ 連続制限ロジック (全モード共通)
+            // 1. 同じ数は「2回連続」までOK（3回連続NG）
+            // 2. 同じ形はNG（形を変えること）
 
-            // ④ NORMAL以上: 同じ「形状」の連続禁止
-            const avoidSameShape = (modeKey !== 'EASY');
+            const isSameCount = (STATE.lastCount !== null && trueCount === STATE.lastCount);
             const isSameShape = (STATE.lastShapeSig !== null && sig === STATE.lastShapeSig);
 
-            // 条件に引っかかったら再抽選 (continue)
-            if (avoidSameCount && isSameCount) continue;
-            if (avoidSameShape && isSameShape) continue;
+            if (isSameShape) continue; // 形が同じなら即リトライ
 
-            // 問題なければループを抜けて採用
+            if (isSameCount) {
+                // 同じ数が来た場合、既に2回連続(consecutiveCountValue >= 2)していたらリトライ
+                if (STATE.consecutiveCountValue >= 2) {
+                    continue;
+                }
+                // まだ許容範囲内なら、採用するがループは抜ける準備
+            }
+
+            // 採用
+            if (isSameCount) {
+                STATE.consecutiveCountValue++;
+            } else {
+                STATE.consecutiveCountValue = 1;
+            }
+            
             STATE.lastCount = trueCount;
             STATE.lastShapeSig = sig;
             STATE.queue.push({ count: trueCount, shape: shapeData });
@@ -1375,6 +1438,9 @@
         arr[currentIdx]++;
         let placed = 1;
 
+        // Fallback for Hard mode high numbers to prevent infinite loop if strict connection fails
+        let failCount = 0;
+
         while(placed < n) {
             let candidates = [];
             for(let i=0; i<cols; i++) {
@@ -1384,10 +1450,21 @@
                 if(i < cols-1 && arr[i+1] > 0) isAdj = true;
                 if(isAdj && arr[i] < maxHeight) candidates.push(i);
             }
+            
+            if(candidates.length === 0) {
+                // Emergency fill if stuck
+                for(let i=0; i<cols; i++) {
+                    if(arr[i] < maxHeight) { candidates.push(i); }
+                }
+            }
+            
             if(candidates.length === 0) break;
+
             const pick = candidates[Math.floor(Math.random() * candidates.length)];
             arr[pick]++;
             placed++;
+            failCount++;
+            if(failCount > 100) break;
         }
         return arr;
     }
@@ -1395,6 +1472,7 @@
     function generateStadium3D_Strict(n, size, maxHeight) {
         const grid = Array(size).fill(0).map(() => Array(size).fill(0));
         let placed = 0;
+        let failCount = 0;
         while(placed < n) {
             let candidates = [];
             for(let x=0; x<size; x++) {
@@ -1411,6 +1489,8 @@
             const pick = candidates[Math.floor(Math.random() * candidates.length)];
             grid[pick.x][pick.z]++;
             placed++;
+            failCount++;
+            if(failCount > 100) break;
         }
         return grid;
     }
@@ -1421,7 +1501,6 @@
         renderShape(UI.view3, STATE.queue[1] ? STATE.queue[1].shape : [], STATE.is3DMode, STATE.randomAtPlay, STATE.currentModeKey);
     }
 
-    /* ★⑤対応：modeKeyOverrideで「過去記録のモード色」を反映できる */
     function renderShape(el, shapeData, is3D, useRandom, modeKeyOverride) {
         el.innerHTML = '';
         if(!shapeData) return;
@@ -1660,14 +1739,14 @@
         }
     }
 
-    /* ① 次ランクまで表示：NEXT <RANK>: +xxxx ch */
     function computeNextRankLine(data) {
         if (data.reason !== 'FINISHED') return '';
         const idx = RANK_ORDER.indexOf(data.rank);
         if (idx <= 0) return `<div class="next-rank-line">MAX RANK</div>`; // GOD
 
         const nextRank = RANK_ORDER[idx - 1];
-        const thresholds = (data.modeName === 'EXTREME') ? CONFIG.extremeRanks : CONFIG.ranks;
+        // 修正: モード別の閾値を参照
+        const thresholds = MODES[data.modeName].rankThresholds;
 
         const map = { GOD:'god', Z:'z', S:'s', A:'a', B:'b', C:'c', D:'f', F:'f' };
         const key = map[nextRank];
@@ -1676,7 +1755,6 @@
 
         const need = Math.max(0, target - data.score);
         
-        // ★① GOD または Z の場合に隠蔽対応 (Z追加)
         const label = (nextRank === 'GOD' || nextRank === 'Z') ? '???' : nextRank;
         
         return `<div class="next-rank-line">NEXT RANK ${label}: +${need.toLocaleString()} ch</div>`;
@@ -1716,7 +1794,6 @@
         else if (data.rank === 'B') rankClass = 'rank-b';
         else if (data.rank === 'C') rankClass = 'rank-c';
         else if (data.rank === 'F') {
-            // ★Fランクの場合は "NICE TRY" に置き換え
             rankClass = 'rank-nicetry';
             displayText = "NICE TRY";
             isNiceTry = true;
@@ -1727,21 +1804,18 @@
         UI.resRankChar.innerText = displayText;
         UI.resRankChar.className = 'rank-char ' + rankClass;
 
-        // ★NICE TRY時は「RANK」ラベルを消す
         if (isNiceTry) {
             if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'none';
         } else {
             if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'block';
         }
 
-        // Apply GOD Aura background effect if rank is GOD
         if (data.rank === 'GOD') {
             UI.resultCardContainer.classList.add('god-aura');
         } else {
             UI.resultCardContainer.classList.remove('god-aura');
         }
 
-        // ★NICE TRY時は下部のメッセージを消す（重複回避）
         if (isNiceTry) {
             UI.resMsg.innerText = "";
             UI.resMsg.style.display = 'none';
@@ -1750,6 +1824,7 @@
             UI.resMsg.style.display = 'block';
             UI.resMsg.className = "";
             if (data.reason === "NICE TRY") UI.resMsg.classList.add("res-msg-nice");
+            else if (data.reason === "TOO SLOW") UI.resMsg.classList.add("res-msg-nice"); // TOO SLOWもNICE TRY色
             else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
         }
 
@@ -1839,7 +1914,6 @@
                     m.shape._rndPositions = m.layout.map(p => ({ x: p.x, y: p.y }));
                 }
 
-                /* ⑤：過去の記録に応じたモード色を反映（m.modeを渡す） */
                 renderShape(inner, m.shape, m.is3D, m.isRandom, m.mode);
 
                 body.appendChild(inner);
