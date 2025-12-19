@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SNOW: SUBITIZING NOW - Hard 10-17 & Ext 13+</title>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,600;0,800;1,900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<title>SNOW: SUBITIZING NOW - v15.6</title>
+<!-- FF14風のフォント "Cinzel" (英語) と "Noto Serif JP" (日本語) を導入 -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
   :root {
@@ -25,8 +26,9 @@
     --c-hard: #ffcc00;   /* Yellow */
     --c-extreme: #ff001e;/* Red */
 
-    --font-ui: 'Kanit', sans-serif;
-    --font-num: 'Roboto Mono', monospace;
+    /* ★FONT UPDATE: FF14 Eorzean Style */
+    --font-ui: 'Cinzel', 'Noto Serif JP', serif;
+    --font-num: 'Cinzel', 'Noto Serif JP', serif;
 
     /* Layout */
     --kb-height: 260px;
@@ -107,6 +109,14 @@
     position: relative; overflow: hidden;
     max-height: calc(100vh - var(--kb-height) - 16px - 34px);
     perspective: 900px;
+  }
+
+  /* Version Label */
+  .version-label {
+      position: absolute; bottom: 6px; right: 8px;
+      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3);
+      font-family: var(--font-num); pointer-events: none; z-index: 100;
+      letter-spacing: 1px;
   }
 
   /* Flash Overlay */
@@ -312,13 +322,81 @@
       filter: drop-shadow(0 2px 0px rgba(0,0,0,0.5)) drop-shadow(0 0 10px rgba(0, 145, 255, 0.6));
   }
 
-  .res-unlock-wrapper { display: none; justify-content: center; margin-top: 10px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  /* UPDATE: UNLOCKED BADGE - SMASH STYLE "WARNING/CHALLENGER" STAMP */
+  .res-unlock-wrapper { display: none; justify-content: center; margin-top: 15px; margin-bottom: 10px; }
   .res-unlock-wrapper.show { display: flex; }
-  .res-unlock-wrapper .mode-btn {
-      width: 180px; height: 50px; pointer-events: none; transform: skewX(-15deg);
-      border-width: 4px; box-shadow: 0 0 15px rgba(255,255,255,0.5), inset 0 0 20px rgba(255,255,255,0.3);
+  
+  .unlock-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      /* 横長の極太スタイル */
+      width: 280px; 
+      padding: 10px 0;
+      
+      background: #000;
+      color: #fff; /* Overwritten by JS */
+      border: 4px solid currentColor;
+      
+      font-family: var(--font-ui);
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      
+      /* 斜めに配置して勢いを出す */
+      transform: rotate(-3deg) scale(1);
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.8), 0 0 20px currentColor;
+      
+      /* スマブラ乱入風アニメーション */
+      animation: smashStampIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      
+      position: relative;
+      overflow: hidden;
+      z-index: 100;
   }
-  .res-unlock-wrapper .mode-val { font-size: 22px; font-weight: 900; background: linear-gradient(to bottom, #fff 0%, #ddd 100%); -webkit-background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.5)); }
+  
+  @keyframes smashStampIn {
+      0% { transform: scale(3) rotate(15deg); opacity: 0; }
+      70% { transform: scale(0.9) rotate(-5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+  }
+
+  .unlock-badge::before {
+      /* 斜線のパターン背景 */
+      content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+      background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+      pointer-events: none;
+  }
+
+  .unlock-badge.mode-normal { color: #0091ff; background: #001529; border-color: #0091ff; }
+  .unlock-badge.mode-hard { color: #ffcc00; background: #332200; border-color: #ffcc00; }
+  .unlock-badge.mode-extreme { color: #ff001e; background: #2b0000; border-color: #ff001e; }
+
+  .unlock-badge .main-text { 
+      font-size: 36px; 
+      line-height: 0.9; 
+      letter-spacing: -1px;
+      text-shadow: 3px 3px 0 #000; 
+      z-index: 1;
+      -webkit-text-stroke: 1px currentColor;
+  }
+  
+  /* UPDATE: Sub-text visibility fix */
+  .unlock-badge .sub-text { 
+      font-size: 16px; 
+      margin-top: 4px; 
+      letter-spacing: 4px; 
+      
+      background: #fff; /* White background for visibility */
+      color: #000;      /* Black text */
+      
+      padding: 2px 20px;
+      font-weight: 900;
+      z-index: 1;
+      transform: skewX(-15deg);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
 
   .res-mode-label { font-size: 9px; font-weight: 900; font-style: italic; padding: 4px 20px; background: #000; border-radius: 4px; letter-spacing: 1px; border: 3px solid #fff; transform: skewX(-15deg); }
   .rank-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; padding-bottom: 10px; position: relative; flex-shrink: 0; z-index: 5; }
@@ -344,19 +422,41 @@
   .nav-btn:active { background: #fff; color:#000; transform: scale(0.9); }
   .nav-btn:disabled { opacity: 0; pointer-events: none; }
 
+  /* UPDATE: NEW RECORD - SMASH STYLE TEXT */
   .new-record-badge {
-      background: linear-gradient(135deg, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-      color: #5e4b15;
-      border: 3px solid #fff;
-      font-size: 18px; font-weight: 900; font-style: italic; padding: 6px 14px; border-radius: 4px;
-      display: none; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 4px 4px 0 rgba(0,0,0,0.8);
-      transform: skewX(-10deg) scale(1.1);
+      background: none;
+      border: none;
+      box-shadow: none;
+      
+      /* 強力なグラデーションと縁取り */
+      background: linear-gradient(to bottom, #fff 30%, #ffd700 60%, #b8860b 100%);
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-stroke: 1px #fff; /* 白縁取り */
+      
+      font-size: 32px; /* より大きく */
+      font-weight: 900;
+      font-style: italic;
+      line-height: 1.0;
+      padding: 0;
       margin-bottom: 5px;
+      
+      /* ドロップシャドウで浮き上がらせる */
+      filter: drop-shadow(4px 4px 0px rgba(0,0,0,1)) drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+      
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transform: skewX(-10deg) rotate(-2deg); /* 少し傾ける */
       position: relative; z-index: 9999;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+      letter-spacing: -2px;
+      pointer-events: none;
   }
-  .new-record-badge.show { display: inline-block; }
+  .new-record-badge.show { display: inline-block; animation: badgePopSmash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes badgePopSmash {
+      0% { transform: scale(3) skewX(-10deg) rotate(10deg); opacity: 0; }
+      100% { transform: scale(1) skewX(-10deg) rotate(-2deg); opacity: 1; }
+  }
 
   .score-row-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 5px; margin-bottom: 5px; position: relative; z-index: 5000; }
   .total-score-box { font-family: var(--font-ui); text-align: center; font-size: 32px; font-weight: 900; font-style: italic; color: #fff; text-shadow: 3px 3px 0 #000; letter-spacing: -1px; line-height: 1.0; }
@@ -391,45 +491,51 @@
   .fb-val-wrong { color: var(--g-miss); margin-left: 4px; font-size: 11px;}
   .fb-lbl { margin-left: 6px; color: #fff; font-size: 9px; letter-spacing: 1px;}
 
-  .result-footer { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--footer-height); padding: 0 15px 15px 15px; background: linear-gradient(to top, #000 85%, transparent); display: flex; align-items: center; justify-content: center; gap: 8px; z-index: 10; }
+  /* UPDATE: Result Footer Layout */
+  .result-footer { 
+      position: absolute; bottom: 0; left: 0; width: 100%; height: var(--footer-height); 
+      padding: 0 30px 20px 30px; /* Side padding for buttons */
+      background: linear-gradient(to top, #000 85%, transparent); 
+      display: flex; align-items: center; justify-content: space-between; /* Space out elements */
+      gap: 10px; z-index: 10; 
+  }
 
+  /* UPDATE: ONE MORE GAME Button Enlarge */
   .unified-btn {
-      flex: 0;
-      width: auto;
-      min-width: 140px;
-      max-width: 180px;
-      height: 36px;
+      flex: 0 0 auto; /* Don't stretch */
+      min-width: 210px; /* Wider */
+      height: 54px; /* Taller */
       background: linear-gradient(135deg, #0091ff 0%, #0066cc 100%);
       color: #fff;
       font-family: var(--font-ui);
-      font-size: 14px;
+      font-size: 22px; /* Bigger Font */
       font-weight: 900;
       font-style: italic;
-      border: 2px solid #66b2ff;
-      border-radius: 4px;
+      border: 3px solid #66b2ff; /* Thicker border */
+      border-radius: 6px;
       cursor: pointer;
       transform: skewX(-10deg);
-      box-shadow: 0 0 12px rgba(0, 145, 255, 0.4), 0 0 18px rgba(0, 102, 204, 0.5);
+      box-shadow: 0 0 15px rgba(0, 145, 255, 0.5), 0 0 25px rgba(0, 102, 204, 0.6);
       transition: all 0.1s;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 10px;
+      margin: 0; /* No margin needed with space-between */
       position: relative;
       z-index: 10000;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
   }
   .unified-btn:active {
-      transform: skewX(-10deg) translateY(2px);
-      box-shadow: 0 0 6px rgba(0,0,0,0.5);
+      transform: skewX(-10deg) translateY(3px);
+      box-shadow: 0 0 8px rgba(0,0,0,0.6);
       background: linear-gradient(135deg, #007acc 0%, #0055aa 100%);
   }
   .unified-btn::before {
       content: '';
       position: absolute;
-      inset: -4px;
+      inset: -6px;
       border-radius: inherit;
-      border: 4px solid rgba(0, 145, 255, 0.8);
+      border: 5px solid rgba(0, 145, 255, 0.8);
       opacity: 0;
       pointer-events: none;
       animation: modeSelectPulse 1.2s ease-out infinite;
@@ -440,6 +546,7 @@
 <body>
 
   <div class="app-container" id="app-wrapper">
+    <div class="version-label">v15.5 Fix Unlock Badge</div>
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
@@ -556,7 +663,7 @@
             </table>
 
             <div class="score-row-container">
-                <div id="new-record-badge" class="badge-common new-record-badge">🏆 NEW RECORD</div>
+                <div id="new-record-badge" class="badge-common new-record-badge">NEW RECORD!!</div>
                 <div id="res-total-box" class="total-score-box"></div>
             </div>
 
@@ -586,8 +693,6 @@
     const RANK_ORDER = ['GOD', 'Z', 'S', 'A', 'B', 'C', 'D', 'F'];
 
     // ★カスタム判定ロジック & ランク個別設定
-    // ランク閾値は「そのモードのMarvelousタイムで全問正解」をSランク基準(高め)に設定
-    // 逆に言えば「全てギリギリMarv」ならS、「かなり速い」ならGOD
     const MODES = {
         'EASY': { 
             count: 10, time: 3.0, color: 'var(--c-easy)', type: 'STD',
@@ -1320,13 +1425,8 @@
     function shapeSignature(shapeData, is3D) {
         try {
             if (!shapeData) return 'null';
-            if (is3D && Array.isArray(shapeData[0])) {
-                return '3D:' + shapeData.map(row => row.join(',')).join('|');
-            }
-            if (Array.isArray(shapeData)) {
-                return '2D:' + shapeData.join(',');
-            }
-            return 'u';
+            // 確実な比較のためJSON文字列化を採用
+            return JSON.stringify(shapeData);
         } catch(e) {
             return 'err';
         }
@@ -1341,7 +1441,7 @@
         }
 
         let n;
-        const maxAttempts = 50; // Increased attempts for safety
+        const maxAttempts = 100; // 重複回避のための試行回数増量
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             
@@ -1397,23 +1497,25 @@
             else shapeData.forEach(h => trueCount += h);
             if(trueCount === 0 && n > 0) trueCount = 1;
 
+            // シグネチャ生成（JSON文字列化で厳密に比較）
             sig = shapeSignature(shapeData, STATE.is3DMode);
 
-            // ■ 連続制限ロジック (全モード共通)
-            // 1. 同じ数は「2回連続」までOK（3回連続NG）
-            // 2. 同じ形はNG（形を変えること）
+            // ■ 連続制限ロジック (強化版)
+            // 1. 「配列（形）」が前回と同じなら絶対NG (isSameShape)
+            // 2. 「個数」が同じ場合、連続2回までならOK。ただし形は必ず違うこと。
+            //    (数が同じで形も同じなら、上記1で弾かれるので安心)
 
             const isSameCount = (STATE.lastCount !== null && trueCount === STATE.lastCount);
             const isSameShape = (STATE.lastShapeSig !== null && sig === STATE.lastShapeSig);
 
-            if (isSameShape) continue; // 形が同じなら即リトライ
+            if (isSameShape) continue; // 形が同じなら即リトライ（数は関係ない）
 
             if (isSameCount) {
                 // 同じ数が来た場合、既に2回連続(consecutiveCountValue >= 2)していたらリトライ
                 if (STATE.consecutiveCountValue >= 2) {
                     continue;
                 }
-                // まだ許容範囲内なら、採用するがループは抜ける準備
+                // 形は違うし、連続回数も許容範囲内なら採用
             }
 
             // 採用
@@ -1840,9 +1942,12 @@
                 let ulColorClass = 'mode-normal';
                 if(data.unlockEvent === 'HARD') ulColorClass = 'mode-hard';
                 if(data.unlockEvent === 'EXTREME') ulColorClass = 'mode-extreme';
+                
+                // ★UPDATE: スマブラ乱入風スタンプ
                 UI.resUnlockWrapper.innerHTML = `
-                    <div class="mode-btn ${ulColorClass}">
-                        <div class="mode-val">UNLOCKED</div>
+                    <div class="unlock-badge ${ulColorClass}">
+                        <div class="main-text">UNLOCKED</div>
+                        <div class="sub-text">${data.unlockEvent}</div>
                     </div>
                 `;
                 UI.resUnlockWrapper.classList.add('show');
@@ -1914,6 +2019,7 @@
                     m.shape._rndPositions = m.layout.map(p => ({ x: p.x, y: p.y }));
                 }
 
+                /* ⑤：過去の記録に応じたモード色を反映（m.modeを渡す） */
                 renderShape(inner, m.shape, m.is3D, m.isRandom, m.mode);
 
                 body.appendChild(inner);
