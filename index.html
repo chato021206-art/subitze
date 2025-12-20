@@ -3,32 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SNOW: SUBITIZING NOW - v15.6</title>
-<!-- FF14風のフォント "Cinzel" (英語) と "Noto Serif JP" (日本語) を導入 -->
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<title>SNOW: SMASH SUBITIZING - v18.8</title>
+<!-- スマブラ風の極太フォント "Montserrat" (900 Italic) を導入 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,900&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
   :root {
-    /* --- SNOW STYLE PALETTE --- */
-    --bg-dark: #0d0d0d;
+    /* --- SMASH STYLE PALETTE --- */
+    --bg-dark: #050505;
 
-    /* Grade Colors */
-    --g-exc: #fff700;  /* Marvelous (Gold) */
+    /* High Contrast Grade Colors */
+    --g-exc: #fff200;  /* Marvelous (Vivid Yellow) */
     --g-perf: #00ffff; /* Excellent (Cyan) */
-    --g-grt: #00ff33;  /* Great (Green) */
-    --g-good: #ffcc00; /* Good (Light Orange / Amber) */
-    --g-ok:   #a0a0a0; /* OK (Grey) */
-    --g-miss: #ff0000; /* Miss (Red) */
+    --g-grt: #00ff2a;  /* Great (Neon Green) */
+    --g-good: #ffaa00; /* Good (Orange) */
+    --g-ok:   #b0b0b0; /* OK (Silver) */
+    --g-miss: #ff0033; /* Miss (Crimson) */
 
-    /* Player Slot Colors */
-    --c-easy: #44d62c;   /* Green */
-    --c-normal: #0091ff; /* Blue */
-    --c-hard: #ffcc00;   /* Yellow */
-    --c-extreme: #ff001e;/* Red */
+    /* Player Slot Colors (Vivid) */
+    --c-easy: #55ff33;   /* Neon Green */
+    --c-normal: #00aaff; /* Vivid Blue */
+    --c-hard: #ffcc00;   /* Gold Yellow */
+    --c-extreme: #ff0022;/* Radical Red */
+    --c-random: #d000ff; /* Purple for Random */
 
-    /* ★FONT UPDATE: FF14 Eorzean Style */
-    --font-ui: 'Cinzel', 'Noto Serif JP', serif;
-    --font-num: 'Cinzel', 'Noto Serif JP', serif;
+    /* Font */
+    --font-ui: 'Montserrat', 'Noto Sans JP', sans-serif;
+    --font-num: 'Montserrat', sans-serif;
 
     /* Layout */
     --kb-height: 260px;
@@ -51,51 +54,63 @@
     overflow: hidden;
     position: fixed; width: 100%;
     user-select: none;
+    /* 激しいクロスハッチ背景 */
     background-image:
-        linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111),
-        linear-gradient(45deg, #111 25%, transparent 25%, transparent 75%, #111 75%, #111);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
+        linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a),
+        linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+  }
+
+  /* 共通: スマブラ風テキストスタイル */
+  .smash-text {
+    font-family: var(--font-ui);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    paint-order: stroke fill;
+    -webkit-text-stroke: 1.5px #000;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.8);
   }
 
   .app-container {
     width: 100%; height: 100%;
     display: flex; flex-direction: column;
     padding: 8px;
-    background: radial-gradient(circle at center, #222 0%, #050505 100%);
+    background: radial-gradient(circle at center, #2a2a2a 0%, #000 100%);
     position: relative; z-index: 1;
-    transition: background 0.5s;
+    transition: background 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
 
-  .app-container.theme-easy { background: radial-gradient(circle at center, rgba(68, 214, 44, 0.22) 0%, #050505 100%); }
-  .app-container.theme-normal { background: radial-gradient(circle at center, rgba(0, 145, 255, 0.25) 0%, #050505 100%); }
-  .app-container.theme-hard { background: radial-gradient(circle at center, rgba(255, 204, 0, 0.28) 0%, #050505 100%); }
-  .app-container.theme-extreme { background: radial-gradient(circle at center, rgba(255, 0, 30, 0.28) 0%, #000000 100%); }
+  .app-container.theme-easy { background: radial-gradient(circle at center, rgba(85, 255, 51, 0.15) 0%, #000 100%); }
+  .app-container.theme-normal { background: radial-gradient(circle at center, rgba(0, 170, 255, 0.15) 0%, #000 100%); }
+  .app-container.theme-hard { background: radial-gradient(circle at center, rgba(255, 204, 0, 0.15) 0%, #000 100%); }
+  .app-container.theme-extreme { background: radial-gradient(circle at center, rgba(255, 0, 34, 0.15) 0%, #000 100%); }
 
-  .app-container.theme-easy #slot-1 { background: rgba(68, 214, 44, 0.06); box-shadow: 0 0 18px rgba(68, 214, 44, 0.35); }
-  .app-container.theme-normal #slot-1 { background: rgba(0, 145, 255, 0.06); box-shadow: 0 0 18px rgba(0, 145, 255, 0.35); }
+  .app-container.theme-easy #slot-1 { box-shadow: 0 0 25px rgba(85, 255, 51, 0.4); border: 2px solid rgba(85, 255, 51, 0.3); }
+  .app-container.theme-normal #slot-1 { box-shadow: 0 0 25px rgba(0, 170, 255, 0.4); border: 2px solid rgba(0, 170, 255, 0.3); }
   
-  /* HARD MODE LAYOUT: Slot 1 & 2 half width */
   .app-container.theme-hard #slot-1 { 
-      background: rgba(255, 204, 0, 0.08); 
-      box-shadow: 0 0 18px rgba(255, 204, 0, 0.4); 
+      background: rgba(255, 204, 0, 0.05); 
+      box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); 
+      border: 2px solid rgba(255, 204, 0, 0.3);
       flex: 1; 
   }
   .app-container.theme-hard #slot-2 {
       flex: 1 !important; 
       opacity: 0.8;
-      border-right: 1px solid rgba(255,255,255,0.1);
+      border-right: 1px dashed rgba(255,255,255,0.2);
   }
   .app-container.theme-hard #slot-3 { display: none !important; }
 
-  /* EXTREME MODE LAYOUT */
   .app-container.theme-extreme #slot-1 {
       flex: 100;
-      border: none;
-      background: rgba(255, 0, 0, 0.05);
+      border: 4px solid var(--c-extreme);
+      background: rgba(50, 0, 0, 0.3);
       justify-content: flex-end;
       align-items: center;
-      box-shadow: 0 0 22px rgba(255, 0, 0, 0.45);
+      box-shadow: 0 0 40px rgba(255, 0, 34, 0.6), inset 0 0 20px rgba(255, 0, 34, 0.2);
   }
   .app-container.theme-extreme #slot-2,
   .app-container.theme-extreme #slot-3 { display: none !important; }
@@ -114,9 +129,9 @@
   /* Version Label */
   .version-label {
       position: absolute; bottom: 6px; right: 8px;
-      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3);
+      font-size: 11px; font-weight: 900; color: rgba(255,255,255,0.4);
       font-family: var(--font-num); pointer-events: none; z-index: 100;
-      letter-spacing: 1px;
+      letter-spacing: 0px; font-style: italic;
   }
 
   /* Flash Overlay */
@@ -124,27 +139,27 @@
       position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none; z-index: 20; opacity: 0; transform-origin: bottom;
   }
-  .flash-exc .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 247, 0, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-exc .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 242, 0, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
   .flash-perf .slot-flash-overlay { background: linear-gradient(to top, rgba(0, 255, 255, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
-  .flash-grt .slot-flash-overlay { background: linear-gradient(to top, rgba(0, 255, 51, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
-  .flash-good .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 204, 0, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
-  .flash-ok .slot-flash-overlay { background: linear-gradient(to top, rgba(160, 160, 160, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
-  .flash-miss .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 0, 0, 0.9) 0%, transparent 100%); animation: flashBeam 0.3s ease-out forwards; }
+  .flash-grt .slot-flash-overlay { background: linear-gradient(to top, rgba(0, 255, 42, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-good .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 170, 0, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-ok .slot-flash-overlay { background: linear-gradient(to top, rgba(176, 176, 176, 0.7) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
+  .flash-miss .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 0, 51, 0.9) 0%, transparent 100%); animation: flashBeam 0.3s ease-out forwards; }
   @keyframes flashBeam { 0% { opacity: 1; height: 10%; } 100% { opacity: 0; height: 100%; } }
 
   /* SHUTTER EFFECT */
   #fail-shutter {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background:
-          repeating-linear-gradient(45deg, #1a1a1a, #1a1a1a 10px, #222 10px, #222 20px),
-          linear-gradient(to bottom, #000, #333);
-      background-blend-mode: multiply;
+          repeating-linear-gradient(45deg, #111, #111 20px, #000 20px, #000 40px),
+          linear-gradient(to bottom, rgba(255,0,0,0.2), #000);
+      background-blend-mode: overlay;
       display: flex; align-items: center; justify-content: center;
       transform: translateY(-100%);
       z-index: 5500; pointer-events: none;
       transition: transform 0.2s cubic-bezier(0.8, 0, 0.2, 1);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      border-bottom: 8px solid #444;
+      box-shadow: 0 10px 50px rgba(0,0,0,1);
+      border-bottom: 10px solid #222;
   }
   #fail-shutter.active { transform: translateY(0); pointer-events: auto; }
 
@@ -159,39 +174,70 @@
   #victory-shutter.active { height: 100%; pointer-events: auto; animation: beamPulse 0.8s ease-out forwards; }
   @keyframes beamPulse {
       0% { opacity: 0; height: 0%; }
-      30% { opacity: 1; height: 100%; background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(0, 145, 255, 0.5) 50%, rgba(0,0,0,0) 100%); }
+      30% { opacity: 1; height: 100%; background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(0, 170, 255, 0.5) 50%, rgba(0,0,0,0) 100%); }
       100% { opacity: 0; height: 100%; background: transparent; }
   }
 
+  /* HUD MODE LABEL */
   .mode-label {
       position: absolute; top: 15px; right: 15px;
-      font-size: 9px; font-weight: 900; font-style: italic; letter-spacing: 1px;
-      padding: 4px 20px; transform: skewX(-15deg);
+      font-size: 14px; font-weight: 900; font-style: italic; letter-spacing: -1px;
+      padding: 6px 30px; transform: skewX(-15deg);
       background: #000; color: #fff;
       z-index: 90; display: none; text-transform: uppercase;
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
-      border: 3px solid #fff;
-      -webkit-text-stroke: 1px transparent;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
+      border: 4px solid currentColor;
+      -webkit-text-stroke: 0;
+      text-shadow: 1px 1px 0 #000;
   }
   .mode-label.show { display: block; }
 
   #btn-mode-toggle {
-      position: absolute; top: 6px; left: 8px;
+      position: absolute; top: 6px; 
+      left: auto; right: 15px; /* 右上に配置 */
       pointer-events: auto;
-      background: #333; border: 2px solid #777; color: #ccc;
+      background: #222; border: 3px solid #555; color: #ddd;
       border-radius: 4px; padding: 6px 14px;
-      font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic;
+      font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic;
+      cursor: pointer; z-index: 2200;
+      display: flex; align-items: center; gap: 8px; transition: all 0.1s;
+      transform: skewX(-10deg);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.8);
+      letter-spacing: -0.5px;
+  }
+  #btn-mode-toggle span.check { font-size: 16px; color: #999; font-weight: 900; }
+  #btn-mode-toggle:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
+  #btn-mode-toggle.disabled { opacity: 0.1; pointer-events: none; }
+  #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 15px rgba(208, 0, 255, 0.4); }
+  #btn-mode-toggle.random-on span.check { color: #d000ff; text-shadow: 0 0 5px #d000ff; }
+
+  /* HOW TO BUTTON (Common Style) */
+  .btn-how-to-common {
+      position: absolute;
+      pointer-events: auto;
+      background: #004488; border: 3px solid #00aaff; color: #fff;
+      border-radius: 4px; padding: 6px 14px;
+      font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic;
       cursor: pointer; z-index: 2200;
       display: flex; align-items: center; gap: 6px; transition: all 0.1s;
-      transform: skewX(-15deg);
-      box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
+      transform: skewX(-10deg);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.8);
+      letter-spacing: -0.5px;
+      text-shadow: 1px 1px 0 #000;
   }
-  #btn-mode-toggle span.check { font-size: 14px; color: #999; font-weight: 900; }
-  #btn-mode-toggle span.label { letter-spacing: 1px; }
-  #btn-mode-toggle:active { transform: skewX(-15deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
-  #btn-mode-toggle.disabled { opacity: 0.1; pointer-events: none; }
-  #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 10px rgba(208, 0, 255, 0.4); }
-  #btn-mode-toggle.random-on span.check { color: #d000ff; text-shadow: 0 0 5px #d000ff; }
+  .btn-how-to-common:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); background: #003366; }
+  
+  /* Opening Screen Position: Left Top */
+  #btn-how-to-opening {
+      top: 6px; left: 15px; 
+  }
+
+  /* Bottom UI Position (Difficulty Select) */
+  #btn-how-to-bottom {
+      top: auto; bottom: 70px; left: 15px; 
+      width: auto; position: absolute; z-index: 3200;
+      display: none; 
+  }
 
   #conveyor-wrapper {
     width: 100%; height: 100%;
@@ -203,127 +249,358 @@
     flex: 1; height: calc(100% - 34px);
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
     position: relative; transform-style: preserve-3d;
-    background: rgba(0,0,0,0.3); border-radius: 4px 4px 0 0;
+    background: rgba(20,20,20,0.6); border-radius: 4px 4px 0 0;
     border: 2px solid rgba(255,255,255,0.1); border-bottom: none;
     transition: flex 0.3s, opacity 0.3s; overflow: hidden;
   }
-  #slot-1 { background: rgba(255,255,255,0.05); border: none; z-index: 10; position: relative; }
+  #slot-1 { background: rgba(50,50,50,0.2); border: none; z-index: 10; position: relative; }
 
-  .slot-timer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; filter: none; }
+  .slot-timer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; filter: drop-shadow(0 0 5px currentColor); }
   .timer-path { fill: none; stroke-linecap: butt; stroke-linejoin: round; transition: stroke 0.1s linear; }
 
   .cluster-container { display: flex; align-items: flex-end; gap: 3px; padding-bottom: 12px; transform-style: preserve-3d; transition: transform 0.1s; }
   .block-column { display: flex; flex-direction: column-reverse; gap: 3px; width: 27px; transform-style: preserve-3d; }
-  .block { width: var(--block-size-2d); height: var(--block-size-2d); border-radius: 2px; box-shadow: inset 2px 2px 0 rgba(255,255,255,0.4), inset -2px -2px 0 rgba(0,0,0,0.3), 3px 3px 5px rgba(0,0,0,0.5); border: 1px solid rgba(0,0,0,0.2); position: relative; }
+  
+  .block { 
+      width: var(--block-size-2d); height: var(--block-size-2d); 
+      border-radius: 2px; 
+      box-shadow: inset 3px 3px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.4), 3px 3px 5px rgba(0,0,0,0.6); 
+      border: 1px solid rgba(0,0,0,0.5); 
+      position: relative; 
+  }
   .cluster-container.random-layout { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; padding: 0; }
   .block.block-random { position: absolute; z-index: 10; }
   .block.mode-easy { background: var(--c-easy); }
   .block.mode-normal { background: var(--c-normal); }
   .block.mode-hard { background: var(--c-hard); }
-  .block.mode-extreme { background: var(--c-extreme); border: 1px solid #7f1d1d; }
+  .block.mode-extreme { background: var(--c-extreme); border: 1px solid #500; }
 
-  /* 3D CUBES */
   .cluster-container.real-3d { position: absolute; bottom: 10%; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(25deg); }
   .cube { width: var(--block-size-3d); height: var(--block-size-3d); position: absolute; transform-style: preserve-3d; }
-  .face { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(0,0,0,0.3); opacity: 0.9; }
+  .face { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(0,0,0,0.6); opacity: 1; }
   .face-front { transform: translateZ(calc(var(--block-size-3d)/2)); }
   .face-back { transform: rotateY(180deg) translateZ(calc(var(--block-size-3d)/2)); }
   .face-right { transform: rotateY(90deg) translateZ(calc(var(--block-size-3d)/2)); }
   .face-left { transform: rotateY(-90deg) translateZ(calc(var(--block-size-3d)/2)); }
-  .face-top { transform: rotateX(90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(1.2); }
-  .face-bottom { transform: rotateX(-90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(0.6); }
-  .cube.mode-easy .face { background: var(--c-easy); box-shadow: inset 0 0 5px rgba(255,255,255,0.4); }
-  .cube.mode-normal .face { background: var(--c-normal); box-shadow: inset 0 0 5px rgba(255,255,255,0.4); }
-  .cube.mode-hard .face { background: var(--c-hard); box-shadow: inset 0 0 5px rgba(255,255,255,0.4); }
-  .cube.mode-extreme .face { background: var(--c-extreme); border-color: #500; }
+  .face-top { transform: rotateX(90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(1.3); border: 1px solid rgba(255,255,255,0.5); }
+  .face-bottom { transform: rotateX(-90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(0.5); }
+  
+  .cube.mode-easy .face { background: var(--c-easy); }
+  .cube.mode-normal .face { background: var(--c-normal); }
+  .cube.mode-hard .face { background: var(--c-hard); }
+  .cube.mode-extreme .face { background: var(--c-extreme); }
 
-  /* KEYBOARD */
-  .virtual-keyboard { position: relative; width: 100%; height: var(--kb-height); background: linear-gradient(135deg, #050a14 0%, #001529 100%); padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; z-index: 3000; border-top: 4px solid rgba(255,255,255,0.1); pointer-events: auto; box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5); }
-  .virtual-keyboard::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px; pointer-events: none; }
-  .kb-key { background: linear-gradient(180deg, rgba(30, 60, 90, 0.9) 0%, rgba(10, 20, 40, 0.95) 100%); border-radius: 4px; border: 1px solid rgba(100, 200, 255, 0.3); box-shadow: 0 4px 0 rgba(0, 10, 20, 0.8), inset 0 1px 0 rgba(255,255,255,0.2); color: #fff; font-family: var(--font-ui); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; }
-  .kb-key:active, .kb-key.active-state { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0); background: linear-gradient(180deg, #ffcc00 0%, #ff8800 100%); color: #000; border-color: #fff; }
-  .kb-key-main { font-size: 32px; font-weight: 900; font-style: italic; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-  .kb-key.disabled { opacity: 0.2; pointer-events: none; box-shadow: none; border-color: transparent; }
-  .kb-key.ripple::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.5); opacity: 0; pointer-events: none; animation: keyFlash 0.2s ease-out; }
+  .virtual-keyboard { position: relative; width: 100%; height: var(--kb-height); background: linear-gradient(150deg, #0a0a0a 0%, #151515 100%); padding: 8px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 8px; z-index: 3000; border-top: 4px solid #333; pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8); }
+  .virtual-keyboard::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px); pointer-events: none; }
+  
+  .kb-key { 
+      background: linear-gradient(to bottom, #2a2a2a, #111); 
+      border-radius: 6px; 
+      border: 2px solid #444; 
+      box-shadow: 0 6px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); 
+      color: #ccc; 
+      font-family: var(--font-num); 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; 
+  }
+  .kb-key:active, .kb-key.active-state { 
+      transform: translateY(6px); 
+      box-shadow: 0 0 0 #000; 
+      background: linear-gradient(to bottom, #ffcc00, #ff9900); 
+      color: #000; 
+      border-color: #fff; 
+  }
+  .kb-key-main { font-size: 36px; font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; letter-spacing: -2px; }
+  .kb-key.disabled { opacity: 0.15; pointer-events: none; box-shadow: none; border-color: #222; background: #000; }
+  .kb-key.ripple::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.8); opacity: 0; pointer-events: none; animation: keyFlash 0.15s ease-out; }
   @keyframes keyFlash { 0% { opacity: 0.8; } 100% { opacity: 0; } }
 
   #bottom-ui-container { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--footer-height); display: none; align-items: center; justify-content: center; padding: 0 15px 15px 15px; z-index: 3100; pointer-events: auto; transition: opacity 0.2s, filter 0.2s; }
   #mode-select-container { display: flex; width: 100%; gap: 12px; justify-content: center; height: 55px; }
-  .mode-btn { flex: 1; height: 100%; font-family: var(--font-ui); border: 3px solid #fff; border-radius: 4px; transform: skewX(-15deg); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); position: relative; padding: 4px 0; overflow: hidden; transition: transform 0.1s, box-shadow 0.1s; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
-  .mode-btn:active { transform: skewX(-15deg) translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0); filter: brightness(1.2); }
-  .mode-easy { background: linear-gradient(160deg, #44d62c 0%, #1a600d 100%); }
-  .mode-normal { background: linear-gradient(160deg, #0091ff 0%, #004080 100%); }
-  .mode-hard { background: linear-gradient(160deg, #ffcc00 0%, #806600 100%); }
-  .mode-extreme { background: linear-gradient(160deg, #ff001e 0%, #80000f 100%); }
-  .mode-val { font-size: 15px; font-weight: 900; font-style: italic; text-transform: uppercase; white-space: nowrap; z-index: 1; display: flex; align-items: center; gap: 4px; }
-  .mode-btn.locked { opacity: 0.3; filter: grayscale(1); pointer-events: none; border-color: #333; color: #555; background: #000; }
+  
+  .mode-btn { 
+      flex: 1; height: 100%; font-family: var(--font-ui); border: 3px solid #fff; border-radius: 6px; transform: skewX(-15deg); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 6px 6px 0 rgba(0,0,0,0.8); position: relative; padding: 4px 0; overflow: hidden; transition: transform 0.1s, box-shadow 0.1s; color: #fff; 
+      -webkit-text-stroke: 0; text-shadow: 1px 1px 1px #000;
+  }
+  .mode-btn:active { transform: skewX(-15deg) translateY(6px); box-shadow: 0 0 0 rgba(0,0,0,0); filter: brightness(1.2); }
+  .mode-easy { background: linear-gradient(170deg, #55ff33 0%, #1a800d 100%); }
+  .mode-normal { background: linear-gradient(170deg, #00aaff 0%, #004080 100%); }
+  .mode-hard { background: linear-gradient(170deg, #ffcc00 0%, #997a00 100%); }
+  .mode-extreme { background: linear-gradient(170deg, #ff0022 0%, #80000f 100%); }
+  .mode-val { font-size: 18px; font-weight: 900; font-style: italic; text-transform: uppercase; white-space: nowrap; z-index: 1; letter-spacing: -1px; }
+  .mode-btn.locked { opacity: 0.3; filter: grayscale(1); pointer-events: none; border-color: #333; color: #555; background: #111; }
   .mode-btn.locked .mode-val { display: none; }
-  .mode-btn.locked::after { content: '🔒'; font-size: 24px; display: block; z-index:1; }
+  .mode-btn.locked::after { content: '🔒'; font-size: 24px; display: block; z-index:1; color: #555; -webkit-text-stroke: 0; }
   .bottom-ui-dimmed { opacity: 0.25; filter: grayscale(0.6); pointer-events: none; }
 
-  #tutorial-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 4000; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+  #tutorial-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 4000; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
   #tutorial-overlay.active { opacity: 1; pointer-events: auto; }
   .tute-item { position: absolute; display: flex; flex-direction: column; align-items: center; color: #fff; filter: drop-shadow(0 0 8px rgba(0,0,0,0.8)); }
-  #tute-count, #tute-input { display: none !important; }
   #tute-central-msg { top: 290px; left: 50%; transform: translateX(-50%); width: 100%; z-index: 5000; display:flex; justify-content:center; flex-direction: column; align-items: center; gap: 16px; }
-  .tute-arrow { color: var(--g-perf); animation: bounceArrow 1.5s infinite; }
-  .tute-text { font-size: 28px; font-weight: 900; font-style: italic; letter-spacing: 2px; text-shadow: 3px 3px 0 #000; }
-  .tute-big-msg { font-size: 56px; font-weight: 900; font-style: italic; transition: transform 0.1s; letter-spacing: -2px; text-shadow: 5px 5px 0 #000; color: #fff; display:none; margin-bottom: 160px; z-index: 5001; }
-  .tute-big-msg.pop { transform: scale(1.5); }
-  @keyframes bounceArrow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+  
+  .tute-big-msg { 
+      font-size: 80px; font-weight: 900; font-style: italic; transition: transform 0.1s; letter-spacing: -6px; 
+      color: #fff; display:none; margin-bottom: 160px; z-index: 5001;
+      paint-order: stroke fill; -webkit-text-stroke: 4px #000; text-shadow: 10px 10px 0 #000;
+  }
+  .tute-big-msg.pop { transform: scale(1.8) skewX(-10deg); }
 
-  .tute-start-btn { padding: 14px 40px; border-radius: 4px; border: 4px solid #fff; background: #0091ff; color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.5); font-size: 32px; font-weight: 900; font-style: italic; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; box-shadow: 8px 8px 0 #000; transform: skewX(-10deg); transition: transform 0.1s, box-shadow 0.1s; position: relative; overflow: visible; z-index: 10; }
-  .tute-start-btn:active { transform: skewX(-10deg) translateY(4px); box-shadow: 4px 4px 0 #000; }
-  .tute-start-btn::before { content: ''; position: absolute; inset: -8px; border-radius: inherit; border: 6px solid rgba(0, 145, 255, 0.9); opacity: 0; pointer-events: none; animation: modeSelectPulse 0.9s ease-out infinite; z-index: -1; }
-  @keyframes modeSelectPulse { 0% { transform: scale(0.95); opacity: 1; border-width: 6px; } 40% { opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; border-width: 0px; } }
+  .tute-start-btn { 
+      padding: 20px 50px; border-radius: 8px; border: 4px solid #fff; 
+      background: linear-gradient(170deg, #00aaff 0%, #004080 100%);
+      color: #fff; 
+      text-shadow: 3px 3px 0 #000; 
+      paint-order: stroke fill;
+      -webkit-text-stroke: 1.5px #000;
+      font-size: 36px; font-weight: 900; font-style: italic; letter-spacing: -2px; text-transform: uppercase; cursor: pointer; 
+      box-shadow: 10px 10px 0 #000; transform: skewX(-12deg); transition: transform 0.1s, box-shadow 0.1s; position: relative; overflow: visible; z-index: 10; 
+  }
+  .tute-start-btn:active { 
+      transform: skewX(-12deg) translateY(6px); box-shadow: 4px 4px 0 #000; 
+      background: linear-gradient(170deg, #0088cc 0%, #003366 100%);
+  }
+  .tute-start-btn::before { 
+      content: ''; position: absolute; inset: -10px; border-radius: inherit; 
+      border: 8px solid rgba(0, 170, 255, 0.8); 
+      opacity: 0; pointer-events: none; animation: modeSelectPulse 0.9s ease-out infinite; z-index: -1; 
+  }
+  @keyframes modeSelectPulse { 0% { transform: scale(0.95); opacity: 1; border-width: 8px; } 40% { opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; border-width: 0px; } }
 
   .tute-mode-select { display: none; width: 90%; max-width: 460px; flex-direction: row; gap: 10px; justify-content: center; }
-  .tute-mode-select .mode-btn { height: 70px; }
+  .tute-mode-select .mode-btn { height: 80px; }
 
-  .eval-effect { position: fixed; top: calc(20% - 30px - 3.0cm); left: 50%; transform: translateX(-50%) scale(0.35); font-size: 80px; font-weight: 900; font-style: italic; letter-spacing: -4px; z-index: 10000; pointer-events: none; -webkit-text-stroke: 3px #000; text-shadow: 6px 6px 0px rgba(0,0,0,0.5); animation: SNOWHit 0.5s forwards; white-space: nowrap; }
-  @keyframes SNOWHit { 0% { transform: translateX(-50%) scale(0.15) rotate(-15deg); opacity: 0; } 20% { opacity: 1; transform: translateX(-50%) scale(0.8) rotate(0deg); } 40% { transform: translateX(-50%) scale(0.7); } 90% { opacity: 1; transform: translateX(-50%) scale(0.7); } 100% { transform: translateX(-50%) scale(0.8) translateY(-20px); opacity: 0; } }
+  /* ------------------------------------------- */
+  /* ★★★ HOW TO PLAY MODAL - ULTIMATE DESIGN ★★★ */
+  /* ------------------------------------------- */
+  #how-to-modal {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(10px);
+      z-index: 7000; /* Resultより上 */
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.3s;
+  }
+  #how-to-modal.active { display: flex; opacity: 1; pointer-events: auto; }
 
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+  .ht-container {
+      width: 92%; max-width: 500px;
+      max-height: 85vh; overflow-y: auto;
+      background: #111;
+      border: 4px solid #fff;
+      border-radius: 12px;
+      transform: skewX(-2deg);
+      box-shadow: 0 0 50px rgba(0, 170, 255, 0.2), 15px 15px 0 #000;
+      position: relative;
+      display: flex; flex-direction: column;
+  }
+  
+  /* Header Stripe */
+  .ht-header {
+      background: linear-gradient(90deg, #00aaff, #004488);
+      padding: 15px 20px;
+      border-bottom: 3px solid #fff;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top:0; z-index:10;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+  }
+  .ht-title {
+      font-size: 24px; font-weight: 900; font-style: italic; color: #fff;
+      paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+      letter-spacing: -1px;
+  }
+  .ht-close-btn {
+      background: #000; border: 2px solid #fff; color: #fff;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; cursor: pointer; transition: transform 0.1s;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+  }
+  .ht-close-btn:active { transform: scale(0.9); }
+
+  /* Content Body */
+  .ht-body {
+      padding: 20px 25px;
+      background: 
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 15px),
+          radial-gradient(circle at center, #222 0%, #000 100%);
+      display: flex; flex-direction: column; gap: 20px;
+  }
+
+  /* Intro Box */
+  .ht-intro-box {
+      border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 12px;
+      background: rgba(255,255,255,0.05); text-align: center;
+  }
+  .ht-intro-title { color: #aaa; font-size: 10px; font-weight: 900; letter-spacing: 2px; margin-bottom: 6px; }
+  .ht-intro-text { font-size: 13px; line-height: 1.6; color: #eee; font-weight: 700; font-family: var(--font-num); }
+  .highlight { color: #00ffff; font-weight: 900; text-decoration: underline; }
+
+  /* Section Title */
+  .ht-sec-title {
+      font-size: 18px; font-weight: 900; font-style: italic; color: #fff;
+      border-bottom: 4px solid #fff; margin-top: 10px; margin-bottom: 5px;
+      padding-bottom: 4px; text-shadow: 2px 2px 0 #000;
+      letter-spacing: -1px;
+  }
+
+  /* Flow Step */
+  .ht-flow-step {
+      display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 8px; padding: 10px; position: relative; overflow: hidden;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+  }
+  .ht-step-badge {
+      position: absolute; top: -2px; left: -2px; 
+      background: #fff; color: #000; font-size: 9px; font-weight: 900; padding: 3px 8px; border-bottom-right-radius: 6px;
+  }
+  .ht-step-text { flex: 1; padding-left: 10px; }
+  .step-head { font-size: 18px; font-weight: 900; color: var(--g-perf); margin-bottom: 2px; text-shadow: 1px 1px 0 #000; }
+  .step-desc { font-size: 11px; color: #ccc; line-height: 1.3; font-family: var(--font-num); }
+  .ht-step-icon { 
+      width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.1); border-radius: 50%;
+  }
+  .ht-step-icon i { width: 28px; height: 28px; color: #fff; }
+  .ht-flow-arrow { text-align: center; color: #555; font-size: 10px; transform: scaleY(0.6); }
+
+  /* Judge Box */
+  .ht-judge-box { display: flex; flex-direction: column; gap: 10px; }
+  .ht-judge-desc { font-size: 12px; color: #ccc; text-align: center; margin-bottom: 5px; line-height: 1.4; }
+  
+  /* Visual Meter */
+  .ht-meter-demo { 
+      display: flex; align-items: center; gap: 8px; 
+      background: #000; padding: 10px; border-radius: 6px; border: 1px solid #333; 
+  }
+  .meter-label { font-size: 10px; color: #888; font-weight: 900; width: 35px; text-align: center; }
+  .meter-bar { flex: 1; height: 24px; display: flex; border-radius: 4px; overflow: hidden; }
+  .m-seg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; color: #000; box-shadow: inset 0 0 2px rgba(0,0,0,0.5); }
+  .seg-marv { background: var(--g-exc); flex: 1; }
+  .seg-exc { background: var(--g-perf); flex: 1; }
+  .seg-grt { background: var(--g-grt); flex: 1.5; }
+  .seg-good { background: var(--g-good); flex: 2; }
+  .seg-ok { background: var(--g-ok); flex: 2; }
+
+  /* Rank Grid - UPDATED FOR UNIFIED COLORS */
+  .ht-rank-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 5px;
+  }
+  .rank-cell {
+      background: rgba(30, 30, 30, 0.6); 
+      border: 2px solid currentColor; /* 文字色に枠線を一致させる */
+      border-radius: 6px; padding: 8px 0;
+      text-align: center; font-weight: 900; font-size: 18px; font-style: italic;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-shadow: 1px 1px 0 #000;
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.05), 0 0 8px currentColor; /* 文字色で発光 */
+  }
+  
+  /* Color Classes for Ranks - Matching Game Judgement Colors */
+  .c-secret { color: #555; }
+  
+  .c-s { color: #ffdd00; } /* Yellow (S) */
+  .c-a { color: #00ccff; } /* Cyan (A) */
+  .c-b { color: #33ff55; } /* Green (B) */
+  .c-c { color: #ff8800; } /* Orange (C) */
+  .c-d { color: #aaaaaa; } /* Grey (D) */
+
+  /* Mode List */
+  .ht-mode-list { display: flex; flex-direction: column; gap: 10px; }
+  .ht-mode-item {
+      border: 2px solid #444; border-radius: 6px; overflow: hidden;
+  }
+  .m-easy { border-color: var(--c-easy); }
+  .m-hard { border-color: var(--c-hard); }
+  .m-random { border-color: var(--c-random); }
+
+  .hm-head {
+      padding: 6px 10px; font-size: 12px; font-weight: 900; font-style: italic; color: #000;
+  }
+  .m-easy .hm-head { background: var(--c-easy); }
+  .m-hard .hm-head { background: var(--c-hard); }
+  .m-random .hm-head { background: var(--c-random); color: #fff; text-shadow: 1px 1px 0 #000; }
+
+  .hm-body { padding: 10px; font-size: 11px; line-height: 1.4; color: #ddd; background: rgba(0,0,0,0.5); }
+  .hl { color: #fff; font-weight: 900; text-decoration: underline; }
+
+  /* CH Box */
+  .ht-ch-box {
+      background: linear-gradient(135deg, #111 0%, #222 100%);
+      border: 1px solid #555; border-radius: 8px; padding: 15px; text-align: center;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  }
+  .ch-big { font-size: 20px; font-weight: 900; font-style: italic; color: #fff; margin-bottom: 8px; text-shadow: 2px 2px 0 #000; }
+  .ch-desc { font-size: 11px; color: #aaa; line-height: 1.5; font-family: var(--font-num); }
+
+  /* Footer */
+  .ht-footer {
+      margin-top: 10px; padding-top: 15px; border-top: 1px dashed #444;
+      text-align: center;
+  }
+
+  /* ------------------------------------------- */
+
+  .eval-effect { 
+      position: fixed; top: calc(20% - 30px - 3.0cm); left: 50%; transform: translateX(-50%) scale(0.35); 
+      font-family: var(--font-ui); font-size: 100px; font-weight: 900; font-style: italic; letter-spacing: -6px; 
+      z-index: 10000; pointer-events: none; 
+      paint-order: stroke fill;
+      -webkit-text-stroke: 4px #000; text-shadow: 8px 8px 0px rgba(0,0,0,0.8); 
+      animation: SNOWHit 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; 
+  }
+  @keyframes SNOWHit { 
+      0% { transform: translateX(-50%) scale(2) rotate(-15deg); opacity: 0; } 
+      20% { opacity: 1; transform: translateX(-50%) scale(0.9) rotate(0deg); } 
+      40% { transform: translateX(-50%) scale(1.0); } 
+      90% { opacity: 1; transform: translateX(-50%) scale(1.0); } 
+      100% { transform: translateX(-50%) scale(1.2) translateY(-20px); opacity: 0; } 
+  }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; }
   .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
   .result-card {
       width: 100%; height: 100%;
-      background: rgba(10, 12, 16, 0.93);
+      background: #111;
       display: flex; flex-direction: column;
       position: relative; color: #fff;
       overflow: hidden;
-      backdrop-filter: blur(8px);
       transition: background 0.5s;
   }
   .result-card.god-aura {
-      background: radial-gradient(circle at center, rgba(100, 80, 0, 0.4) 0%, rgba(10, 12, 16, 0.95) 70%);
+      background: radial-gradient(circle at center, #664400 0%, #111 80%);
   }
 
   .result-scroll-area { flex: 1; overflow-y: hidden; display: flex; flex-direction: column; padding: 20px; padding-bottom: 90px; position:relative; z-index:2; }
-  .res-header-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; flex-shrink: 0; position: relative; border-bottom: 2px solid #fff; }
-  .res-title { font-size: 28px; font-weight: 900; font-style: italic; letter-spacing: -2px; text-shadow: 2px 2px 0 #000; }
+  .res-header-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; flex-shrink: 0; position: relative; border-bottom: 4px solid #fff; }
+  .res-title { font-size: 32px; font-weight: 900; font-style: italic; letter-spacing: -3px; paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; text-shadow: 3px 3px 0 #000; }
 
   .res-status-msg {
-      font-size: 42px; font-weight: 900; font-style: italic;
+      font-size: 52px; font-weight: 900; font-style: italic;
       margin-top: 10px; display: none;
-      text-transform: uppercase; letter-spacing: -2px;
-      -webkit-text-stroke: 1px #fff;
-      transform: skewX(-10deg) scale(1, 1.2);
-      filter: drop-shadow(0 0 10px rgba(0, 145, 255, 0.8));
+      text-transform: uppercase; letter-spacing: -4px;
+      paint-order: stroke fill;
+      -webkit-text-stroke: 2px #000;
+      transform: skewX(-10deg) scale(1, 1.1);
+      filter: drop-shadow(5px 5px 0 #000);
+      text-align: center; line-height: 0.9;
   }
   .res-status-msg.show { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  @keyframes popIn { from { transform: translateY(8px) scale(0.96) skewX(-10deg); opacity: 0; } to { transform: translateY(0) scale(1) skewX(-10deg); opacity: 1; } }
+  @keyframes popIn { from { transform: translateY(20px) scale(0.5) skewX(-10deg); opacity: 0; } to { transform: translateY(0) scale(1) skewX(-10deg); opacity: 1; } }
 
   .status-clear {
-      background: linear-gradient(to bottom, #fff 10%, #66b2ff 60%, #0055aa 100%);
-      -webkit-background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 2px 0px rgba(0,0,0,0.5)) drop-shadow(0 0 10px rgba(0, 145, 255, 0.6));
+      color: #fff;
+      background: linear-gradient(to bottom, #fff 30%, #00aaff 60%, #003366 100%);
+      -webkit-background-clip: text; color: transparent;
+      -webkit-text-stroke: 2px #fff; 
+  }
+  .status-clear {
+      -webkit-text-stroke: 0;
+      text-shadow: 0 0 10px rgba(0,170,255,0.8);
+      position: relative;
   }
 
-  /* UPDATE: UNLOCKED BADGE - SMASH STYLE "WARNING/CHALLENGER" STAMP */
-  .res-unlock-wrapper { display: none; justify-content: center; margin-top: 15px; margin-bottom: 10px; }
+  .res-unlock-wrapper { display: none; justify-content: center; margin-top: 20px; margin-bottom: 15px; }
   .res-unlock-wrapper.show { display: flex; }
   
   .unlock-badge {
@@ -331,26 +608,18 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      /* 横長の極太スタイル */
-      width: 280px; 
-      padding: 10px 0;
-      
+      width: 300px; 
+      padding: 15px 0;
       background: #000;
-      color: #fff; /* Overwritten by JS */
-      border: 4px solid currentColor;
-      
+      color: #fff;
+      border: 6px solid currentColor;
       font-family: var(--font-ui);
       font-weight: 900;
       font-style: italic;
       text-transform: uppercase;
-      
-      /* 斜めに配置して勢いを出す */
       transform: rotate(-3deg) scale(1);
-      box-shadow: 10px 10px 0 rgba(0,0,0,0.8), 0 0 20px currentColor;
-      
-      /* スマブラ乱入風アニメーション */
+      box-shadow: 15px 15px 0 rgba(0,0,0,1), 0 0 30px currentColor;
       animation: smashStampIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      
       position: relative;
       overflow: hidden;
       z-index: 100;
@@ -363,179 +632,187 @@
   }
 
   .unlock-badge::before {
-      /* 斜線のパターン背景 */
       content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
-      background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+      background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.15) 10px, rgba(255,255,255,0.15) 20px);
       pointer-events: none;
   }
 
-  .unlock-badge.mode-normal { color: #0091ff; background: #001529; border-color: #0091ff; }
-  .unlock-badge.mode-hard { color: #ffcc00; background: #332200; border-color: #ffcc00; }
-  .unlock-badge.mode-extreme { color: #ff001e; background: #2b0000; border-color: #ff001e; }
+  .unlock-badge.mode-normal { color: #00aaff; background: #000c1a; border-color: #00aaff; }
+  .unlock-badge.mode-hard { color: #ffcc00; background: #1a1400; border-color: #ffcc00; }
+  .unlock-badge.mode-extreme { color: #ff0022; background: #1a0003; border-color: #ff0022; }
 
   .unlock-badge .main-text { 
-      font-size: 36px; 
-      line-height: 0.9; 
-      letter-spacing: -1px;
-      text-shadow: 3px 3px 0 #000; 
-      z-index: 1;
-      -webkit-text-stroke: 1px currentColor;
+      font-size: 42px; line-height: 0.85; letter-spacing: -3px;
+      text-shadow: 4px 4px 0 #000; z-index: 1; 
+      paint-order: stroke fill;
+      -webkit-text-stroke: 2px #000;
+      color: #fff;
   }
   
-  /* UPDATE: Sub-text visibility fix */
   .unlock-badge .sub-text { 
-      font-size: 16px; 
-      margin-top: 4px; 
-      letter-spacing: 4px; 
-      
-      background: #fff; /* White background for visibility */
-      color: #000;      /* Black text */
-      
-      padding: 2px 20px;
-      font-weight: 900;
-      z-index: 1;
+      font-size: 20px; margin-top: 6px; letter-spacing: 2px;
+      background: #fff; color: #000; 
+      padding: 2px 24px; font-weight: 900; z-index: 1;
       transform: skewX(-15deg);
-      box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.8);
+      border: 2px solid #000;
   }
 
-  .res-mode-label { font-size: 9px; font-weight: 900; font-style: italic; padding: 4px 20px; background: #000; border-radius: 4px; letter-spacing: 1px; border: 3px solid #fff; transform: skewX(-15deg); }
+  .res-mode-label { font-size: 12px; font-weight: 900; font-style: italic; padding: 4px 20px; background: #000; border-radius: 4px; letter-spacing: -0.5px; border: 3px solid #fff; transform: skewX(-15deg); box-shadow: 3px 3px 0 #000; }
   .rank-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; padding-bottom: 10px; position: relative; flex-shrink: 0; z-index: 5; }
   .rank-wrapper { display: flex; align-items: flex-end; justify-content: center; position: relative; }
-  .rank-char { font-size: 100px; line-height: 0.8; font-weight: 900; font-style: italic; transform: skewX(-10deg); margin-right: 10px; padding-right: 10px; -webkit-text-stroke: 3px #000; filter: drop-shadow(5px 5px 0 rgba(0,0,0,0.5)); }
+  .rank-char { 
+      font-family: var(--font-ui);
+      font-size: 110px; line-height: 0.8; font-weight: 900; font-style: italic; 
+      transform: skewX(-10deg); margin-right: 10px; padding-right: 10px; 
+      paint-order: stroke fill;
+      -webkit-text-stroke: 4px #000; filter: drop-shadow(8px 8px 0 rgba(0,0,0,0.8)); 
+  }
 
-  .rank-char.rank-nicetry { font-size: 40px; -webkit-text-stroke: 2px #000; margin-right: 0; padding-right: 0; color: #fff; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+  .rank-char.rank-nicetry { font-size: 50px; -webkit-text-stroke: 2.5px #000; margin-right: 0; padding-right: 0; color: #fff; letter-spacing: -3px; }
 
   .rank-god {
       background: linear-gradient(135deg, #fff 0%, #ffd700 40%, #ffaa00 100%);
       -webkit-background-clip: text; color: transparent;
-      filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 10px #ffaa00);
+      filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.8)) drop-shadow(5px 5px 0 #000);
+      -webkit-text-stroke: 0;
+      position: relative;
   }
-  .rank-z { background: linear-gradient(to bottom, #ef4444 0%, #7f1d1d 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #ef4444); }
-  .rank-s { background: linear-gradient(to bottom, #fde047 0%, #eab308 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #eab308); }
-  .rank-a { background: linear-gradient(to bottom, #67e8f9 0%, #06b6d4 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #06b6d4); }
-  .rank-b { background: linear-gradient(to bottom, #86efac 0%, #22c55e 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #22c55e); }
-  .rank-c { background: linear-gradient(to bottom, #fb923c 0%, #ea580c 100%); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 0 10px #ea580c); }
-  .rank-f { color: #ffffff; background: none; -webkit-background-clip: initial; filter: none; text-shadow: none; font-weight: 900; }
-  .res-msg-platinum, .res-msg-nice { color: #ffffff !important; background: none !important; -webkit-background-clip: initial !important; filter: none !important; text-shadow: none !important; font-weight: 900; }
+  .rank-god::after { 
+      content: 'GOD'; position: absolute; left:0; top:0; z-index:-1;
+      -webkit-text-stroke: 8px #000; color: #000;
+  }
+  
+  .rank-z { color: #ff0022; text-shadow: 4px 4px 0 #500; }
+  .rank-s { color: #ffdd00; text-shadow: 4px 4px 0 #b38600; }
+  .rank-a { color: #00ccff; text-shadow: 4px 4px 0 #005580; }
+  .rank-b { color: #33ff55; text-shadow: 4px 4px 0 #0f4d1a; }
+  .rank-c { color: #ff8800; text-shadow: 4px 4px 0 #804400; }
+  .rank-f { color: #888; text-shadow: 4px 4px 0 #222; }
 
-  .nav-btn { pointer-events: auto; background: #333; color: #fff; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; flex-shrink: 0; }
-  .nav-btn:active { background: #fff; color:#000; transform: scale(0.9); }
+  .res-msg-platinum, .res-msg-nice { color: #ffffff !important; background: none !important; -webkit-background-clip: initial !important; filter: none !important; text-shadow: 3px 3px 0 #000 !important; font-weight: 900; -webkit-text-stroke: 1.5px #000 !important;}
+
+  .nav-btn { pointer-events: auto; background: #333; color: #fff; width: 44px; height: 44px; border-radius: 50%; border: 3px solid #fff; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; flex-shrink: 0; box-shadow: 4px 4px 0 #000; }
+  .nav-btn:active { background: #fff; color:#000; transform: scale(0.9); box-shadow: 0 0 0 #000; }
   .nav-btn:disabled { opacity: 0; pointer-events: none; }
 
-  /* UPDATE: NEW RECORD - SMASH STYLE TEXT */
+  /* NEW RECORD - SMASH STYLE */
   .new-record-badge {
-      background: none;
-      border: none;
-      box-shadow: none;
-      
-      /* 強力なグラデーションと縁取り */
       background: linear-gradient(to bottom, #fff 30%, #ffd700 60%, #b8860b 100%);
-      -webkit-background-clip: text;
-      color: transparent;
-      -webkit-text-stroke: 1px #fff; /* 白縁取り */
+      -webkit-background-clip: text; color: transparent;
+      -webkit-text-stroke: 0;
       
-      font-size: 32px; /* より大きく */
+      font-size: 42px; 
       font-weight: 900;
       font-style: italic;
       line-height: 1.0;
-      padding: 0;
+      padding: 0 10px;
+      margin-right: -10px; 
       margin-bottom: 5px;
       
-      /* ドロップシャドウで浮き上がらせる */
-      filter: drop-shadow(4px 4px 0px rgba(0,0,0,1)) drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+      filter: drop-shadow(5px 5px 0px #000) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
       
       display: none;
       align-items: center;
       justify-content: center;
-      transform: skewX(-10deg) rotate(-2deg); /* 少し傾ける */
+      transform: skewX(-10deg) rotate(-3deg); 
       position: relative; z-index: 9999;
-      letter-spacing: -2px;
+      letter-spacing: -3px;
       pointer-events: none;
   }
   .new-record-badge.show { display: inline-block; animation: badgePopSmash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes badgePopSmash {
       0% { transform: scale(3) skewX(-10deg) rotate(10deg); opacity: 0; }
-      100% { transform: scale(1) skewX(-10deg) rotate(-2deg); opacity: 1; }
+      100% { transform: scale(1) skewX(-10deg) rotate(-3deg); opacity: 1; }
   }
 
   .score-row-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 5px; margin-bottom: 5px; position: relative; z-index: 5000; }
-  .total-score-box { font-family: var(--font-ui); text-align: center; font-size: 32px; font-weight: 900; font-style: italic; color: #fff; text-shadow: 3px 3px 0 #000; letter-spacing: -1px; line-height: 1.0; }
-  .total-score-box span.total-label { font-size: 12px; color: #aaa; display: block; margin-bottom: 2px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 1px 1px 0 #000; font-weight: 700; }
-  .total-avg-label { display: block; margin-top: 4px; font-weight: 700; font-style: italic; text-shadow: 1px 1px 0 #000; }
-  .total-avg-label .avg-text { font-size: 0.5em; color: #888; letter-spacing: 2px; margin-right: 4px; }
+  .total-score-box { 
+      font-family: var(--font-ui); text-align: center; font-size: 38px; font-weight: 900; font-style: italic; color: #fff; text-shadow: 4px 4px 0 #000; letter-spacing: -2px; line-height: 1.0; 
+      paint-order: stroke fill;
+      -webkit-text-stroke: 1.5px #000; 
+  }
+  .total-score-box span.total-label { font-size: 14px; color: #ddd; display: block; margin-bottom: 2px; letter-spacing: 1px; text-transform: uppercase; text-shadow: 2px 2px 0 #000; font-weight: 900; -webkit-text-stroke: 0; font-style: normal; }
+  .total-avg-label { display: block; margin-top: 4px; font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; -webkit-text-stroke: 0; }
+  .total-avg-label .avg-text { font-size: 0.6em; color: #aaa; letter-spacing: 1px; margin-right: 4px; }
   .total-avg-label .avg-value { font-size: 1em; color: #fff; }
 
-  .next-rank-line { margin-top: 8px; font-size: 18px; font-weight: 900; letter-spacing: 1px; opacity: 0.92; text-shadow: 1px 1px 0 #000; }
+  .next-rank-line { margin-top: 8px; font-size: 18px; font-weight: 900; letter-spacing: -1px; opacity: 0.9; text-shadow: 2px 2px 0 #000; -webkit-text-stroke: 0.5px #000; font-style: italic; }
 
-  .detail-table { width: 100%; margin-bottom: 5px; border-collapse: collapse; font-family: var(--font-num); font-size: 13px; }
-  .detail-table th { text-align: left; color: #ccc; border-bottom: 2px solid #555; padding: 4px 4px; font-family: var(--font-ui); font-style: italic; font-weight: 900; font-size: 12px;}
-  .detail-table td { border-bottom: 1px solid #333; padding: 4px 4px; }
+  .detail-table { width: 100%; margin-bottom: 5px; border-collapse: collapse; font-family: var(--font-num); font-size: 14px; }
+  .detail-table th { text-align: left; color: #bbb; border-bottom: 2px solid #555; padding: 4px 4px; font-family: var(--font-ui); font-style: italic; font-weight: 900; font-size: 12px; letter-spacing: -0.5px; }
+  .detail-table td { border-bottom: 1px solid #333; padding: 4px 4px; font-weight: 700; }
   .detail-table tr:last-child td { border-bottom: none; }
-  .dt-grade { font-weight: 700; font-family: var(--font-ui); font-style: italic; width: 35%; text-shadow: 1px 1px 0 #000; }
-  .dt-count { text-align: right; width: 15%;}
+  .dt-grade { 
+      font-weight: 900; font-family: var(--font-ui); font-style: italic; width: 35%; text-shadow: 2px 2px 0 #000; 
+      -webkit-text-stroke: 0; 
+      letter-spacing: -1px; 
+  }
+  .dt-count { text-align: right; width: 15%; color: #fff; }
   .dt-avg { text-align: right; width: 20%; color: #999; font-size: 12px; }
-  .dt-score { text-align: right; font-weight: 700; color: #fff; width: 30%; }
-  .dt-sub { font-size: 10px; color: #666; margin-left: 4px; }
+  .dt-score { text-align: right; font-weight: 900; color: #fff; width: 30%; letter-spacing: -1px; }
+  .dt-sub { font-size: 10px; color: #777; margin-left: 2px; }
 
   .miss-log-container { background: transparent; padding: 0; margin-bottom: 0px; display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
-  .miss-title { font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 4px; font-style: italic; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; text-shadow: 1px 1px 0 #000;}
+  .miss-title { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; font-style: italic; text-transform: uppercase; letter-spacing: -1px; flex-shrink: 0; text-shadow: 2px 2px 0 #000; -webkit-text-stroke: 0; }
   .miss-scroll-wrapper { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-  .feedback-row { display: flex; flex-direction: column; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+  .feedback-row { display: flex; flex-direction: column; background: rgba(50,50,50,0.3); border-radius: 4px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); position: relative; }
   .fb-body { position: relative; height: 140px; display: flex; align-items: center; justify-content: center; overflow: hidden; transform-style: preserve-3d; perspective: 600px; }
   .fb-body-inner { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
   .fb-body-inner.fb-2d { transform: scale(0.7); display:flex; justify-content:center; align-items:flex-end; }
   .fb-body-inner.fb-3d { transform: scale(0.7); margin-top: 2cm; }
   .fb-body-inner.fb-extreme { transform: scale(0.45); }
-  .fb-footer { position: absolute; top: 4px; right: 6px; display: flex; justify-content: flex-end; align-items: center; padding: 2px 6px; background: linear-gradient(to left, rgba(0,0,0,0.85), transparent); font-size: 10px; font-weight: 900; font-family: var(--font-num); color: #ccc; text-shadow: 1px 1px 2px #000; z-index: 10; border-radius: 3px; }
-  .fb-val-correct { color: var(--c-easy); margin-left: 4px; font-size: 11px;}
-  .fb-val-wrong { color: var(--g-miss); margin-left: 4px; font-size: 11px;}
-  .fb-lbl { margin-left: 6px; color: #fff; font-size: 9px; letter-spacing: 1px;}
+  .fb-footer { position: absolute; top: 4px; right: 6px; display: flex; justify-content: flex-end; align-items: center; padding: 2px 8px; background: #000; font-size: 11px; font-weight: 900; font-family: var(--font-num); color: #ccc; text-shadow: none; z-index: 10; border-radius: 4px; border: 1px solid #555; }
+  .fb-val-correct { color: var(--c-easy); margin-left: 4px; font-size: 12px; font-weight: 900;}
+  .fb-val-wrong { color: var(--g-miss); margin-left: 4px; font-size: 12px; font-weight: 900;}
+  .fb-lbl { margin-left: 8px; color: #888; font-size: 9px; letter-spacing: 0px;}
 
-  /* UPDATE: Result Footer Layout */
   .result-footer { 
       position: absolute; bottom: 0; left: 0; width: 100%; height: var(--footer-height); 
-      padding: 0 30px 20px 30px; /* Side padding for buttons */
+      padding: 0 30px 20px 30px; 
       background: linear-gradient(to top, #000 85%, transparent); 
-      display: flex; align-items: center; justify-content: space-between; /* Space out elements */
+      display: flex; align-items: center; justify-content: space-between; 
       gap: 10px; z-index: 10; 
   }
 
-  /* UPDATE: ONE MORE GAME Button Enlarge */
   .unified-btn {
-      flex: 0 0 auto; /* Don't stretch */
-      min-width: 210px; /* Wider */
-      height: 54px; /* Taller */
-      background: linear-gradient(135deg, #0091ff 0%, #0066cc 100%);
+      flex: 0 0 auto; 
+      min-width: 220px; 
+      height: 60px; 
+      background: linear-gradient(170deg, #00aaff 0%, #004080 100%);
       color: #fff;
       font-family: var(--font-ui);
-      font-size: 22px; /* Bigger Font */
+      font-size: 26px; 
       font-weight: 900;
       font-style: italic;
-      border: 3px solid #66b2ff; /* Thicker border */
-      border-radius: 6px;
+      letter-spacing: -1.5px;
+      border: 4px solid #fff; 
+      border-radius: 8px;
       cursor: pointer;
-      transform: skewX(-10deg);
-      box-shadow: 0 0 15px rgba(0, 145, 255, 0.5), 0 0 25px rgba(0, 102, 204, 0.6);
+      transform: skewX(-12deg);
+      box-shadow: 8px 8px 0 #000;
       transition: all 0.1s;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0; /* No margin needed with space-between */
+      margin: 0; 
       position: relative;
       z-index: 10000;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      text-shadow: 2px 2px 0 #000;
+      paint-order: stroke fill;
+      -webkit-text-stroke: 1.5px #000;
   }
   .unified-btn:active {
-      transform: skewX(-10deg) translateY(3px);
-      box-shadow: 0 0 8px rgba(0,0,0,0.6);
-      background: linear-gradient(135deg, #007acc 0%, #0055aa 100%);
+      transform: skewX(-12deg) translateY(4px);
+      box-shadow: 2px 2px 0 #000;
+      background: linear-gradient(170deg, #0088cc 0%, #003366 100%);
   }
   .unified-btn::before {
       content: '';
       position: absolute;
-      inset: -6px;
+      inset: -8px;
       border-radius: inherit;
-      border: 5px solid rgba(0, 145, 255, 0.8);
+      border: 6px solid rgba(0, 170, 255, 0.8);
       opacity: 0;
       pointer-events: none;
       animation: modeSelectPulse 1.2s ease-out infinite;
@@ -546,15 +823,22 @@
 <body>
 
   <div class="app-container" id="app-wrapper">
-    <div class="version-label">v15.5 Fix Unlock Badge</div>
+    <div class="version-label">v18.8 RANK COLORS UNIFIED</div>
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
       <div id="hud-mode-label" class="mode-label">EASY</div>
 
+      <!-- オープニング画面 -->
       <div id="tutorial-overlay">
+          <!-- RANDOMボタン -->
           <button id="btn-mode-toggle" onclick="toggleDimensionMode()">
               <span class="check">☐</span><span class="label">RANDOM</span>
+          </button>
+
+          <!-- HOW TO ボタン (Opening & Mode Select) -->
+          <button id="btn-how-to-opening" class="btn-how-to-common" onclick="openHowTo()">
+              <i data-lucide="help-circle" size="14"></i> HOW TO PLAY
           </button>
 
           <div id="tute-count" class="tute-item"></div>
@@ -612,6 +896,11 @@
     </div>
 
     <div id="bottom-ui-container">
+        <!-- HOW TO ボタン (Bottom UI / Difficulty Select - 予備) -->
+        <button id="btn-how-to-bottom" class="btn-how-to-common" onclick="openHowTo()">
+            <i data-lucide="help-circle" size="14"></i> HELP
+        </button>
+
         <div id="mode-select-container">
             <button class="mode-btn mode-easy active-mode" onclick="handleModeSelect('EASY', this)">
                 <div class="mode-val">EASY</div>
@@ -629,6 +918,121 @@
     </div>
   </div>
 
+  <!-- HOW TO MODAL -->
+  <div id="how-to-modal">
+      <div class="ht-container">
+          <div class="ht-header">
+              <div class="ht-title">HOW TO PLAY</div>
+              <div class="ht-close-btn" onclick="closeHowTo()">✕</div>
+          </div>
+          <div class="ht-body">
+              
+              <!-- SECTION 1: INTRO -->
+              <div class="ht-intro-box">
+                  <div class="ht-intro-title">BRAIN TRAINING</div>
+                  <p class="ht-intro-text">
+                      "Subitizing"（サビタイジング）とは、数を数えずに<br>
+                      <span class="highlight">直感で瞬時に把握する能力</span>のこと。<br>
+                      眼と脳の反射神経を極限まで高めろ！
+                  </p>
+              </div>
+
+              <!-- SECTION 2: FLOW -->
+              <div class="ht-sec-title">GAME FLOW</div>
+              
+              <div class="ht-flow-step">
+                  <div class="ht-step-badge">STEP 1</div>
+                  <div class="ht-step-text">
+                      <div class="step-head">一番左を見ろ！</div>
+                      <div class="step-desc">左端のレーンがターゲットだ。<br>次々と迫るブロックを瞬時に捉えろ。</div>
+                  </div>
+                  <div class="ht-step-icon"><i data-lucide="eye"></i></div>
+              </div>
+
+              <div class="ht-flow-arrow">▼</div>
+
+              <div class="ht-flow-step">
+                  <div class="ht-step-badge">STEP 2</div>
+                  <div class="ht-step-text">
+                      <div class="step-head">直感</div>
+                      <div class="step-desc">「1, 2, 3...」と数えてはいけない。<br>「形」として数を認識するんだ。</div>
+                  </div>
+                  <div class="ht-step-icon"><i data-lucide="brain-circuit"></i></div>
+              </div>
+
+              <div class="ht-flow-arrow">▼</div>
+
+              <div class="ht-flow-step">
+                  <div class="ht-step-badge">STEP 3</div>
+                  <div class="ht-step-text">
+                      <div class="step-head">入力</div>
+                      <div class="step-desc">数字キーを叩け！<br>スピードが速いほどスコアアップ。</div>
+                  </div>
+                  <div class="ht-step-icon"><i data-lucide="zap" style="color:#fff700"></i></div>
+              </div>
+
+              <!-- SECTION 3: JUDGEMENT -->
+              <div class="ht-sec-title">JUDGEMENT & RANK</div>
+              <div class="ht-judge-box">
+                  <p class="ht-judge-desc">
+                      回答までのタイムが速いほど、判定バーの色が変わる。<br>
+                      <span style="color:var(--g-exc)">黄色(MARVELOUS)</span>を維持すると…？
+                  </p>
+                  
+                  <div class="ht-meter-demo">
+                      <div class="meter-label">FAST</div>
+                      <div class="meter-bar">
+                          <div class="m-seg seg-marv">MARV</div>
+                          <div class="m-seg seg-exc">EXC</div>
+                          <div class="m-seg seg-grt">GRT</div>
+                          <div class="m-seg seg-good">GOOD</div>
+                          <div class="m-seg seg-ok">OK</div>
+                      </div>
+                      <div class="meter-label">SLOW</div>
+                  </div>
+
+                  <div class="ht-rank-grid">
+                      <div class="rank-cell c-secret" style="grid-column: span 3;">???</div>
+                      <div class="rank-cell c-s">S</div>
+                      <div class="rank-cell c-a">A</div>
+                      <div class="rank-cell c-b">B</div>
+                      <div class="rank-cell c-c">C</div>
+                      <div class="rank-cell c-d">D</div>
+                  </div>
+              </div>
+
+              <!-- SECTION 4: MODES -->
+              <div class="ht-sec-title">MODES</div>
+              <div class="ht-mode-list">
+                  <div class="ht-mode-item m-easy">
+                      <div class="hm-head">EASY / NORMAL</div>
+                      <div class="hm-body">基本モード。<br>入力は常に<span class="hl">1桁</span>。</div>
+                  </div>
+                  <div class="ht-mode-item m-hard">
+                      <div class="hm-head">HARD / EXTREME</div>
+                      <div class="hm-body">上級者向け。<br>入力は常に<span class="hl">2桁</span>。</div>
+                  </div>
+                  <div class="ht-mode-item m-random">
+                      <div class="hm-head">RANDOM (超上級者向け)</div>
+                      <div class="hm-body">配置が完全にバラバラになるカオスモード。<br>空間認識能力の限界に挑め。<br>※右上のボタンでON/OFF切替</div>
+                  </div>
+              </div>
+
+              <!-- SECTION 5: SCORE UNIT -->
+              <div class="ht-sec-title">WHAT IS "ch"?</div>
+              <div class="ht-ch-box">
+                  <div class="ch-big">ch = Count per Hour</div>
+                  <div class="ch-desc">
+                      「1時間あたり何アイテム処理できるか」という生産性の指標。<br>
+                      正確かつ高速に処理することで、この数値は跳ね上がる。<br>
+                      目指せ、<span style="color:#fff700">10,000ch</span>超え！
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Result Modal -->
   <div id="result-modal" class="modal-overlay">
     <div id="result-card-container" class="result-card">
       <div class="result-scroll-area">
@@ -646,7 +1050,7 @@
             <div id="res-status-msg" class="res-status-msg">STAGE CLEAR</div>
             <div id="res-unlock-wrapper" class="res-unlock-wrapper"></div>
 
-            <div id="res-msg" style="font-size:24px;font-weight:900;margin-top:5px;font-style:italic;color:var(--g-miss);"></div>
+            <div id="res-msg" style="font-size:32px;font-weight:900;margin-top:5px;font-style:italic;color:var(--g-miss);text-shadow:3px 3px 0 #000;-webkit-text-stroke:0;"></div>
         </div>
 
         <div id="result-details">
@@ -692,31 +1096,25 @@
 
     const RANK_ORDER = ['GOD', 'Z', 'S', 'A', 'B', 'C', 'D', 'F'];
 
-    // ★カスタム判定ロジック & ランク個別設定
     const MODES = {
         'EASY': { 
             count: 10, time: 3.0, color: 'var(--c-easy)', type: 'STD',
-            judgments: { marv: 0.5, exc: 1.0, great: 1.5, good: 2.0, ok: 3.0 }, // OKあり
-            // 理論値(0.5s*10=5s) -> 7200ch. GODはそれより上(神速)、SはMarv完走レベル
+            judgments: { marv: 0.5, exc: 1.0, great: 1.5, good: 2.0, ok: 3.0 },
             rankThresholds: { god: 12000, z: 10520, s: 7200, a: 5600, b: 3600, c: 1800, f: 0 }
         },
         'NORMAL': { 
             count: 10, time: 3.5, color: 'var(--c-normal)', type: 'STD',
-            // 【変更】NormalのSランク4000に合わせてMarvelousを0.9に厳格化
-            judgments: { marv: 0.9, exc: 1.5, great: 2.0, good: 3.5 }, // OKなし
-            // S=4000ch. 理論値(0.9s*10=9s) -> 4000ch. 
+            judgments: { marv: 0.9, exc: 1.5, great: 2.0, good: 3.5 },
             rankThresholds: { god: 10000, z: 8800, s: 4000, a: 2800, b: 2000, c: 1200, f: 0 }
         },
         'HARD': { 
             count: 10, time: 4.0, color: 'var(--c-hard)', type: 'HARD',
-            judgments: { marv: 1.5, exc: 2.0, great: 4.0 }, // OK, Goodなし (Greatまで)
-            // S=2400ch. 理論値(1.5s*10=15s) -> 2400ch. 
+            judgments: { marv: 1.5, exc: 2.0, great: 4.0 },
             rankThresholds: { god: 6000, z: 4200, s: 2400, a: 1800, b: 1200, c: 900, f: 0 }
         },
         'EXTREME': { 
             count: 10, time: 5.0, color: 'var(--c-extreme)', type: 'EXT',
-            judgments: { marv: 2.0, exc: 3.0, great: 5.0 }, // OK, Goodなし (Greatまで)
-            // S=1800ch. 理論値(2.0s*10=20s) -> 1800ch. 
+            judgments: { marv: 2.0, exc: 3.0, great: 5.0 },
             rankThresholds: { god: 4500, z: 3000, s: 1800, a: 1200, b: 900, c: 600, f: 0 }
         }
     };
@@ -750,11 +1148,9 @@
         history: [],
         historyIndex: 0,
         hasPlayedOnce: false,
-
-        /* 連続回避用ステート */
         lastCount: null,
         lastShapeSig: null,
-        consecutiveCountValue: 0, // 同じ数が連続した回数
+        consecutiveCountValue: 0, 
     };
 
     const UI = {
@@ -792,6 +1188,8 @@
         tuteStartBtn: document.getElementById('tute-start-btn'),
         tuteModeSelect: document.getElementById('tute-mode-select'),
         virtualKeyboard: document.getElementById('virtual-keyboard'),
+        howToModal: document.getElementById('how-to-modal'),
+        btnHowToBottom: document.getElementById('btn-how-to-bottom'),
         timerPathL: null,
         timerPathR: null
     };
@@ -806,7 +1204,6 @@
     }
 
     function getRankFromScore(score, modeName) {
-        // モード別の閾値を使用
         const thresholds = MODES[modeName].rankThresholds;
         if(score >= thresholds.god) return 'GOD';
         if(score >= thresholds.z) return 'Z';
@@ -815,6 +1212,14 @@
         if(score >= thresholds.b) return 'B';
         if(score >= thresholds.c) return 'C';
         return 'D'; 
+    }
+
+    function openHowTo() {
+        UI.howToModal.classList.add('active');
+    }
+    
+    function closeHowTo() {
+        UI.howToModal.classList.remove('active');
     }
 
     function setupSlotTimerSVG() {
@@ -843,12 +1248,12 @@
         const pathL = document.createElementNS(ns, "path");
         pathL.setAttribute("d", pathStrL);
         pathL.setAttribute("class", "timer-path");
-        pathL.style.strokeWidth = "7px";
+        pathL.style.strokeWidth = "8px";
 
         const pathR = document.createElementNS(ns, "path");
         pathR.setAttribute("d", pathStrR);
         pathR.setAttribute("class", "timer-path");
-        pathR.style.strokeWidth = "7px";
+        pathR.style.strokeWidth = "8px";
 
         svg.appendChild(pathL);
         svg.appendChild(pathR);
@@ -946,15 +1351,9 @@
 
             if(STATE.status === 'PLAYING') {
                 const mode = MODES[STATE.currentModeKey];
-                if (mode.type === 'EXT') {
+                
+                if (mode.type === 'EXT' || mode.type === 'HARD') {
                     if (e.key >= '0' && e.key <= '9') {
-                        animateKey(e.key); processInputExtreme(e.key);
-                    } else if (e.key === 'Backspace' || e.key === 'Delete') {
-                        animateKey('DEL'); processInputExtreme('DEL');
-                    }
-                } else if (mode.type === 'HARD') {
-                     // HARD Mode logic (Now uses same buffered input as Extreme)
-                     if (e.key >= '0' && e.key <= '9') {
                         animateKey(e.key); processInputExtreme(e.key);
                     } else if (e.key === 'Backspace' || e.key === 'Delete') {
                         animateKey('DEL'); processInputExtreme('DEL');
@@ -1010,9 +1409,9 @@
         if(STATE.status === 'PLAYING') {
             const valStr = k.dataset.key;
             const mode = MODES[STATE.currentModeKey];
-            if (mode.type === 'EXT') processInputExtreme(valStr);
-            else if (mode.type === 'HARD') processInputExtreme(valStr); // Use Extreme (Buffered) input for Hard
-            else {
+            if (mode.type === 'EXT' || mode.type === 'HARD') {
+                processInputExtreme(valStr); 
+            } else {
                 let val = parseInt(valStr, 10);
                 if (!Number.isNaN(val)) processInput(val);
             }
@@ -1025,6 +1424,13 @@
         if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
         if (UI.tuteModeSelect) {
             UI.tuteModeSelect.style.display = 'flex';
+            
+            // モードセレクト画面になったら、下のHELPボタンを表示する
+            if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex';
+            // OpeningのHOW TOボタンは非表示にしない（要望により常駐）
+            // const opBtn = document.getElementById('btn-how-to-opening');
+            // if(opBtn) opBtn.style.display = 'none';
+
             checkUnlocks();
         }
     }
@@ -1098,10 +1504,23 @@
         UI.tuteBigMsg.style.display = 'none';
         UI.tuteBigMsg.classList.remove('pop');
 
+        // HOW TO モーダル閉じる
+        closeHowTo();
+
+        // OpeningのHOW TOボタンを表示
+        const opBtn = document.getElementById('btn-how-to-opening');
+        if(opBtn) opBtn.style.display = 'flex';
+        // BottomのHOW TOボタンは非表示
+        if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
+
         if (!STATE.hasPlayedOnce) {
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'inline-flex';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
         } else {
+            // 一度プレイした後はモードセレクト状態へ
+            if(opBtn) opBtn.style.display = 'flex'; // ★ここを変更：常に表示
+            // if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex'; // Bottomは非表示でいい（上にあるから）
+
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'flex';
         }
@@ -1113,14 +1532,13 @@
 
     function checkUnlocks() {
         const ranks = currentRanksStore();
-        const easyRank   = ranks['EASY'];
+        const easyRank    = ranks['EASY'];
         const normalRank = ranks['NORMAL'];
-        const hardRank   = ranks['HARD'];
+        const hardRank    = ranks['HARD'];
         const bestEasyCH = STATE.saveData.bestEasyCH || 0;
 
         const isNormalLocked = !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
-        const isHardLocked   = !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
-        // EXTREME解放条件変更: Easy1万点 -> Zランク(11520)
+        const isHardLocked    = !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
         const isExtremeLocked= !(bestEasyCH >= MODES['EASY'].rankThresholds.z || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
 
         const setLock = (sel, locked) => {
@@ -1138,9 +1556,9 @@
 
     function isModeLocked(modeKey) {
         const ranks = currentRanksStore();
-        const easyRank   = ranks['EASY'];
+        const easyRank    = ranks['EASY'];
         const normalRank = ranks['NORMAL'];
-        const hardRank   = ranks['HARD'];
+        const hardRank    = ranks['HARD'];
         const bestEasyCH = STATE.saveData.bestEasyCH || 0;
 
         if (modeKey === 'EASY') return false;
@@ -1182,6 +1600,11 @@
 
         UI.btnModeToggle.classList.add('disabled');
         UI.bottomUi.classList.add('bottom-ui-dimmed');
+        
+        // Countdwon中はHOW TOボタン隠す
+        if(UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
+        const opBtn = document.getElementById('btn-how-to-opening');
+        if(opBtn) opBtn.style.display = 'none';
 
         const seq = ['READY', '3', '2', '1'];
         let idx = 0;
@@ -1267,15 +1690,12 @@
 
         let colorCode = '#a0a0a0';
 
-        // ★バーの色を判定基準に合わせて変化させる
-        if (currentLap <= jud.marv) colorCode = '#fff700'; // Marvelous
-        else if (currentLap <= jud.exc) colorCode = '#00ffff'; // Excellent
-        else if (currentLap <= jud.great) colorCode = '#00ff33'; // Great
-        
-        // Good/OKが存在するかチェックして色分け
-        else if (jud.good && currentLap <= jud.good) colorCode = '#ffcc00'; // Good
-        else if (jud.ok && currentLap <= jud.ok) colorCode = '#a0a0a0'; // OK
-        else colorCode = '#ff0000'; // Danger/Miss Zone
+        if (currentLap <= jud.marv) colorCode = '#fff200'; // Marv (Yellow)
+        else if (currentLap <= jud.exc) colorCode = '#00ffff'; // Exc (Cyan)
+        else if (currentLap <= jud.great) colorCode = '#00ff2a'; // Great (Green)
+        else if (jud.good && currentLap <= jud.good) colorCode = '#ffaa00'; // Good
+        else if (jud.ok && currentLap <= jud.ok) colorCode = '#b0b0b0'; // OK
+        else colorCode = '#ff0033'; // Danger
 
         updateTimerSVG(pct, colorCode);
         STATE.rafId = requestAnimationFrame(gameLoop);
@@ -1288,19 +1708,25 @@
 
     function processInputExtreme(key) {
         if(!STATE.current || STATE.isInputBlocked) return;
+        
         if (key === 'DEL') {
             STATE.currentInput = STATE.currentInput.slice(0, -1);
             return;
         }
-        if (STATE.currentInput.length < 2) STATE.currentInput += key;
-        if (STATE.currentInput.length === 2) {
+
+        const targetStr = String(STATE.current.count);
+        const targetLen = targetStr.length;
+
+        if (STATE.currentInput.length < targetLen) {
+            STATE.currentInput += key;
+        }
+
+        if (STATE.currentInput.length === targetLen) {
             const val = parseInt(STATE.currentInput, 10);
             checkAnswer(val);
             STATE.currentInput = '';
         }
     }
-
-    /* HARD Input Logic is now merged into processInputExtreme */
 
     function checkAnswer(val) {
         const now = Date.now();
@@ -1316,14 +1742,12 @@
             let gradeKey = "miss";
             let gradeLabel = "MISS";
 
-            // ★厳格化判定ロジック
             if (delta <= jud.marv) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
             else if (delta <= jud.exc) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
             else if (delta <= jud.great) { gradeKey = "great"; gradeLabel = "GREAT"; }
             else if (jud.good && delta <= jud.good) { gradeKey = "good"; gradeLabel = "GOOD"; }
             else if (jud.ok && delta <= jud.ok) { gradeKey = "ok"; gradeLabel = "OK"; }
             else {
-                // 許容判定より遅い場合は正解でもミス扱い (時間切れ同様)
                 handleMiss("SLOW", val, STATE.current.count);
                 return;
             }
@@ -1368,7 +1792,7 @@
 
     function handleMiss(reason, input, answer) {
         let shapeCopy = STATE.is3DMode ? STATE.current.shape.map(r => [...r]) : [...STATE.current.shape];
-        let layoutCopy = STATE.current.shape._rndPositions
+        let layoutCopy = STATE.current.shape._rndPositions 
             ? STATE.current.shape._rndPositions.map(p => ({ x: p.x, y: p.y }))
             : null;
 
@@ -1385,7 +1809,7 @@
         
         let msg = "NICE TRY";
         if (reason === "TIME") msg = "TIME OVER";
-        else if (reason === "SLOW") msg = "TOO SLOW"; // 遅すぎ判定用メッセージ
+        else if (reason === "SLOW") msg = "TOO SLOW";
 
         flashSlot("MISS");
         gameOver(msg);
@@ -1416,7 +1840,6 @@
         else if(text === "GOOD") color = "var(--g-good)";
 
         el.style.color = color;
-        el.style.webkitTextStroke = "3px #000";
 
         document.body.appendChild(el);
         setTimeout(() => { if(el && el.parentNode) el.parentNode.removeChild(el); }, 1000);
@@ -1425,7 +1848,6 @@
     function shapeSignature(shapeData, is3D) {
         try {
             if (!shapeData) return 'null';
-            // 確実な比較のためJSON文字列化を採用
             return JSON.stringify(shapeData);
         } catch(e) {
             return 'err';
@@ -1441,11 +1863,10 @@
         }
 
         let n;
-        const maxAttempts = 100; // 重複回避のための試行回数増量
+        const maxAttempts = 100;
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             
-            // 抽選ロジック
             if (modeKey === 'EASY') {
                 const r = Math.random() * 100;
                 if (r < 28) n = 2;
@@ -1454,7 +1875,6 @@
                 else n = 5;
             }
             else if (modeKey === 'NORMAL') {
-                // Removed 1 (Starts from 2), removed 0
                 const r = Math.random() * 100;
                 if (r < 10) n = 2;
                 else if (r < 25) n = 3;
@@ -1462,13 +1882,12 @@
                 else n = 4 + Math.floor(Math.random() * 5); // 4-8
             }
             else if (modeKey === 'HARD') {
-                // 10 - 17 Random (8 varieties)
                 n = Math.floor(10 + Math.random() * 8); 
             }
             else if (modeKey === 'EXTREME') {
                 const q = STATE.generatedCount + 1;
                 let min, max;
-                if (q === 1) { min=13; max=16; } // Start higher (13+)
+                if (q === 1) { min=13; max=16; }
                 else if (q <= 3) { min=17; max=22; }
                 else if (q <= 5) { min=23; max=29; }
                 else if (q <= 7) { min=30; max=35; }
@@ -1482,7 +1901,7 @@
 
             if(modeKey === 'EASY') { maxH = 3; cols = 3; }
             else if(modeKey === 'NORMAL') { maxH = 5; cols = 3; }
-            else if(modeKey === 'HARD') { maxH = 6; cols = 4; } // Hard: 4x6
+            else if(modeKey === 'HARD') { maxH = 6; cols = 4; }
             else if(modeKey === 'EXTREME') { maxH = 9; cols = 9; }
 
             let shapeData, trueCount, sig;
@@ -1497,28 +1916,19 @@
             else shapeData.forEach(h => trueCount += h);
             if(trueCount === 0 && n > 0) trueCount = 1;
 
-            // シグネチャ生成（JSON文字列化で厳密に比較）
             sig = shapeSignature(shapeData, STATE.is3DMode);
-
-            // ■ 連続制限ロジック (強化版)
-            // 1. 「配列（形）」が前回と同じなら絶対NG (isSameShape)
-            // 2. 「個数」が同じ場合、連続2回までならOK。ただし形は必ず違うこと。
-            //    (数が同じで形も同じなら、上記1で弾かれるので安心)
 
             const isSameCount = (STATE.lastCount !== null && trueCount === STATE.lastCount);
             const isSameShape = (STATE.lastShapeSig !== null && sig === STATE.lastShapeSig);
 
-            if (isSameShape) continue; // 形が同じなら即リトライ（数は関係ない）
+            if (isSameShape) continue; 
 
             if (isSameCount) {
-                // 同じ数が来た場合、既に2回連続(consecutiveCountValue >= 2)していたらリトライ
                 if (STATE.consecutiveCountValue >= 2) {
                     continue;
                 }
-                // 形は違うし、連続回数も許容範囲内なら採用
             }
 
-            // 採用
             if (isSameCount) {
                 STATE.consecutiveCountValue++;
             } else {
@@ -1540,7 +1950,6 @@
         arr[currentIdx]++;
         let placed = 1;
 
-        // Fallback for Hard mode high numbers to prevent infinite loop if strict connection fails
         let failCount = 0;
 
         while(placed < n) {
@@ -1554,7 +1963,6 @@
             }
             
             if(candidates.length === 0) {
-                // Emergency fill if stuck
                 for(let i=0; i<cols; i++) {
                     if(arr[i] < maxHeight) { candidates.push(i); }
                 }
@@ -1799,7 +2207,7 @@
         };
 
         const wasNormalLocked = isModeLocked('NORMAL');
-        const wasHardLocked   = isModeLocked('HARD');
+        const wasHardLocked    = isModeLocked('HARD');
         const wasExtremeLocked= isModeLocked('EXTREME');
 
         if (reason === "FINISHED") {
@@ -1819,7 +2227,7 @@
             if (ch > (STATE.saveData.bestCH || 0)) STATE.saveData.bestCH = ch;
 
             const nowNormalLocked = isModeLocked('NORMAL');
-            const nowHardLocked   = isModeLocked('HARD');
+            const nowHardLocked    = isModeLocked('HARD');
             const nowExtremeLocked= isModeLocked('EXTREME');
 
             if (wasExtremeLocked && !nowExtremeLocked) resultData.unlockEvent = 'EXTREME';
@@ -1847,7 +2255,6 @@
         if (idx <= 0) return `<div class="next-rank-line">MAX RANK</div>`; // GOD
 
         const nextRank = RANK_ORDER[idx - 1];
-        // 修正: モード別の閾値を参照
         const thresholds = MODES[data.modeName].rankThresholds;
 
         const map = { GOD:'god', Z:'z', S:'s', A:'a', B:'b', C:'c', D:'f', F:'f' };
@@ -1926,7 +2333,7 @@
             UI.resMsg.style.display = 'block';
             UI.resMsg.className = "";
             if (data.reason === "NICE TRY") UI.resMsg.classList.add("res-msg-nice");
-            else if (data.reason === "TOO SLOW") UI.resMsg.classList.add("res-msg-nice"); // TOO SLOWもNICE TRY色
+            else if (data.reason === "TOO SLOW") UI.resMsg.classList.add("res-msg-nice");
             else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
         }
 
@@ -1943,7 +2350,6 @@
                 if(data.unlockEvent === 'HARD') ulColorClass = 'mode-hard';
                 if(data.unlockEvent === 'EXTREME') ulColorClass = 'mode-extreme';
                 
-                // ★UPDATE: スマブラ乱入風スタンプ
                 UI.resUnlockWrapper.innerHTML = `
                     <div class="unlock-badge ${ulColorClass}">
                         <div class="main-text">UNLOCKED</div>
@@ -2019,7 +2425,6 @@
                     m.shape._rndPositions = m.layout.map(p => ({ x: p.x, y: p.y }));
                 }
 
-                /* ⑤：過去の記録に応じたモード色を反映（m.modeを渡す） */
                 renderShape(inner, m.shape, m.is3D, m.isRandom, m.mode);
 
                 body.appendChild(inner);
