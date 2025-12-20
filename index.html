@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SNOW: SMASH SUBITIZING - v18.11</title>
+<title>SNOW: SMASH SUBITIZING - v18.12</title>
 <!-- スマブラ風の極太フォント "Montserrat" (900 Italic) を導入 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -562,10 +562,12 @@
 
   .eval-effect { 
       position: fixed; top: calc(20% - 30px - 3.0cm); left: 50%; transform: translateX(-50%) scale(0.35); 
-      font-family: var(--font-ui); font-size: 100px; font-weight: 900; font-style: italic; letter-spacing: -6px; 
+      font-family: var(--font-ui); 
+      font-size: 50px; /* Reduced by 50% from 100px */
+      font-weight: 900; font-style: italic; letter-spacing: -3px; /* Adjusted spacing */
       z-index: 10000; pointer-events: none; 
       paint-order: stroke fill;
-      -webkit-text-stroke: 4px #000; text-shadow: 8px 8px 0px rgba(0,0,0,0.8); 
+      -webkit-text-stroke: 2.5px #000; text-shadow: 4px 4px 0px rgba(0,0,0,0.8); /* Adjusted stroke and shadow */
       animation: SNOWHit 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; 
   }
   @keyframes SNOWHit { 
@@ -844,7 +846,7 @@
 <body>
 
   <div class="app-container" id="app-wrapper">
-    <div class="version-label">v18.11 FIXED</div>
+    <div class="version-label">v18.12 EVAL SIZE FIX</div>
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
