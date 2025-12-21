@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <!-- viewport-fit=cover を追加して全画面表示を最適化 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SNOW: SMASH SUBITIZING - v21.0 Responsive</title>
+<title>SNOW: SMASH SUBITIZING - v38.0 Particle Update</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,900&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
   :root {
@@ -34,17 +34,10 @@
     --font-num: 'Montserrat', sans-serif;
 
     /* ★ RESPONSIVE UNITS ★ */
-    /* 画面幅に応じてブロックサイズを変える (画面幅の約7.5% または 最大30px) */
     --block-size-base: min(7.5vw, 30px);
-    
-    /* ブロックサイズ変数 (2Dと3Dで微調整) */
     --block-size-2d: var(--block-size-base);
     --block-size-3d: calc(var(--block-size-base) * 1.1);
-
-    /* キーボードの高さ: 画面高さの30%確保しつつ、最低でも180px、最大でも280px */
     --kb-height: clamp(180px, 30dvh, 280px);
-    
-    /* フッター高さ: 安全領域を考慮 */
     --footer-base-height: 80px;
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     --footer-total-height: calc(var(--footer-base-height) + var(--safe-area-bottom));
@@ -70,7 +63,7 @@
     background-position: 0 0, 15px 15px;
   }
 
-  /* コンテナ: PCで見ても横に伸びすぎないように制限 */
+  /* コンテナ */
   .app-container {
     width: 100%; height: 100%;
     max-width: 600px; /* Max width for tablets/PC */
@@ -120,12 +113,11 @@
   .app-container.showing-result .stage-area { visibility: hidden; }
 
   .stage-area {
-    flex: 1; /* 残りの高さを全て使う */
-    /* キーボードとフッターの高さを引く計算を自動化 */
+    flex: 1;
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
     position: relative; overflow: hidden;
     perspective: 900px;
-    min-height: 0; /* Flexbox内で縮小可能にする */
+    min-height: 0;
   }
 
   /* Version Label */
@@ -213,7 +205,7 @@
   #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 15px rgba(208, 0, 255, 0.4); }
   #btn-mode-toggle.random-on span.check { color: #d000ff; text-shadow: 0 0 5px #d000ff; }
 
-  /* HOW TO BUTTON (Common Style) */
+  /* HOW TO BUTTON */
   .btn-how-to-common {
       position: absolute;
       pointer-events: auto;
@@ -230,19 +222,17 @@
   .btn-how-to-common:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); background: #003366; }
    
   #btn-how-to-opening { top: 6px; left: 15px; }
-  /* HOW TO ボタンを下から浮かせて、UIと被らないように */
   #btn-how-to-bottom { top: auto; bottom: calc(var(--footer-total-height) - 10px); left: 15px; width: auto; position: absolute; z-index: 3200; display: none; }
 
   #conveyor-wrapper {
     width: 100%; height: 100%;
     display: flex; align-items: flex-end; justify-content: center;
     gap: 8px; 
-    /* 上下の余白を画面比率で調整 */
     padding: 2vh 2vw 0 2vw;
     transform-style: preserve-3d; pointer-events: none;
   }
   .slot {
-    flex: 1; height: calc(100% - 2vh); /* Slightly adjusted */
+    flex: 1; height: calc(100% - 2vh);
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
     position: relative; transform-style: preserve-3d;
     background: rgba(20,20,20,0.6); border-radius: 4px 4px 0 0;
@@ -291,7 +281,6 @@
       height: var(--kb-height); 
       background: linear-gradient(150deg, #0a0a0a 0%, #151515 100%); 
       padding: 8px; 
-      /* 下部のpaddingにsafe-areaを追加 */
       padding-bottom: max(8px, var(--safe-area-bottom));
       display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; z-index: 3000; border-top: 4px solid #333; pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8); 
   }
@@ -313,13 +302,11 @@
       color: #000; 
       border-color: #fff; 
   }
-  /* キーの文字サイズを可変に */
   .kb-key-main { font-size: clamp(24px, 5vh, 36px); font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; letter-spacing: -2px; }
   .kb-key.disabled { opacity: 0.15; pointer-events: none; box-shadow: none; border-color: #222; background: #000; }
   .kb-key.ripple::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.8); opacity: 0; pointer-events: none; animation: keyFlash 0.15s ease-out; }
   @keyframes keyFlash { 0% { opacity: 0.8; } 100% { opacity: 0; } }
 
-  /* VERSION DISPLAY KEY STYLE */
   .kb-key.kb-version {
       background: none;
       border: none;
@@ -350,7 +337,6 @@
   .mode-normal { background: linear-gradient(170deg, #00aaff 0%, #004080 100%); }
   .mode-hard { background: linear-gradient(170deg, #ffcc00 0%, #997a00 100%); }
   .mode-extreme { background: linear-gradient(170deg, #ff0022 0%, #80000f 100%); }
-  /* ボタン文字サイズ調整 */
   .mode-val { font-size: clamp(12px, 3.5vw, 18px); font-weight: 900; font-style: italic; text-transform: uppercase; white-space: nowrap; z-index: 1; letter-spacing: -1px; }
   .mode-btn.locked { opacity: 0.3; filter: grayscale(1); pointer-events: none; border-color: #333; color: #555; background: #111; }
   .mode-btn.locked .mode-val { display: none; }
@@ -361,12 +347,11 @@
   #tutorial-overlay.active { opacity: 1; pointer-events: auto; }
   .tute-item { position: absolute; display: flex; flex-direction: column; align-items: center; color: #fff; filter: drop-shadow(0 0 8px rgba(0,0,0,0.8)); }
   #tute-central-msg { 
-      top: 45%; left: 50%; transform: translate(-50%, -50%); /* 中央配置を改善 */
+      top: 45%; left: 50%; transform: translate(-50%, -50%); 
       width: 100%; z-index: 5000; display:flex; justify-content:center; flex-direction: column; align-items: center; gap: 16px; 
   }
    
   .tute-big-msg { 
-      /* フォントサイズをレスポンシブに: 最小40px、最大100px、画面幅の15% */
       font-size: clamp(40px, 15vw, 100px); 
       font-weight: 900; font-style: italic; transition: transform 0.1s; letter-spacing: -6px; 
       color: #fff; display:none; margin-bottom: 20px; z-index: 5001;
@@ -419,7 +404,7 @@
 
   .ht-container {
       width: 100%; max-width: 500px;
-      height: 100%; /* フルハイトにしてスクロールさせる */
+      height: 100%; 
       background: #111;
       border: 4px solid #fff;
       border-radius: 12px;
@@ -427,16 +412,15 @@
       box-shadow: 0 0 50px rgba(0, 170, 255, 0.2), 15px 15px 0 #000;
       position: relative;
       display: flex; flex-direction: column;
-      overflow: hidden; /* Header固定のため */
+      overflow: hidden; 
   }
    
-  /* Header Stripe */
   .ht-header {
       background: linear-gradient(90deg, #00aaff, #004488);
       padding: 15px 20px;
       border-bottom: 3px solid #fff;
       display: flex; justify-content: space-between; align-items: center;
-      flex-shrink: 0; /* 縮小させない */
+      flex-shrink: 0;
       z-index:10;
       box-shadow: 0 5px 10px rgba(0,0,0,0.5);
   }
@@ -454,19 +438,17 @@
   }
   .ht-close-btn:active { transform: scale(0.9); }
 
-  /* Content Body */
   .ht-body {
       padding: 20px 25px;
-      padding-bottom: 80px; /* スクロール最下部の余裕 */
+      padding-bottom: 80px; 
       background: 
           repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 15px),
           radial-gradient(circle at center, #222 0%, #000 100%);
       display: flex; flex-direction: column; gap: 20px;
-      overflow-y: auto; /* ここだけスクロール */
-      -webkit-overflow-scrolling: touch; /* iOS慣性スクロール */
+      overflow-y: auto; 
+      -webkit-overflow-scrolling: touch; 
   }
 
-  /* Intro Box */
   .ht-intro-box {
       border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 12px;
       background: rgba(255,255,255,0.05); text-align: center;
@@ -475,7 +457,6 @@
   .ht-intro-text { font-size: 13px; line-height: 1.6; color: #eee; font-weight: 700; font-family: var(--font-num); }
   .highlight { color: #00ffff; font-weight: 900; text-decoration: underline; }
 
-  /* Section Title */
   .ht-sec-title {
       font-size: 18px; font-weight: 900; font-style: italic; color: #fff;
       border-bottom: 4px solid #fff; margin-top: 10px; margin-bottom: 5px;
@@ -483,7 +464,6 @@
       letter-spacing: -1px;
   }
 
-  /* Flow Step */
   .ht-flow-step {
       display: flex; align-items: center; 
       background: rgba(0,0,0,0.4); 
@@ -517,11 +497,9 @@
   .ht-step-icon i { width: 28px; height: 28px; color: #fff; }
   .ht-flow-arrow { text-align: center; color: #555; font-size: 10px; transform: scaleY(0.6); }
 
-  /* Judge Box */
   .ht-judge-box { display: flex; flex-direction: column; gap: 10px; }
   .ht-judge-desc { font-size: 12px; color: #ccc; text-align: center; margin-bottom: 5px; line-height: 1.4; }
    
-  /* Visual Meter */
   .ht-meter-demo { 
       display: flex; align-items: center; gap: 8px; 
       background: #000; padding: 10px; border-radius: 6px; border: 1px solid #333; 
@@ -535,7 +513,6 @@
   .seg-good { background: var(--g-good); flex: 2; }
   .seg-ok { background: var(--g-ok); flex: 2; }
 
-  /* Rank Grid - UPDATED FOR UNIFIED COLORS */
   .ht-rank-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 5px;
   }
@@ -549,16 +526,13 @@
       box-shadow: inset 0 0 10px rgba(255,255,255,0.05), 0 0 8px currentColor; /* 文字色で発光 */
   }
    
-  /* Color Classes for Ranks - Matching Game Judgement Colors */
   .c-secret { color: #555; }
-   
-  .c-s { color: #ffdd00; } /* Yellow (S) */
-  .c-a { color: #00ffff; } /* Cyan (A) */
-  .c-b { color: #00ff2a; } /* Green (B) */
-  .c-c { color: #ffaa00; } /* Orange (C) */
-  .c-d { color: #b0b0b0; } /* Silver (D) */
+  .c-s { color: #ffdd00; }
+  .c-a { color: #00ffff; }
+  .c-b { color: #00ff2a; }
+  .c-c { color: #ffaa00; }
+  .c-d { color: #b0b0b0; }
 
-  /* Mode List */
   .ht-mode-list { display: flex; flex-direction: column; gap: 10px; }
   .ht-mode-item {
       border: 2px solid #444; border-radius: 6px; overflow: hidden;
@@ -577,13 +551,11 @@
   .hm-body { padding: 10px; font-size: 11px; line-height: 1.4; color: #ddd; background: rgba(0,0,0,0.5); }
   .hl { color: #fff; font-weight: 900; text-decoration: underline; }
 
-  /* Unlock Conditions */
   .ht-unlock-list { display: flex; flex-direction: column; gap: 8px; }
   .ht-unlock-item { display: flex; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px; }
   .ul-target { width: 80px; font-size: 12px; font-weight: 900; color: #fff; font-style: italic; }
   .ul-cond { flex: 1; font-size: 11px; color: #ccc; line-height: 1.3; font-family: var(--font-num); }
    
-  /* CH Box */
   .ht-ch-box {
       background: linear-gradient(135deg, #111 0%, #222 100%);
       border: 1px solid #555; border-radius: 8px; padding: 15px; text-align: center;
@@ -592,7 +564,6 @@
   .ch-big { font-size: 20px; font-weight: 900; font-style: italic; color: #fff; margin-bottom: 8px; text-shadow: 2px 2px 0 #000; }
   .ch-desc { font-size: 11px; color: #aaa; line-height: 1.5; font-family: var(--font-num); }
 
-  /* Footer */
   .ht-footer {
       margin-top: 10px; padding-top: 15px; border-top: 1px dashed #444;
       text-align: center;
@@ -630,20 +601,51 @@
       overflow: hidden;
       transition: background 0.5s;
   }
-  /* Dynamic Backgrounds for Ranks */
-  .result-card.bg-god { background: radial-gradient(circle at center, #664400 0%, #111 80%); } /* Gold */
-  .result-card.bg-z { background: radial-gradient(circle at center, #440000 0%, #111 80%); }   /* Crimson */
-  .result-card.bg-s { background: radial-gradient(circle at center, #443300 0%, #111 80%); }   /* Yellow */
-  .result-card.bg-a { background: radial-gradient(circle at center, #003333 0%, #111 80%); }   /* Cyan */
-  .result-card.bg-b { background: radial-gradient(circle at center, #003311 0%, #111 80%); }   /* Green */
-  .result-card.bg-c { background: radial-gradient(circle at center, #331a00 0%, #111 80%); }   /* Orange */
-  .result-card.bg-d { background: radial-gradient(circle at center, #222222 0%, #111 80%); }   /* Silver */
+  
+  /* --- BACKGROUND EFFECTS --- */
+  .result-card::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      z-index: 0; pointer-events: none; opacity: 0.25;
+      background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.2) 60deg, transparent 120deg, rgba(255,255,255,0.2) 180deg, transparent 240deg);
+      animation: rotateBg 15s linear infinite;
+      display: none;
+  }
+  @keyframes rotateBg {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+  }
+
+  .result-card.bg-god::before { display: block; opacity: 0.3; }
+  /* Z Rank Bg Effect: More aggressive red rotation */
+  .result-card.bg-z::before { 
+      display: block; 
+      background: conic-gradient(from 0deg, transparent 0deg, rgba(255,0,0,0.3) 45deg, transparent 90deg, rgba(255,0,0,0.3) 135deg, transparent 180deg); 
+      opacity: 0.5; 
+      animation-duration: 6s; 
+  }
+  .result-card.bg-s::before { display: block; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,0,0.1) 60deg, transparent 120deg); opacity: 0.2; }
+
+  /* Dynamic Backgrounds */
+  /* Z-Rank Background: Deep Void Red */
+  .result-card.bg-z { 
+      background: radial-gradient(circle at center, #220000 0%, #110000 60%, #000 100%); 
+      box-shadow: inset 0 0 100px #300;
+  }
+  /* GOD Background: Celestial Platinum */
+  .result-card.bg-god { 
+      background: linear-gradient(to bottom, #fffbe0 0%, #ffd700 40%, #b8860b 80%, #000 100%);
+  }
+
+  .result-card.bg-s { background: radial-gradient(circle at center, #665500 0%, #332a00 80%, #000 100%); }
+  .result-card.bg-a { background: radial-gradient(circle at center, #004444 0%, #002222 80%, #000 100%); }
+  .result-card.bg-b { background: radial-gradient(circle at center, #004411 0%, #002208 80%, #000 100%); }
+  .result-card.bg-c { background: radial-gradient(circle at center, #442200 0%, #221100 80%, #000 100%); }
+  .result-card.bg-d { background: radial-gradient(circle at center, #222222 0%, #111 80%, #000 100%); }
 
   .result-scroll-area { 
-      flex: 1; overflow-y: auto; /* Changed to auto to allow scrolling */
+      flex: 1; overflow-y: auto; 
       display: flex; flex-direction: column; 
       padding: 20px; 
-      /* フッターが重ならないように下部padding確保 */
       padding-bottom: calc(var(--footer-total-height) + 20px);
       padding-top: env(safe-area-inset-top, 20px);
       position:relative; z-index:2; 
@@ -652,9 +654,8 @@
   .res-header-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; flex-shrink: 0; position: relative; border-bottom: 4px solid #fff; }
   .res-title { font-size: 32px; font-weight: 900; font-style: italic; letter-spacing: -3px; paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; text-shadow: 3px 3px 0 #000; }
 
-  /* UPDATE: STAGE CLEAR Text Fix (Padding) and Responsive Font */
   .res-status-msg {
-      font-size: min(50px, 12vw); /* Responsive */
+      font-size: min(50px, 12vw);
       font-weight: 900; font-style: italic;
       margin-top: 10px; display: none;
       text-transform: uppercase; letter-spacing: -4px;
@@ -663,7 +664,7 @@
       transform: skewX(-10deg) scale(1, 1.1);
       filter: drop-shadow(5px 5px 0 #000);
       text-align: center; line-height: 0.9;
-      padding-right: 0.2em; /* Fix cut-off R */
+      padding-right: 0.2em;
   }
   .res-status-msg.show { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { from { transform: translateY(20px) scale(0.5) skewX(-10deg); opacity: 0; } to { transform: translateY(0) scale(1) skewX(-10deg); opacity: 1; } }
@@ -740,47 +741,74 @@
 
   .res-mode-label { font-size: 12px; font-weight: 900; font-style: italic; padding: 4px 20px; background: #000; border-radius: 4px; letter-spacing: -0.5px; border: 3px solid #fff; transform: skewX(-15deg); box-shadow: 3px 3px 0 #000; }
   .rank-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; padding-bottom: 10px; position: relative; flex-shrink: 0; z-index: 5; }
-  /* Centered Rank Wrapper */
   .rank-wrapper { display: flex; align-items: flex-end; justify-content: center; position: relative; width: 100%; text-align: center; }
    
+  /* --- RANK CHAR STYLING --- */
   .rank-char { 
       font-family: var(--font-ui);
-      font-size: clamp(80px, 20vh, 110px); line-height: 0.8; font-weight: 900; font-style: italic; 
-      transform: skewX(-10deg); margin-right: 0; padding-right: 0; 
+      font-style: normal; /* Fixed italic artifact */
+      font-size: clamp(80px, 20vh, 110px); line-height: 0.8; font-weight: 900;
+      transform: skewX(-15deg); 
+      margin-right: 0; padding-right: 20px;
       paint-order: stroke fill;
       -webkit-text-stroke: 4px #000; filter: drop-shadow(8px 8px 0 rgba(0,0,0,0.8)); 
   }
 
   .rank-char.rank-nicetry { font-size: clamp(36px, 10vw, 50px); -webkit-text-stroke: 2.5px #000; margin-right: 0; padding-right: 0; color: #fff; letter-spacing: -3px; }
 
-  /* GOD RANK STYLING - GOLD */
+  /* GOD RANK (Updated) */
   .rank-god {
-      background: linear-gradient(135deg, #fff 10%, #ffd700 40%, #ffaa00 80%, #fff 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #fffacd 20%, #ffd700 40%, #daa520 60%, #ffffff 100%);
+      background-size: 200% 200%;
       -webkit-background-clip: text; color: transparent;
-      /* Remove stroke from main text to allow gradient */
       -webkit-text-stroke: 0;
-      /* Strong Glow */
-      filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.9)) drop-shadow(5px 5px 0 #000);
-      position: relative;
+      animation: godShine 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.6));
+      z-index: 10;
   }
-  /* Outline for GOD Rank */
-  .rank-god::before {
-      content: 'GOD'; position: absolute; left: 0; top: 0; z-index: -1;
-      -webkit-text-stroke: 10px #000; color: transparent;
-      left: 50%; transform: translateX(-50%); /* Center the pseudo-element */
+  @keyframes godShine {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
   }
 
-  /* UPDATE: Z RANK STYLING - FIX "ZARIZARI" (JAGGED EDGES) */
-  /* Remove black stroke, use gradient and shadow instead */
-  .rank-z { 
-      background: linear-gradient(to bottom, #ff3333 0%, #330000 100%); /* Vivid Red to Dark Blood */
-      -webkit-background-clip: text; color: transparent;
-      -webkit-text-stroke: 0; /* Remove jagged stroke */
-      /* Red Glow */
-      filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.9)) drop-shadow(4px 4px 0 #000);
+
+  /* ★ REVISED Z RANK STYLING (TRUE RED FRONT on BLACK BASE) ★ */
+  .rank-z {
       position: relative;
+      z-index: 10;
+      
+      /* Base Layer (Back/Outline): Solid Black */
+      /* これが「裏」や「奥」になる黒い土台 */
+      color: #000; 
+      /* 文字の太さを出すためにストロークを使用、隙間も埋める */
+      -webkit-text-stroke: 6px #000; 
+      paint-order: stroke fill;
+      
+      /* 黒い影を落として重厚感を出す */
+      filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8));
   }
-  /* Optional: faint outline using text-shadow stack if needed, but glow is cleaner */
+  
+  /* Front Layer (Face): Vivid Red Gradient */
+  /* これが「表」になる赤い文字 */
+  .rank-z::after {
+      content: 'Z';
+      position: absolute; 
+      top: 0; left: 0; 
+      width: 100%; height: 100%;
+      z-index: 1; /* 手前に表示 */
+      
+      /* 鮮烈な赤のグラデーション */
+      background: linear-gradient(180deg, #ffdddd 0%, #ff0000 30%, #cc0000 70%, #660000 100%);
+      -webkit-background-clip: text; 
+      color: transparent;
+      
+      /* ストロークなしで純粋な色だけを表示 */
+      -webkit-text-stroke: 0;
+      
+      /* 赤い発光エフェクト */
+      filter: drop-shadow(0 0 5px rgba(255, 50, 50, 0.8));
+  }
 
   .rank-s { color: #ffdd00; text-shadow: 4px 4px 0 #b38600; }
   .rank-a { color: #00ccff; text-shadow: 4px 4px 0 #005580; }
@@ -918,12 +946,53 @@
       animation: modeSelectPulse 1.2s ease-out infinite;
       z-index: -1;
   }
+
+  /* --- Z-RANK PARTICLE EFFECT (Endless Embers) --- */
+  .z-particle {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: #ffcc00; /* Ember color */
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      box-shadow: 0 0 4px #ff0000;
+      mix-blend-mode: screen;
+      z-index: 5; /* Behind text but above bg */
+      bottom: -20px; /* Start below the view */
+      animation: emberFloat linear infinite; /* Infinite loop */
+  }
+  @keyframes emberFloat {
+      0% { transform: translateY(0) scale(0.5); opacity: 0; }
+      10% { opacity: 1; }
+      80% { opacity: 0.8; }
+      100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
+  }
+
+  /* --- GOD-RANK PARTICLE EFFECT (Divine Rising Rays) --- */
+  .god-particle {
+      position: absolute;
+      /* Gradient for a rising light pillar/ray */
+      background: linear-gradient(to top, transparent, rgba(255, 255, 200, 0.8), #fff, transparent);
+      width: 2px;
+      /* Random height set via JS */
+      bottom: -100px;
+      opacity: 0;
+      z-index: 5;
+      pointer-events: none;
+      mix-blend-mode: screen; /* Brighter blending */
+      animation: godRise linear infinite;
+  }
+  @keyframes godRise {
+      0% { transform: translateY(0) scaleY(0.5); opacity: 0; }
+      20% { opacity: 0.8; transform: translateY(-30vh) scaleY(1); }
+      100% { transform: translateY(-130vh) scaleY(1.5); opacity: 0; }
+  }
 </style>
 </head>
 <body>
 
   <div class="app-container" id="app-wrapper">
-    <div class="version-label">v21.0 SMALL DEVICE OPTIMIZED</div>
+    <div class="version-label">v38.0 Particle Update</div>
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
@@ -990,7 +1059,7 @@
         <button class="kb-key" data-key="7"><div class="kb-key-main">7</div></button>
         <button class="kb-key" data-key="8"><div class="kb-key-main">8</div></button>
         <button class="kb-key" data-key="9"><div class="kb-key-main">9</div></button>
-        <div class="kb-key kb-version">v21</div>
+        <div class="kb-key kb-version">v38</div>
         <button class="kb-key" data-key="0"><div class="kb-key-main">0</div></button>
         <button class="kb-key" data-key="DEL"><div class="kb-key-main" style="font-size:18px;">DEL</div></button>
     </div>
@@ -1032,7 +1101,7 @@
                   <div class="ht-intro-title">BRAIN TRAINING</div>
                   <p class="ht-intro-text">
                       "Subitizing"（サビタイジング）とは、数を数えずに<br>
-                      <span class="highlight">瞬時に「いくつあるか」把握する能力</span>のこと。<br>
+                      <span class="highlight">直感で瞬時に把握する能力</span>のこと。<br>
                       眼と脳の反射神経を極限まで高めろ！
                   </p>
               </div>
@@ -1066,7 +1135,7 @@
                   <div class="ht-step-badge">STEP 3</div>
                   <div class="ht-step-text">
                       <div class="step-head">入力</div>
-                      <div class="step-desc">数字キーを叩け！<br>回答スピードが速いほどスコアアップ。</div>
+                      <div class="step-desc">数字キーを叩け！<br>スピードが速いほどスコアアップ。</div>
                   </div>
                   <div class="ht-step-icon"><i data-lucide="zap" style="color:#fff700"></i></div>
               </div>
@@ -1075,7 +1144,8 @@
               <div class="ht-sec-title">JUDGEMENT & RANK</div>
               <div class="ht-judge-box">
                   <p class="ht-judge-desc">
-                      回答までのタイムが速いほど、高評価。<br>
+                      回答までのタイムが速いほど、判定バーの色が変わる。<br>
+                      <span style="color:var(--g-exc)">黄色(MARVELOUS)</span>を維持すると…？
                   </p>
                   
                   <div class="ht-meter-demo">
@@ -1141,6 +1211,7 @@
                   <div class="ch-desc">
                       「1時間あたり何アイテム処理できるか」という生産性の指標。<br>
                       正確かつ高速に処理することで、この数値は跳ね上がる。<br>
+                      目指せ、<span style="color:#fff700">10,000ch</span>超え！
                   </div>
               </div>
           </div>
@@ -1997,7 +2068,14 @@
                 else n = 4 + Math.floor(Math.random() * 5); // 4-8
             }
             else if (modeKey === 'HARD') {
-                n = Math.floor(10 + Math.random() * 8); 
+                // 1問目から5問目は10～15個、6問目以降は15～19個のランダム
+                if (STATE.generatedCount < 5) {
+                    // 10 to 15
+                    n = Math.floor(10 + Math.random() * 6);
+                } else {
+                    // 15 to 19
+                    n = Math.floor(15 + Math.random() * 5);
+                }
             }
             else if (modeKey === 'EXTREME') {
                 const q = STATE.generatedCount + 1;
@@ -2016,7 +2094,23 @@
 
             if(modeKey === 'EASY') { maxH = 3; cols = 3; }
             else if(modeKey === 'NORMAL') { maxH = 5; cols = 3; }
-            else if(modeKey === 'HARD') { maxH = 6; cols = 4; }
+            else if(modeKey === 'HARD') { 
+                maxH = 7; 
+                // 2回連続で横が5にならないようにする
+                let lastCols = 0;
+                if (STATE.queue.length > 0) {
+                    const lastItem = STATE.queue[STATE.queue.length - 1];
+                    if (lastItem && Array.isArray(lastItem.shape)) {
+                        lastCols = lastItem.shape.length;
+                    }
+                }
+
+                if (lastCols === 5) {
+                    cols = 4;
+                } else {
+                    cols = Math.random() < 0.5 ? 4 : 5;
+                }
+            }
             else if(modeKey === 'EXTREME') { maxH = 9; cols = 9; }
 
             let shapeData, trueCount, sig;
@@ -2442,8 +2536,50 @@
 
         // Apply background style class for ranks
         UI.resultCardContainer.className = 'result-card'; // Reset
-        if (data.rank === 'GOD') UI.resultCardContainer.classList.add('bg-god');
-        else if (data.rank === 'Z') UI.resultCardContainer.classList.add('bg-z');
+        
+        // Remove particles if any
+        const particles = UI.resultCardContainer.querySelectorAll('.particle-fx');
+        particles.forEach(p => p.remove());
+
+        if (data.rank === 'GOD') {
+            UI.resultCardContainer.classList.add('bg-god');
+            // GOD Particles: Rising Light
+            for(let i=0; i<40; i++) {
+                const p = document.createElement('div');
+                p.className = 'god-particle particle-fx';
+                p.style.left = Math.random() * 100 + '%';
+                const h = 50 + Math.random() * 150;
+                p.style.height = h + 'px';
+                
+                // Animation duration & delay
+                const dur = 2 + Math.random() * 3;
+                p.style.animationDuration = dur + 's';
+                p.style.animationDelay = (Math.random() * 5) + 's';
+                
+                UI.resultCardContainer.appendChild(p);
+            }
+        }
+        else if (data.rank === 'Z') {
+            UI.resultCardContainer.classList.add('bg-z');
+            // Z Particles: Endless Embers
+            for(let i=0; i<60; i++) {
+                const p = document.createElement('div');
+                p.className = 'z-particle particle-fx';
+                p.style.left = Math.random() * 100 + '%';
+                
+                const size = 2 + Math.random() * 5;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                
+                const dur = 3 + Math.random() * 5; 
+                p.style.animationDuration = dur + 's';
+                
+                // Spread delay so they appear continuously
+                p.style.animationDelay = (Math.random() * 8) + 's'; 
+                
+                UI.resultCardContainer.appendChild(p);
+            }
+        }
         else if (data.rank === 'S') UI.resultCardContainer.classList.add('bg-s');
         else if (data.rank === 'A') UI.resultCardContainer.classList.add('bg-a');
         else if (data.rank === 'B') UI.resultCardContainer.classList.add('bg-b');
