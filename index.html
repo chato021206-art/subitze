@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SNOW: SMASH SUBITIZING - Ver 38.0 Particle Update</title>
+<title>SNOW: SMASH SUBITIZING - Ver 41.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
@@ -12,112 +12,49 @@
   :root {
     /* --- SMASH STYLE PALETTE --- */
     --bg-dark: #050505;
-
-    /* High Contrast Grade Colors */
-    --g-exc: #fff200;
-    --g-perf: #00ffff;
-    --g-grt: #00ff2a;
-    --g-good: #ffaa00;
-    --g-ok:   #b0b0b0;
-    --g-miss: #ff0033;
-
-    /* Player Slot Colors */
-    --c-easy: #55ff33;
-    --c-normal: #00aaff;
-    --c-hard: #ffcc00;
-    --c-extreme: #ff0022;
-    --c-random: #d000ff;
-
-    /* Font */
+    --g-exc: #fff200;  --g-perf: #00ffff; --g-grt: #00ff2a;
+    --g-good: #ffaa00; --g-ok:   #b0b0b0; --g-miss: #ff0033;
+    --c-easy: #55ff33; --c-normal: #00aaff; --c-hard: #ffcc00; --c-extreme: #ff0022; --c-random: #d000ff;
     --font-ui: 'Montserrat', 'Noto Sans JP', sans-serif;
     --font-num: 'Montserrat', sans-serif;
-
-    /* ★ RESPONSIVE UNITS ★ */
     --block-size-base: min(7.5vw, 30px);
     --block-size-2d: var(--block-size-base);
     --block-size-3d: calc(var(--block-size-base) * 1.1);
-    
-    /* 修正6: テンキーの高さを大きくし、押しやすくする */
-    --kb-height: clamp(220px, 35dvh, 320px); 
-    
+    --kb-height: clamp(200px, 33dvh, 320px);
     --footer-base-height: 80px;
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     --footer-total-height: calc(var(--footer-base-height) + var(--safe-area-bottom));
   }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
   body {
-    font-family: var(--font-ui);
-    background-color: var(--bg-dark);
-    color: #fff;
-    margin: 0; padding: 0;
-    display: flex; flex-direction: column;
-    height: 100dvh;
-    width: 100%;
-    overflow: hidden;
-    position: fixed;
-    user-select: none;
-    background-image:
-        linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a),
-        linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a);
-    background-size: 30px 30px;
-    background-position: 0 0, 15px 15px;
+    font-family: var(--font-ui); background-color: var(--bg-dark); color: #fff; margin: 0; padding: 0;
+    display: flex; flex-direction: column; height: 100dvh; width: 100%; overflow: hidden; position: fixed; user-select: none;
+    background-image: linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a), linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a);
+    background-size: 30px 30px; background-position: 0 0, 15px 15px;
   }
-
   .app-container {
-    width: 100%; height: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex; flex-direction: column;
-    padding: 8px;
-    padding-top: env(safe-area-inset-top, 8px);
-    background: radial-gradient(circle at center, #2a2a2a 0%, #000 100%);
-    position: relative; z-index: 1;
-    transition: background 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    width: 100%; height: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column;
+    padding: 8px; padding-top: env(safe-area-inset-top, 8px); background: radial-gradient(circle at center, #2a2a2a 0%, #000 100%);
+    position: relative; z-index: 1; transition: background 0.3s; box-shadow: 0 0 50px rgba(0,0,0,0.8);
   }
-
   .app-container.theme-easy { background: radial-gradient(circle at center, rgba(85, 255, 51, 0.15) 0%, #000 100%); }
   .app-container.theme-normal { background: radial-gradient(circle at center, rgba(0, 170, 255, 0.15) 0%, #000 100%); }
   .app-container.theme-hard { background: radial-gradient(circle at center, rgba(255, 204, 0, 0.15) 0%, #000 100%); }
   .app-container.theme-extreme { background: radial-gradient(circle at center, rgba(255, 0, 34, 0.15) 0%, #000 100%); }
-
-  /* Slot Styling - 省略なし */
-  .app-container.theme-easy #slot-1 { box-shadow: 0 0 25px rgba(85, 255, 51, 0.4); border: 2px solid rgba(85, 255, 51, 0.3); }
-  .app-container.theme-normal #slot-1 { box-shadow: 0 0 25px rgba(0, 170, 255, 0.4); border: 2px solid rgba(0, 170, 255, 0.3); }
-  .app-container.theme-hard #slot-1 { 
-      background: rgba(255, 204, 0, 0.05); 
-      box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); 
-      border: 2px solid rgba(255, 204, 0, 0.3); flex: 1; 
-  }
-  .app-container.theme-hard #slot-2 { flex: 1 !important; opacity: 0.8; border-right: 1px dashed rgba(255,255,255,0.2); }
-  .app-container.theme-hard #slot-3 { display: none !important; }
-  .app-container.theme-extreme #slot-1 {
-      flex: 100; border: 4px solid var(--c-extreme); background: rgba(50, 0, 0, 0.3);
-      justify-content: flex-end; align-items: center;
-      box-shadow: 0 0 40px rgba(255, 0, 34, 0.6), inset 0 0 20px rgba(255, 0, 34, 0.2);
-  }
-  .app-container.theme-extreme #slot-2, .app-container.theme-extreme #slot-3 { display: none !important; }
   .app-container.showing-result .stage-area { visibility: hidden; }
 
-  .stage-area {
-    flex: 1;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-    position: relative; overflow: hidden;
-    perspective: 900px;
-    min-height: 0;
-  }
+  /* Slot Styles */
+  .app-container.theme-easy #slot-1 { box-shadow: 0 0 25px rgba(85, 255, 51, 0.4); border: 2px solid rgba(85, 255, 51, 0.3); }
+  .app-container.theme-normal #slot-1 { box-shadow: 0 0 25px rgba(0, 170, 255, 0.4); border: 2px solid rgba(0, 170, 255, 0.3); }
+  .app-container.theme-hard #slot-1 { background: rgba(255, 204, 0, 0.05); box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); border: 2px solid rgba(255, 204, 0, 0.3); flex: 1; }
+  .app-container.theme-hard #slot-2 { flex: 1 !important; opacity: 0.8; border-right: 1px dashed rgba(255,255,255,0.2); }
+  .app-container.theme-hard #slot-3 { display: none !important; }
+  .app-container.theme-extreme #slot-1 { flex: 100; border: 4px solid var(--c-extreme); background: rgba(50, 0, 0, 0.3); justify-content: flex-end; align-items: center; box-shadow: 0 0 40px rgba(255, 0, 34, 0.6), inset 0 0 20px rgba(255, 0, 34, 0.2); }
+  .app-container.theme-extreme #slot-2, .app-container.theme-extreme #slot-3 { display: none !important; }
 
-  /* 修正3: Version Label (Ver X.X) */
-  .version-label {
-      position: absolute; bottom: 6px; right: 8px;
-      font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.4);
-      font-family: var(--font-num); pointer-events: none; z-index: 100;
-      letter-spacing: 0px; font-style: italic;
-  }
-
-  /* Flash Overlay & Shutters (省略なし) */
+  .stage-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; overflow: hidden; perspective: 900px; min-height: 0; }
+  .version-label { position: absolute; bottom: 6px; right: 8px; font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.4); font-family: var(--font-num); pointer-events: none; z-index: 100; font-style: italic; }
+  
   .slot-flash-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; opacity: 0; transform-origin: bottom; }
   .flash-exc .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 242, 0, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
   .flash-perf .slot-flash-overlay { background: linear-gradient(to top, rgba(0, 255, 255, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
@@ -127,118 +64,83 @@
   .flash-miss .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 0, 51, 0.9) 0%, transparent 100%); animation: flashBeam 0.3s ease-out forwards; }
   @keyframes flashBeam { 0% { opacity: 1; height: 10%; } 100% { opacity: 0; height: 100%; } }
 
-  #fail-shutter {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: repeating-linear-gradient(45deg, #111, #111 20px, #000 20px, #000 40px), linear-gradient(to bottom, rgba(255,0,0,0.2), #000);
-      background-blend-mode: overlay; display: flex; align-items: center; justify-content: center;
-      transform: translateY(-100%); z-index: 5500; pointer-events: none;
-      transition: transform 0.2s cubic-bezier(0.8, 0, 0.2, 1);
-      box-shadow: 0 10px 50px rgba(0,0,0,1); border-bottom: 10px solid #222;
-  }
+  #fail-shutter { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #111, #111 20px, #000 20px, #000 40px), linear-gradient(to bottom, rgba(255,0,0,0.2), #000); background-blend-mode: overlay; display: flex; align-items: center; justify-content: center; transform: translateY(-100%); z-index: 5500; pointer-events: none; transition: transform 0.2s; box-shadow: 0 10px 50px rgba(0,0,0,1); border-bottom: 10px solid #222; }
   #fail-shutter.active { transform: translateY(0); pointer-events: auto; }
-
-  #victory-shutter {
-      position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
-      background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 100%);
-      z-index: 5500; pointer-events: none; display: flex; align-items: flex-end; justify-content: center;
-      transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter: blur(4px);
-  }
+  #victory-shutter { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 100%); z-index: 5500; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; transition: height 0.4s; backdrop-filter: blur(4px); }
   #victory-shutter.active { height: 100%; pointer-events: auto; animation: beamPulse 0.8s ease-out forwards; }
   @keyframes beamPulse { 0% { opacity: 0; height: 0%; } 30% { opacity: 1; height: 100%; background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(0, 170, 255, 0.5) 50%, rgba(0,0,0,0) 100%); } 100% { opacity: 0; height: 100%; background: transparent; } }
 
-  .mode-label {
-      position: absolute; top: 15px; right: 15px;
-      font-size: 14px; font-weight: 900; font-style: italic; letter-spacing: -1px;
-      padding: 6px 30px; transform: skewX(-15deg); background: #000; color: #fff;
-      z-index: 90; display: none; text-transform: uppercase;
-      box-shadow: 6px 6px 0 rgba(0,0,0,0.5); border: 4px solid currentColor;
-      -webkit-text-stroke: 0; text-shadow: 1px 1px 0 #000;
-  }
+  .mode-label { position: absolute; top: 15px; right: 15px; font-size: 14px; font-weight: 900; font-style: italic; letter-spacing: -1px; padding: 6px 30px; transform: skewX(-15deg); background: #000; color: #fff; z-index: 90; display: none; text-transform: uppercase; box-shadow: 6px 6px 0 rgba(0,0,0,0.5); border: 4px solid currentColor; text-shadow: 1px 1px 0 #000; }
   .mode-label.show { display: block; }
 
-  /* 修正1: 連続ログイン表示スタイル */
-  #login-streak-display {
-      position: absolute; top: 8px; left: 15px;
-      font-size: 20px; font-weight: 900; font-style: italic;
-      color: #ffaa00; text-shadow: 2px 2px 0 #000;
-      z-index: 2200; pointer-events: none;
-      letter-spacing: -1px; display: flex; align-items: center; gap: 4px;
-      filter: drop-shadow(0 0 5px rgba(255, 170, 0, 0.5));
-  }
+  .streak-label { position: absolute; top: 15px; left: 15px; font-size: 14px; font-weight: 900; color: #ffaa00; background: #000; padding: 6px 14px; border-radius: 4px; border: 2px solid #333; z-index: 5100; transform: skewX(-10deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.8); display: flex; align-items: center; gap: 6px; font-style: italic; pointer-events: auto; }
 
-  /* 修正1: ボタン位置を一段下げる (top: 6px -> 45px) */
-  #btn-mode-toggle {
-      position: absolute; top: 45px; 
-      left: auto; right: 15px;
-      pointer-events: auto;
-      background: #222; border: 3px solid #555; color: #ddd;
-      border-radius: 4px; padding: 6px 14px;
-      font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic;
-      cursor: pointer; z-index: 2200;
-      display: flex; align-items: center; gap: 8px; transition: all 0.1s;
-      transform: skewX(-10deg);
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.8);
-      letter-spacing: -0.5px;
-  }
+  #btn-mode-toggle { position: absolute; top: 60px; right: 15px; pointer-events: auto; background: #222; border: 3px solid #555; color: #ddd; border-radius: 4px; padding: 6px 14px; font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic; cursor: pointer; z-index: 5100; display: flex; align-items: center; gap: 8px; transition: all 0.1s; transform: skewX(-10deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: -0.5px; }
   #btn-mode-toggle span.check { font-size: 16px; color: #999; font-weight: 900; }
   #btn-mode-toggle:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
-  #btn-mode-toggle.disabled { opacity: 0.1; pointer-events: none; }
   #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 15px rgba(208, 0, 255, 0.4); }
   #btn-mode-toggle.random-on span.check { color: #d000ff; text-shadow: 0 0 5px #d000ff; }
 
-  .btn-how-to-common {
-      position: absolute; pointer-events: auto;
-      background: #004488; border: 3px solid #00aaff; color: #fff;
-      border-radius: 4px; padding: 6px 14px;
-      font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic;
-      cursor: pointer; z-index: 2200;
-      display: flex; align-items: center; gap: 6px; transition: all 0.1s;
-      transform: skewX(-10deg);
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.8);
-      letter-spacing: -0.5px; text-shadow: 1px 1px 0 #000;
+  /* キーボードツールバー（左上配置・独立型） */
+  #kb-toolbar { 
+      width: 100%; 
+      display: flex; 
+      justify-content: flex-start; 
+      align-items: flex-end; 
+      padding: 0 10px; 
+      /* ★ここを増やしてキーボードと分離する */
+      margin-bottom: 8px; 
+      z-index: 3001; 
+      position: relative; 
+      pointer-events: none; 
   }
+
+  /* キーボード切り替えボタン（独立デザイン） */
+  #btn-key-layout-toggle { 
+      pointer-events: auto; 
+      background: #000; 
+      border: 3px solid #444; 
+      color: #ddd; 
+      /* ★下側も閉じて独立したボタンにする */
+      border-radius: 4px; 
+      padding: 4px 16px; 
+      font-family: var(--font-ui); 
+      font-weight: 900; 
+      font-size: 11px; 
+      font-style: italic; 
+      cursor: pointer; 
+      text-transform: uppercase; 
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.8); 
+      letter-spacing: 0.5px; 
+      transform: skewX(-10deg); 
+      transform-origin: bottom left; 
+      margin-left: 5px; 
+      transition: all 0.2s; 
+  }
+  #btn-key-layout-toggle:active { transform: skewX(-10deg) translateY(2px); filter: brightness(1.2); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
+  
+  /* ランクカラーに合わせたボタン色変化 */
+  .btn-color-a { border-color: #00ccff !important; color: #00ccff !important; text-shadow: 0 0 5px rgba(0, 204, 255, 0.5); background: linear-gradient(to top, rgba(0, 204, 255, 0.1), #000) !important; }
+  .btn-color-b { border-color: #33ff55 !important; color: #33ff55 !important; text-shadow: 0 0 5px rgba(51, 255, 85, 0.5); background: linear-gradient(to top, rgba(51, 255, 85, 0.1), #000) !important; }
+  .btn-color-c { border-color: #ff8800 !important; color: #ff8800 !important; text-shadow: 0 0 5px rgba(255, 136, 0, 0.5); background: linear-gradient(to top, rgba(255, 136, 0, 0.1), #000) !important; }
+
+  .btn-how-to-common { position: absolute; pointer-events: auto; background: #004488; border: 3px solid #00aaff; color: #fff; border-radius: 4px; padding: 6px 14px; font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic; cursor: pointer; z-index: 5100; display: flex; align-items: center; gap: 6px; transition: all 0.1s; transform: skewX(-10deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: -0.5px; text-shadow: 1px 1px 0 #000; }
   .btn-how-to-common:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); background: #003366; }
-   
-  /* 修正1: ボタン位置を一段下げる (top: 6px -> 45px) */
-  #btn-how-to-opening { top: 45px; left: 15px; }
-  #btn-how-to-bottom { top: auto; bottom: calc(var(--footer-total-height) - 10px); left: 15px; width: auto; position: absolute; z-index: 3200; display: none; }
+  #btn-how-to-opening { top: 60px; left: 15px; }
+  #btn-how-to-bottom { bottom: calc(var(--footer-total-height) - 10px); left: 15px; width: auto; z-index: 3200; display: none; top:auto; }
 
-  #conveyor-wrapper {
-    width: 100%; height: 100%;
-    display: flex; align-items: flex-end; justify-content: center;
-    gap: 8px; 
-    padding: 2vh 2vw 0 2vw;
-    transform-style: preserve-3d; pointer-events: none;
-  }
-  .slot {
-    flex: 1; height: calc(100% - 2vh);
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-    position: relative; transform-style: preserve-3d;
-    background: rgba(20,20,20,0.6); border-radius: 4px 4px 0 0;
-    border: 2px solid rgba(255,255,255,0.1); border-bottom: none;
-    transition: flex 0.3s, opacity 0.3s; overflow: hidden;
-  }
+  #conveyor-wrapper { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding: 2vh 2vw 0 2vw; transform-style: preserve-3d; pointer-events: none; }
+  .slot { flex: 1; height: calc(100% - 2vh); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; transform-style: preserve-3d; background: rgba(20,20,20,0.6); border-radius: 4px 4px 0 0; border: 2px solid rgba(255,255,255,0.1); border-bottom: none; transition: flex 0.3s, opacity 0.3s; overflow: hidden; }
   #slot-1 { background: rgba(50,50,50,0.2); border: none; z-index: 10; position: relative; }
-
   .slot-timer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; filter: drop-shadow(0 0 5px currentColor); }
   .timer-path { fill: none; stroke-linecap: butt; stroke-linejoin: round; transition: stroke 0.1s linear; }
 
   .cluster-container { display: flex; align-items: flex-end; gap: 3px; padding-bottom: 12px; transform-style: preserve-3d; transition: transform 0.1s; }
   .block-column { display: flex; flex-direction: column-reverse; gap: 3px; width: var(--block-size-2d); transform-style: preserve-3d; }
-  .block { 
-      width: var(--block-size-2d); height: var(--block-size-2d); 
-      border-radius: 2px; 
-      box-shadow: inset 3px 3px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.4), 3px 3px 5px rgba(0,0,0,0.6); 
-      border: 1px solid rgba(0,0,0,0.5); 
-      position: relative; 
-  }
+  .block { width: var(--block-size-2d); height: var(--block-size-2d); border-radius: 2px; box-shadow: inset 3px 3px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.4), 3px 3px 5px rgba(0,0,0,0.6); border: 1px solid rgba(0,0,0,0.5); position: relative; }
   .cluster-container.random-layout { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; padding: 0; }
   .block.block-random { position: absolute; z-index: 10; }
-  .block.mode-easy { background: var(--c-easy); }
-  .block.mode-normal { background: var(--c-normal); }
-  .block.mode-hard { background: var(--c-hard); }
-  .block.mode-extreme { background: var(--c-extreme); border: 1px solid #500; }
-
+  .block.mode-easy { background: var(--c-easy); } .block.mode-normal { background: var(--c-normal); } .block.mode-hard { background: var(--c-hard); } .block.mode-extreme { background: var(--c-extreme); border: 1px solid #500; }
   .cluster-container.real-3d { position: absolute; bottom: 10%; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(25deg); }
   .cube { width: var(--block-size-3d); height: var(--block-size-3d); position: absolute; transform-style: preserve-3d; }
   .face { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(0,0,0,0.6); opacity: 1; }
@@ -248,68 +150,29 @@
   .face-left { transform: rotateY(-90deg) translateZ(calc(var(--block-size-3d)/2)); }
   .face-top { transform: rotateX(90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(1.3); border: 1px solid rgba(255,255,255,0.5); }
   .face-bottom { transform: rotateX(-90deg) translateZ(calc(var(--block-size-3d)/2)); filter: brightness(0.5); }
-  .cube.mode-easy .face { background: var(--c-easy); }
-  .cube.mode-normal .face { background: var(--c-normal); }
-  .cube.mode-hard .face { background: var(--c-hard); }
-  .cube.mode-extreme .face { background: var(--c-extreme); }
+  .cube.mode-easy .face { background: var(--c-easy); } .cube.mode-normal .face { background: var(--c-normal); } .cube.mode-hard .face { background: var(--c-hard); } .cube.mode-extreme .face { background: var(--c-extreme); }
 
-  /* 修正6: テンキーを押しやすくする調整 */
-  .virtual-keyboard { 
-      position: relative; width: 100%; 
-      height: var(--kb-height); 
-      background: linear-gradient(150deg, #0a0a0a 0%, #151515 100%); 
-      padding: 6px; 
-      padding-bottom: max(6px, var(--safe-area-bottom));
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      grid-template-rows: repeat(4, 1fr); 
-      gap: 5px; /* 隙間を6px→5pxに詰めてボタン面積を確保 */
-      z-index: 3000; border-top: 4px solid #333; pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8); 
-  }
+  .virtual-keyboard { position: relative; width: 100%; height: var(--kb-height); background: linear-gradient(150deg, #0a0a0a 0%, #151515 100%); padding: 6px; padding-bottom: max(6px, var(--safe-area-bottom)); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 5px; z-index: 3000; border-top: 4px solid #333; pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8); }
   .virtual-keyboard::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px); pointer-events: none; }
-   
-  .kb-key { 
-      background: linear-gradient(to bottom, #2a2a2a, #111); 
-      border-radius: 6px; 
-      border: 2px solid #444; 
-      box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); 
-      color: #ccc; 
-      font-family: var(--font-num); 
-      display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; 
-  }
-  .kb-key:active, .kb-key.active-state { 
-      transform: translateY(4px); 
-      box-shadow: 0 0 0 #000; 
-      background: linear-gradient(to bottom, #ffcc00, #ff9900); 
-      color: #000; 
-      border-color: #fff; 
-  }
+  .virtual-keyboard.layout-phone { grid-template-areas: "k1 k2 k3" "k4 k5 k6" "k7 k8 k9" "ver k0 del"; }
+  .virtual-keyboard.layout-calc { grid-template-areas: "k7 k8 k9" "k4 k5 k6" "k1 k2 k3" "ver k0 del"; }
+  .virtual-keyboard.layout-special { grid-template-areas: "k0 k1 k2" "ver k3 k4" "del k5 k6" "k7 k8 k9"; }
+  .kb-key { background: linear-gradient(to bottom, #2a2a2a, #111); border-radius: 6px; border: 2px solid #444; box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); color: #ccc; font-family: var(--font-num); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; }
+  .kb-key:active, .kb-key.active-state { transform: translateY(4px); box-shadow: 0 0 0 #000; background: linear-gradient(to bottom, #ffcc00, #ff9900); color: #000; border-color: #fff; }
   .kb-key-main { font-size: clamp(24px, 5vh, 36px); font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; letter-spacing: -2px; }
   .kb-key.disabled { opacity: 0.15; pointer-events: none; box-shadow: none; border-color: #222; background: #000; }
   .kb-key.ripple::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.8); opacity: 0; pointer-events: none; animation: keyFlash 0.15s ease-out; }
   @keyframes keyFlash { 0% { opacity: 0.8; } 100% { opacity: 0; } }
+  .kb-key.kb-version { background: none; border: none; box-shadow: none; color: #444; font-size: 14px; font-weight: 900; pointer-events: none; opacity: 0.7; }
+  .kb-key[data-key="1"] { grid-area: k1; } .kb-key[data-key="2"] { grid-area: k2; } .kb-key[data-key="3"] { grid-area: k3; } .kb-key[data-key="4"] { grid-area: k4; }
+  .kb-key[data-key="5"] { grid-area: k5; } .kb-key[data-key="6"] { grid-area: k6; } .kb-key[data-key="7"] { grid-area: k7; } .kb-key[data-key="8"] { grid-area: k8; }
+  .kb-key[data-key="9"] { grid-area: k9; } .kb-key[data-key="0"] { grid-area: k0; } .kb-key[data-key="DEL"] { grid-area: del; } .kb-key.kb-version { grid-area: ver; }
 
-  .kb-key.kb-version {
-      background: none; border: none; box-shadow: none; color: #444; font-size: 14px; font-weight: 900; pointer-events: none; opacity: 0.7;
-  }
-
-  #bottom-ui-container { 
-      position: absolute; bottom: 0; left: 0; width: 100%; 
-      height: var(--footer-total-height);
-      display: none; align-items: flex-start; justify-content: center; 
-      padding: 0 15px; padding-top: 10px;
-      z-index: 3100; pointer-events: auto; transition: opacity 0.2s, filter 0.2s; 
-  }
+  #bottom-ui-container { position: absolute; bottom: 0; left: 0; width: 100%; height: var(--footer-total-height); display: none; align-items: flex-start; justify-content: center; padding: 0 15px; padding-top: 10px; z-index: 3100; pointer-events: auto; transition: opacity 0.2s, filter 0.2s; }
   #mode-select-container { display: flex; width: 100%; gap: 8px; justify-content: center; height: 55px; }
-  .mode-btn { 
-      flex: 1; height: 100%; font-family: var(--font-ui); border: 3px solid #fff; border-radius: 6px; transform: skewX(-15deg); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 6px 6px 0 rgba(0,0,0,0.8); position: relative; padding: 4px 0; overflow: hidden; transition: transform 0.1s, box-shadow 0.1s; color: #fff; 
-      -webkit-text-stroke: 0; text-shadow: 1px 1px 1px #000;
-  }
+  .mode-btn { flex: 1; height: 100%; font-family: var(--font-ui); border: 3px solid #fff; border-radius: 6px; transform: skewX(-15deg); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 6px 6px 0 rgba(0,0,0,0.8); position: relative; padding: 4px 0; overflow: hidden; transition: transform 0.1s, box-shadow 0.1s; color: #fff; -webkit-text-stroke: 0; text-shadow: 1px 1px 1px #000; }
   .mode-btn:active { transform: skewX(-15deg) translateY(6px); box-shadow: 0 0 0 rgba(0,0,0,0); filter: brightness(1.2); }
-  .mode-easy { background: linear-gradient(170deg, #55ff33 0%, #1a800d 100%); }
-  .mode-normal { background: linear-gradient(170deg, #00aaff 0%, #004080 100%); }
-  .mode-hard { background: linear-gradient(170deg, #ffcc00 0%, #997a00 100%); }
-  .mode-extreme { background: linear-gradient(170deg, #ff0022 0%, #80000f 100%); }
+  .mode-easy { background: linear-gradient(170deg, #55ff33 0%, #1a800d 100%); } .mode-normal { background: linear-gradient(170deg, #00aaff 0%, #004080 100%); } .mode-hard { background: linear-gradient(170deg, #ffcc00 0%, #997a00 100%); } .mode-extreme { background: linear-gradient(170deg, #ff0022 0%, #80000f 100%); }
   .mode-val { font-size: clamp(12px, 3.5vw, 18px); font-weight: 900; font-style: italic; text-transform: uppercase; white-space: nowrap; z-index: 1; letter-spacing: -1px; }
   .mode-btn.locked { opacity: 0.3; filter: grayscale(1); pointer-events: none; border-color: #333; color: #555; background: #111; }
   .mode-btn.locked .mode-val { display: none; }
@@ -319,72 +182,29 @@
   #tutorial-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 4000; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
   #tutorial-overlay.active { opacity: 1; pointer-events: auto; }
   .tute-item { position: absolute; display: flex; flex-direction: column; align-items: center; color: #fff; filter: drop-shadow(0 0 8px rgba(0,0,0,0.8)); }
-  
-  /* 修正2 & 4: 表示位置を「テンキー上部のゲーム画面の中央の高さ」へ変更 */
-  /* キーボード(30vh前後)の分を引き算して、残りエリアの中心あたりを狙う */
-  #tute-central-msg { 
-      top: 38%; /* 画面全体から見て少し上にずらすことで、キーボードを除いたエリアの中心に見せる */
-      left: 50%; transform: translate(-50%, -50%); 
-      width: 100%; z-index: 5000; display:flex; justify-content:center; flex-direction: column; align-items: center; gap: 16px; 
-  }
-   
-  /* 修正4: READY 3 2 1 のサイズを10%縮小 */
-  .tute-big-msg { 
-      font-size: clamp(36px, 13vw, 90px); /* 元より少し小さく設定 */
-      font-weight: 900; font-style: italic; transition: transform 0.1s; letter-spacing: -6px; 
-      color: #fff; display:none; margin-bottom: 20px; z-index: 5001;
-      paint-order: stroke fill; -webkit-text-stroke: 2px #000; text-shadow: 5px 5px 0 #000;
-  }
+  #tute-central-msg { position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); width: 100%; z-index: 5000; display:flex; justify-content:center; flex-direction: column; align-items: center; gap: 16px; }
+  .tute-big-msg { font-size: clamp(30px, 10vw, 75px); font-weight: 900; font-style: italic; transition: transform 0.1s; letter-spacing: -6px; color: #fff; display:none; margin-bottom: 20px; z-index: 5001; paint-order: stroke fill; -webkit-text-stroke: 2px #000; text-shadow: 5px 5px 0 #000; }
   .tute-big-msg.pop { transform: scale(1.8) skewX(-10deg); }
-
-  .tute-start-btn { 
-      padding: clamp(15px, 4vw, 20px) clamp(30px, 8vw, 50px); 
-      border-radius: 8px; border: 4px solid #fff; 
-      background: linear-gradient(170deg, #00aaff 0%, #004080 100%);
-      color: #fff; 
-      text-shadow: 3px 3px 0 #000; 
-      paint-order: stroke fill;
-      -webkit-text-stroke: 1.5px #000;
-      font-size: clamp(24px, 8vw, 36px); 
-      font-weight: 900; font-style: italic; letter-spacing: -2px; text-transform: uppercase; cursor: pointer; 
-      box-shadow: 10px 10px 0 #000; transform: skewX(-12deg); transition: transform 0.1s, box-shadow 0.1s; position: relative; overflow: visible; z-index: 10; 
-  }
+  .tute-start-btn { padding: clamp(15px, 4vw, 20px) clamp(30px, 8vw, 50px); border-radius: 8px; border: 4px solid #fff; background: linear-gradient(170deg, #00aaff 0%, #004080 100%); color: #fff; text-shadow: 3px 3px 0 #000; paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; font-size: clamp(24px, 8vw, 36px); font-weight: 900; font-style: italic; letter-spacing: -2px; text-transform: uppercase; cursor: pointer; box-shadow: 10px 10px 0 #000; transform: skewX(-12deg); transition: transform 0.1s, box-shadow 0.1s; position: relative; overflow: visible; z-index: 10; }
   .tute-start-btn:active { transform: skewX(-12deg) translateY(6px); box-shadow: 4px 4px 0 #000; background: linear-gradient(170deg, #0088cc 0%, #003366 100%); }
   .tute-start-btn::before { content: ''; position: absolute; inset: -10px; border-radius: inherit; border: 8px solid rgba(0, 170, 255, 0.8); opacity: 0; pointer-events: none; animation: modeSelectPulse 0.9s ease-out infinite; z-index: -1; }
   @keyframes modeSelectPulse { 0% { transform: scale(0.95); opacity: 1; border-width: 8px; } 40% { opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; border-width: 0px; } }
-
   .tute-mode-select { display: none; width: 95%; max-width: 460px; flex-direction: row; gap: 8px; justify-content: center; }
   .tute-mode-select .mode-btn { height: clamp(60px, 15vh, 80px); }
 
-  /* HOW TO PLAY MODAL */
-  #how-to-modal {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
-      z-index: 7000; display: none; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.3s; padding: 20px;
-      padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  }
+  #how-to-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 7000; display: none; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   #how-to-modal.active { display: flex; opacity: 1; pointer-events: auto; }
-
-  .ht-container {
-      width: 100%; max-width: 500px; height: 100%; background: #111; border: 4px solid #fff; border-radius: 12px; transform: skewX(-2deg);
-      box-shadow: 0 0 50px rgba(0, 170, 255, 0.2), 15px 15px 0 #000; position: relative; display: flex; flex-direction: column; overflow: hidden; 
-  }
+  .ht-container { width: 100%; max-width: 500px; height: 100%; background: #111; border: 4px solid #fff; border-radius: 12px; transform: skewX(-2deg); box-shadow: 0 0 50px rgba(0, 170, 255, 0.2), 15px 15px 0 #000; position: relative; display: flex; flex-direction: column; overflow: hidden; }
   .ht-header { background: linear-gradient(90deg, #00aaff, #004488); padding: 15px 20px; border-bottom: 3px solid #fff; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index:10; box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
   .ht-title { font-size: 24px; font-weight: 900; font-style: italic; color: #fff; paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; text-shadow: 3px 3px 0 rgba(0,0,0,0.5); letter-spacing: -1px; }
   .ht-close-btn { background: #000; border: 2px solid #fff; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; transition: transform 0.1s; box-shadow: 3px 3px 0 rgba(0,0,0,0.5); }
   .ht-close-btn:active { transform: scale(0.9); }
-  .ht-body {
-      padding: 20px 25px; padding-bottom: 80px; 
-      background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 15px), radial-gradient(circle at center, #222 0%, #000 100%);
-      display: flex; flex-direction: column; gap: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; 
-  }
+  .ht-body { padding: 20px 25px; padding-bottom: 80px; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 15px), radial-gradient(circle at center, #222 0%, #000 100%); display: flex; flex-direction: column; gap: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .ht-intro-box { border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 12px; background: rgba(255,255,255,0.05); text-align: center; }
   .ht-intro-title { color: #aaa; font-size: 10px; font-weight: 900; letter-spacing: 2px; margin-bottom: 6px; }
   .ht-intro-text { font-size: 13px; line-height: 1.6; color: #eee; font-weight: 700; font-family: var(--font-num); }
   .highlight { color: #00ffff; font-weight: 900; text-decoration: underline; }
   .ht-sec-title { font-size: 18px; font-weight: 900; font-style: italic; color: #fff; border-bottom: 4px solid #fff; margin-top: 10px; margin-bottom: 5px; padding-bottom: 4px; text-shadow: 2px 2px 0 #000; letter-spacing: -1px; }
-
   .ht-flow-step { display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 8px; padding: 15px 10px 10px 10px; position: relative; overflow: visible; box-shadow: 4px 4px 0 rgba(0,0,0,0.5); margin-top: 10px; }
   .ht-step-badge { position: absolute; top: -10px; left: 10px; background: #fff; color: #000; font-size: 10px; font-weight: 900; padding: 2px 10px; border-radius: 4px; border: 2px solid #000; box-shadow: 2px 2px 0 rgba(0,0,0,0.5); z-index: 5; }
   .ht-step-text { flex: 1; padding-left: 10px; }
@@ -393,23 +213,16 @@
   .ht-step-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 50%; }
   .ht-step-icon i { width: 28px; height: 28px; color: #fff; }
   .ht-flow-arrow { text-align: center; color: #555; font-size: 10px; transform: scaleY(0.6); }
-
   .ht-judge-box { display: flex; flex-direction: column; gap: 10px; }
   .ht-judge-desc { font-size: 12px; color: #ccc; text-align: center; margin-bottom: 5px; line-height: 1.4; }
   .ht-meter-demo { display: flex; align-items: center; gap: 8px; background: #000; padding: 10px; border-radius: 6px; border: 1px solid #333; }
   .meter-label { font-size: 10px; color: #888; font-weight: 900; width: 35px; text-align: center; }
   .meter-bar { flex: 1; height: 24px; display: flex; border-radius: 4px; overflow: hidden; }
   .m-seg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; color: #000; box-shadow: inset 0 0 2px rgba(0,0,0,0.5); }
-  .seg-marv { background: var(--g-exc); flex: 1; }
-  .seg-exc { background: var(--g-perf); flex: 1; }
-  .seg-grt { background: var(--g-grt); flex: 1.5; }
-  .seg-good { background: var(--g-good); flex: 2; }
-  .seg-ok { background: var(--g-ok); flex: 2; }
-
+  .seg-marv { background: var(--g-exc); flex: 1; } .seg-exc { background: var(--g-perf); flex: 1; } .seg-grt { background: var(--g-grt); flex: 1.5; } .seg-good { background: var(--g-good); flex: 2; } .seg-ok { background: var(--g-ok); flex: 2; }
   .ht-rank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 5px; }
   .rank-cell { background: rgba(30, 30, 30, 0.6); border: 2px solid currentColor; border-radius: 6px; padding: 8px 0; text-align: center; font-weight: 900; font-size: 18px; font-style: italic; display: flex; flex-direction: column; align-items: center; justify-content: center; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 10px rgba(255,255,255,0.05), 0 0 8px currentColor; }
   .c-secret { color: #555; } .c-s { color: #ffdd00; } .c-a { color: #00ffff; } .c-b { color: #00ff2a; } .c-c { color: #ffaa00; } .c-d { color: #b0b0b0; }
-
   .ht-mode-list { display: flex; flex-direction: column; gap: 10px; }
   .ht-mode-item { border: 2px solid #444; border-radius: 6px; overflow: hidden; }
   .m-easy { border-color: var(--c-easy); } .m-hard { border-color: var(--c-hard); } .m-random { border-color: var(--c-random); }
@@ -417,7 +230,6 @@
   .m-easy .hm-head { background: var(--c-easy); } .m-hard .hm-head { background: var(--c-hard); } .m-random .hm-head { background: var(--c-random); color: #fff; text-shadow: 1px 1px 0 #000; }
   .hm-body { padding: 10px; font-size: 11px; line-height: 1.4; color: #ddd; background: rgba(0,0,0,0.5); }
   .hl { color: #fff; font-weight: 900; text-decoration: underline; }
-
   .ht-unlock-list { display: flex; flex-direction: column; gap: 8px; }
   .ht-unlock-item { display: flex; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px; }
   .ul-target { width: 80px; font-size: 12px; font-weight: 900; color: #fff; font-style: italic; }
@@ -427,9 +239,9 @@
   .ch-desc { font-size: 11px; color: #aaa; line-height: 1.5; font-family: var(--font-num); }
   .ht-footer { margin-top: 10px; padding-top: 15px; border-top: 1px dashed #444; text-align: center; }
 
-  /* Effects & Modals (省略なし) */
   .eval-effect { position: fixed; top: calc(20% - 30px - 3.0cm); left: 50%; transform: translateX(-50%) scale(0.35); font-family: var(--font-ui); font-size: min(50px, 12vw); font-weight: 900; font-style: italic; letter-spacing: -3px; z-index: 10000; pointer-events: none; paint-order: stroke fill; -webkit-text-stroke: 2.5px #000; text-shadow: 4px 4px 0px rgba(0,0,0,0.8); animation: SNOWHit 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; }
   @keyframes SNOWHit { 0% { transform: translateX(-50%) scale(2) rotate(-15deg); opacity: 0; } 20% { opacity: 1; transform: translateX(-50%) scale(0.9) rotate(0deg); } 40% { transform: translateX(-50%) scale(1.0); } 90% { opacity: 1; transform: translateX(-50%) scale(1.0); } 100% { transform: translateX(-50%) scale(1.2) translateY(-20px); opacity: 0; } }
+
   .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; }
   .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -437,9 +249,7 @@
   .result-card { width: 100%; height: 100%; background: #111; display: flex; flex-direction: column; position: relative; color: #fff; overflow: hidden; transition: background 0.5s; }
   .result-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; z-index: 0; pointer-events: none; opacity: 0.25; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.2) 60deg, transparent 120deg, rgba(255,255,255,0.2) 180deg, transparent 240deg); animation: rotateBg 15s linear infinite; display: none; }
   @keyframes rotateBg { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  .result-card.bg-god::before { display: block; opacity: 0.3; }
-  .result-card.bg-z::before { display: block; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,0,0,0.3) 45deg, transparent 90deg, rgba(255,0,0,0.3) 135deg, transparent 180deg); opacity: 0.5; animation-duration: 6s; }
-  .result-card.bg-s::before { display: block; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,0,0.1) 60deg, transparent 120deg); opacity: 0.2; }
+  .result-card.bg-god::before { display: block; opacity: 0.3; } .result-card.bg-z::before { display: block; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,0,0,0.3) 45deg, transparent 90deg, rgba(255,0,0,0.3) 135deg, transparent 180deg); opacity: 0.5; animation-duration: 6s; } .result-card.bg-s::before { display: block; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,0,0.1) 60deg, transparent 120deg); opacity: 0.2; }
   .result-card.bg-z { background: radial-gradient(circle at center, #220000 0%, #110000 60%, #000 100%); box-shadow: inset 0 0 100px #300; }
   .result-card.bg-god { background: linear-gradient(to bottom, #fffbe0 0%, #ffd700 40%, #b8860b 80%, #000 100%); }
   .result-card.bg-s { background: radial-gradient(circle at center, #665500 0%, #332a00 80%, #000 100%); }
@@ -460,9 +270,7 @@
   .unlock-badge { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 300px; padding: 15px 0; background: #000; color: #fff; border: 6px solid currentColor; font-family: var(--font-ui); font-weight: 900; font-style: italic; text-transform: uppercase; transform: rotate(-3deg) scale(1); box-shadow: 15px 15px 0 rgba(0,0,0,1), 0 0 30px currentColor; animation: smashStampIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; position: relative; overflow: hidden; z-index: 100; }
   @keyframes smashStampIn { 0% { transform: scale(3) rotate(15deg); opacity: 0; } 70% { transform: scale(0.9) rotate(-5deg); opacity: 1; } 100% { transform: scale(1) rotate(-3deg); opacity: 1; } }
   .unlock-badge::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.15) 10px, rgba(255,255,255,0.15) 20px); pointer-events: none; }
-  .unlock-badge.mode-normal { color: #00aaff; background: #000c1a; border-color: #00aaff; }
-  .unlock-badge.mode-hard { color: #ffcc00; background: #1a1400; border-color: #ffcc00; }
-  .unlock-badge.mode-extreme { color: #ff0022; background: #1a0003; border-color: #ff0022; }
+  .unlock-badge.mode-normal { color: #00aaff; background: #000c1a; border-color: #00aaff; } .unlock-badge.mode-hard { color: #ffcc00; background: #1a1400; border-color: #ffcc00; } .unlock-badge.mode-extreme { color: #ff0022; background: #1a0003; border-color: #ff0022; }
   .unlock-badge .main-text { font-size: 42px; line-height: 0.85; letter-spacing: -3px; text-shadow: 4px 4px 0 #000; z-index: 1; paint-order: stroke fill; -webkit-text-stroke: 2px #000; color: #fff; }
   .unlock-badge .sub-text { font-size: 20px; margin-top: 6px; letter-spacing: 2px; background: #fff; color: #000; padding: 2px 24px; font-weight: 900; z-index: 1; transform: skewX(-15deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.8); border: 2px solid #000; }
 
@@ -475,17 +283,11 @@
   @keyframes godShine { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   .rank-z { position: relative; z-index: 10; color: #000; -webkit-text-stroke: 6px #000; paint-order: stroke fill; filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8)); }
   .rank-z::after { content: 'Z'; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: linear-gradient(180deg, #ffdddd 0%, #ff0000 30%, #cc0000 70%, #660000 100%); -webkit-background-clip: text; color: transparent; -webkit-text-stroke: 0; filter: drop-shadow(0 0 5px rgba(255, 50, 50, 0.8)); }
-  .rank-s { color: #ffdd00; text-shadow: 4px 4px 0 #b38600; }
-  .rank-a { color: #00ccff; text-shadow: 4px 4px 0 #005580; }
-  .rank-b { color: #33ff55; text-shadow: 4px 4px 0 #0f4d1a; }
-  .rank-c { color: #ff8800; text-shadow: 4px 4px 0 #804400; }
-  .rank-f { color: #888; text-shadow: 4px 4px 0 #222; }
+  .rank-s { color: #ffdd00; text-shadow: 4px 4px 0 #b38600; } .rank-a { color: #00ccff; text-shadow: 4px 4px 0 #005580; } .rank-b { color: #33ff55; text-shadow: 4px 4px 0 #0f4d1a; } .rank-c { color: #ff8800; text-shadow: 4px 4px 0 #804400; } .rank-f { color: #888; text-shadow: 4px 4px 0 #222; }
   .res-msg-platinum, .res-msg-nice { color: #ffffff !important; background: none !important; -webkit-background-clip: initial !important; filter: none !important; text-shadow: 3px 3px 0 #000 !important; font-weight: 900; -webkit-text-stroke: 1.5px #000 !important;}
-
   .nav-btn { pointer-events: auto; background: #333; color: #fff; width: 44px; height: 44px; border-radius: 50%; border: 3px solid #fff; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; flex-shrink: 0; box-shadow: 4px 4px 0 #000; }
   .nav-btn:active { background: #fff; color:#000; transform: scale(0.9); box-shadow: 0 0 0 #000; }
   .nav-btn:disabled { opacity: 0; pointer-events: none; }
-
   .new-record-badge { background: linear-gradient(to bottom, #fff 30%, #ffd700 60%, #b8860b 100%); -webkit-background-clip: text; color: transparent; -webkit-text-stroke: 0; font-size: 42px; font-weight: 900; font-style: italic; line-height: 1.0; padding: 0 10px; margin-right: -10px; margin-bottom: 5px; filter: drop-shadow(5px 5px 0px #000) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)); display: none; align-items: center; justify-content: center; transform: skewX(-10deg) rotate(-3deg); position: relative; z-index: 9999; letter-spacing: -3px; pointer-events: none; }
   .new-record-badge.show { display: inline-block; animation: badgePopSmash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes badgePopSmash { 0% { transform: scale(3) skewX(-10deg) rotate(10deg); opacity: 0; } 100% { transform: scale(1) skewX(-10deg) rotate(-3deg); opacity: 1; } }
@@ -536,7 +338,7 @@
 <body>
 
   <div class="app-container" id="app-wrapper">
-    <div class="version-label">Ver 38.0 Particle Update</div>
+    <div class="version-label">Ver 41.1</div>
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
@@ -544,36 +346,23 @@
 
       <div id="tutorial-overlay">
           <div id="login-streak-display"></div>
-
           <button id="btn-mode-toggle" onclick="toggleDimensionMode()">
               <span class="check">☐</span><span class="label">RANDOM</span>
           </button>
-
+          
           <button id="btn-how-to-opening" class="btn-how-to-common" onclick="openHowTo()">
               <i data-lucide="help-circle" size="14"></i> HOW TO PLAY
           </button>
-
           <div id="tute-count" class="tute-item"></div>
           <div id="tute-input" class="tute-item"></div>
-
           <div id="tute-central-msg" class="tute-item">
               <button id="tute-start-btn" class="tute-start-btn">MODE SELECT</button>
-
               <div id="tute-mode-select" class="tute-mode-select">
-                  <button class="mode-btn mode-easy" onclick="handleModeSelect('EASY', this)">
-                      <div class="mode-val">EASY</div>
-                  </button>
-                  <button class="mode-btn mode-normal" onclick="handleModeSelect('NORMAL', this)">
-                      <div class="mode-val">NORMAL</div>
-                  </button>
-                  <button class="mode-btn mode-hard" onclick="handleModeSelect('HARD', this)">
-                      <div class="mode-val">HARD</div>
-                  </button>
-                  <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)">
-                      <div class="mode-val">EXTREME</div>
-                  </button>
+                  <button class="mode-btn mode-easy" onclick="handleModeSelect('EASY', this)"><div class="mode-val">EASY</div></button>
+                  <button class="mode-btn mode-normal" onclick="handleModeSelect('NORMAL', this)"><div class="mode-val">NORMAL</div></button>
+                  <button class="mode-btn mode-hard" onclick="handleModeSelect('HARD', this)"><div class="mode-val">HARD</div></button>
+                  <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)"><div class="mode-val">EXTREME</div></button>
               </div>
-
               <div id="tute-big-msg" class="tute-big-msg">READY</div>
           </div>
       </div>
@@ -592,7 +381,11 @@
       </div>
     </div>
 
-    <div class="virtual-keyboard" id="virtual-keyboard">
+    <div id="kb-toolbar">
+        <button id="btn-key-layout-toggle" class="btn-color-a">KEYBOARD TYPE A</button>
+    </div>
+
+    <div class="virtual-keyboard layout-phone" id="virtual-keyboard">
         <button class="kb-key" data-key="1"><div class="kb-key-main">1</div></button>
         <button class="kb-key" data-key="2"><div class="kb-key-main">2</div></button>
         <button class="kb-key" data-key="3"><div class="kb-key-main">3</div></button>
@@ -602,7 +395,7 @@
         <button class="kb-key" data-key="7"><div class="kb-key-main">7</div></button>
         <button class="kb-key" data-key="8"><div class="kb-key-main">8</div></button>
         <button class="kb-key" data-key="9"><div class="kb-key-main">9</div></button>
-        <div class="kb-key kb-version">Ver 38.0</div>
+        <div class="kb-key kb-version">Ver 41.1</div>
         <button class="kb-key" data-key="0"><div class="kb-key-main">0</div></button>
         <button class="kb-key" data-key="DEL"><div class="kb-key-main" style="font-size:18px;">DEL</div></button>
     </div>
@@ -612,139 +405,33 @@
             <i data-lucide="help-circle" size="14"></i> HELP
         </button>
         <div id="mode-select-container">
-            <button class="mode-btn mode-easy active-mode" onclick="handleModeSelect('EASY', this)">
-                <div class="mode-val">EASY</div>
-            </button>
-            <button class="mode-btn mode-normal" onclick="handleModeSelect('NORMAL', this)">
-                <div class="mode-val">NORMAL</div>
-            </button>
-            <button class="mode-btn mode-hard" onclick="handleModeSelect('HARD', this)">
-                <div class="mode-val">HARD</div>
-            </button>
-            <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)">
-                <div class="mode-val">EXTREME</div>
-            </button>
+            <button class="mode-btn mode-easy active-mode" onclick="handleModeSelect('EASY', this)"><div class="mode-val">EASY</div></button>
+            <button class="mode-btn mode-normal" onclick="handleModeSelect('NORMAL', this)"><div class="mode-val">NORMAL</div></button>
+            <button class="mode-btn mode-hard" onclick="handleModeSelect('HARD', this)"><div class="mode-val">HARD</div></button>
+            <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)"><div class="mode-val">EXTREME</div></button>
         </div>
     </div>
-  </div>
 
   <div id="how-to-modal">
       <div class="ht-container">
-          <div class="ht-header">
-              <div class="ht-title">HOW TO PLAY</div>
-              <div class="ht-close-btn" onclick="closeHowTo()">✕</div>
-          </div>
+          <div class="ht-header"><div class="ht-title">HOW TO PLAY</div><div class="ht-close-btn" onclick="closeHowTo()">✕</div></div>
           <div class="ht-body">
-              <div class="ht-intro-box">
-                  <div class="ht-intro-title">BRAIN TRAINING</div>
-                  <p class="ht-intro-text">
-                      "Subitizing"（サビタイジング）とは、数を１つずつ数えなくても<br>
-                      <span class="highlight">瞬時に「いくつあるか」を把握できる能力</span>のこと。<br>
-                      眼と脳の反射神経を極限まで高めろ！
-                  </p>
-              </div>
-
-              <div class="ht-intro-box" style="margin-top:-10px; border-color: #00aaff; background: rgba(0,170,255,0.1);">
-                  <div class="ht-intro-title" style="color:#00ffff;">GAME RULE</div>
-                  <p class="ht-intro-text" style="font-size:14px; color:#fff;">
-                      全10問 (Total 10 Questions)<br>
-                      最速でクリアを目指せ！
-                  </p>
-              </div>
-              
+              <div class="ht-intro-box"><div class="ht-intro-title">BRAIN TRAINING</div><p class="ht-intro-text">"Subitizing"（サビタイジング）とは、数を１つずつ数えなくても<br><span class="highlight">瞬時に「いくつあるか」を把握できる能力</span>のこと。<br>眼と脳の反射神経を極限まで高めろ！</p></div>
+              <div class="ht-intro-box" style="margin-top:-10px; border-color: #00aaff; background: rgba(0,170,255,0.1);"><div class="ht-intro-title" style="color:#00ffff;">GAME RULE</div><p class="ht-intro-text" style="font-size:14px; color:#fff;">全10問 (Total 10 Questions)<br>最速でクリアを目指せ！</p></div>
               <div class="ht-sec-title">GAME FLOW</div>
-              
-              <div class="ht-flow-step">
-                  <div class="ht-step-badge">STEP 1</div>
-                  <div class="ht-step-text">
-                      <div class="step-head">一番左を見ろ！</div>
-                      <div class="step-desc">左端のレーンがターゲットだ。<br>次々と迫るブロックを瞬時に捉えろ。</div>
-                  </div>
-                  <div class="ht-step-icon"><i data-lucide="eye"></i></div>
-              </div>
+              <div class="ht-flow-step"><div class="ht-step-badge">STEP 1</div><div class="ht-step-text"><div class="step-head">一番左を見ろ！</div><div class="step-desc">左端のレーンがターゲットだ。<br>次々と迫るブロックを瞬時に捉えろ。</div></div><div class="ht-step-icon"><i data-lucide="eye"></i></div></div>
               <div class="ht-flow-arrow">▼</div>
-              <div class="ht-flow-step">
-                  <div class="ht-step-badge">STEP 2</div>
-                  <div class="ht-step-text">
-                      <div class="step-head">直感</div>
-                      <div class="step-desc">「1, 2, 3...」と数えてはいけない。<br>「形」として数を認識するんだ。</div>
-                  </div>
-                  <div class="ht-step-icon"><i data-lucide="brain-circuit"></i></div>
-              </div>
+              <div class="ht-flow-step"><div class="ht-step-badge">STEP 2</div><div class="ht-step-text"><div class="step-head">直感</div><div class="step-desc">「1, 2, 3...」と数えてはいけない。<br>「形」として数を認識するんだ。</div></div><div class="ht-step-icon"><i data-lucide="brain-circuit"></i></div></div>
               <div class="ht-flow-arrow">▼</div>
-              <div class="ht-flow-step">
-                  <div class="ht-step-badge">STEP 3</div>
-                  <div class="ht-step-text">
-                      <div class="step-head">入力</div>
-                      <div class="step-desc">数字キーを叩け！<br>回答スピードが速いほどスコアアップ。</div>
-                  </div>
-                  <div class="ht-step-icon"><i data-lucide="zap" style="color:#fff700"></i></div>
-              </div>
-
+              <div class="ht-flow-step"><div class="ht-step-badge">STEP 3</div><div class="ht-step-text"><div class="step-head">入力</div><div class="step-desc">数字キーを叩け！<br>回答スピードが速いほどスコアアップ。</div></div><div class="ht-step-icon"><i data-lucide="zap" style="color:#fff700"></i></div></div>
               <div class="ht-sec-title">JUDGEMENT & RANK</div>
-              <div class="ht-judge-box">
-                  <p class="ht-judge-desc">回答までのタイムが速いほど、高評価を得られる。</p>
-                  <div class="ht-meter-demo">
-                      <div class="meter-label">FAST</div>
-                      <div class="meter-bar">
-                          <div class="m-seg seg-marv">MARV</div>
-                          <div class="m-seg seg-exc">EXC</div>
-                          <div class="m-seg seg-grt">GRT</div>
-                          <div class="m-seg seg-good">GOOD</div>
-                          <div class="m-seg seg-ok">OK</div>
-                      </div>
-                      <div class="meter-label">SLOW</div>
-                  </div>
-                  <div class="ht-rank-grid">
-                      <div class="rank-cell c-secret" style="grid-column: span 3;">???</div>
-                      <div class="rank-cell c-s">S</div>
-                      <div class="rank-cell c-a">A</div>
-                      <div class="rank-cell c-b">B</div>
-                      <div class="rank-cell c-c">C</div>
-                      <div class="rank-cell c-d">D</div>
-                  </div>
-              </div>
-
+              <div class="ht-judge-box"><p class="ht-judge-desc">回答までのタイムが速いほど、高評価を得られる。</p><div class="ht-meter-demo"><div class="meter-label">FAST</div><div class="meter-bar"><div class="m-seg seg-marv">MARV</div><div class="m-seg seg-exc">EXC</div><div class="m-seg seg-grt">GRT</div><div class="m-seg seg-good">GOOD</div><div class="m-seg seg-ok">OK</div></div><div class="meter-label">SLOW</div></div><div class="ht-rank-grid"><div class="rank-cell c-secret" style="grid-column: span 3;">???</div><div class="rank-cell c-s">S</div><div class="rank-cell c-a">A</div><div class="rank-cell c-b">B</div><div class="rank-cell c-c">C</div><div class="rank-cell c-d">D</div></div></div>
               <div class="ht-sec-title">MODES</div>
-              <div class="ht-mode-list">
-                  <div class="ht-mode-item m-easy">
-                      <div class="hm-head">EASY / NORMAL</div>
-                      <div class="hm-body">基本モード。<br>入力は常に<span class="hl">1桁</span>。</div>
-                  </div>
-                  <div class="ht-mode-item m-hard">
-                      <div class="hm-head">HARD / EXTREME</div>
-                      <div class="hm-body">上級者向け。<br>入力は常に<span class="hl">2桁</span>。</div>
-                  </div>
-                  <div class="ht-mode-item m-random">
-                      <div class="hm-head">RANDOM (超上級者向け)</div>
-                      <div class="hm-body">配置が完全にバラバラになるカオスモード。<br>空間認識能力の限界に挑め。<br>※右上のボタンでON/OFF切替</div>
-                  </div>
-              </div>
-
+              <div class="ht-mode-list"><div class="ht-mode-item m-easy"><div class="hm-head">EASY / NORMAL</div><div class="hm-body">基本モード。<br>入力は常に<span class="hl">1桁</span>。</div></div><div class="ht-mode-item m-hard"><div class="hm-head">HARD / EXTREME</div><div class="hm-body">上級者向け。<br>入力は常に<span class="hl">2桁</span>。</div></div><div class="ht-mode-item m-random"><div class="hm-head">RANDOM (超上級者向け)</div><div class="hm-body">配置が完全にバラバラになるカオスモード。<br>空間認識能力の限界に挑め。<br>※右上のボタンでON/OFF切替</div></div></div>
               <div class="ht-sec-title">UNLOCK CONDITIONS</div>
-              <div class="ht-unlock-list">
-                  <div class="ht-unlock-item">
-                      <span class="ul-target">NORMAL</span>
-                      <span class="ul-cond">EASYで <span class="c-a" style="font-weight:900;">ランクA</span> 以上</span>
-                  </div>
-                  <div class="ht-unlock-item">
-                      <span class="ul-target">HARD</span>
-                      <span class="ul-cond">EASYで <span class="c-s" style="font-weight:900;">ランクS</span> 以上<br>または NORMALで <span class="c-a" style="font-weight:900;">ランクA</span> 以上</span>
-                  </div>
-                  <div class="ht-unlock-item">
-                      <span class="ul-target">EXTREME</span>
-                      <span class="ul-cond">NORMALで <span class="c-s" style="font-weight:900;">ランクS</span> 以上<br>または HARDで <span class="c-a" style="font-weight:900;">ランクA</span> 以上</span>
-                  </div>
-              </div>
-
+              <div class="ht-unlock-list"><div class="ht-unlock-item"><span class="ul-target">NORMAL</span><span class="ul-cond">EASYで <span class="c-a" style="font-weight:900;">ランクA</span> 以上</span></div><div class="ht-unlock-item"><span class="ul-target">HARD</span><span class="ul-cond">EASYで <span class="c-s" style="font-weight:900;">ランクS</span> 以上<br>または NORMALで <span class="c-a" style="font-weight:900;">ランクA</span> 以上</span></div><div class="ht-unlock-item"><span class="ul-target">EXTREME</span><span class="ul-cond">NORMALで <span class="c-s" style="font-weight:900;">ランクS</span> 以上<br>または HARDで <span class="c-a" style="font-weight:900;">ランクA</span> 以上</span></div></div>
               <div class="ht-sec-title">WHAT IS "ch"?</div>
-              <div class="ht-ch-box">
-                  <div class="ch-big">ch = Count per Hour</div>
-                  <div class="ch-desc">
-                      「1時間あたり何アイテム処理できるか」という生産性の指標。<br>
-                      正確かつ高速に処理することで、この数値は跳ね上がる。<br>
-                  </div>
-              </div>
+              <div class="ht-ch-box"><div class="ch-big">ch = Count per Hour</div><div class="ch-desc">「1時間あたり何アイテム処理できるか」という生産性の指標。<br>正確かつ高速に処理することで、この数値は跳ね上がる。<br></div></div>
           </div>
       </div>
   </div>
@@ -752,32 +439,17 @@
   <div id="result-modal" class="modal-overlay">
     <div id="result-card-container" class="result-card">
       <div class="result-scroll-area">
-        <div class="res-header-row">
-            <div class="res-title">RESULT</div>
-            <div id="res-mode-label" class="res-mode-label">NORMAL</div>
-        </div>
+        <div class="res-header-row"><div class="res-title">RESULT</div><div id="res-mode-label" class="res-mode-label">NORMAL</div></div>
         <div class="rank-section">
-            <div class="rank-wrapper">
-                <div id="res-rank-char" class="rank-char">S</div>
-                <div id="res-rank-label-text" class="rank-label-text" style="font-size:14px;color:#888;font-weight:900;font-style:italic;">RANK</div>
-            </div>
+            <div class="rank-wrapper"><div id="res-rank-char" class="rank-char">S</div><div id="res-rank-label-text" class="rank-label-text" style="font-size:14px;color:#888;font-weight:900;font-style:italic;">RANK</div></div>
             <div id="res-status-msg" class="res-status-msg">STAGE CLEAR</div>
             <div id="res-unlock-wrapper" class="res-unlock-wrapper"></div>
             <div id="res-msg" style="font-size:32px;font-weight:900;margin-top:5px;font-style:italic;color:var(--g-miss);text-shadow:3px 3px 0 #000;-webkit-text-stroke:0;"></div>
         </div>
         <div id="result-details">
-            <table class="detail-table">
-                <thead><tr><th>JUDGE</th><th style="text-align:right">COUNT</th><th style="text-align:right">AVG(s)</th><th style="text-align:right">SCORE</th></tr></thead>
-                <tbody id="detail-table-body"></tbody>
-            </table>
-            <div class="score-row-container">
-                <div id="new-record-badge" class="badge-common new-record-badge">NEW RECORD!!</div>
-                <div id="res-total-box" class="total-score-box"></div>
-            </div>
-            <div id="miss-log" class="miss-log-container">
-                <div class="miss-title">FEEDBACK</div>
-                <div id="miss-items-row" class="miss-scroll-wrapper"></div>
-            </div>
+            <table class="detail-table"><thead><tr><th>JUDGE</th><th style="text-align:right">COUNT</th><th style="text-align:right">AVG(s)</th><th style="text-align:right">SCORE</th></tr></thead><tbody id="detail-table-body"></tbody></table>
+            <div class="score-row-container"><div id="new-record-badge" class="badge-common new-record-badge">NEW RECORD!!</div><div id="res-total-box" class="total-score-box"></div></div>
+            <div id="miss-log" class="miss-log-container"><div class="miss-title">FEEDBACK</div><div id="miss-items-row" class="miss-scroll-wrapper"></div></div>
         </div>
       </div>
       <div class="result-footer">
@@ -787,16 +459,44 @@
       </div>
     </div>
   </div>
-
+  </div>
 <script>
-    lucide.createIcons();
-const CONFIG = {
+    /* --- アイコン初期化 --- */
+    if(window.lucide) lucide.createIcons();
+
+    /* --- 定数・設定 --- */
+    const CONFIG = {
         capPerItemSec: 0.1,
         capCh: 36000
     };
 
     const RANK_ORDER = ['GOD', 'Z', 'S', 'A', 'B', 'C', 'D', 'F'];
 
+    // キーボードレイアウト定義
+    const KB_LAYOUTS = ['PHONE', 'CALC', 'SPECIAL'];
+    
+    // ラベル定義（KEYBOARD TYPE A...）
+    const KB_LABELS = {
+        'PHONE': 'KEYBOARD TYPE A',
+        'CALC':  'KEYBOARD TYPE B',
+        'SPECIAL': 'KEYBOARD TYPE C'
+    };
+    
+    // ボタンの色クラス定義（CSSで定義したクラスと対応）
+    const KB_BTN_CLASSES = {
+        'PHONE': 'btn-color-a',
+        'CALC':  'btn-color-b',
+        'SPECIAL': 'btn-color-c'
+    };
+    
+    // キーボードグリッドのクラス定義
+    const KB_CLASSES = {
+        'PHONE': 'layout-phone',
+        'CALC':  'layout-calc',
+        'SPECIAL': 'layout-special'
+    };
+
+    /* --- ゲームモード設定 --- */
     const MODES = {
         'EASY': { 
             count: 10, time: 3.0, color: 'var(--c-easy)', type: 'STD',
@@ -805,21 +505,22 @@ const CONFIG = {
         },
         'NORMAL': { 
             count: 10, time: 3.5, color: 'var(--c-normal)', type: 'STD',
-            judgments: { marv: 0.9, exc: 1.5, great: 2.0, good: 3.5 },
-            rankThresholds: { god: 10000, z: 8800, s: 4000, a: 2800, b: 2000, c: 1200, f: 0 }
+            judgments: { marv: 0.65, exc: 0.9, great: 1.4, good: 2.0 },
+            rankThresholds: { god: 10000, z: 9000, s: 6000, a: 4000, b: 2500, c: 1200, f: 0 }
         },
         'HARD': { 
             count: 10, time: 4.0, color: 'var(--c-hard)', type: 'HARD',
-            judgments: { marv: 1.5, exc: 2.0, great: 4.0 },
-            rankThresholds: { god: 6000, z: 4200, s: 2400, a: 1800, b: 1200, c: 900, f: 0 }
+            judgments: { marv: 1.2, exc: 1.6, great: 2.5 },
+            rankThresholds: { god: 5000, z: 4000, s: 3000, a: 2000, b: 1200, c: 800, f: 0 }
         },
         'EXTREME': { 
             count: 10, time: 5.0, color: 'var(--c-extreme)', type: 'EXT',
             judgments: { marv: 2.0, exc: 3.0, great: 5.0 },
-            rankThresholds: { god: 4500, z: 3000, s: 1800, a: 1200, b: 900, c: 600, f: 0 }
+            rankThresholds: { god: 3800, z: 2800, s: 1800, a: 700, b: 500, c: 300, f: 0 }
         }
     };
 
+    /* --- ステート管理 --- */
     const STATE = {
         status: 'IDLE',
         is3DMode: false,
@@ -839,6 +540,7 @@ const CONFIG = {
         generatedCount: 0,
         isExtreme: false,
         isInputBlocked: false,
+        currentKbLayout: 'PHONE', 
         saveData: {
             ranks2D: { EASY: null, NORMAL: null, HARD: null, EXTREME: null },
             ranks3D: { EASY: null, NORMAL: null, HARD: null, EXTREME: null },
@@ -854,214 +556,80 @@ const CONFIG = {
         consecutiveCountValue: 0, 
     };
 
-    const UI = {
-        appWrapper: document.getElementById('app-wrapper'),
-        view1: document.getElementById('view-1'),
-        view2: document.getElementById('view-2'),
-        view3: document.getElementById('view-3'),
-        slot1: document.getElementById('slot-1'),
-        slot2: document.getElementById('slot-2'),
-        slot3: document.getElementById('slot-3'),
-        failShutter: document.getElementById('fail-shutter'),
-        victoryShutter: document.getElementById('victory-shutter'),
-        tutorialOverlay: document.getElementById('tutorial-overlay'),
-        tuteBigMsg: document.getElementById('tute-big-msg'),
-        hudModeLabel: document.getElementById('hud-mode-label'),
-        btnModeToggle: document.getElementById('btn-mode-toggle'),
-        resultModal: document.getElementById('result-modal'),
-        resultCardContainer: document.getElementById('result-card-container'), 
-        resRankChar: document.getElementById('res-rank-char'),
-        resRankLabelText: document.getElementById('res-rank-label-text'),
-        resMsg: document.getElementById('res-msg'),
-        resStatusMsg: document.getElementById('res-status-msg'),
-        resUnlockWrapper: document.getElementById('res-unlock-wrapper'),
-        resModeLabel: document.getElementById('res-mode-label'),
-        resTotalBox: document.getElementById('res-total-box'),
-        newRecordBadge: document.getElementById('new-record-badge'),
-        missLog: document.getElementById('miss-log'),
-        missItemsRow: document.getElementById('miss-items-row'),
-        detailTableBody: document.getElementById('detail-table-body'),
-        histPrev: document.getElementById('hist-prev'),
-        histNext: document.getElementById('hist-next'),
-        bottomUi: document.getElementById('bottom-ui-container'),
-        tuteCount: document.getElementById('tute-count'),
-        tuteInput: document.getElementById('tute-input'),
-        tuteStartBtn: document.getElementById('tute-start-btn'),
-        tuteModeSelect: document.getElementById('tute-mode-select'),
-        virtualKeyboard: document.getElementById('virtual-keyboard'),
-        howToModal: document.getElementById('how-to-modal'),
-        btnHowToBottom: document.getElementById('btn-how-to-bottom'),
-        timerPathL: null,
-        timerPathR: null
-    };
-
+    let UI = {};
     const KB = { keys: {} };
 
-    function getModeDisplayName(key) { return key; }
-
-    function isRankHigherOrEqual(current, target) {
-        if (!current) return false;
-        return RANK_ORDER.indexOf(current) <= RANK_ORDER.indexOf(target);
-    }
-
-    function getRankFromScore(score, modeName) {
-        const thresholds = MODES[modeName].rankThresholds;
-        if(score >= thresholds.god) return 'GOD';
-        if(score >= thresholds.z) return 'Z';
-        if(score >= thresholds.s) return 'S';
-        if(score >= thresholds.a) return 'A';
-        if(score >= thresholds.b) return 'B';
-        if(score >= thresholds.c) return 'C';
-        return 'D'; 
-    }
-
-    function openHowTo() {
-        UI.howToModal.classList.add('active');
-    }
-     
-    function closeHowTo() {
-        UI.howToModal.classList.remove('active');
-    }
-
-    /* 修正1: 連続ログイン日数の処理 */
-    function updateLoginStreak() {
-        const KEY_DATE = 'snow_last_login_date';
-        const KEY_STREAK = 'snow_login_streak';
-        
-        const todayStr = new Date().toLocaleDateString('ja-JP'); // "YYYY/M/D"
-        const lastDate = localStorage.getItem(KEY_DATE);
-        let streak = parseInt(localStorage.getItem(KEY_STREAK) || '0', 10);
-
-        if (lastDate !== todayStr) {
-            // 日付が変わっている場合
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toLocaleDateString('ja-JP');
-
-            if (lastDate === yesterdayStr) {
-                // 昨日ログインしていればカウントアップ
-                streak++;
-            } else {
-                // 昨日ログインしていなければリセット (ただし今日が初めてなら1)
-                streak = 1;
-            }
-            // 保存
-            localStorage.setItem(KEY_DATE, todayStr);
-            localStorage.setItem(KEY_STREAK, streak);
-        } else {
-            // 今日すでにログイン済みだが、初回起動で0の場合は1にする
-            if(streak === 0) streak = 1;
-        }
-
-        // 表示更新
-        const el = document.getElementById('login-streak-display');
-        if(el) el.innerText = '🔥' + streak;
-    }
-
-    function setupSlotTimerSVG() {
-        const container = UI.slot1;
-        const existing = container.querySelector('.slot-timer-svg');
-        if(existing) existing.remove();
-
-        const w = container.offsetWidth;
-        const h = container.offsetHeight;
-
-        const ns = "http://www.w3.org/2000/svg";
-        const svg = document.createElementNS(ns, "svg");
-        svg.setAttribute("class", "slot-timer-svg");
-        svg.setAttribute("width", "100%");
-        svg.setAttribute("height", "100%");
-        svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-        svg.style.position = 'absolute';
-        svg.style.left = '0';
-        svg.style.top = '0';
-
-        const cx = w / 2;
-
-        const pathStrL = `M ${cx} ${h} L 0 ${h} L 0 0 L ${cx} 0`;
-        const pathStrR = `M ${cx} ${h} L ${w} ${h} L ${w} 0 L ${cx} 0`;
-
-        const pathL = document.createElementNS(ns, "path");
-        pathL.setAttribute("d", pathStrL);
-        pathL.setAttribute("class", "timer-path");
-        pathL.style.strokeWidth = "8px";
-
-        const pathR = document.createElementNS(ns, "path");
-        pathR.setAttribute("d", pathStrR);
-        pathR.setAttribute("class", "timer-path");
-        pathR.style.strokeWidth = "8px";
-
-        svg.appendChild(pathL);
-        svg.appendChild(pathR);
-        container.appendChild(svg);
-
-        UI.timerPathL = pathL;
-        UI.timerPathR = pathR;
-
-        const lenL = pathL.getTotalLength();
-        const lenR = pathR.getTotalLength();
-
-        pathL.style.strokeDasharray = lenL;
-        pathL.style.strokeDashoffset = 0;
-        pathR.style.strokeDasharray = lenR;
-        pathR.style.strokeDashoffset = 0;
-    }
-
-    function updateTimerSVG(pct, color) {
-        if (!UI.timerPathL || !UI.timerPathR) return;
-
-        const totalLenL = UI.timerPathL.getTotalLength();
-        const totalLenR = UI.timerPathR.getTotalLength();
-
-        const offsetL = totalLenL * (1 - pct);
-        const offsetR = totalLenR * (1 - pct);
-
-        UI.timerPathL.style.strokeDashoffset = offsetL;
-        UI.timerPathR.style.strokeDashoffset = offsetR;
-
-        UI.timerPathL.style.stroke = color;
-        UI.timerPathR.style.stroke = color;
-    }
-
-    function resetTimerVisuals() {
-        if (!UI.timerPathL || !UI.timerPathR) return;
-        UI.timerPathL.style.transition = 'none';
-        UI.timerPathR.style.transition = 'none';
-
-        UI.timerPathL.style.strokeDashoffset = 0;
-        UI.timerPathR.style.strokeDashoffset = 0;
-
-        void UI.timerPathL.offsetWidth;
-
-        UI.timerPathL.style.transition = 'stroke 0.1s linear';
-        UI.timerPathR.style.transition = 'stroke 0.1s linear';
-    }
-
-    function updateThemeClass() {
-        UI.appWrapper.classList.remove('theme-easy','theme-normal','theme-hard','theme-extreme');
-        const key = STATE.currentModeKey;
-        if (key === 'EASY') UI.appWrapper.classList.add('theme-easy');
-        else if (key === 'NORMAL') UI.appWrapper.classList.add('theme-normal');
-        else if (key === 'HARD') UI.appWrapper.classList.add('theme-hard');
-        else if (key === 'EXTREME') UI.appWrapper.classList.add('theme-extreme');
-    }
-
+    /* --- 起動時処理 (onload) --- */
     window.onload = () => {
+        UI = {
+            appWrapper: document.getElementById('app-wrapper'),
+            view1: document.getElementById('view-1'),
+            view2: document.getElementById('view-2'),
+            view3: document.getElementById('view-3'),
+            slot1: document.getElementById('slot-1'),
+            slot2: document.getElementById('slot-2'),
+            slot3: document.getElementById('slot-3'),
+            failShutter: document.getElementById('fail-shutter'),
+            victoryShutter: document.getElementById('victory-shutter'),
+            tutorialOverlay: document.getElementById('tutorial-overlay'),
+            tuteBigMsg: document.getElementById('tute-big-msg'),
+            tuteCentralMsg: document.getElementById('tute-central-msg'), 
+            hudModeLabel: document.getElementById('hud-mode-label'),
+            btnModeToggle: document.getElementById('btn-mode-toggle'),
+            
+            resultModal: document.getElementById('result-modal'),
+            howToModal: document.getElementById('how-to-modal'),
+            
+            resultCardContainer: document.getElementById('result-card-container'), 
+            resRankChar: document.getElementById('res-rank-char'),
+            resRankLabelText: document.getElementById('res-rank-label-text'),
+            resMsg: document.getElementById('res-msg'),
+            resStatusMsg: document.getElementById('res-status-msg'),
+            resUnlockWrapper: document.getElementById('res-unlock-wrapper'),
+            resModeLabel: document.getElementById('res-mode-label'),
+            resTotalBox: document.getElementById('res-total-box'),
+            newRecordBadge: document.getElementById('new-record-badge'),
+            missLog: document.getElementById('miss-log'),
+            missItemsRow: document.getElementById('miss-items-row'),
+            detailTableBody: document.getElementById('detail-table-body'),
+            histPrev: document.getElementById('hist-prev'),
+            histNext: document.getElementById('hist-next'),
+            bottomUi: document.getElementById('bottom-ui-container'),
+            tuteCount: document.getElementById('tute-count'),
+            tuteInput: document.getElementById('tute-input'),
+            tuteStartBtn: document.getElementById('tute-start-btn'),
+            tuteModeSelect: document.getElementById('tute-mode-select'),
+            virtualKeyboard: document.getElementById('virtual-keyboard'),
+            btnHowToBottom: document.getElementById('btn-how-to-bottom'),
+            btnHowToOpening: document.getElementById('btn-how-to-opening'),
+            btnKeyLayoutToggle: document.getElementById('btn-key-layout-toggle'),
+            timerPathL: null,
+            timerPathR: null
+        };
+
+        // キーバインド
         ['1','2','3','4','5','6','7','8','9','0','DEL'].forEach(k => {
             KB.keys[k] = document.querySelector(`.kb-key[data-key="${k}"]`);
         });
 
-        // ログイン日数更新
         updateLoginStreak();
+        initKeyLayout();
+        adjustCentralLayout();
         resetToIdle();
 
-        UI.histPrev.addEventListener('click', () => changeHistory(-1));
-        UI.histNext.addEventListener('click', () => changeHistory(1));
+        if(UI.histPrev) UI.histPrev.addEventListener('click', () => changeHistory(-1));
+        if(UI.histNext) UI.histNext.addEventListener('click', () => changeHistory(1));
+        
+        // キーボード切替ボタンイベント
+        if (UI.btnKeyLayoutToggle) {
+            UI.btnKeyLayoutToggle.addEventListener('click', toggleKeyLayout);
+        }
 
         if (UI.tuteStartBtn) {
             UI.tuteStartBtn.addEventListener('click', handleTapToStart);
         }
 
+        // タッチイベント
         const keys = document.querySelectorAll('.kb-key');
         keys.forEach(k => {
             if(!k.dataset.key) return;
@@ -1073,33 +641,23 @@ const CONFIG = {
             k.addEventListener('mouseleave', clearState);
         });
 
+        // キーボード入力
         window.addEventListener('keydown', (e) => {
             if(e.repeat) return;
-
             if ((e.key === '.' || e.code === 'NumpadDecimal') && STATE.status === 'IDLE') {
-                e.preventDefault();
-                toggleDimensionMode();
-                return;
+                e.preventDefault(); toggleDimensionMode(); return;
             }
-
             if (STATE.isInputBlocked) {
                 if(STATE.status === 'GAMEOVER' && e.key === 'Enter') resetToIdle();
                 return;
             }
-
             if(STATE.status === 'PLAYING') {
                 const mode = MODES[STATE.currentModeKey];
-                
                 if (mode.type === 'EXT' || mode.type === 'HARD') {
-                    if (e.key >= '0' && e.key <= '9') {
-                        animateKey(e.key); processInputExtreme(e.key);
-                    } else if (e.key === 'Backspace' || e.key === 'Delete') {
-                        animateKey('DEL'); processInputExtreme('DEL');
-                    }
+                    if (e.key >= '0' && e.key <= '9') { animateKey(e.key); processInputExtreme(e.key); }
+                    else if (e.key === 'Backspace' || e.key === 'Delete') { animateKey('DEL'); processInputExtreme('DEL'); }
                 } else {
-                    if(e.key >= '1' && e.key <= '9') {
-                        animateKey(e.key); processInput(parseInt(e.key, 10));
-                    }
+                    if(e.key >= '1' && e.key <= '9') { animateKey(e.key); processInput(parseInt(e.key, 10)); }
                 }
             } else if(STATE.status === 'IDLE') {
                 if(e.key === 'Enter') handleModeSelect(STATE.currentModeKey);
@@ -1114,10 +672,53 @@ const CONFIG = {
 
         window.addEventListener('resize', () => {
              if (STATE.status === 'PLAYING') setupSlotTimerSVG();
+             adjustCentralLayout();
         });
 
         updateModeButtons(STATE.currentModeKey);
     };
+
+    /* --- 機能関数群 --- */
+    function adjustCentralLayout() {
+        if (!UI.virtualKeyboard || !UI.tuteCentralMsg) return;
+        const windowH = window.innerHeight;
+        const kbH = UI.virtualKeyboard.offsetHeight;
+        const gameAreaH = windowH - kbH;
+        const centerY = (gameAreaH / 2) + 40;
+        UI.tuteCentralMsg.style.top = `${centerY}px`;
+    }
+
+    function initKeyLayout() {
+        const savedLayout = localStorage.getItem('snow_key_layout');
+        if (savedLayout && KB_LAYOUTS.includes(savedLayout)) {
+            STATE.currentKbLayout = savedLayout;
+        } else {
+            STATE.currentKbLayout = 'PHONE';
+        }
+        applyKeyLayout(STATE.currentKbLayout);
+    }
+
+    function toggleKeyLayout() {
+        const currentIndex = KB_LAYOUTS.indexOf(STATE.currentKbLayout);
+        const nextIndex = (currentIndex + 1) % KB_LAYOUTS.length;
+        STATE.currentKbLayout = KB_LAYOUTS[nextIndex];
+        localStorage.setItem('snow_key_layout', STATE.currentKbLayout);
+        applyKeyLayout(STATE.currentKbLayout);
+    }
+
+    function applyKeyLayout(layoutName) {
+        if(!UI.virtualKeyboard) return;
+        // キーボードレイアウトの変更
+        UI.virtualKeyboard.classList.remove('layout-phone', 'layout-calc', 'layout-special');
+        UI.virtualKeyboard.classList.add(KB_CLASSES[layoutName]);
+        
+        // ボタンのテキストと色クラスの更新
+        if (UI.btnKeyLayoutToggle) {
+            UI.btnKeyLayoutToggle.innerText = KB_LABELS[layoutName];
+            UI.btnKeyLayoutToggle.classList.remove('btn-color-a', 'btn-color-b', 'btn-color-c');
+            UI.btnKeyLayoutToggle.classList.add(KB_BTN_CLASSES[layoutName]);
+        }
+    }
 
     function animateKey(kVal) {
         const btn = KB.keys[kVal];
@@ -1143,17 +744,120 @@ const CONFIG = {
         if (STATE.isInputBlocked || k.classList.contains('disabled')) return;
         k.classList.add('active-state');
         triggerRipple(k);
-
         if(STATE.status === 'PLAYING') {
             const valStr = k.dataset.key;
             const mode = MODES[STATE.currentModeKey];
-            if (mode.type === 'EXT' || mode.type === 'HARD') {
-                processInputExtreme(valStr); 
-            } else {
-                let val = parseInt(valStr, 10);
-                if (!Number.isNaN(val)) processInput(val);
-            }
+            if (mode.type === 'EXT' || mode.type === 'HARD') { processInputExtreme(valStr); } 
+            else { let val = parseInt(valStr, 10); if (!Number.isNaN(val)) processInput(val); }
         }
+    }
+
+    function getModeDisplayName(key) { return key; }
+    function currentRanksStore() { return STATE.saveData.ranks2D; }
+
+    function isRankHigherOrEqual(current, target) {
+        if (!current) return false;
+        return RANK_ORDER.indexOf(current) <= RANK_ORDER.indexOf(target);
+    }
+
+    function getRankFromScore(score, modeName) {
+        const thresholds = MODES[modeName].rankThresholds;
+        if(score >= thresholds.god) return 'GOD';
+        if(score >= thresholds.z) return 'Z';
+        if(score >= thresholds.s) return 'S';
+        if(score >= thresholds.a) return 'A';
+        if(score >= thresholds.b) return 'B';
+        if(score >= thresholds.c) return 'C';
+        return 'D'; 
+    }
+
+    /* --- モーダル制御 --- */
+    function openHowTo() { if(UI.howToModal) UI.howToModal.classList.add('active'); }
+    function closeHowTo() { if(UI.howToModal) UI.howToModal.classList.remove('active'); }
+
+    function updateLoginStreak() {
+        const KEY_DATE = 'snow_last_login_date';
+        const KEY_STREAK = 'snow_login_streak';
+        const todayStr = new Date().toLocaleDateString('ja-JP'); 
+        const lastDate = localStorage.getItem(KEY_DATE);
+        let streak = parseInt(localStorage.getItem(KEY_STREAK) || '0', 10);
+
+        if (lastDate !== todayStr) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toLocaleDateString('ja-JP');
+            if (lastDate === yesterdayStr) { streak++; } 
+            else { streak = 1; }
+            localStorage.setItem(KEY_DATE, todayStr);
+            localStorage.setItem(KEY_STREAK, streak);
+        } else {
+            if(streak === 0) streak = 1;
+        }
+        const el = document.getElementById('login-streak-display');
+        if(el) el.innerText = '🔥' + streak;
+    }
+
+    function setupSlotTimerSVG() {
+        const container = UI.slot1;
+        if(!container) return;
+        const existing = container.querySelector('.slot-timer-svg');
+        if(existing) existing.remove();
+
+        const w = container.offsetWidth;
+        const h = container.offsetHeight;
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("class", "slot-timer-svg");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+        svg.style.position = 'absolute'; svg.style.left = '0'; svg.style.top = '0';
+
+        const cx = w / 2;
+        const pathStrL = `M ${cx} ${h} L 0 ${h} L 0 0 L ${cx} 0`;
+        const pathStrR = `M ${cx} ${h} L ${w} ${h} L ${w} 0 L ${cx} 0`;
+
+        const pathL = document.createElementNS(ns, "path");
+        pathL.setAttribute("d", pathStrL); pathL.setAttribute("class", "timer-path"); pathL.style.strokeWidth = "8px";
+        const pathR = document.createElementNS(ns, "path");
+        pathR.setAttribute("d", pathStrR); pathR.setAttribute("class", "timer-path"); pathR.style.strokeWidth = "8px";
+
+        svg.appendChild(pathL); svg.appendChild(pathR); container.appendChild(svg);
+        UI.timerPathL = pathL; UI.timerPathR = pathR;
+        
+        const lenL = pathL.getTotalLength(); const lenR = pathR.getTotalLength();
+        pathL.style.strokeDasharray = lenL; pathL.style.strokeDashoffset = 0;
+        pathR.style.strokeDasharray = lenR; pathR.style.strokeDashoffset = 0;
+    }
+
+    function updateTimerSVG(pct, color) {
+        if (!UI.timerPathL || !UI.timerPathR) return;
+        const totalLenL = UI.timerPathL.getTotalLength();
+        const totalLenR = UI.timerPathR.getTotalLength();
+        const offsetL = totalLenL * (1 - pct);
+        const offsetR = totalLenR * (1 - pct);
+        UI.timerPathL.style.strokeDashoffset = offsetL;
+        UI.timerPathR.style.strokeDashoffset = offsetR;
+        UI.timerPathL.style.stroke = color;
+        UI.timerPathR.style.stroke = color;
+    }
+
+    function resetTimerVisuals() {
+        if (!UI.timerPathL || !UI.timerPathR) return;
+        UI.timerPathL.style.transition = 'none'; UI.timerPathR.style.transition = 'none';
+        UI.timerPathL.style.strokeDashoffset = 0; UI.timerPathR.style.strokeDashoffset = 0;
+        void UI.timerPathL.offsetWidth;
+        UI.timerPathL.style.transition = 'stroke 0.1s linear'; UI.timerPathR.style.transition = 'stroke 0.1s linear';
+    }
+
+    function updateThemeClass() {
+        if(!UI.appWrapper) return;
+        UI.appWrapper.classList.remove('theme-easy','theme-normal','theme-hard','theme-extreme');
+        const key = STATE.currentModeKey;
+        if (key === 'EASY') UI.appWrapper.classList.add('theme-easy');
+        else if (key === 'NORMAL') UI.appWrapper.classList.add('theme-normal');
+        else if (key === 'HARD') UI.appWrapper.classList.add('theme-hard');
+        else if (key === 'EXTREME') UI.appWrapper.classList.add('theme-extreme');
     }
 
     function handleTapToStart() {
@@ -1165,6 +869,7 @@ const CONFIG = {
             if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex';
             checkUnlocks();
         }
+        adjustCentralLayout();
     }
 
     function toggleDimensionMode() {
@@ -1188,43 +893,42 @@ const CONFIG = {
     function resetToIdle() {
         STATE.status = 'IDLE';
         STATE.isInputBlocked = false;
-
         UI.appWrapper.classList.remove('showing-result');
-
         STATE.isExtreme = (STATE.currentModeKey === 'EXTREME');
         updateThemeClass();
-
-        UI.resultModal.classList.remove('show');
-        UI.virtualKeyboard.style.visibility = 'visible';
-
-        const oldSvg = UI.slot1.querySelector('.slot-timer-svg');
+        
+        /* Modal Reset */
+        if(UI.resultModal) UI.resultModal.classList.remove('show');
+        if(UI.virtualKeyboard) UI.virtualKeyboard.style.visibility = 'visible';
+        
+        const oldSvg = UI.slot1 ? UI.slot1.querySelector('.slot-timer-svg') : null;
         if(oldSvg) oldSvg.remove();
-
-        UI.slot1.style.border = '4px solid rgba(255,255,255,0.1)';
-        UI.slot1.style.borderBottom = 'none';
+        if(UI.slot1) {
+            UI.slot1.style.border = '4px solid rgba(255,255,255,0.1)';
+            UI.slot1.style.borderBottom = 'none';
+        }
 
         UI.failShutter.classList.remove('active');
         UI.failShutter.style.display = 'flex';
-
         UI.victoryShutter.classList.remove('active');
         UI.victoryShutter.style.transition = 'none';
         UI.victoryShutter.style.height = '0%';
         void UI.victoryShutter.offsetHeight;
-        setTimeout(() => {
-            UI.victoryShutter.style.transition = 'height 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-        }, 50);
-
+        setTimeout(() => { UI.victoryShutter.style.transition = 'height 0.4s cubic-bezier(0.16, 1, 0.3, 1)'; }, 50);
+        
         UI.tutorialOverlay.classList.add('active');
         UI.hudModeLabel.classList.remove('show');
-
-        const evals = document.querySelectorAll('.eval-effect');
-        evals.forEach(e => e.remove());
-
+        document.querySelectorAll('.eval-effect').forEach(e => e.remove());
         updateToggleButtonText();
         UI.btnModeToggle.classList.remove('disabled');
+        
+        // --- ボタン表示制御: アイドル状態に戻ったら表示 ---
+        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'flex';
+        if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'flex';
+        if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
+        // ---------------------------------------------
 
         UI.view1.innerHTML = ''; UI.view2.innerHTML = ''; UI.view3.innerHTML = '';
-
         checkUnlocks();
         document.querySelectorAll('.mode-btn').forEach(b => {
             b.style.transform = 'skewX(-15deg)';
@@ -1232,29 +936,24 @@ const CONFIG = {
         });
         updateModeButtons(STATE.currentModeKey);
         UI.bottomUi.classList.remove('bottom-ui-dimmed');
-
         UI.tuteBigMsg.style.display = 'none';
         UI.tuteBigMsg.classList.remove('pop');
-
         closeHowTo();
-
-        const opBtn = document.getElementById('btn-how-to-opening');
-        if(opBtn) opBtn.style.display = 'flex';
+        
+        if (UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
         if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
-
+        
         if (!STATE.hasPlayedOnce) {
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'inline-flex';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
         } else {
-            if(opBtn) opBtn.style.display = 'flex';
+            if (UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'flex';
         }
-
         updateKeyboardLayoutForMode();
+        adjustCentralLayout();
     }
-
-    function currentRanksStore() { return STATE.saveData.ranks2D; }
 
     function checkUnlocks() {
         const ranks = currentRanksStore();
@@ -1273,7 +972,6 @@ const CONFIG = {
                 else btn.classList.remove('locked');
             });
         };
-
         setLock('.mode-easy', false);
         setLock('.mode-normal', isNormalLocked);
         setLock('.mode-hard', isHardLocked);
@@ -1286,7 +984,6 @@ const CONFIG = {
         const normalRank = ranks['NORMAL'];
         const hardRank    = ranks['HARD'];
         const bestEasyCH = STATE.saveData.bestEasyCH || 0;
-
         if (modeKey === 'EASY') return false;
         if (modeKey === 'NORMAL') return !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
         if (modeKey === 'HARD') return !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
@@ -1298,13 +995,10 @@ const CONFIG = {
         if(STATE.status !== 'IDLE') return;
         if(STATE.isInputBlocked) return;
         if (isModeLocked(modeKey)) return;
-
         if (btnEl) triggerRipple(btnEl);
-
         STATE.currentModeKey = modeKey;
         STATE.isExtreme = (modeKey === 'EXTREME');
         updateThemeClass();
-
         updateModeButtons(modeKey);
         startCountdown();
     }
@@ -1323,35 +1017,34 @@ const CONFIG = {
         STATE.status = 'COUNTDOWN';
         STATE.isInputBlocked = true;
         STATE.hasPlayedOnce = true;
-
-        UI.btnModeToggle.classList.add('disabled');
-        UI.bottomUi.classList.add('bottom-ui-dimmed');
         
-        if(UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
-        const opBtn = document.getElementById('btn-how-to-opening');
-        if(opBtn) opBtn.style.display = 'none';
+        // --- ボタン非表示: ゲーム開始カウントダウン時に消す ---
+        UI.btnModeToggle.classList.add('disabled');
+        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none'; // キーボード切替を隠す
+        if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'none';         // RANDOMボタンを隠す
+        if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'none';     // HOW TOボタンを隠す
+        // --------------------------------------------------
 
+        UI.bottomUi.classList.add('bottom-ui-dimmed');
+        if(UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
+        
         const seq = ['READY', '3', '2', '1'];
         let idx = 0;
         UI.tuteBigMsg.style.display = 'block';
         UI.tuteBigMsg.innerText = seq[0];
         UI.tuteBigMsg.classList.add('pop');
-
         if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
         if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
-
         const mode = MODES[STATE.currentModeKey];
-
         UI.hudModeLabel.innerText = `${STATE.currentModeKey}${STATE.isRandomMode ? ' [R]' : ''}`;
         UI.hudModeLabel.style.borderColor = mode.color;
         UI.hudModeLabel.style.color = mode.color;
         UI.hudModeLabel.classList.add('show');
-
+        adjustCentralLayout();
         const timer = setInterval(() => {
             idx++;
             UI.tuteBigMsg.classList.remove('pop');
             void UI.tuteBigMsg.offsetWidth;
-
             if(idx < seq.length) {
                 UI.tuteBigMsg.innerText = seq[idx];
                 UI.tuteBigMsg.classList.add('pop');
@@ -1376,20 +1069,15 @@ const CONFIG = {
         STATE.currentInput = '';
         STATE.statsDetail = { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } };
         STATE.randomAtPlay = STATE.isRandomMode;
-
         STATE.lastCount = null;
         STATE.lastShapeSig = null;
         STATE.consecutiveCountValue = 0;
-
-        UI.slot1.style.border = 'none';
+        if(UI.slot1) UI.slot1.style.border = 'none';
         setupSlotTimerSVG();
-
         addQueueItem(); addQueueItem(); addQueueItem();
         STATE.current = STATE.queue.shift();
         renderQueue();
-
         resetTimerVisuals();
-
         STATE.lapStartTime = Date.now();
         if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
         updateKeyboardLayoutForMode();
@@ -1398,29 +1086,20 @@ const CONFIG = {
 
     function gameLoop() {
         if(STATE.status !== 'PLAYING') return;
-
         const now = Date.now();
         const mode = MODES[STATE.currentModeKey];
         const currentLap = (now - STATE.lapStartTime) / 1000;
-
-        if(currentLap > mode.time) {
-            handleMiss("TIME", "-", STATE.current.count);
-            return;
-        }
-
+        if(currentLap > mode.time) { handleMiss("TIME", "-", STATE.current.count); return; }
         const maxTime = mode.time;
         const pct = Math.max(0, 1 - (currentLap / maxTime));
         const jud = mode.judgments;
-
         let colorCode = '#a0a0a0';
-
-        if (currentLap <= jud.marv) colorCode = '#fff200'; // Marv (Yellow)
-        else if (currentLap <= jud.exc) colorCode = '#00ffff'; // Exc (Cyan)
-        else if (currentLap <= jud.great) colorCode = '#00ff2a'; // Great (Green)
-        else if (jud.good && currentLap <= jud.good) colorCode = '#ffaa00'; // Good
-        else if (jud.ok && currentLap <= jud.ok) colorCode = '#b0b0b0'; // OK
-        else colorCode = '#ff0033'; // Danger
-
+        if (currentLap <= jud.marv) colorCode = '#fff200';
+        else if (currentLap <= jud.exc) colorCode = '#00ffff';
+        else if (currentLap <= jud.great) colorCode = '#00ff2a';
+        else if (jud.good && currentLap <= jud.good) colorCode = '#ffaa00';
+        else if (jud.ok && currentLap <= jud.ok) colorCode = '#b0b0b0';
+        else colorCode = '#ff0033';
         updateTimerSVG(pct, colorCode);
         STATE.rafId = requestAnimationFrame(gameLoop);
     }
@@ -1432,19 +1111,10 @@ const CONFIG = {
 
     function processInputExtreme(key) {
         if(!STATE.current || STATE.isInputBlocked) return;
-        
-        if (key === 'DEL') {
-            STATE.currentInput = STATE.currentInput.slice(0, -1);
-            return;
-        }
-
+        if (key === 'DEL') { STATE.currentInput = STATE.currentInput.slice(0, -1); return; }
         const targetStr = String(STATE.current.count);
         const targetLen = targetStr.length;
-
-        if (STATE.currentInput.length < targetLen) {
-            STATE.currentInput += key;
-        }
-
+        if (STATE.currentInput.length < targetLen) { STATE.currentInput += key; }
         if (STATE.currentInput.length === targetLen) {
             const val = parseInt(STATE.currentInput, 10);
             checkAnswer(val);
@@ -1455,40 +1125,25 @@ const CONFIG = {
     function checkAnswer(val) {
         const now = Date.now();
         let delta = (now - STATE.lapStartTime) / 1000;
-
         if(val === STATE.current.count) {
             const effectiveTime = Math.max(delta, CONFIG.capPerItemSec);
             STATE.totalPlayTime += effectiveTime;
-
             const mode = MODES[STATE.currentModeKey];
             const jud = mode.judgments;
-
             let gradeKey = "miss";
             let gradeLabel = "MISS";
-
             if (delta <= jud.marv) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
             else if (delta <= jud.exc) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
             else if (delta <= jud.great) { gradeKey = "great"; gradeLabel = "GREAT"; }
             else if (jud.good && delta <= jud.good) { gradeKey = "good"; gradeLabel = "GOOD"; }
             else if (jud.ok && delta <= jud.ok) { gradeKey = "ok"; gradeLabel = "OK"; }
-            else {
-                handleMiss("SLOW", val, STATE.current.count);
-                return;
-            }
-
+            else { handleMiss("SLOW", val, STATE.current.count); return; }
             STATE.statsDetail[gradeKey].count++;
             STATE.statsDetail[gradeKey].time += effectiveTime;
-
             triggerEvalEffect(gradeLabel);
             flashSlot(gradeLabel);
-
-            if(STATE.questionCount >= mode.count - 1) {
-                UI.view1.innerHTML = '';
-                gameOver("FINISHED");
-            } else {
-                nextQuestion();
-            }
-
+            if(STATE.questionCount >= mode.count - 1) { UI.view1.innerHTML = ''; gameOver("FINISHED"); } 
+            else { nextQuestion(); }
         } else {
             handleMiss("TYPE", val, STATE.current.count);
         }
@@ -1498,17 +1153,14 @@ const CONFIG = {
         const container = UI.slot1;
         const old = container.querySelector('.slot-flash-overlay');
         if(old) old.remove();
-
         const el = document.createElement('div');
         el.className = 'slot-flash-overlay';
-
         let cls = 'flash-ok';
         if(grade==='MARVELOUS') cls='flash-exc';
         else if(grade==='EXCELLENT') cls='flash-perf';
         else if(grade==='GREAT') cls='flash-grt';
         else if(grade==='GOOD') cls='flash-good';
         else if(grade==='MISS') cls='flash-miss';
-
         container.classList.remove('flash-exc','flash-perf','flash-grt','flash-good','flash-ok','flash-miss');
         container.classList.add(cls);
         container.appendChild(el);
@@ -1516,25 +1168,15 @@ const CONFIG = {
 
     function handleMiss(reason, input, answer) {
         let shapeCopy = STATE.is3DMode ? STATE.current.shape.map(r => [...r]) : [...STATE.current.shape];
-        let layoutCopy = STATE.current.shape._rndPositions 
-            ? STATE.current.shape._rndPositions.map(p => ({ x: p.x, y: p.y }))
-            : null;
-
+        let layoutCopy = STATE.current.shape._rndPositions ? STATE.current.shape._rndPositions.map(p => ({ x: p.x, y: p.y })) : null;
         STATE.missedLog.push({
-            input: input,
-            answer: answer,
-            shape: shapeCopy,
-            layout: layoutCopy,
-            mode: STATE.currentModeKey,
-            is3D: STATE.is3DMode,
-            isRandom: STATE.randomAtPlay
+            input: input, answer: answer, shape: shapeCopy, layout: layoutCopy,
+            mode: STATE.currentModeKey, is3D: STATE.is3DMode, isRandom: STATE.randomAtPlay
         });
         STATE.totalPlayTime += (Date.now() - STATE.lapStartTime) / 1000;
-        
         let msg = "NICE TRY";
         if (reason === "TIME") msg = "TIME OVER";
         else if (reason === "SLOW") msg = "TOO SLOW";
-
         flashSlot("MISS");
         gameOver(msg);
     }
@@ -1544,9 +1186,7 @@ const CONFIG = {
         if(STATE.queue.length < 3) addQueueItem();
         STATE.current = STATE.queue.shift();
         renderQueue();
-
         resetTimerVisuals();
-
         STATE.lapStartTime = Date.now();
         STATE.currentInput = '';
     }
@@ -1556,87 +1196,45 @@ const CONFIG = {
         const el = document.createElement('div');
         el.className = 'eval-effect';
         el.innerText = text;
-
         let color = "#fff";
         if(text === "MARVELOUS") color = "var(--g-exc)";
         else if(text === "EXCELLENT") color = "var(--g-perf)";
         else if(text === "GREAT") color = "var(--g-grt)";
         else if(text === "GOOD") color = "var(--g-good)";
-
         el.style.color = color;
-
         document.body.appendChild(el);
         setTimeout(() => { if(el && el.parentNode) el.parentNode.removeChild(el); }, 1000);
-    }
-
-    function shapeSignature(shapeData, is3D) {
-        try {
-            if (!shapeData) return 'null';
-            return JSON.stringify(shapeData);
-        } catch(e) {
-            return 'err';
-        }
     }
 
     function addQueueItem() {
         const modeKey = STATE.currentModeKey;
         const mode = MODES[modeKey];
-        if(STATE.generatedCount >= mode.count) {
-            STATE.queue.push({ count: null, shape: [] });
-            return;
-        }
-
+        if(STATE.generatedCount >= mode.count) { STATE.queue.push({ count: null, shape: [] }); return; }
         let n;
         const maxAttempts = 2000;
-
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            
             if (modeKey === 'EASY') {
                 const r = Math.random() * 100;
-                if (r < 28) n = 2;
-                else if (r < 56) n = 3;
-                else if (r < 85) n = 4;
-                else n = 5;
+                if (r < 28) n = 2; else if (r < 56) n = 3; else if (r < 85) n = 4; else n = 5;
             }
             else if (modeKey === 'NORMAL') {
-                /* 修正7: NORMALの確率調整
-                   - 2を削除
-                   - 3と4で合計25%
-                   - 残り75%で5～9
-                */
                 const r = Math.random() * 100;
-                if (r < 25) {
-                    // 25%の確率で 3 か 4
-                    n = (Math.random() < 0.5) ? 3 : 4;
-                } else {
-                    // 残り75%の確率で 5以上
-                    // 5, 6, 7, 8 をメインに、9をレアに配置
-                    n = 5 + Math.floor(Math.random() * 4); // 5, 6, 7, 8
-                    if (Math.random() > 0.9) n = 9; // 10% chance for 9 in this block
-                }
+                if (r < 25) { n = (Math.random() < 0.5) ? 3 : 4; } 
+                else { n = 5 + Math.floor(Math.random() * 4); if (Math.random() > 0.9) n = 9; }
             }
             else if (modeKey === 'HARD') {
-                if (STATE.generatedCount < 5) {
-                    n = Math.floor(10 + Math.random() * 6);
-                } else {
-                    n = Math.floor(15 + Math.random() * 5);
-                }
+                if (STATE.generatedCount < 5) { n = Math.floor(10 + Math.random() * 6); } 
+                else { n = Math.floor(15 + Math.random() * 5); }
             }
             else if (modeKey === 'EXTREME') {
                 const q = STATE.generatedCount + 1;
                 let min, max;
-                if (q === 1) { min=13; max=16; }
-                else if (q <= 3) { min=17; max=22; }
-                else if (q <= 5) { min=23; max=29; }
-                else if (q <= 7) { min=30; max=35; }
-                else if (q <= 9) { min=36; max=39; }
-                else { min=40; max=42; }
+                if (q === 1) { min=13; max=16; } else if (q <= 3) { min=17; max=22; }
+                else if (q <= 5) { min=23; max=29; } else if (q <= 7) { min=30; max=35; }
+                else if (q <= 9) { min=36; max=39; } else { min=40; max=42; }
                 n = Math.floor(min + Math.random() * (max - min + 1));
             }
-
-            let maxH = 6;
-            let cols = 3; 
-
+            let maxH = 6; let cols = 3; 
             if(modeKey === 'EASY') { maxH = 3; cols = 3; }
             else if(modeKey === 'NORMAL') { maxH = 5; cols = 3; }
             else if(modeKey === 'HARD') { 
@@ -1644,56 +1242,39 @@ const CONFIG = {
                 let lastCols = 0;
                 if (STATE.queue.length > 0) {
                     const lastItem = STATE.queue[STATE.queue.length - 1];
-                    if (lastItem && Array.isArray(lastItem.shape)) {
-                        lastCols = lastItem.shape.length;
-                    }
+                    if (lastItem && Array.isArray(lastItem.shape)) lastCols = lastItem.shape.length;
                 }
-                if (lastCols === 5) {
-                    cols = 4;
-                } else {
-                    cols = Math.random() < 0.5 ? 4 : 5;
-                }
+                if (lastCols === 5) { cols = 4; } else { cols = Math.random() < 0.5 ? 4 : 5; }
             }
             else if(modeKey === 'EXTREME') { maxH = 9; cols = 9; }
-
+            
             let shapeData, trueCount, sig;
-            if (STATE.is3DMode) {
-                shapeData = generateStadium3D_Strict(n, cols, maxH);
-            } else {
-                shapeData = generateShape2D_Connected(n, cols, maxH);
-            }
-
+            if (STATE.is3DMode) { shapeData = generateStadium3D_Strict(n, cols, maxH); } 
+            else { shapeData = generateShape2D_Connected(n, cols, maxH); }
+            
             trueCount = 0;
             if (STATE.is3DMode) shapeData.forEach(r => r.forEach(h => trueCount += h));
             else shapeData.forEach(h => trueCount += h);
             if(trueCount === 0 && n > 0) trueCount = 1;
-
+            
             sig = shapeSignature(shapeData, STATE.is3DMode);
-
             const isSameCount = (STATE.lastCount !== null && trueCount === STATE.lastCount);
             const isSameShape = (STATE.lastShapeSig !== null && sig === STATE.lastShapeSig);
-
+            
             if (isSameShape) continue; 
-
-            if (isSameCount) {
-                if (STATE.consecutiveCountValue >= 2) {
-                    continue;
-                }
-            }
-
-            if (isSameCount) {
-                STATE.consecutiveCountValue++;
-            } else {
-                STATE.consecutiveCountValue = 1;
-            }
+            if (isSameCount) { if (STATE.consecutiveCountValue >= 2) { continue; } }
+            if (isSameCount) { STATE.consecutiveCountValue++; } else { STATE.consecutiveCountValue = 1; }
             
             STATE.lastCount = trueCount;
             STATE.lastShapeSig = sig;
             STATE.queue.push({ count: trueCount, shape: shapeData });
             break;
         }
-
         STATE.generatedCount++;
+    }
+
+    function shapeSignature(shapeData, is3D) {
+        try { if (!shapeData) return 'null'; return JSON.stringify(shapeData); } catch(e) { return 'err'; }
     }
 
     function generateShape2D_Connected(n, cols, maxHeight) {
@@ -1701,9 +1282,7 @@ const CONFIG = {
         let currentIdx = Math.floor(cols / 2);
         arr[currentIdx]++;
         let placed = 1;
-
         let failCount = 0;
-
         while(placed < n) {
             let candidates = [];
             for(let i=0; i<cols; i++) {
@@ -1713,19 +1292,10 @@ const CONFIG = {
                 if(i < cols-1 && arr[i+1] > 0) isAdj = true;
                 if(isAdj && arr[i] < maxHeight) candidates.push(i);
             }
-            
-            if(candidates.length === 0) {
-                for(let i=0; i<cols; i++) {
-                    if(arr[i] < maxHeight) { candidates.push(i); }
-                }
-            }
-            
+            if(candidates.length === 0) { for(let i=0; i<cols; i++) { if(arr[i] < maxHeight) { candidates.push(i); } } }
             if(candidates.length === 0) break;
-
             const pick = candidates[Math.floor(Math.random() * candidates.length)];
-            arr[pick]++;
-            placed++;
-            failCount++;
+            arr[pick]++; placed++; failCount++;
             if(failCount > 100) break;
         }
         return arr;
@@ -1733,8 +1303,7 @@ const CONFIG = {
 
     function generateStadium3D_Strict(n, size, maxHeight) {
         const grid = Array(size).fill(0).map(() => Array(size).fill(0));
-        let placed = 0;
-        let failCount = 0;
+        let placed = 0; let failCount = 0;
         while(placed < n) {
             let candidates = [];
             for(let x=0; x<size; x++) {
@@ -1749,9 +1318,7 @@ const CONFIG = {
             }
             if (candidates.length === 0) break;
             const pick = candidates[Math.floor(Math.random() * candidates.length)];
-            grid[pick.x][pick.z]++;
-            placed++;
-            failCount++;
+            grid[pick.x][pick.z]++; placed++; failCount++;
             if(failCount > 100) break;
         }
         return grid;
@@ -1764,24 +1331,20 @@ const CONFIG = {
     }
 
     function renderShape(el, shapeData, is3D, useRandom, modeKeyOverride) {
+        if(!el) return;
         el.innerHTML = '';
         if(!shapeData) return;
-
         const mk = modeKeyOverride || STATE.currentModeKey;
         const modeClass = 'mode-' + mk.toLowerCase();
         const randomMode = (useRandom !== undefined) ? useRandom : STATE.isRandomMode;
-
         if(is3D) {
             if(!Array.isArray(shapeData[0])) { render2D(el, shapeData, modeClass, randomMode); return; }
             render3D(el, shapeData, modeClass);
         } else {
             if(shapeData.length > 0 && Array.isArray(shapeData[0])) {
-                let flat = [];
-                shapeData.forEach(r => r.forEach(h => { if(h>0) flat.push(h); }));
+                let flat = []; shapeData.forEach(r => r.forEach(h => { if(h>0) flat.push(h); }));
                 render2D(el, flat, modeClass, randomMode);
-            } else {
-                render2D(el, shapeData, modeClass, randomMode);
-            }
+            } else { render2D(el, shapeData, modeClass, randomMode); }
         }
     }
 
@@ -1789,95 +1352,59 @@ const CONFIG = {
         let totalBlocks = 0;
         if(Array.isArray(arr)) totalBlocks = arr.reduce((sum, h) => sum + h, 0);
         if (totalBlocks <= 0) return;
-
         if (randomMode) {
             const container = document.createElement('div');
             container.className = 'cluster-container random-layout';
             el.appendChild(container);
-
             let positions = arr._rndPositions;
-
             if (!positions || positions.length !== totalBlocks) {
-                positions = [];
-                const used = [];
-
+                positions = []; const used = [];
                 const rect = el.getBoundingClientRect();
                 const containerW = rect.width || window.innerWidth;
                 const containerH = rect.height || (window.innerHeight * 0.5);
-                
                 const computedSize = window.innerWidth * 0.075;
                 const maxPx = 30;
                 const blockS = Math.min(computedSize, maxPx);
-
-                const topBandPct = 28;
-                const bottomBandPct = 8;
-                const sideMarginPct = 6;
-
+                const topBandPct = 28; const bottomBandPct = 8; const sideMarginPct = 6;
                 for (let i = 0; i < totalBlocks; i++) {
                     let bestCandidate = null;
-
                     for(let attempt=0; attempt<2000; attempt++) {
                          const xp = sideMarginPct + Math.random() * (100 - sideMarginPct*2);
                          const yp = topBandPct + Math.random() * (100 - topBandPct - bottomBandPct);
-
                          const xPx = (xp / 100) * containerW;
                          const yPx = (yp / 100) * containerH;
-
-                         const l1 = xPx - blockS/2;
-                         const t1 = yPx - blockS/2;
-                         const r1 = l1 + blockS;
-                         const b1 = t1 + blockS;
-
+                         const l1 = xPx - blockS/2; const t1 = yPx - blockS/2; const r1 = l1 + blockS; const b1 = t1 + blockS;
                          let isStrictlyOverlapping = false;
                          for(let u of used) {
                              const l2 = u.px.l, t2 = u.px.t, r2 = u.px.r, b2 = u.px.b;
-                             if (!(r1 <= l2 || l1 >= r2 || b1 <= t2 || t1 >= b2)) {
-                                 isStrictlyOverlapping = true;
-                                 break;
-                             }
+                             if (!(r1 <= l2 || l1 >= r2 || b1 <= t2 || t1 >= b2)) { isStrictlyOverlapping = true; break; }
                          }
-
-                         if (!isStrictlyOverlapping) {
-                             bestCandidate = {
-                                 pct: {x: xp, y: yp},
-                                 px: {l: l1, t: t1, r: r1, b: b1}
-                             };
-                             break;
-                         }
+                         if (!isStrictlyOverlapping) { bestCandidate = { pct: {x: xp, y: yp}, px: {l: l1, t: t1, r: r1, b: b1} }; break; }
                     }
-
                     if (!bestCandidate) {
                          const xp = sideMarginPct + Math.random() * (100 - sideMarginPct*2);
                          const yp = topBandPct + Math.random() * (100 - topBandPct - bottomBandPct);
                          bestCandidate = { pct: {x: xp, y: yp}, px: {l:0, t:0, r:0, b:0} };
                     }
-
-                    used.push(bestCandidate);
-                    positions.push(bestCandidate.pct);
+                    used.push(bestCandidate); positions.push(bestCandidate.pct);
                 }
                 arr._rndPositions = positions;
             }
-
             positions.forEach(p => {
                 const b = document.createElement('div');
                 b.className = 'block ' + modeClass + ' block-random';
-                b.style.left = p.x + '%';
-                b.style.top  = p.y + '%';
+                b.style.left = p.x + '%'; b.style.top  = p.y + '%';
                 b.style.transform = 'translate(-50%, -50%)';
                 container.appendChild(b);
             });
             return;
         }
-
         const container = document.createElement('div');
         container.className = 'cluster-container';
         arr.forEach(h => {
             if(h === 0) return;
             const col = document.createElement('div'); col.className = 'block-column';
-            for(let i=0; i<h; i++) {
-                const b = document.createElement('div'); b.className = 'block ' + modeClass;
-                col.appendChild(b);
-            }
+            for(let i=0; i<h; i++) { const b = document.createElement('div'); b.className = 'block ' + modeClass; col.appendChild(b); }
             container.appendChild(col);
         });
         el.appendChild(container);
@@ -1889,7 +1416,6 @@ const CONFIG = {
         const blockSize = parseInt(style.getPropertyValue('--block-size-3d'));
         const gridSize = grid.length;
         const offset = (gridSize * blockSize) / 2 - (blockSize / 2);
-
         let cubes = [];
         grid.forEach((row, xIdx) => {
             row.forEach((height, zIdx) => {
@@ -1898,11 +1424,7 @@ const CONFIG = {
                     const tx = (xIdx * blockSize) - offset;
                     const tz = (zIdx * blockSize) - offset;
                     const ty = y * blockSize;
-
-                    cubes.push({
-                        html: createCubeHTML(modeClass, tx, ty, tz),
-                        sortKey: (xIdx - zIdx)
-                    });
+                    cubes.push({ html: createCubeHTML(modeClass, tx, ty, tz), sortKey: (xIdx - zIdx) });
                 }
             });
         });
@@ -1934,13 +1456,10 @@ const CONFIG = {
         if(STATE.status === 'GAMEOVER') return;
         STATE.status = 'GAMEOVER';
         STATE.isInputBlocked = true;
-
         if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
         document.querySelectorAll('.kb-key').forEach(k => k.classList.remove('active-state'));
-
         if(reason === "FINISHED") UI.victoryShutter.classList.add('active');
         else UI.failShutter.classList.add('active');
-
         const answeredCount = (reason === 'FINISHED') ? MODES[STATE.currentModeKey].count : STATE.questionCount;
         const totalSec = Math.max(0.1, STATE.totalPlayTime);
         let ch = Math.floor((answeredCount / totalSec) * 3600);
@@ -1948,17 +1467,11 @@ const CONFIG = {
 
         const resultData = {
             modeName: STATE.currentModeKey,
-            is3D: STATE.is3DMode,
-            isRandom: STATE.randomAtPlay,
-            score: ch,
-            totalTime: totalSec.toFixed(2),
-            count: answeredCount,
-            reason: reason,
-            missedLog: [...STATE.missedLog],
+            is3D: STATE.is3DMode, isRandom: STATE.randomAtPlay,
+            score: ch, totalTime: totalSec.toFixed(2), count: answeredCount,
+            reason: reason, missedLog: [...STATE.missedLog],
             statsDetail: JSON.parse(JSON.stringify(STATE.statsDetail)),
-            isNewRecord: false,
-            unlockEvent: null,
-            rank: 'F'
+            isNewRecord: false, unlockEvent: null, rank: 'F'
         };
 
         const wasNormalLocked = isModeLocked('NORMAL');
@@ -1967,7 +1480,6 @@ const CONFIG = {
 
         if (reason === "FINISHED") {
             resultData.rank = getRankFromScore(ch, STATE.currentModeKey);
-
             const rankStore = currentRanksStore();
             const currentSavedRank = rankStore[STATE.currentModeKey];
             const newRankIdx = RANK_ORDER.indexOf(resultData.rank);
@@ -1976,7 +1488,6 @@ const CONFIG = {
 
             const previousBestModeScore = STATE.saveData.modeScores[STATE.currentModeKey] || 0;
             const previousBestEasyCH = STATE.saveData.bestEasyCH || 0;
-
             if (ch > previousBestModeScore) { STATE.saveData.modeScores[STATE.currentModeKey] = ch; resultData.isNewRecord = true; }
             if (STATE.currentModeKey === 'EASY' && ch > previousBestEasyCH) STATE.saveData.bestEasyCH = ch;
             if (ch > (STATE.saveData.bestCH || 0)) STATE.saveData.bestCH = ch;
@@ -1984,7 +1495,6 @@ const CONFIG = {
             const nowNormalLocked = isModeLocked('NORMAL');
             const nowHardLocked    = isModeLocked('HARD');
             const nowExtremeLocked= isModeLocked('EXTREME');
-
             if (wasExtremeLocked && !nowExtremeLocked) resultData.unlockEvent = 'EXTREME';
             else if (wasHardLocked && !nowHardLocked) resultData.unlockEvent = 'HARD';
             else if (wasNormalLocked && !nowNormalLocked) resultData.unlockEvent = 'NORMAL';
@@ -1992,7 +1502,6 @@ const CONFIG = {
 
         STATE.history.push(resultData);
         STATE.historyIndex = STATE.history.length - 1;
-
         setTimeout(() => { showHistoryResult(STATE.historyIndex); }, 1000);
     }
 
@@ -2008,101 +1517,72 @@ const CONFIG = {
         if (data.reason !== 'FINISHED') return '';
         const idx = RANK_ORDER.indexOf(data.rank);
         if (idx <= 0) return `<div class="next-rank-line">MAX RANK</div>`;
-
         const nextRank = RANK_ORDER[idx - 1];
         const thresholds = MODES[data.modeName].rankThresholds;
-
         const map = { GOD:'god', Z:'z', S:'s', A:'a', B:'b', C:'c', D:'f', F:'f' };
         const key = map[nextRank];
         const target = (thresholds && key in thresholds) ? thresholds[key] : null;
         if (target === null) return '';
-
         const need = Math.max(0, target - data.score);
         const label = (nextRank === 'GOD' || nextRank === 'Z') ? '???' : nextRank;
-        
         return `<div class="next-rank-line">NEXT RANK ${label}: +${need.toLocaleString()} ch</div>`;
     }
 
     function showHistoryResult(index) {
         STATE.isInputBlocked = false;
         const data = STATE.history[index];
-
         UI.virtualKeyboard.style.visibility = 'hidden';
-
-        const oldSvg = UI.slot1.querySelector('.slot-timer-svg');
+        const oldSvg = UI.slot1 ? UI.slot1.querySelector('.slot-timer-svg') : null;
         if(oldSvg) oldSvg.remove();
-        UI.slot1.style.border = 'none';
-
+        if(UI.slot1) UI.slot1.style.border = 'none';
+        
         UI.failShutter.style.display = 'none';
-
-        UI.histPrev.disabled = (index === 0);
-        UI.histNext.disabled = (index === STATE.history.length - 1);
-        UI.histPrev.style.opacity = (index === 0) ? '0' : '1';
-        UI.histNext.style.opacity = (index === STATE.history.length - 1) ? '0' : '1';
-
+        if (UI.histPrev) {
+            UI.histPrev.disabled = (index === 0);
+            UI.histPrev.style.opacity = (index === 0) ? '0' : '1';
+        }
+        if (UI.histNext) {
+            UI.histNext.disabled = (index === STATE.history.length - 1);
+            UI.histNext.style.opacity = (index === STATE.history.length - 1) ? '0' : '1';
+        }
+        
         const modeLabel = getModeDisplayName(data.modeName);
         UI.resModeLabel.innerText = data.isRandom ? `${modeLabel} (RND)` : modeLabel;
         const modeColor = MODES[data.modeName].color;
         UI.resModeLabel.style.color = modeColor;
         UI.resModeLabel.style.borderColor = modeColor;
-
-        let rankClass = 'rank-d';
-        let displayText = data.rank;
-        let isNiceTry = false;
-
+        let rankClass = 'rank-d'; let displayText = data.rank; let isNiceTry = false;
         if (data.rank === 'GOD') rankClass = 'rank-god';
         else if (data.rank === 'Z') rankClass = 'rank-z';
         else if (data.rank === 'S') rankClass = 'rank-s';
         else if (data.rank === 'A') rankClass = 'rank-a';
         else if (data.rank === 'B') rankClass = 'rank-b';
         else if (data.rank === 'C') rankClass = 'rank-c';
-        else if (data.rank === 'F') {
-            rankClass = 'rank-nicetry';
-            displayText = "NICE TRY";
-            isNiceTry = true;
-        } else {
-            rankClass = 'rank-f'; 
-        }
-
+        else if (data.rank === 'F') { rankClass = 'rank-nicetry'; displayText = "NICE TRY"; isNiceTry = true; } 
+        else { rankClass = 'rank-f'; }
         UI.resRankChar.innerText = displayText;
         UI.resRankChar.className = 'rank-char ' + rankClass;
-
-        if (isNiceTry) {
-            if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'none';
-        } else {
-            if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'block';
-        }
-
+        if (isNiceTry) { if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'none'; } 
+        else { if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'block'; }
+        
         UI.resultCardContainer.className = 'result-card';
         const particles = UI.resultCardContainer.querySelectorAll('.particle-fx');
         particles.forEach(p => p.remove());
-
         if (data.rank === 'GOD') {
             UI.resultCardContainer.classList.add('bg-god');
             for(let i=0; i<40; i++) {
-                const p = document.createElement('div');
-                p.className = 'god-particle particle-fx';
-                p.style.left = Math.random() * 100 + '%';
-                const h = 50 + Math.random() * 150;
-                p.style.height = h + 'px';
-                const dur = 2 + Math.random() * 3;
-                p.style.animationDuration = dur + 's';
-                p.style.animationDelay = (Math.random() * 5) + 's';
+                const p = document.createElement('div'); p.className = 'god-particle particle-fx';
+                p.style.left = Math.random() * 100 + '%'; const h = 50 + Math.random() * 150; p.style.height = h + 'px';
+                const dur = 2 + Math.random() * 3; p.style.animationDuration = dur + 's'; p.style.animationDelay = (Math.random() * 5) + 's';
                 UI.resultCardContainer.appendChild(p);
             }
         }
         else if (data.rank === 'Z') {
             UI.resultCardContainer.classList.add('bg-z');
             for(let i=0; i<60; i++) {
-                const p = document.createElement('div');
-                p.className = 'z-particle particle-fx';
-                p.style.left = Math.random() * 100 + '%';
-                const size = 2 + Math.random() * 5;
-                p.style.width = size + 'px';
-                p.style.height = size + 'px';
-                const dur = 3 + Math.random() * 5; 
-                p.style.animationDuration = dur + 's';
-                p.style.animationDelay = (Math.random() * 8) + 's'; 
+                const p = document.createElement('div'); p.className = 'z-particle particle-fx';
+                p.style.left = Math.random() * 100 + '%'; const size = 2 + Math.random() * 5; p.style.width = size + 'px'; p.style.height = size + 'px';
+                const dur = 3 + Math.random() * 5; p.style.animationDuration = dur + 's'; p.style.animationDelay = (Math.random() * 8) + 's'; 
                 UI.resultCardContainer.appendChild(p);
             }
         }
@@ -2112,37 +1592,22 @@ const CONFIG = {
         else if (data.rank === 'C') UI.resultCardContainer.classList.add('bg-c');
         else UI.resultCardContainer.classList.add('bg-d');
 
-        if (isNiceTry) {
-            UI.resMsg.innerText = "";
-            UI.resMsg.style.display = 'none';
-        } else {
+        if (isNiceTry) { UI.resMsg.innerText = ""; UI.resMsg.style.display = 'none'; } 
+        else {
             UI.resMsg.innerText = (data.reason === "FINISHED") ? "" : data.reason;
-            UI.resMsg.style.display = 'block';
-            UI.resMsg.className = "";
+            UI.resMsg.style.display = 'block'; UI.resMsg.className = "";
             if (data.reason === "NICE TRY") UI.resMsg.classList.add("res-msg-nice");
             else if (data.reason === "TOO SLOW") UI.resMsg.classList.add("res-msg-nice");
             else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
         }
-
-        UI.resStatusMsg.classList.remove('show');
-        UI.resStatusMsg.className = 'res-status-msg';
-        UI.resStatusMsg.innerText = '';
-
-        UI.resUnlockWrapper.classList.remove('show');
-        UI.resUnlockWrapper.innerHTML = '';
-
+        UI.resStatusMsg.classList.remove('show'); UI.resStatusMsg.className = 'res-status-msg'; UI.resStatusMsg.innerText = '';
+        UI.resUnlockWrapper.classList.remove('show'); UI.resUnlockWrapper.innerHTML = '';
         if (data.reason === "FINISHED") {
             if (data.unlockEvent) {
                 let ulColorClass = 'mode-normal';
                 if(data.unlockEvent === 'HARD') ulColorClass = 'mode-hard';
                 if(data.unlockEvent === 'EXTREME') ulColorClass = 'mode-extreme';
-                
-                UI.resUnlockWrapper.innerHTML = `
-                    <div class="unlock-badge ${ulColorClass}">
-                        <div class="main-text">UNLOCKED</div>
-                        <div class="sub-text">${data.unlockEvent}</div>
-                    </div>
-                `;
+                UI.resUnlockWrapper.innerHTML = `<div class="unlock-badge ${ulColorClass}"><div class="main-text">UNLOCKED</div><div class="sub-text">${data.unlockEvent}</div></div>`;
                 UI.resUnlockWrapper.classList.add('show');
             } else {
                 UI.resStatusMsg.innerText = "STAGE CLEAR";
@@ -2150,24 +1615,15 @@ const CONFIG = {
                 UI.resStatusMsg.classList.add('show');
             }
         }
-
         UI.newRecordBadge.classList.remove('show');
         if (data.isNewRecord) UI.newRecordBadge.classList.add('show');
-
         if(data.score > 0) {
             const avgTime = (data.totalTime / data.count).toFixed(1);
             const nextLine = computeNextRankLine(data);
-            UI.resTotalBox.innerHTML = `
-                <span class="total-label">TOTAL SCORE</span>
-                ${Number(data.score).toLocaleString()} <span style="font-size:16px;">ch</span>
-                <span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgTime}s</span></span>
-                ${nextLine}`;
+            UI.resTotalBox.innerHTML = `<span class="total-label">TOTAL SCORE</span>${Number(data.score).toLocaleString()} <span style="font-size:16px;">ch</span><span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgTime}s</span></span>${nextLine}`;
         } else {
-            UI.resTotalBox.innerHTML = `
-                <span class="total-label">TOTAL SCORE</span>
-                0 <span style="font-size:16px;">ch</span>`;
+            UI.resTotalBox.innerHTML = `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>`;
         }
-
         UI.detailTableBody.innerHTML = '';
         const gradeList = [
             { k:'marvelous', l:'MARVELOUS', c:'var(--g-exc)' },
@@ -2176,25 +1632,17 @@ const CONFIG = {
             { k:'good', l:'GOOD', c:'var(--g-good)' },
             { k:'ok', l:'OK', c:'var(--g-ok)' }
         ];
-
         gradeList.forEach(g => {
             const info = data.statsDetail[g.k];
             if(info && info.count > 0) {
                 const avg = info.time / info.count;
                 let localScore = Math.floor((1 / Math.max(CONFIG.capPerItemSec, avg)) * 3600);
                 if(localScore > CONFIG.capCh) localScore = CONFIG.capCh;
-
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="dt-grade" style="color:${g.c}">${g.l}</td>
-                    <td class="dt-count">${info.count}</td>
-                    <td class="dt-avg">${avg.toFixed(1)}s</td>
-                    <td class="dt-score">${localScore.toLocaleString()} <span class="dt-sub">ch</span></td>
-                `;
+                tr.innerHTML = `<td class="dt-grade" style="color:${g.c}">${g.l}</td><td class="dt-count">${info.count}</td><td class="dt-avg">${avg.toFixed(1)}s</td><td class="dt-score">${localScore.toLocaleString()} <span class="dt-sub">ch</span></td>`;
                 UI.detailTableBody.appendChild(tr);
             }
         });
-
         UI.missItemsRow.innerHTML = '';
         if(data.missedLog.length > 0) {
             UI.missLog.style.display = 'flex';
@@ -2202,33 +1650,21 @@ const CONFIG = {
                 const row = document.createElement('div'); row.className = 'feedback-row';
                 const body = document.createElement('div'); body.className = 'fb-body';
                 const inner = document.createElement('div');
-
-                let cls = 'fb-body-inner';
-                cls += m.is3D ? ' fb-3d' : ' fb-2d';
+                let cls = 'fb-body-inner'; cls += m.is3D ? ' fb-3d' : ' fb-2d';
                 if (m.mode === 'EXTREME') cls += ' fb-extreme';
                 inner.className = cls;
-
-                if (m.layout && Array.isArray(m.shape)) {
-                    m.shape._rndPositions = m.layout.map(p => ({ x: p.x, y: p.y }));
-                }
-
+                if (m.layout && Array.isArray(m.shape)) { m.shape._rndPositions = m.layout.map(p => ({ x: p.x, y: p.y })); }
                 renderShape(inner, m.shape, m.is3D, m.isRandom, m.mode);
-
                 body.appendChild(inner);
-
                 const footer = document.createElement('div'); footer.className = 'fb-footer';
                 footer.innerHTML = `<span class="fb-lbl">INP</span><span class="fb-val-wrong">${m.input}</span> <span class="fb-lbl">ANS</span><span class="fb-val-correct">${m.answer}</span>`;
-
-                row.appendChild(body);
-                row.appendChild(footer);
+                row.appendChild(body); row.appendChild(footer);
                 UI.missItemsRow.appendChild(row);
             });
-        } else {
-            UI.missLog.style.display = 'none';
-        }
-
+        } else { UI.missLog.style.display = 'none'; }
+        
         UI.appWrapper.classList.add('showing-result');
-        UI.resultModal.classList.add('show');
+        if (UI.resultModal) UI.resultModal.classList.add('show');
         UI.bottomUi.classList.remove('bottom-ui-dimmed');
     }
 </script>
