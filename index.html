@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SNOW: SMASH SUBITIZING - Ver 41.6</title>
+<title>SNOW: SMASH SUBITIZING - Ver 41.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
@@ -88,6 +88,7 @@
       justify-content: flex-start; 
       align-items: flex-end; 
       padding: 0 10px; 
+      /* ★ここを増やしてキーボードと分離する */
       margin-bottom: 8px; 
       z-index: 3001; 
       position: relative; 
@@ -100,6 +101,7 @@
       background: #000; 
       border: 3px solid #444; 
       color: #ddd; 
+      /* ★下側も閉じて独立したボタンにする */
       border-radius: 4px; 
       padding: 4px 16px; 
       font-family: var(--font-ui); 
@@ -117,6 +119,7 @@
   }
   #btn-key-layout-toggle:active { transform: skewX(-10deg) translateY(2px); filter: brightness(1.2); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   
+  /* ランクカラーに合わせたボタン色変化 */
   .btn-color-a { border-color: #00ccff !important; color: #00ccff !important; text-shadow: 0 0 5px rgba(0, 204, 255, 0.5); background: linear-gradient(to top, rgba(0, 204, 255, 0.1), #000) !important; }
   .btn-color-b { border-color: #33ff55 !important; color: #33ff55 !important; text-shadow: 0 0 5px rgba(51, 255, 85, 0.5); background: linear-gradient(to top, rgba(51, 255, 85, 0.1), #000) !important; }
   .btn-color-c { border-color: #ff8800 !important; color: #ff8800 !important; text-shadow: 0 0 5px rgba(255, 136, 0, 0.5); background: linear-gradient(to top, rgba(255, 136, 0, 0.1), #000) !important; }
@@ -129,8 +132,8 @@
   #conveyor-wrapper { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding: 2vh 2vw 0 2vw; transform-style: preserve-3d; pointer-events: none; }
   .slot { flex: 1; height: calc(100% - 2vh); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; transform-style: preserve-3d; background: rgba(20,20,20,0.6); border-radius: 4px 4px 0 0; border: 2px solid rgba(255,255,255,0.1); border-bottom: none; transition: flex 0.3s, opacity 0.3s; overflow: hidden; }
   #slot-1 { background: rgba(50,50,50,0.2); border: none; z-index: 10; position: relative; }
-  .slot-timer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; filter: drop-shadow(0 0 5px currentColor); opacity: 1; transition: opacity 0.2s; }
-  .timer-path { fill: none; stroke-linecap: butt; stroke-linejoin: round; transition: stroke 0.1s linear; shape-rendering: geometricPrecision; }
+  .slot-timer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; filter: drop-shadow(0 0 5px currentColor); }
+  .timer-path { fill: none; stroke-linecap: butt; stroke-linejoin: round; transition: stroke 0.1s linear; }
 
   .cluster-container { display: flex; align-items: flex-end; gap: 3px; padding-bottom: 12px; transform-style: preserve-3d; transition: transform 0.1s; }
   .block-column { display: flex; flex-direction: column-reverse; gap: 3px; width: var(--block-size-2d); transform-style: preserve-3d; }
@@ -153,7 +156,7 @@
   .virtual-keyboard::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px); pointer-events: none; }
   .virtual-keyboard.layout-phone { grid-template-areas: "k1 k2 k3" "k4 k5 k6" "k7 k8 k9" "ver k0 del"; }
   .virtual-keyboard.layout-calc { grid-template-areas: "k7 k8 k9" "k4 k5 k6" "k1 k2 k3" "ver k0 del"; }
-  .virtual-keyboard.layout-special { grid-template-areas: "k0 k1 k2" "k3 k4 ver" "k5 k6 del" "k7 k8 k9"; }
+  .virtual-keyboard.layout-special { grid-template-areas: "k0 k1 k2" "ver k3 k4" "del k5 k6" "k7 k8 k9"; }
   .kb-key { background: linear-gradient(to bottom, #2a2a2a, #111); border-radius: 6px; border: 2px solid #444; box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); color: #ccc; font-family: var(--font-num); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; }
   .kb-key:active, .kb-key.active-state { transform: translateY(4px); box-shadow: 0 0 0 #000; background: linear-gradient(to bottom, #ffcc00, #ff9900); color: #000; border-color: #fff; }
   .kb-key-main { font-size: clamp(24px, 5vh, 36px); font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; letter-spacing: -2px; }
@@ -179,44 +182,9 @@
   #tutorial-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 4000; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
   #tutorial-overlay.active { opacity: 1; pointer-events: auto; }
   .tute-item { position: absolute; display: flex; flex-direction: column; align-items: center; color: #fff; filter: drop-shadow(0 0 8px rgba(0,0,0,0.8)); }
-  
-  /* --- REPLACED COUNTDOWN STYLES (NO BG EFFECTS) --- */
-  #tute-central-msg { 
-    position: absolute; 
-    top: 50% !important; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
-    width: 100%; height: 100%; 
-    pointer-events: none; 
-    z-index: 9000; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-  }
-  .tute-big-msg { display: none !important; }
-
-  /* コンテナ全体: 背景なし、シンプル */
-  .countdown-wrapper { position: relative; width: 600px; height: 400px; display: flex; justify-content: center; align-items: center; transform: skewX(-15deg); }
-  
-  /* テキスト (背景エフェクト削除、GOも白統一) */
-  .cnt-text { position: relative; font-family: 'Montserrat', sans-serif; font-size: clamp(100px, 25vw, 180px); font-weight: 900; font-style: italic; color: #fff; z-index: 10; line-height: 1; text-shadow: 4px 4px 0 #000, -2px -2px 0 rgba(0,0,0,0.5); opacity: 0; transform: scale(1.5); -webkit-text-stroke: 4px #000; paint-order: stroke fill; }
-  
-  /* GOの特別色指定を解除し、サイズ調整のみ残す */
-  .cnt-text.text-go { color: #fff; font-size: clamp(120px, 30vw, 220px); -webkit-text-stroke: 6px #000; }
-
-  /* アニメーション (シンプル化) */
-  .pop-anim .cnt-text { animation: textZoom 0.25s ease-out forwards; }
-  
-  @keyframes textZoom { 
-    0% { opacity: 0; transform: scale(2.0); } 
-    30% { opacity: 1; transform: scale(1.0); } 
-    80% { opacity: 1; transform: scale(1.0); } 
-    100% { opacity: 0; transform: scale(0.8); } 
-  }
-  
-  .tute-start-btn, .tute-mode-select { pointer-events: auto; }
-  /* -------------------------- */
-
+  #tute-central-msg { position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); width: 100%; z-index: 5000; display:flex; justify-content:center; flex-direction: column; align-items: center; gap: 16px; }
+  .tute-big-msg { font-size: clamp(30px, 10vw, 75px); font-weight: 900; font-style: italic; transition: transform 0.1s; letter-spacing: -6px; color: #fff; display:none; margin-bottom: 20px; z-index: 5001; paint-order: stroke fill; -webkit-text-stroke: 2px #000; text-shadow: 5px 5px 0 #000; }
+  .tute-big-msg.pop { transform: scale(1.8) skewX(-10deg); }
   .tute-start-btn { padding: clamp(15px, 4vw, 20px) clamp(30px, 8vw, 50px); border-radius: 8px; border: 4px solid #fff; background: linear-gradient(170deg, #00aaff 0%, #004080 100%); color: #fff; text-shadow: 3px 3px 0 #000; paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; font-size: clamp(24px, 8vw, 36px); font-weight: 900; font-style: italic; letter-spacing: -2px; text-transform: uppercase; cursor: pointer; box-shadow: 10px 10px 0 #000; transform: skewX(-12deg); transition: transform 0.1s, box-shadow 0.1s; position: relative; overflow: visible; z-index: 10; }
   .tute-start-btn:active { transform: skewX(-12deg) translateY(6px); box-shadow: 4px 4px 0 #000; background: linear-gradient(170deg, #0088cc 0%, #003366 100%); }
   .tute-start-btn::before { content: ''; position: absolute; inset: -10px; border-radius: inherit; border: 8px solid rgba(0, 170, 255, 0.8); opacity: 0; pointer-events: none; animation: modeSelectPulse 0.9s ease-out infinite; z-index: -1; }
@@ -293,9 +261,10 @@
   .result-scroll-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 20px; padding-bottom: calc(var(--footer-total-height) + 20px); padding-top: env(safe-area-inset-top, 20px); position:relative; z-index:2; -webkit-overflow-scrolling: touch; }
   .res-header-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; flex-shrink: 0; position: relative; border-bottom: 4px solid #fff; }
   .res-title { font-size: 32px; font-weight: 900; font-style: italic; letter-spacing: -3px; paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; text-shadow: 3px 3px 0 #000; }
-  /* STAGE CLEARを非表示に */
-  .res-status-msg { display: none !important; }
-  
+  .res-status-msg { font-size: min(50px, 12vw); font-weight: 900; font-style: italic; margin-top: 10px; display: none; text-transform: uppercase; letter-spacing: -4px; paint-order: stroke fill; -webkit-text-stroke: 2px #000; transform: skewX(-10deg) scale(1, 1.1); filter: drop-shadow(5px 5px 0 #000); text-align: center; line-height: 0.9; padding-right: 0.2em; }
+  .res-status-msg.show { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { from { transform: translateY(20px) scale(0.5) skewX(-10deg); opacity: 0; } to { transform: translateY(0) scale(1) skewX(-10deg); opacity: 1; } }
+  .status-clear { color: #fff; background: linear-gradient(to bottom, #fff 30%, #00aaff 60%, #003366 100%); -webkit-background-clip: text; color: transparent; -webkit-text-stroke: 0; text-shadow: 0 0 10px rgba(0,170,255,0.8); position: relative; }
   .res-unlock-wrapper { display: none; justify-content: center; margin-top: 20px; margin-bottom: 15px; }
   .res-unlock-wrapper.show { display: flex; }
   .unlock-badge { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 300px; padding: 15px 0; background: #000; color: #fff; border: 6px solid currentColor; font-family: var(--font-ui); font-weight: 900; font-style: italic; text-transform: uppercase; transform: rotate(-3deg) scale(1); box-shadow: 15px 15px 0 rgba(0,0,0,1), 0 0 30px currentColor; animation: smashStampIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; position: relative; overflow: hidden; z-index: 100; }
@@ -308,8 +277,7 @@
   .res-mode-label { font-size: 12px; font-weight: 900; font-style: italic; padding: 4px 20px; background: #000; border-radius: 4px; letter-spacing: -0.5px; border: 3px solid #fff; transform: skewX(-15deg); box-shadow: 3px 3px 0 #000; }
   .rank-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; padding-bottom: 10px; position: relative; flex-shrink: 0; z-index: 5; }
   .rank-wrapper { display: flex; align-items: flex-end; justify-content: center; position: relative; width: 100%; text-align: center; }
-  /* Rank Char: サイズ拡大・クリップ修正 */
-  .rank-char { font-family: var(--font-ui); font-style: normal; font-size: clamp(100px, 25vh, 140px); line-height: 0.8; font-weight: 900; transform: skewX(-15deg); margin-right: 0; padding-right: 0; width: auto; overflow: visible; paint-order: stroke fill; -webkit-text-stroke: 4px #000; filter: drop-shadow(8px 8px 0 rgba(0,0,0,0.8)); }
+  .rank-char { font-family: var(--font-ui); font-style: normal; font-size: clamp(80px, 20vh, 110px); line-height: 0.8; font-weight: 900; transform: skewX(-15deg); margin-right: 0; padding-right: 20px; paint-order: stroke fill; -webkit-text-stroke: 4px #000; filter: drop-shadow(8px 8px 0 rgba(0,0,0,0.8)); }
   .rank-char.rank-nicetry { font-size: clamp(36px, 10vw, 50px); -webkit-text-stroke: 2.5px #000; margin-right: 0; padding-right: 0; color: #fff; letter-spacing: -3px; }
   .rank-god { background: linear-gradient(135deg, #ffffff 0%, #fffacd 20%, #ffd700 40%, #daa520 60%, #ffffff 100%); background-size: 200% 200%; -webkit-background-clip: text; color: transparent; -webkit-text-stroke: 0; animation: godShine 3s ease-in-out infinite; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.6)); z-index: 10; }
   @keyframes godShine { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -370,7 +338,7 @@
 <body>
 
   <div class="app-container" id="app-wrapper">
-    <div class="version-label">Ver 41.6</div>
+    <div class="version-label">Ver 41.1</div>
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
@@ -414,7 +382,7 @@
     </div>
 
     <div id="kb-toolbar">
-        <button id="btn-key-layout-toggle" class="btn-color-a">KEY TYPE A</button>
+        <button id="btn-key-layout-toggle" class="btn-color-a">KEYBOARD TYPE A</button>
     </div>
 
     <div class="virtual-keyboard layout-phone" id="virtual-keyboard">
@@ -427,7 +395,7 @@
         <button class="kb-key" data-key="7"><div class="kb-key-main">7</div></button>
         <button class="kb-key" data-key="8"><div class="kb-key-main">8</div></button>
         <button class="kb-key" data-key="9"><div class="kb-key-main">9</div></button>
-        <div class="kb-key kb-version">Ver 41.6</div>
+        <div class="kb-key kb-version">Ver 41.1</div>
         <button class="kb-key" data-key="0"><div class="kb-key-main">0</div></button>
         <button class="kb-key" data-key="DEL"><div class="kb-key-main" style="font-size:18px;">DEL</div></button>
     </div>
@@ -443,7 +411,8 @@
             <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)"><div class="mode-val">EXTREME</div></button>
         </div>
     </div>
-<div id="how-to-modal">
+
+  <div id="how-to-modal">
       <div class="ht-container">
           <div class="ht-header"><div class="ht-title">HOW TO PLAY</div><div class="ht-close-btn" onclick="closeHowTo()">✕</div></div>
           <div class="ht-body">
@@ -473,7 +442,7 @@
         <div class="res-header-row"><div class="res-title">RESULT</div><div id="res-mode-label" class="res-mode-label">NORMAL</div></div>
         <div class="rank-section">
             <div class="rank-wrapper"><div id="res-rank-char" class="rank-char">S</div><div id="res-rank-label-text" class="rank-label-text" style="font-size:14px;color:#888;font-weight:900;font-style:italic;">RANK</div></div>
-            <div id="res-status-msg" class="res-status-msg"></div>
+            <div id="res-status-msg" class="res-status-msg">STAGE CLEAR</div>
             <div id="res-unlock-wrapper" class="res-unlock-wrapper"></div>
             <div id="res-msg" style="font-size:32px;font-weight:900;margin-top:5px;font-style:italic;color:var(--g-miss);text-shadow:3px 3px 0 #000;-webkit-text-stroke:0;"></div>
         </div>
@@ -506,14 +475,14 @@
     // キーボードレイアウト定義
     const KB_LAYOUTS = ['PHONE', 'CALC', 'SPECIAL'];
     
-    // ラベル定義（KEY TYPE A...）
+    // ラベル定義（KEYBOARD TYPE A...）
     const KB_LABELS = {
-        'PHONE': 'KEY TYPE A',
-        'CALC':  'KEY TYPE B',
-        'SPECIAL': 'KEY TYPE C'
+        'PHONE': 'KEYBOARD TYPE A',
+        'CALC':  'KEYBOARD TYPE B',
+        'SPECIAL': 'KEYBOARD TYPE C'
     };
     
-    // ボタンの色クラス定義
+    // ボタンの色クラス定義（CSSで定義したクラスと対応）
     const KB_BTN_CLASSES = {
         'PHONE': 'btn-color-a',
         'CALC':  'btn-color-b',
@@ -527,7 +496,7 @@
         'SPECIAL': 'layout-special'
     };
 
-/* --- ゲームモード設定 --- */
+    /* --- ゲームモード設定 --- */
     const MODES = {
         'EASY': { 
             count: 10, time: 3.0, color: 'var(--c-easy)', type: 'STD',
@@ -536,12 +505,12 @@
         },
         'NORMAL': { 
             count: 10, time: 3.5, color: 'var(--c-normal)', type: 'STD',
-            judgments: { marv: 0.65, exc: 0.9, great: 1.4, good: 2.0, ok: 3.5 },
+            judgments: { marv: 0.65, exc: 0.9, great: 1.4, good: 2.0 },
             rankThresholds: { god: 10000, z: 9000, s: 6000, a: 4000, b: 2500, c: 1200, f: 0 }
         },
         'HARD': { 
             count: 10, time: 4.0, color: 'var(--c-hard)', type: 'HARD',
-            judgments: { marv: 1.2, exc: 1.6, great: 2.5, good: 4.0 },
+            judgments: { marv: 1.2, exc: 1.6, great: 2.5 },
             rankThresholds: { god: 5000, z: 4000, s: 3000, a: 2000, b: 1200, c: 800, f: 0 }
         },
         'EXTREME': { 
@@ -565,7 +534,6 @@
         lapStartTime: 0,
         totalPlayTime: 0,
         currentInput: '',
-        isInputProcessing: false, // 排他制御用
         statsDetail: { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } },
         missedLog: [],
         questionCount: 0,
@@ -679,7 +647,7 @@
             if ((e.key === '.' || e.code === 'NumpadDecimal') && STATE.status === 'IDLE') {
                 e.preventDefault(); toggleDimensionMode(); return;
             }
-            if (STATE.isInputBlocked || STATE.isInputProcessing) {
+            if (STATE.isInputBlocked) {
                 if(STATE.status === 'GAMEOVER' && e.key === 'Enter') resetToIdle();
                 return;
             }
@@ -773,7 +741,7 @@
     }
 
     function triggerKey(k) {
-        if (STATE.isInputBlocked || STATE.isInputProcessing || k.classList.contains('disabled')) return;
+        if (STATE.isInputBlocked || k.classList.contains('disabled')) return;
         k.classList.add('active-state');
         triggerRipple(k);
         if(STATE.status === 'PLAYING') {
@@ -864,15 +832,6 @@
 
     function updateTimerSVG(pct, color) {
         if (!UI.timerPathL || !UI.timerPathR) return;
-        const svg = UI.slot1.querySelector('.slot-timer-svg');
-        
-        // 残り時間が0になったら光の残骸（SVG自体）を消す
-        if (pct <= 0) {
-            if(svg) svg.style.opacity = '0';
-        } else {
-            if(svg) svg.style.opacity = '1';
-        }
-
         const totalLenL = UI.timerPathL.getTotalLength();
         const totalLenR = UI.timerPathR.getTotalLength();
         const offsetL = totalLenL * (1 - pct);
@@ -885,9 +844,6 @@
 
     function resetTimerVisuals() {
         if (!UI.timerPathL || !UI.timerPathR) return;
-        const svg = UI.slot1.querySelector('.slot-timer-svg');
-        if(svg) svg.style.opacity = '1'; // 表示を戻す
-        
         UI.timerPathL.style.transition = 'none'; UI.timerPathR.style.transition = 'none';
         UI.timerPathL.style.strokeDashoffset = 0; UI.timerPathR.style.strokeDashoffset = 0;
         void UI.timerPathL.offsetWidth;
@@ -937,7 +893,6 @@
     function resetToIdle() {
         STATE.status = 'IDLE';
         STATE.isInputBlocked = false;
-        STATE.isInputProcessing = false;
         UI.appWrapper.classList.remove('showing-result');
         STATE.isExtreme = (STATE.currentModeKey === 'EXTREME');
         updateThemeClass();
@@ -981,8 +936,8 @@
         });
         updateModeButtons(STATE.currentModeKey);
         UI.bottomUi.classList.remove('bottom-ui-dimmed');
-        if(UI.tuteBigMsg) UI.tuteBigMsg.style.display = 'none';
-        if(UI.tuteBigMsg) UI.tuteBigMsg.classList.remove('pop');
+        UI.tuteBigMsg.style.display = 'none';
+        UI.tuteBigMsg.classList.remove('pop');
         closeHowTo();
         
         if (UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
@@ -1058,77 +1013,53 @@
         });
     }
 
-    /* --- UPDATED COUNTDOWN FUNCTION (Simple ver.) --- */
     function startCountdown() {
         STATE.status = 'COUNTDOWN';
         STATE.isInputBlocked = true;
         STATE.hasPlayedOnce = true;
         
+        // --- ボタン非表示: ゲーム開始カウントダウン時に消す ---
         UI.btnModeToggle.classList.add('disabled');
-        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none'; 
-        if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'none';         
-        if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'none';     
+        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none'; // キーボード切替を隠す
+        if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'none';         // RANDOMボタンを隠す
+        if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'none';     // HOW TOボタンを隠す
+        // --------------------------------------------------
 
         UI.bottomUi.classList.add('bottom-ui-dimmed');
         if(UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
+        
+        const seq = ['READY', '3', '2', '1'];
+        let idx = 0;
+        UI.tuteBigMsg.style.display = 'block';
+        UI.tuteBigMsg.innerText = seq[0];
+        UI.tuteBigMsg.classList.add('pop');
         if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
         if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
-
         const mode = MODES[STATE.currentModeKey];
         UI.hudModeLabel.innerText = `${STATE.currentModeKey}${STATE.isRandomMode ? ' [R]' : ''}`;
         UI.hudModeLabel.style.borderColor = mode.color;
         UI.hudModeLabel.style.color = mode.color;
         UI.hudModeLabel.classList.add('show');
-
-        // Hide old message if any
-        if(UI.tuteBigMsg) UI.tuteBigMsg.style.display = 'none';
-
-        // Prepare Container
-        let dynamicContainer = document.getElementById('cnt-dynamic-container');
-        if (!dynamicContainer) {
-            dynamicContainer = document.createElement('div');
-            dynamicContainer.id = 'cnt-dynamic-container';
-            UI.tuteCentralMsg.appendChild(dynamicContainer);
-        }
-        dynamicContainer.innerHTML = '';
-        
-        // Sequence: 3, 2, 1, GO
-        const sequence = [
-            { text: '3',  dur: 220 },
-            { text: '2',  dur: 220 },
-            { text: '1',  dur: 220 },
-            { text: 'GO', dur: 250 }
-        ];
-
-        let seqIndex = 0;
-        const runStep = () => {
-            if (seqIndex >= sequence.length) {
-                dynamicContainer.innerHTML = '';
+        adjustCentralLayout();
+        const timer = setInterval(() => {
+            idx++;
+            UI.tuteBigMsg.classList.remove('pop');
+            void UI.tuteBigMsg.offsetWidth;
+            if(idx < seq.length) {
+                UI.tuteBigMsg.innerText = seq[idx];
+                UI.tuteBigMsg.classList.add('pop');
+            } else {
+                clearInterval(timer);
                 UI.tutorialOverlay.classList.remove('active');
+                UI.tuteBigMsg.style.display = 'none';
                 startGame();
-                return;
             }
-            const item = sequence[seqIndex];
-            const isGo = item.text === 'GO';
-            
-            // Generate HTML (Simple text only, no background)
-            const html = `
-                <div class="countdown-wrapper pop-anim">
-                    <div class="cnt-text ${isGo ? 'text-go' : ''}">${item.text}</div>
-                </div>
-            `;
-            dynamicContainer.innerHTML = html;
-            seqIndex++;
-            setTimeout(runStep, item.dur);
-        };
-        runStep();
+        }, 600);
     }
-    /* ------------------------------------- */
 
     function startGame() {
         STATE.status = 'PLAYING';
         STATE.isInputBlocked = false;
-        STATE.isInputProcessing = false;
         STATE.score = 0;
         STATE.questionCount = 0;
         STATE.generatedCount = 0;
@@ -1155,72 +1086,45 @@
 
     function gameLoop() {
         if(STATE.status !== 'PLAYING') return;
-        
-        // --- EXTREME [RANDOM] Mode Logic ---
-        // 時間制限撤廃・紫色のバー固定
-        if (STATE.currentModeKey === 'EXTREME' && STATE.randomAtPlay) {
-            updateTimerSVG(1.0, '#d000ff'); // 紫色, 減らない
-            // 時間切れ判定を行わない
-        } else {
-            // 通常ロジック
-            const now = Date.now();
-            const mode = MODES[STATE.currentModeKey];
-            const currentLap = (now - STATE.lapStartTime) / 1000;
-            
-            if(currentLap > mode.time) { 
-                handleMiss("TIME", "-", STATE.current.count); 
-                return; 
-            }
-            
-            const maxTime = mode.time;
-            const pct = Math.max(0, 1 - (currentLap / maxTime));
-            const jud = mode.judgments;
-            let colorCode = '#a0a0a0';
-            if (currentLap <= jud.marv) colorCode = '#fff200';
-            else if (currentLap <= jud.exc) colorCode = '#00ffff';
-            else if (currentLap <= jud.great) colorCode = '#00ff2a';
-            else if (jud.good && currentLap <= jud.good) colorCode = '#ffaa00';
-            else if (jud.ok && currentLap <= jud.ok) colorCode = '#b0b0b0';
-            else colorCode = '#ff0033';
-            updateTimerSVG(pct, colorCode);
-        }
-        
+        const now = Date.now();
+        const mode = MODES[STATE.currentModeKey];
+        const currentLap = (now - STATE.lapStartTime) / 1000;
+        if(currentLap > mode.time) { handleMiss("TIME", "-", STATE.current.count); return; }
+        const maxTime = mode.time;
+        const pct = Math.max(0, 1 - (currentLap / maxTime));
+        const jud = mode.judgments;
+        let colorCode = '#a0a0a0';
+        if (currentLap <= jud.marv) colorCode = '#fff200';
+        else if (currentLap <= jud.exc) colorCode = '#00ffff';
+        else if (currentLap <= jud.great) colorCode = '#00ff2a';
+        else if (jud.good && currentLap <= jud.good) colorCode = '#ffaa00';
+        else if (jud.ok && currentLap <= jud.ok) colorCode = '#b0b0b0';
+        else colorCode = '#ff0033';
+        updateTimerSVG(pct, colorCode);
         STATE.rafId = requestAnimationFrame(gameLoop);
     }
 
     function processInput(val) {
-        if(!STATE.current || STATE.isInputBlocked || STATE.isInputProcessing) return;
-        checkAnswer(val, String(val));
+        if(!STATE.current || STATE.isInputBlocked) return;
+        checkAnswer(val);
     }
 
     function processInputExtreme(key) {
-        if(!STATE.current || STATE.isInputBlocked || STATE.isInputProcessing) return;
+        if(!STATE.current || STATE.isInputBlocked) return;
         if (key === 'DEL') { STATE.currentInput = STATE.currentInput.slice(0, -1); return; }
-        
         const targetStr = String(STATE.current.count);
         const targetLen = targetStr.length;
         if (STATE.currentInput.length < targetLen) { STATE.currentInput += key; }
-        
         if (STATE.currentInput.length === targetLen) {
-            // ★ 入力バッファを判定前に退避し、即座にクリアする
-            // これにより、判定処理が走っている最中に次入力が混ざることを防ぐ
-            const finalInputStr = STATE.currentInput;
-            STATE.currentInput = ''; // Clear immediately!
-            
-            const val = parseInt(finalInputStr, 10);
-            checkAnswer(val, finalInputStr);
+            const val = parseInt(STATE.currentInput, 10);
+            checkAnswer(val);
+            STATE.currentInput = '';
         }
     }
 
-    function checkAnswer(val, inputStrForLog) {
-        // ★ 排他制御: 処理中は入力を受け付けない
-        if (STATE.isInputProcessing) return;
-        STATE.isInputProcessing = true;
-
+    function checkAnswer(val) {
         const now = Date.now();
         let delta = (now - STATE.lapStartTime) / 1000;
-        
-        // Correct?
         if(val === STATE.current.count) {
             const effectiveTime = Math.max(delta, CONFIG.capPerItemSec);
             STATE.totalPlayTime += effectiveTime;
@@ -1228,40 +1132,20 @@
             const jud = mode.judgments;
             let gradeKey = "miss";
             let gradeLabel = "MISS";
-            
-            // Randomモード(Extreme)は時間制限なしだが、評価のためにTimeは記録する
-            // ただしMISSにはならないようにする
-            
             if (delta <= jud.marv) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
             else if (delta <= jud.exc) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
             else if (delta <= jud.great) { gradeKey = "great"; gradeLabel = "GREAT"; }
             else if (jud.good && delta <= jud.good) { gradeKey = "good"; gradeLabel = "GOOD"; }
             else if (jud.ok && delta <= jud.ok) { gradeKey = "ok"; gradeLabel = "OK"; }
-            else { 
-                // 時間オーバー扱いにするか？ -> 通常モードならMISS
-                if (STATE.currentModeKey === 'EXTREME' && STATE.randomAtPlay) {
-                   gradeKey = "ok"; gradeLabel = "OK"; // 時間制限なしなら最低評価で通す
-                } else {
-                   STATE.isInputProcessing = false; // ロック解除してMiss処理へ
-                   handleMiss("SLOW", val, STATE.current.count); 
-                   return; 
-                }
-            }
+            else { handleMiss("SLOW", val, STATE.current.count); return; }
             STATE.statsDetail[gradeKey].count++;
             STATE.statsDetail[gradeKey].time += effectiveTime;
             triggerEvalEffect(gradeLabel);
             flashSlot(gradeLabel);
-            
-            // 次の問題へ
-            if(STATE.questionCount >= mode.count - 1) { 
-                UI.view1.innerHTML = ''; 
-                gameOver("FINISHED"); 
-            } else { 
-                nextQuestion(); 
-            }
+            if(STATE.questionCount >= mode.count - 1) { UI.view1.innerHTML = ''; gameOver("FINISHED"); } 
+            else { nextQuestion(); }
         } else {
-            STATE.isInputProcessing = false; // ロック解除してMiss処理へ
-            handleMiss("TYPE", inputStrForLog, STATE.current.count);
+            handleMiss("TYPE", val, STATE.current.count);
         }
     }
 
@@ -1305,7 +1189,6 @@
         resetTimerVisuals();
         STATE.lapStartTime = Date.now();
         STATE.currentInput = '';
-        STATE.isInputProcessing = false; // ロック解除
     }
 
     function triggerEvalEffect(text) {
@@ -1573,7 +1456,6 @@
         if(STATE.status === 'GAMEOVER') return;
         STATE.status = 'GAMEOVER';
         STATE.isInputBlocked = true;
-        STATE.isInputProcessing = false;
         if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
         document.querySelectorAll('.kb-key').forEach(k => k.classList.remove('active-state'));
         if(reason === "FINISHED") UI.victoryShutter.classList.add('active');
@@ -1718,10 +1600,7 @@
             else if (data.reason === "TOO SLOW") UI.resMsg.classList.add("res-msg-nice");
             else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
         }
-        
-        // ステージクリア文言の表示を削除(クラス操作のみ)
         UI.resStatusMsg.classList.remove('show'); UI.resStatusMsg.className = 'res-status-msg'; UI.resStatusMsg.innerText = '';
-        
         UI.resUnlockWrapper.classList.remove('show'); UI.resUnlockWrapper.innerHTML = '';
         if (data.reason === "FINISHED") {
             if (data.unlockEvent) {
@@ -1731,7 +1610,9 @@
                 UI.resUnlockWrapper.innerHTML = `<div class="unlock-badge ${ulColorClass}"><div class="main-text">UNLOCKED</div><div class="sub-text">${data.unlockEvent}</div></div>`;
                 UI.resUnlockWrapper.classList.add('show');
             } else {
-                // STAGE CLEARテキスト表示処理を削除
+                UI.resStatusMsg.innerText = "STAGE CLEAR";
+                UI.resStatusMsg.classList.add('status-clear');
+                UI.resStatusMsg.classList.add('show');
             }
         }
         UI.newRecordBadge.classList.remove('show');
