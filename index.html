@@ -1618,7 +1618,7 @@
         UI.newRecordBadge.classList.remove('show');
         if (data.isNewRecord) UI.newRecordBadge.classList.add('show');
         if(data.score > 0) {
-            const avgTime = (data.totalTime / data.count).toFixed(1);
+            const avgTime = (data.totalTime / data.count).toFixed(2);
             const nextLine = computeNextRankLine(data);
             UI.resTotalBox.innerHTML = `<span class="total-label">TOTAL SCORE</span>${Number(data.score).toLocaleString()} <span style="font-size:16px;">ch</span><span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgTime}s</span></span>${nextLine}`;
         } else {
@@ -1639,7 +1639,7 @@
                 let localScore = Math.floor((1 / Math.max(CONFIG.capPerItemSec, avg)) * 3600);
                 if(localScore > CONFIG.capCh) localScore = CONFIG.capCh;
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="dt-grade" style="color:${g.c}">${g.l}</td><td class="dt-count">${info.count}</td><td class="dt-avg">${avg.toFixed(1)}s</td><td class="dt-score">${localScore.toLocaleString()} <span class="dt-sub">ch</span></td>`;
+                tr.innerHTML = `<td class="dt-grade" style="color:${g.c}">${g.l}</td><td class="dt-count">${info.count}</td><td class="dt-avg">${avg.toFixed(2)}s</td><td class="dt-score">${localScore.toLocaleString()} <span class="dt-sub">ch</span></td>`;
                 UI.detailTableBody.appendChild(tr);
             }
         });
