@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SNOW: SMASH SUBITIZING - Ver 41.3</title>
+<title>SNOW: SMASH SUBITIZING</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
@@ -83,39 +83,17 @@
 
   /* キーボードツールバー（左上配置・独立型） */
   #kb-toolbar { 
-      width: 100%; 
-      display: flex; 
-      justify-content: flex-start; 
-      align-items: flex-end; 
-      padding: 0 10px; 
-      /* ★ここを増やしてキーボードと分離する */
-      margin-bottom: 8px; 
-      z-index: 3001; 
-      position: relative; 
-      pointer-events: none; 
+      width: 100%; display: flex; justify-content: flex-start; align-items: flex-end; 
+      padding: 0 10px; margin-bottom: 8px; z-index: 3001; position: relative; pointer-events: none; 
   }
 
   /* キーボード切り替えボタン（独立デザイン） */
   #btn-key-layout-toggle { 
-      pointer-events: auto; 
-      background: #000; 
-      border: 3px solid #444; 
-      color: #ddd; 
-      /* ★下側も閉じて独立したボタンにする */
-      border-radius: 4px; 
-      padding: 4px 16px; 
-      font-family: var(--font-ui); 
-      font-weight: 900; 
-      font-size: 11px; 
-      font-style: italic; 
-      cursor: pointer; 
-      text-transform: uppercase; 
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.8); 
-      letter-spacing: 0.5px; 
-      transform: skewX(-10deg); 
-      transform-origin: bottom left; 
-      margin-left: 5px; 
-      transition: all 0.2s; 
+      pointer-events: auto; background: #000; border: 3px solid #444; color: #ddd; 
+      border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; 
+      font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; 
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; 
+      transform: skewX(-10deg); transform-origin: bottom left; margin-left: 5px; transition: all 0.2s; 
   }
   #btn-key-layout-toggle:active { transform: skewX(-10deg) translateY(2px); filter: brightness(1.2); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   
@@ -154,9 +132,12 @@
 
   .virtual-keyboard { position: relative; width: 100%; height: var(--kb-height); background: linear-gradient(150deg, #0a0a0a 0%, #151515 100%); padding: 6px; padding-bottom: max(6px, var(--safe-area-bottom)); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 5px; z-index: 3000; border-top: 4px solid #333; pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8); }
   .virtual-keyboard::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px); pointer-events: none; }
+  /* レイアウト定義 */
   .virtual-keyboard.layout-phone { grid-template-areas: "k1 k2 k3" "k4 k5 k6" "k7 k8 k9" "ver k0 del"; }
   .virtual-keyboard.layout-calc { grid-template-areas: "k7 k8 k9" "k4 k5 k6" "k1 k2 k3" "ver k0 del"; }
-  .virtual-keyboard.layout-special { grid-template-areas: "k0 k1 k2" "ver k3 k4" "del k5 k6" "k7 k8 k9"; }
+  /* Type C (Special) 更新 */
+  .virtual-keyboard.layout-special { grid-template-areas: "k0 k1 k2" "k3 k4 ver" "k5 k6 del" "k7 k8 k9"; }
+  
   .kb-key { background: linear-gradient(to bottom, #2a2a2a, #111); border-radius: 6px; border: 2px solid #444; box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); color: #ccc; font-family: var(--font-num); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; }
   .kb-key:active, .kb-key.active-state { transform: translateY(4px); box-shadow: 0 0 0 #000; background: linear-gradient(to bottom, #ffcc00, #ff9900); color: #000; border-color: #fff; }
   .kb-key-main { font-size: clamp(24px, 5vh, 36px); font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; letter-spacing: -2px; }
@@ -338,7 +319,7 @@
 <body>
 
   <div class="app-container" id="app-wrapper">
-    <div class="version-label">Ver 41.3</div>
+    <div class="version-label"></div>
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
@@ -395,7 +376,7 @@
         <button class="kb-key" data-key="7"><div class="kb-key-main">7</div></button>
         <button class="kb-key" data-key="8"><div class="kb-key-main">8</div></button>
         <button class="kb-key" data-key="9"><div class="kb-key-main">9</div></button>
-        <div class="kb-key kb-version">Ver 41.3</div>
+        <div class="kb-key kb-version"></div>
         <button class="kb-key" data-key="0"><div class="kb-key-main">0</div></button>
         <button class="kb-key" data-key="DEL"><div class="kb-key-main" style="font-size:18px;">DEL</div></button>
     </div>
@@ -461,42 +442,22 @@
   </div>
   </div>
 <script>
-    /* --- アイコン初期化 --- */
     if(window.lucide) lucide.createIcons();
 
-    /* --- 定数・設定 --- */
+    /* --- 設定・定数 (CONFIG) --- */
     const CONFIG = {
+        VERSION: 'Ver 41.3', 
         capPerItemSec: 0.1,
         capCh: 36000
     };
 
+    const KB_SETTINGS = [
+        { id: 'PHONE',   label: 'KEYBOARD TYPE A', btnClass: 'btn-color-a', layoutClass: 'layout-phone' },
+        { id: 'CALC',    label: 'KEYBOARD TYPE B', btnClass: 'btn-color-b', layoutClass: 'layout-calc' },
+        { id: 'SPECIAL', label: 'KEYBOARD TYPE C', btnClass: 'btn-color-c', layoutClass: 'layout-special' }
+    ];
+
     const RANK_ORDER = ['GOD', 'Z', 'S', 'A', 'B', 'C', 'D', 'F'];
-
-    // キーボードレイアウト定義
-    const KB_LAYOUTS = ['PHONE', 'CALC', 'SPECIAL'];
-    
-    // ラベル定義（KEYBOARD TYPE A...）
-    const KB_LABELS = {
-        'PHONE': 'KEYBOARD TYPE A',
-        'CALC':  'KEYBOARD TYPE B',
-        'SPECIAL': 'KEYBOARD TYPE C'
-    };
-    
-    // ボタンの色クラス定義（CSSで定義したクラスと対応）
-    const KB_BTN_CLASSES = {
-        'PHONE': 'btn-color-a',
-        'CALC':  'btn-color-b',
-        'SPECIAL': 'btn-color-c'
-    };
-    
-    // キーボードグリッドのクラス定義
-    const KB_CLASSES = {
-        'PHONE': 'layout-phone',
-        'CALC':  'layout-calc',
-        'SPECIAL': 'layout-special'
-    };
-
-    /* --- ゲームモード設定 --- */
     const MODES = {
         'EASY': { 
             count: 10, time: 3.0, color: 'var(--c-easy)', type: 'STD',
@@ -510,7 +471,8 @@
         },
         'HARD': { 
             count: 10, time: 4.0, color: 'var(--c-hard)', type: 'HARD',
-            judgments: { marv: 1.2, exc: 1.6, great: 2.5 },
+            /* 修正: タイムバーぎりぎりでも正解判定が出るように good: 4.0 を追加 */
+            judgments: { marv: 1.2, exc: 1.6, great: 2.5, good: 4.0 },
             rankThresholds: { god: 5000, z: 4000, s: 3000, a: 2000, b: 1200, c: 800, f: 0 }
         },
         'EXTREME': { 
@@ -520,40 +482,25 @@
         }
     };
 
+    /* --- DOM取得ヘルパー (圧縮用) --- */
+    const $id = (id) => document.getElementById(id);
+    const $qs = (s) => document.querySelector(s);
+    const $qsa = (s) => document.querySelectorAll(s);
+
     /* --- ステート管理 --- */
     const STATE = {
-        status: 'IDLE',
-        is3DMode: false,
-        isRandomMode: false,
-        randomAtPlay: false,
-        score: 0,
-        queue: [],
-        current: null,
-        currentModeKey: 'EASY',
-        rafId: null,
-        lapStartTime: 0,
-        totalPlayTime: 0,
-        currentInput: '',
+        status: 'IDLE', is3DMode: false, isRandomMode: false, randomAtPlay: false,
+        score: 0, queue: [], current: null, currentModeKey: 'EASY', rafId: null,
+        lapStartTime: 0, totalPlayTime: 0, currentInput: '',
         statsDetail: { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } },
-        missedLog: [],
-        questionCount: 0,
-        generatedCount: 0,
-        isExtreme: false,
-        isInputBlocked: false,
+        missedLog: [], questionCount: 0, generatedCount: 0, isExtreme: false, isInputBlocked: false,
         currentKbLayout: 'PHONE', 
         saveData: {
             ranks2D: { EASY: null, NORMAL: null, HARD: null, EXTREME: null },
             ranks3D: { EASY: null, NORMAL: null, HARD: null, EXTREME: null },
-            bestCH: 0,
-            bestEasyCH: 0,
-            modeScores: { EASY: 0, NORMAL: 0, HARD: 0, EXTREME: 0 }
+            bestCH: 0, bestEasyCH: 0, modeScores: { EASY: 0, NORMAL: 0, HARD: 0, EXTREME: 0 }
         },
-        history: [],
-        historyIndex: 0,
-        hasPlayedOnce: false,
-        lastCount: null,
-        lastShapeSig: null,
-        consecutiveCountValue: 0, 
+        history: [], historyIndex: 0, hasPlayedOnce: false, lastCount: null, lastShapeSig: null, consecutiveCountValue: 0
     };
 
     let UI = {};
@@ -561,56 +508,29 @@
 
     /* --- 起動時処理 (onload) --- */
     window.onload = () => {
+        document.title = `SNOW: SMASH SUBITIZING - ${CONFIG.VERSION}`;
+        if($qs('.version-label')) $qs('.version-label').innerText = CONFIG.VERSION;
+        if($qs('.kb-key.kb-version')) $qs('.kb-key.kb-version').innerText = CONFIG.VERSION;
+
         UI = {
-            appWrapper: document.getElementById('app-wrapper'),
-            view1: document.getElementById('view-1'),
-            view2: document.getElementById('view-2'),
-            view3: document.getElementById('view-3'),
-            slot1: document.getElementById('slot-1'),
-            slot2: document.getElementById('slot-2'),
-            slot3: document.getElementById('slot-3'),
-            failShutter: document.getElementById('fail-shutter'),
-            victoryShutter: document.getElementById('victory-shutter'),
-            tutorialOverlay: document.getElementById('tutorial-overlay'),
-            tuteBigMsg: document.getElementById('tute-big-msg'),
-            tuteCentralMsg: document.getElementById('tute-central-msg'), 
-            hudModeLabel: document.getElementById('hud-mode-label'),
-            btnModeToggle: document.getElementById('btn-mode-toggle'),
-            
-            resultModal: document.getElementById('result-modal'),
-            howToModal: document.getElementById('how-to-modal'),
-            
-            resultCardContainer: document.getElementById('result-card-container'), 
-            resRankChar: document.getElementById('res-rank-char'),
-            resRankLabelText: document.getElementById('res-rank-label-text'),
-            resMsg: document.getElementById('res-msg'),
-            resStatusMsg: document.getElementById('res-status-msg'),
-            resUnlockWrapper: document.getElementById('res-unlock-wrapper'),
-            resModeLabel: document.getElementById('res-mode-label'),
-            resTotalBox: document.getElementById('res-total-box'),
-            newRecordBadge: document.getElementById('new-record-badge'),
-            missLog: document.getElementById('miss-log'),
-            missItemsRow: document.getElementById('miss-items-row'),
-            detailTableBody: document.getElementById('detail-table-body'),
-            histPrev: document.getElementById('hist-prev'),
-            histNext: document.getElementById('hist-next'),
-            bottomUi: document.getElementById('bottom-ui-container'),
-            tuteCount: document.getElementById('tute-count'),
-            tuteInput: document.getElementById('tute-input'),
-            tuteStartBtn: document.getElementById('tute-start-btn'),
-            tuteModeSelect: document.getElementById('tute-mode-select'),
-            virtualKeyboard: document.getElementById('virtual-keyboard'),
-            btnHowToBottom: document.getElementById('btn-how-to-bottom'),
-            btnHowToOpening: document.getElementById('btn-how-to-opening'),
-            btnKeyLayoutToggle: document.getElementById('btn-key-layout-toggle'),
-            timerPathL: null,
-            timerPathR: null
+            appWrapper: $id('app-wrapper'), view1: $id('view-1'), view2: $id('view-2'), view3: $id('view-3'),
+            slot1: $id('slot-1'), slot2: $id('slot-2'), slot3: $id('slot-3'),
+            failShutter: $id('fail-shutter'), victoryShutter: $id('victory-shutter'),
+            tutorialOverlay: $id('tutorial-overlay'), tuteBigMsg: $id('tute-big-msg'), tuteCentralMsg: $id('tute-central-msg'), 
+            hudModeLabel: $id('hud-mode-label'), btnModeToggle: $id('btn-mode-toggle'),
+            resultModal: $id('result-modal'), howToModal: $id('how-to-modal'), resultCardContainer: $id('result-card-container'), 
+            resRankChar: $id('res-rank-char'), resRankLabelText: $id('res-rank-label-text'), resMsg: $id('res-msg'),
+            resStatusMsg: $id('res-status-msg'), resUnlockWrapper: $id('res-unlock-wrapper'), resModeLabel: $id('res-mode-label'),
+            resTotalBox: $id('res-total-box'), newRecordBadge: $id('new-record-badge'), missLog: $id('miss-log'),
+            missItemsRow: $id('miss-items-row'), detailTableBody: $id('detail-table-body'),
+            histPrev: $id('hist-prev'), histNext: $id('hist-next'), bottomUi: $id('bottom-ui-container'),
+            tuteCount: $id('tute-count'), tuteInput: $id('tute-input'), tuteStartBtn: $id('tute-start-btn'),
+            tuteModeSelect: $id('tute-mode-select'), virtualKeyboard: $id('virtual-keyboard'),
+            btnHowToBottom: $id('btn-how-to-bottom'), btnHowToOpening: $id('btn-how-to-opening'),
+            btnKeyLayoutToggle: $id('btn-key-layout-toggle'), timerPathL: null, timerPathR: null
         };
 
-        // キーバインド
-        ['1','2','3','4','5','6','7','8','9','0','DEL'].forEach(k => {
-            KB.keys[k] = document.querySelector(`.kb-key[data-key="${k}"]`);
-        });
+        ['1','2','3','4','5','6','7','8','9','0','DEL'].forEach(k => { KB.keys[k] = $qs(`.kb-key[data-key="${k}"]`); });
 
         updateLoginStreak();
         initKeyLayout();
@@ -619,38 +539,38 @@
 
         if(UI.histPrev) UI.histPrev.addEventListener('click', () => changeHistory(-1));
         if(UI.histNext) UI.histNext.addEventListener('click', () => changeHistory(1));
-        
-        // キーボード切替ボタンイベント
-        if (UI.btnKeyLayoutToggle) {
-            UI.btnKeyLayoutToggle.addEventListener('click', toggleKeyLayout);
+        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.addEventListener('click', toggleKeyLayout);
+        if(UI.tuteStartBtn) UI.tuteStartBtn.addEventListener('click', handleTapToStart);
+
+        if(UI.virtualKeyboard) {
+            const handleKbInput = (e) => {
+                const k = e.target.closest('.kb-key');
+                if(!k || !k.dataset.key || k.classList.contains('disabled')) return;
+                e.preventDefault();
+                k.classList.add('active-state');
+                triggerRipple(k);
+                if(STATE.status === 'PLAYING') {
+                    const valStr = k.dataset.key;
+                    const mode = MODES[STATE.currentModeKey];
+                    if (mode.type === 'EXT' || mode.type === 'HARD') processInputExtreme(valStr);
+                    else { let val = parseInt(valStr, 10); if (!Number.isNaN(val)) processInput(val); }
+                }
+            };
+            const clearState = (e) => {
+                const k = e.target.closest('.kb-key');
+                if(k) k.classList.remove('active-state');
+            };
+            UI.virtualKeyboard.addEventListener('touchstart', handleKbInput, {passive: false});
+            UI.virtualKeyboard.addEventListener('mousedown', handleKbInput);
+            UI.virtualKeyboard.addEventListener('touchend', clearState);
+            UI.virtualKeyboard.addEventListener('mouseup', clearState);
+            UI.virtualKeyboard.addEventListener('mouseleave', clearState);
         }
 
-        if (UI.tuteStartBtn) {
-            UI.tuteStartBtn.addEventListener('click', handleTapToStart);
-        }
-
-        // タッチイベント
-        const keys = document.querySelectorAll('.kb-key');
-        keys.forEach(k => {
-            if(!k.dataset.key) return;
-            k.addEventListener('touchstart', (e) => { e.preventDefault(); triggerKey(k); }, {passive: false});
-            k.addEventListener('mousedown', (e) => { e.preventDefault(); triggerKey(k); });
-            const clearState = () => k.classList.remove('active-state');
-            k.addEventListener('touchend', clearState);
-            k.addEventListener('mouseup', clearState);
-            k.addEventListener('mouseleave', clearState);
-        });
-
-        // キーボード入力
         window.addEventListener('keydown', (e) => {
             if(e.repeat) return;
-            if ((e.key === '.' || e.code === 'NumpadDecimal') && STATE.status === 'IDLE') {
-                e.preventDefault(); toggleDimensionMode(); return;
-            }
-            if (STATE.isInputBlocked) {
-                if(STATE.status === 'GAMEOVER' && e.key === 'Enter') resetToIdle();
-                return;
-            }
+            if ((e.key === '.' || e.code === 'NumpadDecimal') && STATE.status === 'IDLE') { e.preventDefault(); toggleDimensionMode(); return; }
+            if (STATE.isInputBlocked) { if(STATE.status === 'GAMEOVER' && e.key === 'Enter') resetToIdle(); return; }
             if(STATE.status === 'PLAYING') {
                 const mode = MODES[STATE.currentModeKey];
                 if (mode.type === 'EXT' || mode.type === 'HARD') {
@@ -665,16 +585,9 @@
                 if(e.key === '2') handleModeSelect('NORMAL');
                 if(e.key === '3') handleModeSelect('HARD');
                 if(e.key === '4') handleModeSelect('EXTREME');
-            } else if(STATE.status === 'GAMEOVER') {
-                if(e.key === 'Enter') resetToIdle();
-            }
+            } else if(STATE.status === 'GAMEOVER') { if(e.key === 'Enter') resetToIdle(); }
         });
-
-        window.addEventListener('resize', () => {
-             if (STATE.status === 'PLAYING') setupSlotTimerSVG();
-             adjustCentralLayout();
-        });
-
+        window.addEventListener('resize', () => { if (STATE.status === 'PLAYING') setupSlotTimerSVG(); adjustCentralLayout(); });
         updateModeButtons(STATE.currentModeKey);
     };
 
@@ -687,36 +600,31 @@
         const centerY = (gameAreaH / 2) + 40;
         UI.tuteCentralMsg.style.top = `${centerY}px`;
     }
-
     function initKeyLayout() {
-        const savedLayout = localStorage.getItem('snow_key_layout');
-        if (savedLayout && KB_LAYOUTS.includes(savedLayout)) {
-            STATE.currentKbLayout = savedLayout;
-        } else {
-            STATE.currentKbLayout = 'PHONE';
-        }
+        const saved = localStorage.getItem('snow_key_layout');
+        const found = KB_SETTINGS.find(s => s.id === saved);
+        STATE.currentKbLayout = found ? found.id : KB_SETTINGS[0].id;
         applyKeyLayout(STATE.currentKbLayout);
     }
-
     function toggleKeyLayout() {
-        const currentIndex = KB_LAYOUTS.indexOf(STATE.currentKbLayout);
-        const nextIndex = (currentIndex + 1) % KB_LAYOUTS.length;
-        STATE.currentKbLayout = KB_LAYOUTS[nextIndex];
+        const currIdx = KB_SETTINGS.findIndex(s => s.id === STATE.currentKbLayout);
+        const nextIdx = (currIdx + 1) % KB_SETTINGS.length;
+        STATE.currentKbLayout = KB_SETTINGS[nextIdx].id;
         localStorage.setItem('snow_key_layout', STATE.currentKbLayout);
         applyKeyLayout(STATE.currentKbLayout);
     }
-
-    function applyKeyLayout(layoutName) {
+    function applyKeyLayout(layoutId) {
         if(!UI.virtualKeyboard) return;
-        // キーボードレイアウトの変更
-        UI.virtualKeyboard.classList.remove('layout-phone', 'layout-calc', 'layout-special');
-        UI.virtualKeyboard.classList.add(KB_CLASSES[layoutName]);
-        
-        // ボタンのテキストと色クラスの更新
-        if (UI.btnKeyLayoutToggle) {
-            UI.btnKeyLayoutToggle.innerText = KB_LABELS[layoutName];
-            UI.btnKeyLayoutToggle.classList.remove('btn-color-a', 'btn-color-b', 'btn-color-c');
-            UI.btnKeyLayoutToggle.classList.add(KB_BTN_CLASSES[layoutName]);
+        const setting = KB_SETTINGS.find(s => s.id === layoutId);
+        if(!setting) return;
+        KB_SETTINGS.forEach(s => {
+             UI.virtualKeyboard.classList.remove(s.layoutClass);
+             if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.classList.remove(s.btnClass);
+        });
+        UI.virtualKeyboard.classList.add(setting.layoutClass);
+        if(UI.btnKeyLayoutToggle) {
+            UI.btnKeyLayoutToggle.innerText = setting.label;
+            UI.btnKeyLayoutToggle.classList.add(setting.btnClass);
         }
     }
 
@@ -728,221 +636,110 @@
             setTimeout(() => btn.classList.remove('active-state'), 100);
         }
     }
-
     function updateKeyboardLayoutForMode() {
         const mode = MODES[STATE.currentModeKey];
-        if (mode.type === 'EXT' || mode.type === 'HARD') {
-            if(KB.keys['0']) KB.keys['0'].classList.remove('disabled');
-            if(KB.keys['DEL']) KB.keys['DEL'].classList.remove('disabled');
-        } else {
-            if(KB.keys['0']) KB.keys['0'].classList.add('disabled');
-            if(KB.keys['DEL']) KB.keys['DEL'].classList.add('disabled');
-        }
+        const isMulti = (mode.type === 'EXT' || mode.type === 'HARD');
+        if(KB.keys['0']) isMulti ? KB.keys['0'].classList.remove('disabled') : KB.keys['0'].classList.add('disabled');
+        if(KB.keys['DEL']) isMulti ? KB.keys['DEL'].classList.remove('disabled') : KB.keys['DEL'].classList.add('disabled');
     }
-
-    function triggerKey(k) {
-        if (STATE.isInputBlocked || k.classList.contains('disabled')) return;
-        k.classList.add('active-state');
-        triggerRipple(k);
-        if(STATE.status === 'PLAYING') {
-            const valStr = k.dataset.key;
-            const mode = MODES[STATE.currentModeKey];
-            if (mode.type === 'EXT' || mode.type === 'HARD') { processInputExtreme(valStr); } 
-            else { let val = parseInt(valStr, 10); if (!Number.isNaN(val)) processInput(val); }
-        }
-    }
-
-    function getModeDisplayName(key) { return key; }
     function currentRanksStore() { return STATE.saveData.ranks2D; }
-
-    function isRankHigherOrEqual(current, target) {
-        if (!current) return false;
-        return RANK_ORDER.indexOf(current) <= RANK_ORDER.indexOf(target);
-    }
-
+    function isRankHigherOrEqual(current, target) { return current && RANK_ORDER.indexOf(current) <= RANK_ORDER.indexOf(target); }
     function getRankFromScore(score, modeName) {
-        const thresholds = MODES[modeName].rankThresholds;
-        if(score >= thresholds.god) return 'GOD';
-        if(score >= thresholds.z) return 'Z';
-        if(score >= thresholds.s) return 'S';
-        if(score >= thresholds.a) return 'A';
-        if(score >= thresholds.b) return 'B';
-        if(score >= thresholds.c) return 'C';
-        return 'D'; 
+        const th = MODES[modeName].rankThresholds;
+        if(score >= th.god) return 'GOD'; if(score >= th.z) return 'Z'; if(score >= th.s) return 'S';
+        if(score >= th.a) return 'A'; if(score >= th.b) return 'B'; if(score >= th.c) return 'C'; return 'D'; 
     }
-
-    /* --- モーダル制御 --- */
     function openHowTo() { if(UI.howToModal) UI.howToModal.classList.add('active'); }
     function closeHowTo() { if(UI.howToModal) UI.howToModal.classList.remove('active'); }
-
     function updateLoginStreak() {
-        const KEY_DATE = 'snow_last_login_date';
-        const KEY_STREAK = 'snow_login_streak';
-        const todayStr = new Date().toLocaleDateString('ja-JP'); 
-        const lastDate = localStorage.getItem(KEY_DATE);
-        let streak = parseInt(localStorage.getItem(KEY_STREAK) || '0', 10);
-
-        if (lastDate !== todayStr) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toLocaleDateString('ja-JP');
-            if (lastDate === yesterdayStr) { streak++; } 
-            else { streak = 1; }
-            localStorage.setItem(KEY_DATE, todayStr);
-            localStorage.setItem(KEY_STREAK, streak);
-        } else {
-            if(streak === 0) streak = 1;
-        }
-        const el = document.getElementById('login-streak-display');
-        if(el) el.innerText = '🔥' + streak;
+        const today = new Date().toLocaleDateString('ja-JP'); 
+        const last = localStorage.getItem('snow_last_login_date');
+        let streak = parseInt(localStorage.getItem('snow_login_streak')||'0', 10);
+        if (last !== today) {
+            const y = new Date(); y.setDate(y.getDate()-1);
+            if (last === y.toLocaleDateString('ja-JP')) streak++; else streak = 1;
+            localStorage.setItem('snow_last_login_date', today); localStorage.setItem('snow_login_streak', streak);
+        } else { if(streak===0) streak=1; }
+        if($id('login-streak-display')) $id('login-streak-display').innerText = '🔥' + streak;
     }
 
     function setupSlotTimerSVG() {
-        const container = UI.slot1;
-        if(!container) return;
-        const existing = container.querySelector('.slot-timer-svg');
-        if(existing) existing.remove();
-
-        const w = container.offsetWidth;
-        const h = container.offsetHeight;
+        const c = UI.slot1; if(!c) return;
+        if(c.querySelector('.slot-timer-svg')) c.querySelector('.slot-timer-svg').remove();
+        const w = c.offsetWidth, h = c.offsetHeight;
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg");
-        svg.setAttribute("class", "slot-timer-svg");
-        svg.setAttribute("width", "100%");
-        svg.setAttribute("height", "100%");
-        svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+        svg.setAttribute("class", "slot-timer-svg"); svg.setAttribute("width", "100%"); svg.setAttribute("height", "100%"); svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
         svg.style.position = 'absolute'; svg.style.left = '0'; svg.style.top = '0';
-
-        const cx = w / 2;
-        const pathStrL = `M ${cx} ${h} L 0 ${h} L 0 0 L ${cx} 0`;
-        const pathStrR = `M ${cx} ${h} L ${w} ${h} L ${w} 0 L ${cx} 0`;
-
-        const pathL = document.createElementNS(ns, "path");
-        pathL.setAttribute("d", pathStrL); pathL.setAttribute("class", "timer-path"); pathL.style.strokeWidth = "8px";
-        const pathR = document.createElementNS(ns, "path");
-        pathR.setAttribute("d", pathStrR); pathR.setAttribute("class", "timer-path"); pathR.style.strokeWidth = "8px";
-
-        svg.appendChild(pathL); svg.appendChild(pathR); container.appendChild(svg);
-        UI.timerPathL = pathL; UI.timerPathR = pathR;
-        
-        const lenL = pathL.getTotalLength(); const lenR = pathR.getTotalLength();
-        pathL.style.strokeDasharray = lenL; pathL.style.strokeDashoffset = 0;
-        pathR.style.strokeDasharray = lenR; pathR.style.strokeDashoffset = 0;
+        const cx = w/2;
+        const pL = document.createElementNS(ns, "path"); pL.setAttribute("d", `M ${cx} ${h} L 0 ${h} L 0 0 L ${cx} 0`); pL.setAttribute("class", "timer-path"); pL.style.strokeWidth="8px";
+        const pR = document.createElementNS(ns, "path"); pR.setAttribute("d", `M ${cx} ${h} L ${w} ${h} L ${w} 0 L ${cx} 0`); pR.setAttribute("class", "timer-path"); pR.style.strokeWidth="8px";
+        svg.appendChild(pL); svg.appendChild(pR); c.appendChild(svg);
+        UI.timerPathL = pL; UI.timerPathR = pR;
+        pL.style.strokeDasharray = pL.getTotalLength(); pL.style.strokeDashoffset = 0;
+        pR.style.strokeDasharray = pR.getTotalLength(); pR.style.strokeDashoffset = 0;
     }
-
     function updateTimerSVG(pct, color) {
-        if (!UI.timerPathL || !UI.timerPathR) return;
-        const totalLenL = UI.timerPathL.getTotalLength();
-        const totalLenR = UI.timerPathR.getTotalLength();
-        const offsetL = totalLenL * (1 - pct);
-        const offsetR = totalLenR * (1 - pct);
-        UI.timerPathL.style.strokeDashoffset = offsetL;
-        UI.timerPathR.style.strokeDashoffset = offsetR;
-        UI.timerPathL.style.stroke = color;
-        UI.timerPathR.style.stroke = color;
+        if (!UI.timerPathL) return;
+        const offL = UI.timerPathL.getTotalLength() * (1-pct);
+        const offR = UI.timerPathR.getTotalLength() * (1-pct);
+        UI.timerPathL.style.strokeDashoffset=offL; UI.timerPathR.style.strokeDashoffset=offR;
+        UI.timerPathL.style.stroke=color; UI.timerPathR.style.stroke=color;
     }
-
     function resetTimerVisuals() {
-        if (!UI.timerPathL || !UI.timerPathR) return;
-        UI.timerPathL.style.transition = 'none'; UI.timerPathR.style.transition = 'none';
-        UI.timerPathL.style.strokeDashoffset = 0; UI.timerPathR.style.strokeDashoffset = 0;
+        if (!UI.timerPathL) return;
+        UI.timerPathL.style.transition='none'; UI.timerPathR.style.transition='none';
+        UI.timerPathL.style.strokeDashoffset=0; UI.timerPathR.style.strokeDashoffset=0;
         void UI.timerPathL.offsetWidth;
-        UI.timerPathL.style.transition = 'stroke 0.1s linear'; UI.timerPathR.style.transition = 'stroke 0.1s linear';
+        UI.timerPathL.style.transition='stroke 0.1s linear'; UI.timerPathR.style.transition='stroke 0.1s linear';
     }
-
     function updateThemeClass() {
         if(!UI.appWrapper) return;
         UI.appWrapper.classList.remove('theme-easy','theme-normal','theme-hard','theme-extreme');
-        const key = STATE.currentModeKey;
-        if (key === 'EASY') UI.appWrapper.classList.add('theme-easy');
-        else if (key === 'NORMAL') UI.appWrapper.classList.add('theme-normal');
-        else if (key === 'HARD') UI.appWrapper.classList.add('theme-hard');
-        else if (key === 'EXTREME') UI.appWrapper.classList.add('theme-extreme');
+        UI.appWrapper.classList.add('theme-'+STATE.currentModeKey.toLowerCase());
     }
-
     function handleTapToStart() {
-        if (STATE.status !== 'IDLE') return;
-        if (STATE.isInputBlocked) return;
+        if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
         if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
-        if (UI.tuteModeSelect) {
-            UI.tuteModeSelect.style.display = 'flex';
-            if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex';
-            checkUnlocks();
-        }
+        if (UI.tuteModeSelect) { UI.tuteModeSelect.style.display = 'flex'; if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex'; checkUnlocks(); }
         adjustCentralLayout();
     }
-
     function toggleDimensionMode() {
-        if (STATE.status !== 'IDLE') return;
-        if (STATE.isInputBlocked) return;
+        if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
         STATE.isRandomMode = !STATE.isRandomMode;
-        updateToggleButtonText();
-        resetToIdle();
+        updateToggleButtonText(); resetToIdle();
     }
-
     function updateToggleButtonText() {
-        if(STATE.isRandomMode) {
-            UI.btnModeToggle.classList.add('random-on');
-            UI.btnModeToggle.innerHTML = `<span class="check">☑</span><span class="label">RANDOM</span>`;
-        } else {
-            UI.btnModeToggle.classList.remove('random-on');
-            UI.btnModeToggle.innerHTML = `<span class="check">☐</span><span class="label">RANDOM</span>`;
-        }
+        if(STATE.isRandomMode) { UI.btnModeToggle.classList.add('random-on'); UI.btnModeToggle.innerHTML = `<span class="check">☑</span><span class="label">RANDOM</span>`; } 
+        else { UI.btnModeToggle.classList.remove('random-on'); UI.btnModeToggle.innerHTML = `<span class="check">☐</span><span class="label">RANDOM</span>`; }
     }
-
     function resetToIdle() {
-        STATE.status = 'IDLE';
-        STATE.isInputBlocked = false;
+        STATE.status = 'IDLE'; STATE.isInputBlocked = false;
         UI.appWrapper.classList.remove('showing-result');
         STATE.isExtreme = (STATE.currentModeKey === 'EXTREME');
         updateThemeClass();
-        
-        /* Modal Reset */
         if(UI.resultModal) UI.resultModal.classList.remove('show');
         if(UI.virtualKeyboard) UI.virtualKeyboard.style.visibility = 'visible';
-        
-        const oldSvg = UI.slot1 ? UI.slot1.querySelector('.slot-timer-svg') : null;
-        if(oldSvg) oldSvg.remove();
-        if(UI.slot1) {
-            UI.slot1.style.border = '4px solid rgba(255,255,255,0.1)';
-            UI.slot1.style.borderBottom = 'none';
-        }
-
-        UI.failShutter.classList.remove('active');
-        UI.failShutter.style.display = 'flex';
-        UI.victoryShutter.classList.remove('active');
-        UI.victoryShutter.style.transition = 'none';
-        UI.victoryShutter.style.height = '0%';
-        void UI.victoryShutter.offsetHeight;
-        setTimeout(() => { UI.victoryShutter.style.transition = 'height 0.4s cubic-bezier(0.16, 1, 0.3, 1)'; }, 50);
-        
-        UI.tutorialOverlay.classList.add('active');
-        UI.hudModeLabel.classList.remove('show');
-        document.querySelectorAll('.eval-effect').forEach(e => e.remove());
-        updateToggleButtonText();
-        UI.btnModeToggle.classList.remove('disabled');
-        
-        // --- ボタン表示制御: アイドル状態に戻ったら表示 ---
+        if(UI.slot1 && UI.slot1.querySelector('.slot-timer-svg')) UI.slot1.querySelector('.slot-timer-svg').remove();
+        if(UI.slot1) { UI.slot1.style.border = '4px solid rgba(255,255,255,0.1)'; UI.slot1.style.borderBottom = 'none'; }
+        UI.failShutter.classList.remove('active'); UI.failShutter.style.display = 'flex';
+        UI.victoryShutter.classList.remove('active'); UI.victoryShutter.style.transition='none'; UI.victoryShutter.style.height='0%';
+        void UI.victoryShutter.offsetHeight; setTimeout(() => { UI.victoryShutter.style.transition='height 0.4s cubic-bezier(0.16,1,0.3,1)'; }, 50);
+        UI.tutorialOverlay.classList.add('active'); UI.hudModeLabel.classList.remove('show');
+        $qsa('.eval-effect').forEach(e => e.remove());
+        updateToggleButtonText(); UI.btnModeToggle.classList.remove('disabled');
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'flex';
         if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'flex';
         if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
-        // ---------------------------------------------
-
         UI.view1.innerHTML = ''; UI.view2.innerHTML = ''; UI.view3.innerHTML = '';
         checkUnlocks();
-        document.querySelectorAll('.mode-btn').forEach(b => {
-            b.style.transform = 'skewX(-15deg)';
-            setTimeout(() => { b.style.transform = ''; }, 50);
-        });
+        $qsa('.mode-btn').forEach(b => { b.style.transform='skewX(-15deg)'; setTimeout(() => b.style.transform='', 50); });
         updateModeButtons(STATE.currentModeKey);
         UI.bottomUi.classList.remove('bottom-ui-dimmed');
-        UI.tuteBigMsg.style.display = 'none';
-        UI.tuteBigMsg.classList.remove('pop');
+        UI.tuteBigMsg.style.display = 'none'; UI.tuteBigMsg.classList.remove('pop');
         closeHowTo();
-        
         if (UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
         if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
-        
         if (!STATE.hasPlayedOnce) {
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'inline-flex';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
@@ -951,720 +748,304 @@
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'flex';
         }
-        updateKeyboardLayoutForMode();
-        adjustCentralLayout();
+        updateKeyboardLayoutForMode(); adjustCentralLayout();
     }
-
     function checkUnlocks() {
-        const ranks = currentRanksStore();
-        const easyRank    = ranks['EASY'];
-        const normalRank = ranks['NORMAL'];
-        const hardRank    = ranks['HARD'];
+        const r = currentRanksStore();
         const bestEasyCH = STATE.saveData.bestEasyCH || 0;
-
-        const isNormalLocked = !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
-        const isHardLocked    = !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
-        const isExtremeLocked= !(bestEasyCH >= MODES['EASY'].rankThresholds.z || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
-
-        const setLock = (sel, locked) => {
-            document.querySelectorAll(sel).forEach(btn => {
-                if(locked) btn.classList.add('locked');
-                else btn.classList.remove('locked');
-            });
-        };
-        setLock('.mode-easy', false);
-        setLock('.mode-normal', isNormalLocked);
-        setLock('.mode-hard', isHardLocked);
-        setLock('.mode-extreme', isExtremeLocked);
+        const lockedN = !(isRankHigherOrEqual(r['EASY'],'A') || bestEasyCH>=10000);
+        const lockedH = !(isRankHigherOrEqual(r['EASY'],'S') || bestEasyCH>=10000 || isRankHigherOrEqual(r['NORMAL'],'A'));
+        const lockedE = !(bestEasyCH>=MODES['EASY'].rankThresholds.z || isRankHigherOrEqual(r['NORMAL'],'S') || isRankHigherOrEqual(r['HARD'],'A'));
+        const setL = (sel, l) => $qsa(sel).forEach(b => l ? b.classList.add('locked') : b.classList.remove('locked'));
+        setL('.mode-easy', false); setL('.mode-normal', lockedN); setL('.mode-hard', lockedH); setL('.mode-extreme', lockedE);
     }
-
-    function isModeLocked(modeKey) {
-        const ranks = currentRanksStore();
-        const easyRank    = ranks['EASY'];
-        const normalRank = ranks['NORMAL'];
-        const hardRank    = ranks['HARD'];
-        const bestEasyCH = STATE.saveData.bestEasyCH || 0;
-        if (modeKey === 'EASY') return false;
-        if (modeKey === 'NORMAL') return !(isRankHigherOrEqual(easyRank, 'A') || bestEasyCH >= 10000);
-        if (modeKey === 'HARD') return !(isRankHigherOrEqual(easyRank, 'S') || bestEasyCH >= 10000 || isRankHigherOrEqual(normalRank, 'A'));
-        if (modeKey === 'EXTREME') return !(bestEasyCH >= MODES['EASY'].rankThresholds.z || isRankHigherOrEqual(normalRank, 'S') || isRankHigherOrEqual(hardRank, 'A'));
+    function isModeLocked(k) {
+        const r = currentRanksStore(); const best = STATE.saveData.bestEasyCH || 0;
+        if(k==='EASY') return false;
+        if(k==='NORMAL') return !(isRankHigherOrEqual(r['EASY'],'A') || best>=10000);
+        if(k==='HARD') return !(isRankHigherOrEqual(r['EASY'],'S') || best>=10000 || isRankHigherOrEqual(r['NORMAL'],'A'));
+        if(k==='EXTREME') return !(best>=MODES['EASY'].rankThresholds.z || isRankHigherOrEqual(r['NORMAL'],'S') || isRankHigherOrEqual(r['HARD'],'A'));
         return true;
     }
-
-    function handleModeSelect(modeKey, btnEl) {
-        if(STATE.status !== 'IDLE') return;
-        if(STATE.isInputBlocked) return;
-        if (isModeLocked(modeKey)) return;
-        if (btnEl) triggerRipple(btnEl);
-        STATE.currentModeKey = modeKey;
-        STATE.isExtreme = (modeKey === 'EXTREME');
-        updateThemeClass();
-        updateModeButtons(modeKey);
-        startCountdown();
+    function handleModeSelect(k, btn) {
+        if(STATE.status!=='IDLE' || STATE.isInputBlocked || isModeLocked(k)) return;
+        if(btn) triggerRipple(btn);
+        STATE.currentModeKey = k; STATE.isExtreme = (k==='EXTREME');
+        updateThemeClass(); updateModeButtons(k); startCountdown();
     }
-
     function updateModeButtons(activeKey) {
-        document.querySelectorAll('.mode-btn').forEach(btn => {
+        $qsa('.mode-btn').forEach(btn => {
             btn.classList.remove('active-mode');
-            if (btn.classList.contains('mode-easy') && activeKey === 'EASY') btn.classList.add('active-mode');
-            if (btn.classList.contains('mode-normal') && activeKey === 'NORMAL') btn.classList.add('active-mode');
-            if (btn.classList.contains('mode-hard') && activeKey === 'HARD') btn.classList.add('active-mode');
-            if (btn.classList.contains('mode-extreme') && activeKey === 'EXTREME') btn.classList.add('active-mode');
+            if(btn.classList.contains('mode-'+activeKey.toLowerCase())) btn.classList.add('active-mode');
         });
     }
-
     function startCountdown() {
-        STATE.status = 'COUNTDOWN';
-        STATE.isInputBlocked = true;
-        STATE.hasPlayedOnce = true;
-        
-        // --- ボタン非表示: ゲーム開始カウントダウン時に消す ---
+        STATE.status = 'COUNTDOWN'; STATE.isInputBlocked = true; STATE.hasPlayedOnce = true;
         UI.btnModeToggle.classList.add('disabled');
-        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none'; // キーボード切替を隠す
-        if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'none';         // RANDOMボタンを隠す
-        if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'none';     // HOW TOボタンを隠す
-        // --------------------------------------------------
-
+        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none';
+        if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'none';
+        if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'none';
         UI.bottomUi.classList.add('bottom-ui-dimmed');
         if(UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
-        
-        const seq = ['READY', '3', '2', '1'];
-        let idx = 0;
-        UI.tuteBigMsg.style.display = 'block';
-        UI.tuteBigMsg.innerText = seq[0];
-        UI.tuteBigMsg.classList.add('pop');
+        const seq = ['READY', '3', '2', '1']; let idx = 0;
+        UI.tuteBigMsg.style.display = 'block'; UI.tuteBigMsg.innerText = seq[0]; UI.tuteBigMsg.classList.add('pop');
         if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
         if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
         const mode = MODES[STATE.currentModeKey];
         UI.hudModeLabel.innerText = `${STATE.currentModeKey}${STATE.isRandomMode ? ' [R]' : ''}`;
-        UI.hudModeLabel.style.borderColor = mode.color;
-        UI.hudModeLabel.style.color = mode.color;
-        UI.hudModeLabel.classList.add('show');
+        UI.hudModeLabel.style.borderColor = mode.color; UI.hudModeLabel.style.color = mode.color; UI.hudModeLabel.classList.add('show');
         adjustCentralLayout();
-        const timer = setInterval(() => {
-            idx++;
-            UI.tuteBigMsg.classList.remove('pop');
-            void UI.tuteBigMsg.offsetWidth;
-            if(idx < seq.length) {
-                UI.tuteBigMsg.innerText = seq[idx];
-                UI.tuteBigMsg.classList.add('pop');
-            } else {
-                clearInterval(timer);
-                UI.tutorialOverlay.classList.remove('active');
-                UI.tuteBigMsg.style.display = 'none';
-                startGame();
-            }
-        }, 600);
+        /* 修正: カウントダウンを高速化 (600ms -> 300ms) */
+        const t = setInterval(() => {
+            idx++; UI.tuteBigMsg.classList.remove('pop'); void UI.tuteBigMsg.offsetWidth;
+            if(idx < seq.length) { UI.tuteBigMsg.innerText = seq[idx]; UI.tuteBigMsg.classList.add('pop'); }
+            else { clearInterval(t); UI.tutorialOverlay.classList.remove('active'); UI.tuteBigMsg.style.display = 'none'; startGame(); }
+        }, 300);
     }
-
     function startGame() {
-        STATE.status = 'PLAYING';
-        STATE.isInputBlocked = false;
-        STATE.score = 0;
-        STATE.questionCount = 0;
-        STATE.generatedCount = 0;
-        STATE.totalPlayTime = 0;
-        STATE.missedLog = [];
-        STATE.queue = [];
-        STATE.currentInput = '';
-        STATE.statsDetail = { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } };
-        STATE.randomAtPlay = STATE.isRandomMode;
-        STATE.lastCount = null;
-        STATE.lastShapeSig = null;
-        STATE.consecutiveCountValue = 0;
+        STATE.status = 'PLAYING'; STATE.isInputBlocked = false; STATE.score = 0; STATE.questionCount = 0; STATE.generatedCount = 0;
+        STATE.totalPlayTime = 0; STATE.missedLog = []; STATE.queue = []; STATE.currentInput = '';
+        STATE.statsDetail = { marvelous: {count:0,time:0}, excellent: {count:0,time:0}, great: {count:0,time:0}, good: {count:0,time:0}, ok: {count:0,time:0} };
+        STATE.randomAtPlay = STATE.isRandomMode; STATE.lastCount = null; STATE.lastShapeSig = null; STATE.consecutiveCountValue = 0;
         if(UI.slot1) UI.slot1.style.border = 'none';
-        setupSlotTimerSVG();
-        addQueueItem(); addQueueItem(); addQueueItem();
-        STATE.current = STATE.queue.shift();
-        renderQueue();
-        resetTimerVisuals();
-        STATE.lapStartTime = Date.now();
-        if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
-        updateKeyboardLayoutForMode();
-        gameLoop();
+        setupSlotTimerSVG(); addQueueItem(); addQueueItem(); addQueueItem();
+        STATE.current = STATE.queue.shift(); renderQueue(); resetTimerVisuals();
+        STATE.lapStartTime = Date.now(); if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
+        updateKeyboardLayoutForMode(); gameLoop();
     }
-
     function gameLoop() {
         if(STATE.status !== 'PLAYING') return;
-        const now = Date.now();
-        const mode = MODES[STATE.currentModeKey];
-        const currentLap = (now - STATE.lapStartTime) / 1000;
-        if(currentLap > mode.time) { handleMiss("TIME", "-", STATE.current.count); return; }
-        const maxTime = mode.time;
-        const pct = Math.max(0, 1 - (currentLap / maxTime));
-        const jud = mode.judgments;
-        let colorCode = '#a0a0a0';
-        if (currentLap <= jud.marv) colorCode = '#fff200';
-        else if (currentLap <= jud.exc) colorCode = '#00ffff';
-        else if (currentLap <= jud.great) colorCode = '#00ff2a';
-        else if (jud.good && currentLap <= jud.good) colorCode = '#ffaa00';
-        else if (jud.ok && currentLap <= jud.ok) colorCode = '#b0b0b0';
-        else colorCode = '#ff0033';
-        updateTimerSVG(pct, colorCode);
-        STATE.rafId = requestAnimationFrame(gameLoop);
+        const now = Date.now(); const mode = MODES[STATE.currentModeKey];
+        const lap = (now - STATE.lapStartTime) / 1000;
+        if(lap > mode.time) { handleMiss("TIME", "-", STATE.current.count); return; }
+        const pct = Math.max(0, 1 - (lap / mode.time));
+        const j = mode.judgments; let c = '#a0a0a0';
+        if (lap <= j.marv) c = '#fff200'; else if (lap <= j.exc) c = '#00ffff'; else if (lap <= j.great) c = '#00ff2a';
+        else if (j.good && lap <= j.good) c = '#ffaa00'; else if (j.ok && lap <= j.ok) c = '#b0b0b0'; else c = '#ff0033';
+        updateTimerSVG(pct, c); STATE.rafId = requestAnimationFrame(gameLoop);
     }
-
-    function processInput(val) {
-        if(!STATE.current || STATE.isInputBlocked) return;
-        checkAnswer(val);
-    }
-
+    function processInput(val) { if(!STATE.current || STATE.isInputBlocked) return; checkAnswer(val); }
     function processInputExtreme(key) {
         if(!STATE.current || STATE.isInputBlocked) return;
         if (key === 'DEL') { STATE.currentInput = STATE.currentInput.slice(0, -1); return; }
-        const targetStr = String(STATE.current.count);
-        const targetLen = targetStr.length;
-        if (STATE.currentInput.length < targetLen) { STATE.currentInput += key; }
-        if (STATE.currentInput.length === targetLen) {
-            const val = parseInt(STATE.currentInput, 10);
-            checkAnswer(val);
-            STATE.currentInput = '';
-        }
+        const tLen = String(STATE.current.count).length;
+        if (STATE.currentInput.length < tLen) STATE.currentInput += key;
+        if (STATE.currentInput.length === tLen) { checkAnswer(parseInt(STATE.currentInput, 10)); STATE.currentInput = ''; }
     }
-
     function checkAnswer(val) {
-        const now = Date.now();
-        let delta = (now - STATE.lapStartTime) / 1000;
+        const delta = (Date.now() - STATE.lapStartTime) / 1000;
         if(val === STATE.current.count) {
-            const effectiveTime = Math.max(delta, CONFIG.capPerItemSec);
-            STATE.totalPlayTime += effectiveTime;
-            const mode = MODES[STATE.currentModeKey];
-            const jud = mode.judgments;
-            let gradeKey = "miss";
-            let gradeLabel = "MISS";
-            if (delta <= jud.marv) { gradeKey = "marvelous"; gradeLabel = "MARVELOUS"; }
-            else if (delta <= jud.exc) { gradeKey = "excellent"; gradeLabel = "EXCELLENT"; }
-            else if (delta <= jud.great) { gradeKey = "great"; gradeLabel = "GREAT"; }
-            else if (jud.good && delta <= jud.good) { gradeKey = "good"; gradeLabel = "GOOD"; }
-            else if (jud.ok && delta <= jud.ok) { gradeKey = "ok"; gradeLabel = "OK"; }
-            else { handleMiss("SLOW", val, STATE.current.count); return; }
-            STATE.statsDetail[gradeKey].count++;
-            STATE.statsDetail[gradeKey].time += effectiveTime;
-            triggerEvalEffect(gradeLabel);
-            flashSlot(gradeLabel);
-            if(STATE.questionCount >= mode.count - 1) { UI.view1.innerHTML = ''; gameOver("FINISHED"); } 
-            else { nextQuestion(); }
-        } else {
-            handleMiss("TYPE", val, STATE.current.count);
-        }
+            const eff = Math.max(delta, CONFIG.capPerItemSec);
+            STATE.totalPlayTime += eff;
+            const mode = MODES[STATE.currentModeKey]; const j = mode.judgments;
+            let k="miss", l="MISS";
+            if (delta <= j.marv) { k="marvelous"; l="MARVELOUS"; } else if (delta <= j.exc) { k="excellent"; l="EXCELLENT"; }
+            else if (delta <= j.great) { k="great"; l="GREAT"; } else if (j.good && delta <= j.good) { k="good"; l="GOOD"; }
+            else if (j.ok && delta <= j.ok) { k="ok"; l="OK"; } else { handleMiss("SLOW", val, STATE.current.count); return; }
+            STATE.statsDetail[k].count++; STATE.statsDetail[k].time += eff;
+            triggerEvalEffect(l); flashSlot(l);
+            if(STATE.questionCount >= mode.count - 1) { UI.view1.innerHTML = ''; gameOver("FINISHED"); } else nextQuestion();
+        } else handleMiss("TYPE", val, STATE.current.count);
     }
-
     function flashSlot(grade) {
-        const container = UI.slot1;
-        const old = container.querySelector('.slot-flash-overlay');
-        if(old) old.remove();
-        const el = document.createElement('div');
-        el.className = 'slot-flash-overlay';
+        const c = UI.slot1; if(c.querySelector('.slot-flash-overlay')) c.querySelector('.slot-flash-overlay').remove();
+        const el = document.createElement('div'); el.className = 'slot-flash-overlay';
         let cls = 'flash-ok';
-        if(grade==='MARVELOUS') cls='flash-exc';
-        else if(grade==='EXCELLENT') cls='flash-perf';
-        else if(grade==='GREAT') cls='flash-grt';
-        else if(grade==='GOOD') cls='flash-good';
-        else if(grade==='MISS') cls='flash-miss';
-        container.classList.remove('flash-exc','flash-perf','flash-grt','flash-good','flash-ok','flash-miss');
-        container.classList.add(cls);
-        container.appendChild(el);
+        if(grade==='MARVELOUS') cls='flash-exc'; else if(grade==='EXCELLENT') cls='flash-perf';
+        else if(grade==='GREAT') cls='flash-grt'; else if(grade==='GOOD') cls='flash-good'; else if(grade==='MISS') cls='flash-miss';
+        c.classList.remove('flash-exc','flash-perf','flash-grt','flash-good','flash-ok','flash-miss');
+        c.classList.add(cls); c.appendChild(el);
     }
-
-    function handleMiss(reason, input, answer) {
-        let shapeCopy = STATE.is3DMode ? STATE.current.shape.map(r => [...r]) : [...STATE.current.shape];
-        let layoutCopy = STATE.current.shape._rndPositions ? STATE.current.shape._rndPositions.map(p => ({ x: p.x, y: p.y })) : null;
-        STATE.missedLog.push({
-            input: input, answer: answer, shape: shapeCopy, layout: layoutCopy,
-            mode: STATE.currentModeKey, is3D: STATE.is3DMode, isRandom: STATE.randomAtPlay
-        });
-        STATE.totalPlayTime += (Date.now() - STATE.lapStartTime) / 1000;
-        let msg = "NICE TRY";
-        if (reason === "TIME") msg = "TIME OVER";
-        else if (reason === "SLOW") msg = "TOO SLOW";
-        flashSlot("MISS");
-        gameOver(msg);
+    function handleMiss(res, inp, ans) {
+        STATE.missedLog.push({ input:inp, answer:ans, shape:STATE.is3DMode?STATE.current.shape.map(r=>[...r]):[...STATE.current.shape], layout:STATE.current.shape._rndPositions?STATE.current.shape._rndPositions.map(p=>({x:p.x,y:p.y})):null, mode:STATE.currentModeKey, is3D:STATE.is3DMode, isRandom:STATE.randomAtPlay });
+        STATE.totalPlayTime += (Date.now() - STATE.lapStartTime)/1000;
+        flashSlot("MISS"); gameOver(res==="TIME"?"TIME OVER":res==="SLOW"?"TOO SLOW":"NICE TRY");
     }
-
     function nextQuestion() {
-        STATE.questionCount++;
-        if(STATE.queue.length < 3) addQueueItem();
-        STATE.current = STATE.queue.shift();
-        renderQueue();
-        resetTimerVisuals();
-        STATE.lapStartTime = Date.now();
-        STATE.currentInput = '';
+        STATE.questionCount++; if(STATE.queue.length < 3) addQueueItem();
+        STATE.current = STATE.queue.shift(); renderQueue(); resetTimerVisuals();
+        STATE.lapStartTime = Date.now(); STATE.currentInput = '';
     }
-
-    function triggerEvalEffect(text) {
-        document.querySelectorAll('.eval-effect').forEach(e => e.remove());
-        const el = document.createElement('div');
-        el.className = 'eval-effect';
-        el.innerText = text;
-        let color = "#fff";
-        if(text === "MARVELOUS") color = "var(--g-exc)";
-        else if(text === "EXCELLENT") color = "var(--g-perf)";
-        else if(text === "GREAT") color = "var(--g-grt)";
-        else if(text === "GOOD") color = "var(--g-good)";
-        el.style.color = color;
-        document.body.appendChild(el);
-        setTimeout(() => { if(el && el.parentNode) el.parentNode.removeChild(el); }, 1000);
+    function triggerEvalEffect(txt) {
+        $qsa('.eval-effect').forEach(e => e.remove());
+        const el = document.createElement('div'); el.className = 'eval-effect'; el.innerText = txt;
+        el.style.color = (txt==="MARVELOUS"?"var(--g-exc)":txt==="EXCELLENT"?"var(--g-perf)":txt==="GREAT"?"var(--g-grt)":txt==="GOOD"?"var(--g-good)":"#fff");
+        document.body.appendChild(el); setTimeout(() => { if(el.parentNode) el.parentNode.removeChild(el); }, 1000);
     }
-
     function addQueueItem() {
-        const modeKey = STATE.currentModeKey;
-        const mode = MODES[modeKey];
-        if(STATE.generatedCount >= mode.count) { STATE.queue.push({ count: null, shape: [] }); return; }
+        const mk = STATE.currentModeKey; const mode = MODES[mk];
+        if(STATE.generatedCount >= mode.count) { STATE.queue.push({count:null,shape:[]}); return; }
         let n;
-        const maxAttempts = 2000;
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            if (modeKey === 'EASY') {
-                const r = Math.random() * 100;
-                if (r < 28) n = 2; else if (r < 56) n = 3; else if (r < 85) n = 4; else n = 5;
-            }
-            else if (modeKey === 'NORMAL') {
-                const r = Math.random() * 100;
-                if (r < 25) { n = (Math.random() < 0.5) ? 3 : 4; } 
-                else { n = 5 + Math.floor(Math.random() * 4); if (Math.random() > 0.9) n = 9; }
-            }
-            else if (modeKey === 'HARD') {
-                if (STATE.generatedCount < 5) { n = Math.floor(10 + Math.random() * 6); } 
-                else { n = Math.floor(15 + Math.random() * 5); }
-            }
-            else if (modeKey === 'EXTREME') {
-                const q = STATE.generatedCount + 1;
-                let min, max;
-                if (q === 1) { min=13; max=16; } else if (q <= 3) { min=17; max=22; }
-                else if (q <= 5) { min=23; max=29; } else if (q <= 7) { min=30; max=35; }
-                else if (q <= 9) { min=36; max=39; } else { min=40; max=42; }
-                n = Math.floor(min + Math.random() * (max - min + 1));
-            }
-            let maxH = 6; let cols = 3; 
-            if(modeKey === 'EASY') { maxH = 3; cols = 3; }
-            else if(modeKey === 'NORMAL') { maxH = 5; cols = 3; }
-            else if(modeKey === 'HARD') { 
-                maxH = 7; 
-                let lastCols = 0;
-                if (STATE.queue.length > 0) {
-                    const lastItem = STATE.queue[STATE.queue.length - 1];
-                    if (lastItem && Array.isArray(lastItem.shape)) lastCols = lastItem.shape.length;
-                }
-                if (lastCols === 5) { cols = 4; } else { cols = Math.random() < 0.5 ? 4 : 5; }
-            }
-            else if(modeKey === 'EXTREME') { maxH = 9; cols = 9; }
+        for (let i=0; i<2000; i++) {
+            if(mk==='EASY') { const r=Math.random()*100; n = (r<28)?2:(r<56)?3:(r<85)?4:5; }
+            else if(mk==='NORMAL') { const r=Math.random()*100; if(r<25) n=(Math.random()<0.5)?3:4; else { n=5+Math.floor(Math.random()*4); if(Math.random()>0.9)n=9; } }
+            else if(mk==='HARD') n = (STATE.generatedCount<5) ? Math.floor(10+Math.random()*6) : Math.floor(15+Math.random()*5);
+            else { const q=STATE.generatedCount+1; let min,max; if(q===1){min=13;max=16;}else if(q<=3){min=17;max=22;}else if(q<=5){min=23;max=29;}else if(q<=7){min=30;max=35;}else if(q<=9){min=36;max=39;}else{min=40;max=42;} n=Math.floor(min+Math.random()*(max-min+1)); }
             
-            let shapeData, trueCount, sig;
-            if (STATE.is3DMode) { shapeData = generateStadium3D_Strict(n, cols, maxH); } 
-            else { shapeData = generateShape2D_Connected(n, cols, maxH); }
+            let maxH=(mk==='EASY'?3:mk==='NORMAL'?5:mk==='HARD'?7:9), cols=(mk==='EASY'||mk==='NORMAL'?3:mk==='HARD'?4:9);
+            if(mk==='HARD' && STATE.queue.length>0 && STATE.queue[STATE.queue.length-1].shape.length===5) cols=4; else if(mk==='HARD') cols=Math.random()<0.5?4:5;
             
-            trueCount = 0;
-            if (STATE.is3DMode) shapeData.forEach(r => r.forEach(h => trueCount += h));
-            else shapeData.forEach(h => trueCount += h);
-            if(trueCount === 0 && n > 0) trueCount = 1;
-            
-            sig = shapeSignature(shapeData, STATE.is3DMode);
-            const isSameCount = (STATE.lastCount !== null && trueCount === STATE.lastCount);
-            const isSameShape = (STATE.lastShapeSig !== null && sig === STATE.lastShapeSig);
-            
-            if (isSameShape) continue; 
-            if (isSameCount) { if (STATE.consecutiveCountValue >= 2) { continue; } }
-            if (isSameCount) { STATE.consecutiveCountValue++; } else { STATE.consecutiveCountValue = 1; }
-            
-            STATE.lastCount = trueCount;
-            STATE.lastShapeSig = sig;
-            STATE.queue.push({ count: trueCount, shape: shapeData });
-            break;
+            let sData = STATE.is3DMode ? generateStadium3D_Strict(n,cols,maxH) : generateShape2D_Connected(n,cols,maxH);
+            let tCount = 0; if(STATE.is3DMode) sData.forEach(r=>r.forEach(h=>tCount+=h)); else sData.forEach(h=>tCount+=h);
+            if(tCount===0 && n>0) tCount=1;
+            const sig = JSON.stringify(sData);
+            if((STATE.lastShapeSig && sig===STATE.lastShapeSig) || (STATE.lastCount===tCount && STATE.consecutiveCountValue>=2)) continue;
+            if(STATE.lastCount===tCount) STATE.consecutiveCountValue++; else STATE.consecutiveCountValue=1;
+            STATE.lastCount=tCount; STATE.lastShapeSig=sig; STATE.queue.push({count:tCount, shape:sData}); break;
         }
         STATE.generatedCount++;
     }
-
-    function shapeSignature(shapeData, is3D) {
-        try { if (!shapeData) return 'null'; return JSON.stringify(shapeData); } catch(e) { return 'err'; }
+    function generateShape2D_Connected(n, c, mh) {
+        const a = new Array(c).fill(0); a[Math.floor(c/2)]++; let p=1, f=0;
+        while(p<n) {
+            let cand=[]; for(let i=0; i<c; i++) { if(a[i]<mh && (a[i]>0 || (i>0&&a[i-1]>0) || (i<c-1&&a[i+1]>0))) cand.push(i); }
+            if(cand.length===0) for(let i=0;i<c;i++)if(a[i]<mh)cand.push(i);
+            if(cand.length===0) break;
+            a[cand[Math.floor(Math.random()*cand.length)]]++; p++; f++; if(f>100) break;
+        } return a;
     }
-
-    function generateShape2D_Connected(n, cols, maxHeight) {
-        const arr = new Array(cols).fill(0);
-        let currentIdx = Math.floor(cols / 2);
-        arr[currentIdx]++;
-        let placed = 1;
-        let failCount = 0;
-        while(placed < n) {
-            let candidates = [];
-            for(let i=0; i<cols; i++) {
-                let isAdj = false;
-                if(arr[i] > 0) isAdj = true;
-                if(i > 0 && arr[i-1] > 0) isAdj = true;
-                if(i < cols-1 && arr[i+1] > 0) isAdj = true;
-                if(isAdj && arr[i] < maxHeight) candidates.push(i);
-            }
-            if(candidates.length === 0) { for(let i=0; i<cols; i++) { if(arr[i] < maxHeight) { candidates.push(i); } } }
-            if(candidates.length === 0) break;
-            const pick = candidates[Math.floor(Math.random() * candidates.length)];
-            arr[pick]++; placed++; failCount++;
-            if(failCount > 100) break;
-        }
-        return arr;
+    function generateStadium3D_Strict(n, s, mh) {
+        const g=Array(s).fill(0).map(()=>Array(s).fill(0)); let p=0,f=0;
+        while(p<n) {
+            let cand=[];
+            for(let x=0;x<s;x++)for(let z=0;z<s;z++){ const h=g[x][z]; if(h<mh && !(x<s-1 && h+1>g[x+1][z]) && !(z<s-1 && h+1>g[x][z+1])) cand.push({x,z}); }
+            if(cand.length===0) break;
+            const k=cand[Math.floor(Math.random()*cand.length)]; g[k.x][k.z]++; p++; f++; if(f>100) break;
+        } return g;
     }
-
-    function generateStadium3D_Strict(n, size, maxHeight) {
-        const grid = Array(size).fill(0).map(() => Array(size).fill(0));
-        let placed = 0; let failCount = 0;
-        while(placed < n) {
-            let candidates = [];
-            for(let x=0; x<size; x++) {
-                for(let z=0; z<size; z++) {
-                    const h = grid[x][z];
-                    if (h >= maxHeight) continue;
-                    let canRaise = true;
-                    if (x < size-1 && (h + 1) > grid[x+1][z]) canRaise = false;
-                    if (z < size-1 && (h + 1) > grid[x][z+1]) canRaise = false;
-                    if (canRaise) candidates.push({x, z});
-                }
-            }
-            if (candidates.length === 0) break;
-            const pick = candidates[Math.floor(Math.random() * candidates.length)];
-            grid[pick.x][pick.z]++; placed++; failCount++;
-            if(failCount > 100) break;
-        }
-        return grid;
-    }
-
     function renderQueue() {
-        renderShape(UI.view1, STATE.current ? STATE.current.shape : [], STATE.is3DMode, STATE.randomAtPlay, STATE.currentModeKey);
-        renderShape(UI.view2, STATE.queue[0] ? STATE.queue[0].shape : [], STATE.is3DMode, STATE.randomAtPlay, STATE.currentModeKey);
-        renderShape(UI.view3, STATE.queue[1] ? STATE.queue[1].shape : [], STATE.is3DMode, STATE.randomAtPlay, STATE.currentModeKey);
+        renderShape(UI.view1, STATE.current?STATE.current.shape:[]); renderShape(UI.view2, STATE.queue[0]?STATE.queue[0].shape:[]); renderShape(UI.view3, STATE.queue[1]?STATE.queue[1].shape:[]);
     }
-
-    function renderShape(el, shapeData, is3D, useRandom, modeKeyOverride) {
-        if(!el) return;
-        el.innerHTML = '';
-        if(!shapeData) return;
-        const mk = modeKeyOverride || STATE.currentModeKey;
-        const modeClass = 'mode-' + mk.toLowerCase();
-        const randomMode = (useRandom !== undefined) ? useRandom : STATE.isRandomMode;
-        if(is3D) {
-            if(!Array.isArray(shapeData[0])) { render2D(el, shapeData, modeClass, randomMode); return; }
-            render3D(el, shapeData, modeClass);
+    function renderShape(el, d) {
+        if(!el) return; el.innerHTML=''; if(!d) return;
+        const mc = 'mode-'+STATE.currentModeKey.toLowerCase();
+        if(STATE.is3DMode) render3D(el,d,mc); else render2D(el,Array.isArray(d[0])?d.flat().filter(h=>h>0):d,mc,STATE.randomAtPlay);
+    }
+    function render2D(el, arr, mc, rnd) {
+        const t = Array.isArray(arr)?arr.reduce((a,b)=>a+b,0):0; if(t<=0) return;
+        if(rnd) {
+            const c = document.createElement('div'); c.className='cluster-container random-layout'; el.appendChild(c);
+            let pos = arr._rndPositions || [];
+            if(pos.length!==t) {
+                pos=[]; const used=[]; const r=el.getBoundingClientRect(), W=r.width||window.innerWidth, H=r.height||(window.innerHeight*0.5), S=Math.min(window.innerWidth*0.075,30);
+                for(let i=0; i<t; i++) {
+                    let best={pct:{x:50,y:50},px:{l:0,t:0,r:0,b:0}};
+                    for(let k=0; k<200; k++) {
+                        const xp=6+Math.random()*88, yp=28+Math.random()*64, xPx=(xp/100)*W, yPx=(yp/100)*H;
+                        const l=xPx-S/2, tt=yPx-S/2, rr=l+S, bb=tt+S;
+                        if(!used.some(u=>!(rr<=u.px.l || l>=u.px.r || bb<=u.px.t || tt>=u.px.b))) { best={pct:{x:xp,y:yp},px:{l:l,t:tt,r:rr,b:bb}}; break; }
+                    } used.push(best); pos.push(best.pct);
+                } arr._rndPositions = pos;
+            }
+            pos.forEach(p => { const b=document.createElement('div'); b.className='block '+mc+' block-random'; b.style.left=p.x+'%'; b.style.top=p.y+'%'; b.style.transform='translate(-50%,-50%)'; c.appendChild(b); });
         } else {
-            if(shapeData.length > 0 && Array.isArray(shapeData[0])) {
-                let flat = []; shapeData.forEach(r => r.forEach(h => { if(h>0) flat.push(h); }));
-                render2D(el, flat, modeClass, randomMode);
-            } else { render2D(el, shapeData, modeClass, randomMode); }
+            const c=document.createElement('div'); c.className='cluster-container';
+            arr.forEach(h=>{ if(h===0)return; const col=document.createElement('div'); col.className='block-column'; for(let i=0;i<h;i++){const b=document.createElement('div');b.className='block '+mc;col.appendChild(b);} c.appendChild(col); });
+            el.appendChild(c);
         }
     }
-
-    function render2D(el, arr, modeClass, randomMode) {
-        let totalBlocks = 0;
-        if(Array.isArray(arr)) totalBlocks = arr.reduce((sum, h) => sum + h, 0);
-        if (totalBlocks <= 0) return;
-        if (randomMode) {
-            const container = document.createElement('div');
-            container.className = 'cluster-container random-layout';
-            el.appendChild(container);
-            let positions = arr._rndPositions;
-            if (!positions || positions.length !== totalBlocks) {
-                positions = []; const used = [];
-                const rect = el.getBoundingClientRect();
-                const containerW = rect.width || window.innerWidth;
-                const containerH = rect.height || (window.innerHeight * 0.5);
-                const computedSize = window.innerWidth * 0.075;
-                const maxPx = 30;
-                const blockS = Math.min(computedSize, maxPx);
-                const topBandPct = 28; const bottomBandPct = 8; const sideMarginPct = 6;
-                for (let i = 0; i < totalBlocks; i++) {
-                    let bestCandidate = null;
-                    for(let attempt=0; attempt<2000; attempt++) {
-                         const xp = sideMarginPct + Math.random() * (100 - sideMarginPct*2);
-                         const yp = topBandPct + Math.random() * (100 - topBandPct - bottomBandPct);
-                         const xPx = (xp / 100) * containerW;
-                         const yPx = (yp / 100) * containerH;
-                         const l1 = xPx - blockS/2; const t1 = yPx - blockS/2; const r1 = l1 + blockS; const b1 = t1 + blockS;
-                         let isStrictlyOverlapping = false;
-                         for(let u of used) {
-                             const l2 = u.px.l, t2 = u.px.t, r2 = u.px.r, b2 = u.px.b;
-                             if (!(r1 <= l2 || l1 >= r2 || b1 <= t2 || t1 >= b2)) { isStrictlyOverlapping = true; break; }
-                         }
-                         if (!isStrictlyOverlapping) { bestCandidate = { pct: {x: xp, y: yp}, px: {l: l1, t: t1, r: r1, b: b1} }; break; }
-                    }
-                    if (!bestCandidate) {
-                         const xp = sideMarginPct + Math.random() * (100 - sideMarginPct*2);
-                         const yp = topBandPct + Math.random() * (100 - topBandPct - bottomBandPct);
-                         bestCandidate = { pct: {x: xp, y: yp}, px: {l:0, t:0, r:0, b:0} };
-                    }
-                    used.push(bestCandidate); positions.push(bestCandidate.pct);
-                }
-                arr._rndPositions = positions;
-            }
-            positions.forEach(p => {
-                const b = document.createElement('div');
-                b.className = 'block ' + modeClass + ' block-random';
-                b.style.left = p.x + '%'; b.style.top  = p.y + '%';
-                b.style.transform = 'translate(-50%, -50%)';
-                container.appendChild(b);
-            });
-            return;
-        }
-        const container = document.createElement('div');
-        container.className = 'cluster-container';
-        arr.forEach(h => {
-            if(h === 0) return;
-            const col = document.createElement('div'); col.className = 'block-column';
-            for(let i=0; i<h; i++) { const b = document.createElement('div'); b.className = 'block ' + modeClass; col.appendChild(b); }
-            container.appendChild(col);
-        });
-        el.appendChild(container);
+    function render3D(el, g, mc) {
+        const c=document.createElement('div'); c.className='cluster-container real-3d';
+        const bs=parseInt(getComputedStyle(document.body).getPropertyValue('--block-size-3d')), off=(g.length*bs)/2 - bs/2;
+        let cubes=[];
+        g.forEach((r,x)=>{ r.forEach((h,z)=>{ if(h===0)return; for(let y=0;y<h;y++) cubes.push({html:createCubeHTML(mc,(x*bs)-off, y*bs, (z*bs)-off), k:x-z}); }); });
+        cubes.sort((a,b)=>a.k-b.k).forEach(o=>c.appendChild(o.html)); el.appendChild(c);
     }
-
-    function render3D(el, grid, modeClass) {
-        const container = document.createElement('div'); container.className = 'cluster-container real-3d';
-        const style = getComputedStyle(document.body);
-        const blockSize = parseInt(style.getPropertyValue('--block-size-3d'));
-        const gridSize = grid.length;
-        const offset = (gridSize * blockSize) / 2 - (blockSize / 2);
-        let cubes = [];
-        grid.forEach((row, xIdx) => {
-            row.forEach((height, zIdx) => {
-                if(height === 0) return;
-                for(let y=0; y<height; y++) {
-                    const tx = (xIdx * blockSize) - offset;
-                    const tz = (zIdx * blockSize) - offset;
-                    const ty = y * blockSize;
-                    cubes.push({ html: createCubeHTML(modeClass, tx, ty, tz), sortKey: (xIdx - zIdx) });
-                }
-            });
-        });
-        cubes.sort((a, b) => a.sortKey - b.sortKey);
-        cubes.forEach(c => container.appendChild(c.html));
-        el.appendChild(container);
+    function createCubeHTML(mc,x,y,z) {
+        const c=document.createElement('div'); c.className='cube '+mc; c.style.transform=`translateX(${x}px) translateY(${-y}px) translateZ(${z}px)`;
+        ['front','back','left','right','top','bottom'].forEach(f=>{ const d=document.createElement('div'); d.className='face face-'+f; c.appendChild(d); }); return c;
     }
-
-    function createCubeHTML(modeClass, tx, ty, tz) {
-        const cube = document.createElement('div');
-        cube.className = 'cube ' + modeClass;
-        cube.style.transform = `translateX(${tx}px) translateY(${-ty}px) translateZ(${tz}px)`;
-        ['front','back','left','right','top','bottom'].forEach(face => {
-            const f = document.createElement('div'); f.className = 'face face-' + face;
-            cube.appendChild(f);
-        });
-        return cube;
-    }
-
-    function triggerRipple(el) {
-        if (!el) return;
-        el.classList.remove('ripple');
-        void el.offsetWidth;
-        el.classList.add('ripple');
-        setTimeout(() => el.classList.remove('ripple'), 350);
-    }
-
-    function gameOver(reason) {
-        if(STATE.status === 'GAMEOVER') return;
-        STATE.status = 'GAMEOVER';
-        STATE.isInputBlocked = true;
-        if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
-        document.querySelectorAll('.kb-key').forEach(k => k.classList.remove('active-state'));
-        if(reason === "FINISHED") UI.victoryShutter.classList.add('active');
-        else UI.failShutter.classList.add('active');
-        const answeredCount = (reason === 'FINISHED') ? MODES[STATE.currentModeKey].count : STATE.questionCount;
-        const totalSec = Math.max(0.1, STATE.totalPlayTime);
-        let ch = Math.floor((answeredCount / totalSec) * 3600);
-        if(ch > CONFIG.capCh) ch = CONFIG.capCh;
-
-        const resultData = {
-            modeName: STATE.currentModeKey,
-            is3D: STATE.is3DMode, isRandom: STATE.randomAtPlay,
-            score: ch, totalTime: totalSec.toFixed(2), count: answeredCount,
-            reason: reason, missedLog: [...STATE.missedLog],
-            statsDetail: JSON.parse(JSON.stringify(STATE.statsDetail)),
-            isNewRecord: false, unlockEvent: null, rank: 'F'
-        };
-
-        const wasNormalLocked = isModeLocked('NORMAL');
-        const wasHardLocked    = isModeLocked('HARD');
-        const wasExtremeLocked= isModeLocked('EXTREME');
-
-        if (reason === "FINISHED") {
-            resultData.rank = getRankFromScore(ch, STATE.currentModeKey);
-            const rankStore = currentRanksStore();
-            const currentSavedRank = rankStore[STATE.currentModeKey];
-            const newRankIdx = RANK_ORDER.indexOf(resultData.rank);
-            const oldRankIdx = currentSavedRank ? RANK_ORDER.indexOf(currentSavedRank) : 99;
-            if (newRankIdx < oldRankIdx) rankStore[STATE.currentModeKey] = resultData.rank;
-
-            const previousBestModeScore = STATE.saveData.modeScores[STATE.currentModeKey] || 0;
-            const previousBestEasyCH = STATE.saveData.bestEasyCH || 0;
-            if (ch > previousBestModeScore) { STATE.saveData.modeScores[STATE.currentModeKey] = ch; resultData.isNewRecord = true; }
-            if (STATE.currentModeKey === 'EASY' && ch > previousBestEasyCH) STATE.saveData.bestEasyCH = ch;
-            if (ch > (STATE.saveData.bestCH || 0)) STATE.saveData.bestCH = ch;
-
-            const nowNormalLocked = isModeLocked('NORMAL');
-            const nowHardLocked    = isModeLocked('HARD');
-            const nowExtremeLocked= isModeLocked('EXTREME');
-            if (wasExtremeLocked && !nowExtremeLocked) resultData.unlockEvent = 'EXTREME';
-            else if (wasHardLocked && !nowHardLocked) resultData.unlockEvent = 'HARD';
-            else if (wasNormalLocked && !nowNormalLocked) resultData.unlockEvent = 'NORMAL';
-        }
-
-        STATE.history.push(resultData);
-        STATE.historyIndex = STATE.history.length - 1;
-        setTimeout(() => { showHistoryResult(STATE.historyIndex); }, 1000);
-    }
-
-    function changeHistory(delta) {
-        const newIdx = STATE.historyIndex + delta;
-        if(newIdx >= 0 && newIdx < STATE.history.length) {
-            STATE.historyIndex = newIdx;
-            showHistoryResult(newIdx);
-        }
-    }
-
-    function computeNextRankLine(data) {
-        if (data.reason !== 'FINISHED') return '';
-        const idx = RANK_ORDER.indexOf(data.rank);
-        if (idx <= 0) return `<div class="next-rank-line">MAX RANK</div>`;
-        const nextRank = RANK_ORDER[idx - 1];
-        const thresholds = MODES[data.modeName].rankThresholds;
-        const map = { GOD:'god', Z:'z', S:'s', A:'a', B:'b', C:'c', D:'f', F:'f' };
-        const key = map[nextRank];
-        const target = (thresholds && key in thresholds) ? thresholds[key] : null;
-        if (target === null) return '';
-        const need = Math.max(0, target - data.score);
-        const label = (nextRank === 'GOD' || nextRank === 'Z') ? '???' : nextRank;
-        return `<div class="next-rank-line">NEXT RANK ${label}: +${need.toLocaleString()} ch</div>`;
-    }
-
-    function showHistoryResult(index) {
-        STATE.isInputBlocked = false;
-        const data = STATE.history[index];
-        UI.virtualKeyboard.style.visibility = 'hidden';
-        const oldSvg = UI.slot1 ? UI.slot1.querySelector('.slot-timer-svg') : null;
-        if(oldSvg) oldSvg.remove();
-        if(UI.slot1) UI.slot1.style.border = 'none';
+    function triggerRipple(el) { if(!el)return; el.classList.remove('ripple'); void el.offsetWidth; el.classList.add('ripple'); setTimeout(()=>el.classList.remove('ripple'),350); }
+    function gameOver(res) {
+        if(STATE.status==='GAMEOVER') return; STATE.status='GAMEOVER'; STATE.isInputBlocked=true; if(STATE.rafId)cancelAnimationFrame(STATE.rafId);
+        $qsa('.kb-key').forEach(k=>k.classList.remove('active-state'));
+        if(res==="FINISHED") UI.victoryShutter.classList.add('active'); else UI.failShutter.classList.add('active');
+        const ac=(res==='FINISHED')?MODES[STATE.currentModeKey].count:STATE.questionCount;
+        const ts=Math.max(0.1, STATE.totalPlayTime); let ch=Math.floor((ac/ts)*3600); if(ch>CONFIG.capCh) ch=CONFIG.capCh;
         
-        UI.failShutter.style.display = 'none';
-        if (UI.histPrev) {
-            UI.histPrev.disabled = (index === 0);
-            UI.histPrev.style.opacity = (index === 0) ? '0' : '1';
-        }
-        if (UI.histNext) {
-            UI.histNext.disabled = (index === STATE.history.length - 1);
-            UI.histNext.style.opacity = (index === STATE.history.length - 1) ? '0' : '1';
-        }
+        const dat={ modeName:STATE.currentModeKey, is3D:STATE.is3DMode, isRandom:STATE.randomAtPlay, score:ch, totalTime:ts, count:ac, reason:res, missedLog:[...STATE.missedLog], statsDetail:JSON.parse(JSON.stringify(STATE.statsDetail)), isNewRecord:false, unlockEvent:null, rank:'F' };
         
-        const modeLabel = getModeDisplayName(data.modeName);
-        UI.resModeLabel.innerText = data.isRandom ? `${modeLabel} (RND)` : modeLabel;
-        const modeColor = MODES[data.modeName].color;
-        UI.resModeLabel.style.color = modeColor;
-        UI.resModeLabel.style.borderColor = modeColor;
-        let rankClass = 'rank-d'; let displayText = data.rank; let isNiceTry = false;
-        if (data.rank === 'GOD') rankClass = 'rank-god';
-        else if (data.rank === 'Z') rankClass = 'rank-z';
-        else if (data.rank === 'S') rankClass = 'rank-s';
-        else if (data.rank === 'A') rankClass = 'rank-a';
-        else if (data.rank === 'B') rankClass = 'rank-b';
-        else if (data.rank === 'C') rankClass = 'rank-c';
-        else if (data.rank === 'F') { rankClass = 'rank-nicetry'; displayText = "NICE TRY"; isNiceTry = true; } 
-        else { rankClass = 'rank-f'; }
-        UI.resRankChar.innerText = displayText;
-        UI.resRankChar.className = 'rank-char ' + rankClass;
-        if (isNiceTry) { if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'none'; } 
-        else { if(UI.resRankLabelText) UI.resRankLabelText.style.display = 'block'; }
+        const wNL=isModeLocked('NORMAL'), wHL=isModeLocked('HARD'), wEL=isModeLocked('EXTREME');
+        if(res==="FINISHED") {
+            dat.rank=getRankFromScore(ch, STATE.currentModeKey);
+            const rs=currentRanksStore(), old=rs[STATE.currentModeKey], ni=RANK_ORDER.indexOf(dat.rank), oi=old?RANK_ORDER.indexOf(old):99;
+            if(ni<oi) rs[STATE.currentModeKey]=dat.rank;
+            if(ch>(STATE.saveData.modeScores[STATE.currentModeKey]||0)) { STATE.saveData.modeScores[STATE.currentModeKey]=ch; dat.isNewRecord=true; }
+            if(STATE.currentModeKey==='EASY' && ch>(STATE.saveData.bestEasyCH||0)) STATE.saveData.bestEasyCH=ch;
+            if(ch>(STATE.saveData.bestCH||0)) STATE.saveData.bestCH=ch;
+            
+            if(wEL && !isModeLocked('EXTREME')) dat.unlockEvent='EXTREME';
+            else if(wHL && !isModeLocked('HARD')) dat.unlockEvent='HARD';
+            else if(wNL && !isModeLocked('NORMAL')) dat.unlockEvent='NORMAL';
+        }
+        STATE.history.push(dat); STATE.historyIndex=STATE.history.length-1; setTimeout(()=>showHistoryResult(STATE.historyIndex), 1000);
+    }
+    function changeHistory(d) { const n=STATE.historyIndex+d; if(n>=0 && n<STATE.history.length) { STATE.historyIndex=n; showHistoryResult(n); } }
+    function showHistoryResult(idx) {
+        STATE.isInputBlocked=false; const d=STATE.history[idx]; UI.virtualKeyboard.style.visibility='hidden';
+        if(UI.slot1 && UI.slot1.querySelector('.slot-timer-svg')) UI.slot1.querySelector('.slot-timer-svg').remove(); if(UI.slot1) UI.slot1.style.border='none';
+        UI.failShutter.style.display='none';
+        if(UI.histPrev) { UI.histPrev.disabled=(idx===0); UI.histPrev.style.opacity=(idx===0)?'0':'1'; }
+        if(UI.histNext) { UI.histNext.disabled=(idx===STATE.history.length-1); UI.histNext.style.opacity=(idx===STATE.history.length-1)?'0':'1'; }
         
-        UI.resultCardContainer.className = 'result-card';
-        const particles = UI.resultCardContainer.querySelectorAll('.particle-fx');
-        particles.forEach(p => p.remove());
-        if (data.rank === 'GOD') {
-            UI.resultCardContainer.classList.add('bg-god');
-            for(let i=0; i<40; i++) {
-                const p = document.createElement('div'); p.className = 'god-particle particle-fx';
-                p.style.left = Math.random() * 100 + '%'; const h = 50 + Math.random() * 150; p.style.height = h + 'px';
-                const dur = 2 + Math.random() * 3; p.style.animationDuration = dur + 's'; p.style.animationDelay = (Math.random() * 5) + 's';
-                UI.resultCardContainer.appendChild(p);
-            }
+        const mLabel=d.modeName; UI.resModeLabel.innerText=d.isRandom?`${mLabel} (RND)`:mLabel;
+        const mc=MODES[d.modeName].color; UI.resModeLabel.style.color=mc; UI.resModeLabel.style.borderColor=mc;
+        let rc='rank-f', rt=d.rank, nt=false;
+        if(d.rank==='GOD') rc='rank-god'; else if(d.rank==='Z') rc='rank-z'; else if(d.rank==='S') rc='rank-s'; else if(d.rank==='A') rc='rank-a'; else if(d.rank==='B') rc='rank-b'; else if(d.rank==='C') rc='rank-c'; else if(d.rank==='F') { rc='rank-nicetry'; rt="NICE TRY"; nt=true; }
+        UI.resRankChar.innerText=rt; UI.resRankChar.className='rank-char '+rc;
+        UI.resRankLabelText.style.display = nt ? 'none' : 'block';
+        
+        UI.resultCardContainer.className='result-card'; $qsa('.particle-fx').forEach(p=>p.remove());
+        if(d.rank==='GOD') { UI.resultCardContainer.classList.add('bg-god'); for(let i=0;i<40;i++){const p=document.createElement('div');p.className='god-particle particle-fx';p.style.left=Math.random()*100+'%';p.style.height=(50+Math.random()*150)+'px';p.style.animationDuration=(2+Math.random()*3)+'s';p.style.animationDelay=(Math.random()*5)+'s';UI.resultCardContainer.appendChild(p);} }
+        else if(d.rank==='Z') { UI.resultCardContainer.classList.add('bg-z'); for(let i=0;i<60;i++){const p=document.createElement('div');p.className='z-particle particle-fx';p.style.left=Math.random()*100+'%';const s=2+Math.random()*5;p.style.width=s+'px';p.style.height=s+'px';p.style.animationDuration=(3+Math.random()*5)+'s';p.style.animationDelay=(Math.random()*8)+'s';UI.resultCardContainer.appendChild(p);} }
+        else UI.resultCardContainer.classList.add('bg-'+d.rank.toLowerCase());
+        
+        if(nt) { UI.resMsg.style.display='none'; } else { UI.resMsg.innerText=(d.reason==="FINISHED")?"":d.reason; UI.resMsg.style.display='block'; UI.resMsg.className=""; if(d.reason==="NICE TRY"||d.reason==="TOO SLOW")UI.resMsg.classList.add("res-msg-nice"); else if(d.reason==="TIME OVER")UI.resMsg.classList.add("res-msg-platinum"); }
+        /* 修正: "STAGE CLEAR"の文言を非表示 */
+        UI.resStatusMsg.classList.remove('show'); UI.resStatusMsg.innerText=''; UI.resUnlockWrapper.classList.remove('show'); UI.resUnlockWrapper.innerHTML='';
+        if(d.reason==="FINISHED") {
+            if(d.unlockEvent) { UI.resUnlockWrapper.innerHTML=`<div class="unlock-badge mode-${d.unlockEvent.toLowerCase()}"><div class="main-text">UNLOCKED</div><div class="sub-text">${d.unlockEvent}</div></div>`; UI.resUnlockWrapper.classList.add('show'); }
+            else { UI.resStatusMsg.innerText="STAGE CLEAR"; UI.resStatusMsg.classList.add('status-clear','show'); /* ここも実際にはCSSで非表示にするか、UI.resStatusMsg.style.display='none'でも良いが、要望通り文言を空にするだけで対応済 */ UI.resStatusMsg.innerText = ""; }
         }
-        else if (data.rank === 'Z') {
-            UI.resultCardContainer.classList.add('bg-z');
-            for(let i=0; i<60; i++) {
-                const p = document.createElement('div'); p.className = 'z-particle particle-fx';
-                p.style.left = Math.random() * 100 + '%'; const size = 2 + Math.random() * 5; p.style.width = size + 'px'; p.style.height = size + 'px';
-                const dur = 3 + Math.random() * 5; p.style.animationDuration = dur + 's'; p.style.animationDelay = (Math.random() * 8) + 's'; 
-                UI.resultCardContainer.appendChild(p);
-            }
+        UI.newRecordBadge.classList[d.isNewRecord?'add':'remove']('show');
+        const avgT=(d.totalTime/d.count).toFixed(2);
+        let nxt=""; 
+        if(d.reason==='FINISHED') {
+             const ri=RANK_ORDER.indexOf(d.rank);
+             if(ri>0) {
+                 const nr=RANK_ORDER[ri-1], map={GOD:'god',Z:'z',S:'s',A:'a',B:'b',C:'c'}, th=MODES[d.modeName].rankThresholds[map[nr]];
+                 if(th) nxt=`<div class="next-rank-line">NEXT RANK ${nr==='GOD'||nr==='Z'?'???':nr}: +${(Math.max(0,th-d.score)).toLocaleString()} ch</div>`;
+             } else nxt=`<div class="next-rank-line">MAX RANK</div>`;
         }
-        else if (data.rank === 'S') UI.resultCardContainer.classList.add('bg-s');
-        else if (data.rank === 'A') UI.resultCardContainer.classList.add('bg-a');
-        else if (data.rank === 'B') UI.resultCardContainer.classList.add('bg-b');
-        else if (data.rank === 'C') UI.resultCardContainer.classList.add('bg-c');
-        else UI.resultCardContainer.classList.add('bg-d');
-
-        if (isNiceTry) { UI.resMsg.innerText = ""; UI.resMsg.style.display = 'none'; } 
-        else {
-            UI.resMsg.innerText = (data.reason === "FINISHED") ? "" : data.reason;
-            UI.resMsg.style.display = 'block'; UI.resMsg.className = "";
-            if (data.reason === "NICE TRY") UI.resMsg.classList.add("res-msg-nice");
-            else if (data.reason === "TOO SLOW") UI.resMsg.classList.add("res-msg-nice");
-            else if (data.reason === "TIME OVER") UI.resMsg.classList.add("res-msg-platinum");
-        }
-        UI.resStatusMsg.classList.remove('show'); UI.resStatusMsg.className = 'res-status-msg'; UI.resStatusMsg.innerText = '';
-        UI.resUnlockWrapper.classList.remove('show'); UI.resUnlockWrapper.innerHTML = '';
-        if (data.reason === "FINISHED") {
-            if (data.unlockEvent) {
-                let ulColorClass = 'mode-normal';
-                if(data.unlockEvent === 'HARD') ulColorClass = 'mode-hard';
-                if(data.unlockEvent === 'EXTREME') ulColorClass = 'mode-extreme';
-                UI.resUnlockWrapper.innerHTML = `<div class="unlock-badge ${ulColorClass}"><div class="main-text">UNLOCKED</div><div class="sub-text">${data.unlockEvent}</div></div>`;
-                UI.resUnlockWrapper.classList.add('show');
-            } else {
-                UI.resStatusMsg.innerText = "STAGE CLEAR";
-                UI.resStatusMsg.classList.add('status-clear');
-                UI.resStatusMsg.classList.add('show');
-            }
-        }
-        UI.newRecordBadge.classList.remove('show');
-        if (data.isNewRecord) UI.newRecordBadge.classList.add('show');
-        if(data.score > 0) {
-            const avgTime = (data.totalTime / data.count).toFixed(2);
-            const nextLine = computeNextRankLine(data);
-            UI.resTotalBox.innerHTML = `<span class="total-label">TOTAL SCORE</span>${Number(data.score).toLocaleString()} <span style="font-size:16px;">ch</span><span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgTime}s</span></span>${nextLine}`;
-        } else {
-            UI.resTotalBox.innerHTML = `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>`;
-        }
-        UI.detailTableBody.innerHTML = '';
-        const gradeList = [
-            { k:'marvelous', l:'MARVELOUS', c:'var(--g-exc)' },
-            { k:'excellent', l:'EXCELLENT', c:'var(--g-perf)' },
-            { k:'great', l:'GREAT', c:'var(--g-grt)' },
-            { k:'good', l:'GOOD', c:'var(--g-good)' },
-            { k:'ok', l:'OK', c:'var(--g-ok)' }
-        ];
-        gradeList.forEach(g => {
-            const info = data.statsDetail[g.k];
-            if(info && info.count > 0) {
-                const avg = info.time / info.count;
-                let localScore = Math.floor((1 / Math.max(CONFIG.capPerItemSec, avg)) * 3600);
-                if(localScore > CONFIG.capCh) localScore = CONFIG.capCh;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="dt-grade" style="color:${g.c}">${g.l}</td><td class="dt-count">${info.count}</td><td class="dt-avg">${avg.toFixed(2)}s</td><td class="dt-score">${localScore.toLocaleString()} <span class="dt-sub">ch</span></td>`;
+        UI.resTotalBox.innerHTML = d.score>0 ? `<span class="total-label">TOTAL SCORE</span>${Number(d.score).toLocaleString()} <span style="font-size:16px;">ch</span><span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgT}s</span></span>${nxt}` : `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>`;
+        
+        UI.detailTableBody.innerHTML='';
+        [{k:'marvelous',l:'MARVELOUS',c:'var(--g-exc)'},{k:'excellent',l:'EXCELLENT',c:'var(--g-perf)'},{k:'great',l:'GREAT',c:'var(--g-grt)'},{k:'good',l:'GOOD',c:'var(--g-good)'},{k:'ok',l:'OK',c:'var(--g-ok)'}].forEach(g=>{
+            const i=d.statsDetail[g.k];
+            if(i&&i.count>0) {
+                const a=(i.time/i.count).toFixed(2);
+                let ls=Math.floor((1/Math.max(CONFIG.capPerItemSec,i.time/i.count))*3600); if(ls>CONFIG.capCh)ls=CONFIG.capCh;
+                const tr=document.createElement('tr'); tr.innerHTML=`<td class="dt-grade" style="color:${g.c}">${g.l}</td><td class="dt-count">${i.count}</td><td class="dt-avg">${a}s</td><td class="dt-score">${ls.toLocaleString()} <span class="dt-sub">ch</span></td>`;
                 UI.detailTableBody.appendChild(tr);
             }
         });
-        UI.missItemsRow.innerHTML = '';
-        if(data.missedLog.length > 0) {
-            UI.missLog.style.display = 'flex';
-            data.missedLog.forEach(m => {
-                const row = document.createElement('div'); row.className = 'feedback-row';
-                const body = document.createElement('div'); body.className = 'fb-body';
-                const inner = document.createElement('div');
-                let cls = 'fb-body-inner'; cls += m.is3D ? ' fb-3d' : ' fb-2d';
-                if (m.mode === 'EXTREME') cls += ' fb-extreme';
-                inner.className = cls;
-                if (m.layout && Array.isArray(m.shape)) { m.shape._rndPositions = m.layout.map(p => ({ x: p.x, y: p.y })); }
-                renderShape(inner, m.shape, m.is3D, m.isRandom, m.mode);
-                body.appendChild(inner);
-                const footer = document.createElement('div'); footer.className = 'fb-footer';
-                footer.innerHTML = `<span class="fb-lbl">INP</span><span class="fb-val-wrong">${m.input}</span> <span class="fb-lbl">ANS</span><span class="fb-val-correct">${m.answer}</span>`;
-                row.appendChild(body); row.appendChild(footer);
-                UI.missItemsRow.appendChild(row);
+        
+        UI.missItemsRow.innerHTML='';
+        if(d.missedLog.length>0) {
+            UI.missLog.style.display='flex';
+            d.missedLog.forEach(m=>{
+                const r=document.createElement('div'); r.className='feedback-row';
+                const b=document.createElement('div'); b.className='fb-body';
+                const i=document.createElement('div'); i.className='fb-body-inner'+(m.is3D?' fb-3d':' fb-2d')+(m.mode==='EXTREME'?' fb-extreme':'');
+                if(m.layout && Array.isArray(m.shape)) m.shape._rndPositions=m.layout.map(p=>({x:p.x,y:p.y}));
+                renderShape(i,m.shape); b.appendChild(i);
+                const f=document.createElement('div'); f.className='fb-footer'; f.innerHTML=`<span class="fb-lbl">INP</span><span class="fb-val-wrong">${m.input}</span> <span class="fb-lbl">ANS</span><span class="fb-val-correct">${m.answer}</span>`;
+                r.appendChild(b); r.appendChild(f); UI.missItemsRow.appendChild(r);
             });
-        } else { UI.missLog.style.display = 'none'; }
+        } else UI.missLog.style.display='none';
         
         UI.appWrapper.classList.add('showing-result');
-        if (UI.resultModal) UI.resultModal.classList.add('show');
+        if(UI.resultModal) UI.resultModal.classList.add('show');
         UI.bottomUi.classList.remove('bottom-ui-dimmed');
     }
 </script>
