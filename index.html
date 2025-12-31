@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SNOW: SMASH SUBITIZING - ALEXANDER</title>
+<title>SNOW: SMASH SUBITIZING - FERMATA</title>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,16 +32,18 @@
     background-size: 30px 30px; background-position: 0 0, 15px 15px;
   }
   
-  /* --- アレキサンダー演出（スローモーション 13s） --- */
+  /* --- FERMATA（スローモーション）演出 --- */
   body.slow-motion .app-container {
-    filter: sepia(100%) brightness(1.1) contrast(1.2); /* 黄金色のセピア調 */
-    transform: scale(1.01); 
-    transition: filter 1s ease-out, transform 13s ease-out; /* 13秒かけて変化 */
+    filter: sepia(80%) contrast(1.1);
+    transform: scale(1.01);
+    transition: filter 1s ease-out, transform 13s ease-out;
   }
+  
+  /* フォグ演出 */
   #slow-overlay-fx {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4000;
-    background: radial-gradient(circle, transparent 50%, rgba(100, 50, 0, 0.4) 100%);
-    opacity: 0; transition: opacity 1s; mix-blend-mode: overlay;
+    background: radial-gradient(circle, transparent 40%, rgba(180, 140, 0, 0.2) 100%);
+    opacity: 0; transition: opacity 1s; mix-blend-mode: screen;
   }
   body.slow-motion #slow-overlay-fx { opacity: 1; }
 
@@ -91,22 +93,28 @@
   #btn-mode-toggle:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 15px rgba(208, 0, 255, 0.4); }
 
-  /* ツールバー & スローボタン */
+  /* ツールバー & フェルマータボタン */
   #kb-toolbar { width: 100%; display: flex; justify-content: flex-start; align-items: flex-end; padding: 0 10px; margin-bottom: 8px; z-index: 3001; position: relative; pointer-events: none; gap: 8px; }
   
-  /* KB切替ボタン */
   #btn-key-layout-toggle { pointer-events: auto; background: #000; border: 3px solid #444; color: #ddd; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; transition: all 0.2s; display: flex; }
   #btn-key-layout-toggle:active { transform: skewX(-10deg) translateY(2px); filter: brightness(1.2); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   
-  /* TIME STOPボタン (初期は非表示) */
-  #btn-slow-mo { pointer-events: auto; background: #2a1a00; border: 2px solid #eebb00; color: #ffeeaa; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; display: none; align-items: center; gap: 6px; transition: all 0.1s; }
+  /* FERMATAボタン */
+  #btn-slow-mo { pointer-events: auto; background: #2a1a00; border: 2px solid #eebb00; color: #ffeeaa; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; display: none; align-items: center; gap: 8px; transition: all 0.1s; }
   #btn-slow-mo:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); filter: brightness(1.5); }
   #btn-slow-mo.disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; border-color: #555; background: #222; color: #888; }
   
-  /* インジケーター演出 */
-  .ts-charge-container { display: flex; gap: 2px; }
-  .ts-charge-icon { color: #eebb00; text-shadow: 0 0 5px #ffaa00; font-size: 12px; transition: all 0.3s; display: inline-block; }
-  .ts-charge-icon.used { color: #443322; text-shadow: none; opacity: 0.3; transform: scale(0.8); filter: grayscale(1); }
+  /* インジケーター演出 (フェルマータ -> 休符) */
+  .ts-charge-container { display: flex; gap: 4px; }
+  /* ★サイズアップ 14px -> 18px */
+  .ts-charge-icon { 
+      font-size: 18px; font-weight: 400; color: #eebb00; text-shadow: 0 0 5px #ffaa00; 
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; width: 18px; text-align: center;
+  }
+  /* ★休符（使用済み）の色を明るいグレーにして、くっきりと表示 */
+  .ts-charge-icon.used { 
+      color: #999; text-shadow: 1px 1px 0 #000; opacity: 1; transform: rotate(360deg) scale(0.9);
+  }
   
   .btn-color-a { border-color: #00ccff !important; color: #00ccff !important; text-shadow: 0 0 5px rgba(0, 204, 255, 0.5); background: linear-gradient(to top, rgba(0, 204, 255, 0.1), #000) !important; }
   .btn-color-b { border-color: #33ff55 !important; color: #33ff55 !important; text-shadow: 0 0 5px rgba(51, 255, 85, 0.5); background: linear-gradient(to top, rgba(51, 255, 85, 0.1), #000) !important; }
@@ -373,7 +381,7 @@
     <div id="kb-toolbar">
         <button id="btn-key-layout-toggle" class="btn-color-a">KEYBOARD TYPE A</button>
         <button id="btn-slow-mo" onclick="activateSlowMo()">
-            <span>⏳ TIME STOP</span>
+            <span>FERMATA</span>
             <div id="ts-charges" class="ts-charge-container"></div>
         </button>
     </div>
@@ -456,7 +464,7 @@
 
     /* --- 設定・定数 (CONFIG) --- */
     const CONFIG = {
-        VERSION: 'Ver 42.3 RISE', 
+        VERSION: 'Ver 43.2 ', 
         capPerItemSec: 0.1,
         capCh: 36000
     };
@@ -576,6 +584,7 @@
         },
         history: [], historyIndex: 0, hasPlayedOnce: false, lastCount: null, lastShapeSig: null, consecutiveCountValue: 0
     };
+
 let UI = {};
     const KB = { keys: {} };
 
@@ -664,7 +673,7 @@ let UI = {};
         updateModeButtons(STATE.currentModeKey);
     };
 
-    /* --- スローモーション機能 (ALEXANDER - TIME STOP) --- */
+    /* --- スローモーション機能 (FERMATA) --- */
     function initSlowMo() {
         const today = new Date().toLocaleDateString('ja-JP');
         const lastDate = localStorage.getItem('snow_sm_date');
@@ -682,11 +691,12 @@ let UI = {};
         if(!btn || !chargesContainer) return;
         
         let html = '';
-        // 3つのアイコンを描画 (active or used)
+        // 3つのアイコンを描画 (フェルマータ or 休符)
         for(let i=0; i<3; i++) {
-            // i < chargesToday なら有効(⚡)、そうでなければ使用済み(usedクラス)
             const isActive = i < STATE.chargesToday;
-            html += `<span class="ts-charge-icon ${isActive ? '' : 'used'}">⚡</span>`;
+            // 𝄐 (Fermata) / 𝄽 (Quarter Rest)
+            const symbol = isActive ? '𝄐' : '𝄽';
+            html += `<span class="ts-charge-icon ${isActive ? '' : 'used'}">${symbol}</span>`;
         }
         chargesContainer.innerHTML = html;
         
@@ -697,7 +707,7 @@ let UI = {};
         if (STATE.status !== 'PLAYING' || STATE.chargesToday <= 0) return;
         
         const now = Date.now();
-        const DURATION = 13000; // ★13秒間
+        const DURATION = 13000; // 13秒間
 
         if (now < STATE.slowUntil) {
             STATE.slowUntil += DURATION;
@@ -843,7 +853,7 @@ let UI = {};
         $qsa('.eval-effect').forEach(e => e.remove());
         updateToggleButtonText(); UI.btnModeToggle.classList.remove('disabled');
         
-        // ★ツールバー制御：アイドル時はキーボード切替のみ
+        // ★ツールバー制御
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'flex';
         if(UI.btnSlowMo) UI.btnSlowMo.style.display = 'none';
         
@@ -933,7 +943,7 @@ let UI = {};
         // スロー初期化
         STATE.slowUntil = 0; document.body.classList.remove('slow-motion');
         
-        // ★戦闘モードUI: スローボタン表示、KB切替非表示
+        // ★戦闘モードUI
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none';
         if(UI.btnSlowMo) { UI.btnSlowMo.style.display = 'flex'; renderSlowMoBtn(); }
         
@@ -1198,6 +1208,7 @@ let UI = {};
                 const b=document.createElement('div'); b.className='fb-body';
                 const i=document.createElement('div'); i.className='fb-body-inner'+(m.is3D?' fb-3d':' fb-2d')+(m.mode==='EXTREME'?' fb-extreme':'');
                 if(m.layout && Array.isArray(m.shape)) m.shape._rndPositions=m.layout.map(p=>({x:p.x,y:p.y}));
+                // 静的表示用なのでPoolは使わず直接描画
                 renderShape(i,m.shape); 
                 b.appendChild(i);
                 const f=document.createElement('div'); f.className='fb-footer'; f.innerHTML=`<span class="fb-lbl">INP</span><span class="fb-val-wrong">${m.input}</span> <span class="fb-lbl">ANS</span><span class="fb-val-correct">${m.answer}</span>`;
