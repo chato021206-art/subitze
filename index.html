@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SNOW: SMASH SUBITIZING</title>
+<title>SNOW: SMASH SUBITIZING - ALEXANDER</title>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
   :root {
-    /* --- SMASH STYLE PALETTE --- */
     --bg-dark: #050505;
     --g-exc: #fff200;  --g-perf: #00ffff; --g-grt: #00ff2a;
     --g-good: #ffaa00; --g-ok:   #b0b0b0; --g-miss: #ff0033;
@@ -32,6 +31,20 @@
     background-image: linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a), linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a);
     background-size: 30px 30px; background-position: 0 0, 15px 15px;
   }
+  
+  /* --- アレキサンダー演出（スローモーション 13s） --- */
+  body.slow-motion .app-container {
+    filter: sepia(100%) brightness(1.1) contrast(1.2); /* 黄金色のセピア調 */
+    transform: scale(1.01); 
+    transition: filter 1s ease-out, transform 13s ease-out; /* 13秒かけて変化 */
+  }
+  #slow-overlay-fx {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4000;
+    background: radial-gradient(circle, transparent 50%, rgba(100, 50, 0, 0.4) 100%);
+    opacity: 0; transition: opacity 1s; mix-blend-mode: overlay;
+  }
+  body.slow-motion #slow-overlay-fx { opacity: 1; }
+
   .app-container {
     width: 100%; height: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column;
     padding: 8px; padding-top: env(safe-area-inset-top, 8px); background: radial-gradient(circle at center, #2a2a2a 0%, #000 100%);
@@ -43,6 +56,9 @@
   .app-container.theme-extreme { background: radial-gradient(circle at center, rgba(255, 0, 34, 0.15) 0%, #000 100%); }
   .app-container.showing-result .stage-area { visibility: hidden; }
 
+  .stage-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; overflow: hidden; perspective: 900px; min-height: 0; }
+  .version-label { position: absolute; bottom: 6px; right: 8px; font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.4); font-family: var(--font-num); pointer-events: none; z-index: 100; font-style: italic; }
+
   /* Slot Styles */
   .app-container.theme-easy #slot-1 { box-shadow: 0 0 25px rgba(85, 255, 51, 0.4); border: 2px solid rgba(85, 255, 51, 0.3); }
   .app-container.theme-normal #slot-1 { box-shadow: 0 0 25px rgba(0, 170, 255, 0.4); border: 2px solid rgba(0, 170, 255, 0.3); }
@@ -51,9 +67,6 @@
   .app-container.theme-hard #slot-3 { display: none !important; }
   .app-container.theme-extreme #slot-1 { flex: 100; border: 4px solid var(--c-extreme); background: rgba(50, 0, 0, 0.3); justify-content: flex-end; align-items: center; box-shadow: 0 0 40px rgba(255, 0, 34, 0.6), inset 0 0 20px rgba(255, 0, 34, 0.2); }
   .app-container.theme-extreme #slot-2, .app-container.theme-extreme #slot-3 { display: none !important; }
-
-  .stage-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; overflow: hidden; perspective: 900px; min-height: 0; }
-  .version-label { position: absolute; bottom: 6px; right: 8px; font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.4); font-family: var(--font-num); pointer-events: none; z-index: 100; font-style: italic; }
   
   .slot-flash-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; opacity: 0; transform-origin: bottom; }
   .flash-exc .slot-flash-overlay { background: linear-gradient(to top, rgba(255, 242, 0, 0.8) 0%, transparent 100%); animation: flashBeam 0.2s ease-out forwards; }
@@ -73,37 +86,33 @@
   .mode-label { position: absolute; top: 15px; right: 15px; font-size: 14px; font-weight: 900; font-style: italic; letter-spacing: -1px; padding: 6px 30px; transform: skewX(-15deg); background: #000; color: #fff; z-index: 90; display: none; text-transform: uppercase; box-shadow: 6px 6px 0 rgba(0,0,0,0.5); border: 4px solid currentColor; text-shadow: 1px 1px 0 #000; }
   .mode-label.show { display: block; }
 
-  .streak-label { position: absolute; top: 15px; left: 15px; font-size: 14px; font-weight: 900; color: #ffaa00; background: #000; padding: 6px 14px; border-radius: 4px; border: 2px solid #333; z-index: 5100; transform: skewX(-10deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.8); display: flex; align-items: center; gap: 6px; font-style: italic; pointer-events: auto; }
-
   #btn-mode-toggle { position: absolute; top: 60px; right: 15px; pointer-events: auto; background: #222; border: 3px solid #555; color: #ddd; border-radius: 4px; padding: 6px 14px; font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic; cursor: pointer; z-index: 5100; display: flex; align-items: center; gap: 8px; transition: all 0.1s; transform: skewX(-10deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: -0.5px; }
   #btn-mode-toggle span.check { font-size: 16px; color: #999; font-weight: 900; }
   #btn-mode-toggle:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 15px rgba(208, 0, 255, 0.4); }
-  #btn-mode-toggle.random-on span.check { color: #d000ff; text-shadow: 0 0 5px #d000ff; }
 
-  /* キーボードツールバー（左上配置・独立型） */
-  #kb-toolbar { 
-      width: 100%; display: flex; justify-content: flex-start; align-items: flex-end; 
-      padding: 0 10px; margin-bottom: 8px; z-index: 3001; position: relative; pointer-events: none; 
-  }
-
-  /* キーボード切り替えボタン（独立デザイン） */
-  #btn-key-layout-toggle { 
-      pointer-events: auto; background: #000; border: 3px solid #444; color: #ddd; 
-      border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; 
-      font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; 
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; 
-      transform: skewX(-10deg); transform-origin: bottom left; margin-left: 5px; transition: all 0.2s; 
-  }
+  /* ツールバー & スローボタン */
+  #kb-toolbar { width: 100%; display: flex; justify-content: flex-start; align-items: flex-end; padding: 0 10px; margin-bottom: 8px; z-index: 3001; position: relative; pointer-events: none; gap: 8px; }
+  
+  /* KB切替ボタン */
+  #btn-key-layout-toggle { pointer-events: auto; background: #000; border: 3px solid #444; color: #ddd; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; transition: all 0.2s; display: flex; }
   #btn-key-layout-toggle:active { transform: skewX(-10deg) translateY(2px); filter: brightness(1.2); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   
-  /* ランクカラーに合わせたボタン色変化 */
+  /* TIME STOPボタン (初期は非表示) */
+  #btn-slow-mo { pointer-events: auto; background: #2a1a00; border: 2px solid #eebb00; color: #ffeeaa; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; display: none; align-items: center; gap: 6px; transition: all 0.1s; }
+  #btn-slow-mo:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); filter: brightness(1.5); }
+  #btn-slow-mo.disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; border-color: #555; background: #222; color: #888; }
+  
+  /* インジケーター演出 */
+  .ts-charge-container { display: flex; gap: 2px; }
+  .ts-charge-icon { color: #eebb00; text-shadow: 0 0 5px #ffaa00; font-size: 12px; transition: all 0.3s; display: inline-block; }
+  .ts-charge-icon.used { color: #443322; text-shadow: none; opacity: 0.3; transform: scale(0.8); filter: grayscale(1); }
+  
   .btn-color-a { border-color: #00ccff !important; color: #00ccff !important; text-shadow: 0 0 5px rgba(0, 204, 255, 0.5); background: linear-gradient(to top, rgba(0, 204, 255, 0.1), #000) !important; }
   .btn-color-b { border-color: #33ff55 !important; color: #33ff55 !important; text-shadow: 0 0 5px rgba(51, 255, 85, 0.5); background: linear-gradient(to top, rgba(51, 255, 85, 0.1), #000) !important; }
   .btn-color-c { border-color: #ff8800 !important; color: #ff8800 !important; text-shadow: 0 0 5px rgba(255, 136, 0, 0.5); background: linear-gradient(to top, rgba(255, 136, 0, 0.1), #000) !important; }
 
   .btn-how-to-common { position: absolute; pointer-events: auto; background: #004488; border: 3px solid #00aaff; color: #fff; border-radius: 4px; padding: 6px 14px; font-family: var(--font-ui); font-weight: 900; font-size: 12px; font-style: italic; cursor: pointer; z-index: 5100; display: flex; align-items: center; gap: 6px; transition: all 0.1s; transform: skewX(-10deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: -0.5px; text-shadow: 1px 1px 0 #000; }
-  .btn-how-to-common:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); background: #003366; }
   #btn-how-to-opening { top: 60px; left: 15px; }
   #btn-how-to-bottom { bottom: calc(var(--footer-total-height) - 10px); left: 15px; width: auto; z-index: 3200; display: none; top:auto; }
 
@@ -132,12 +141,9 @@
 
   .virtual-keyboard { position: relative; width: 100%; height: var(--kb-height); background: linear-gradient(150deg, #0a0a0a 0%, #151515 100%); padding: 6px; padding-bottom: max(6px, var(--safe-area-bottom)); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 5px; z-index: 3000; border-top: 4px solid #333; pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8); }
   .virtual-keyboard::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px); pointer-events: none; }
-  /* レイアウト定義 */
   .virtual-keyboard.layout-phone { grid-template-areas: "k1 k2 k3" "k4 k5 k6" "k7 k8 k9" "ver k0 del"; }
   .virtual-keyboard.layout-calc { grid-template-areas: "k7 k8 k9" "k4 k5 k6" "k1 k2 k3" "ver k0 del"; }
-  /* Type C (Special) 更新 */
   .virtual-keyboard.layout-special { grid-template-areas: "k0 k1 k2" "k3 k4 ver" "k5 k6 del" "k7 k8 k9"; }
-  
   .kb-key { background: linear-gradient(to bottom, #2a2a2a, #111); border-radius: 6px; border: 2px solid #444; box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); color: #ccc; font-family: var(--font-num); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; }
   .kb-key:active, .kb-key.active-state { transform: translateY(4px); box-shadow: 0 0 0 #000; background: linear-gradient(to bottom, #ffcc00, #ff9900); color: #000; border-color: #fff; }
   .kb-key-main { font-size: clamp(24px, 5vh, 36px); font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; letter-spacing: -2px; }
@@ -323,7 +329,9 @@
     <div class="stage-area">
       <div id="fail-shutter"></div>
       <div id="victory-shutter"></div>
+      <div id="slow-overlay-fx"></div>
       <div id="hud-mode-label" class="mode-label">EASY</div>
+      <div id="pool-container" style="display:none;"></div> 
 
       <div id="tutorial-overlay">
           <div id="login-streak-display"></div>
@@ -364,6 +372,10 @@
 
     <div id="kb-toolbar">
         <button id="btn-key-layout-toggle" class="btn-color-a">KEYBOARD TYPE A</button>
+        <button id="btn-slow-mo" onclick="activateSlowMo()">
+            <span>⏳ TIME STOP</span>
+            <div id="ts-charges" class="ts-charge-container"></div>
+        </button>
     </div>
 
     <div class="virtual-keyboard layout-phone" id="virtual-keyboard">
@@ -405,8 +417,6 @@
               <div class="ht-flow-step"><div class="ht-step-badge">STEP 2</div><div class="ht-step-text"><div class="step-head">直感</div><div class="step-desc">「1, 2, 3...」と数えてはいけない。<br>「形」として数を認識するんだ。</div></div><div class="ht-step-icon"><i data-lucide="brain-circuit"></i></div></div>
               <div class="ht-flow-arrow">▼</div>
               <div class="ht-flow-step"><div class="ht-step-badge">STEP 3</div><div class="ht-step-text"><div class="step-head">入力</div><div class="step-desc">数字キーを叩け！<br>回答スピードが速いほどスコアアップ。</div></div><div class="ht-step-icon"><i data-lucide="zap" style="color:#fff700"></i></div></div>
-              <div class="ht-sec-title">JUDGEMENT & RANK</div>
-              <div class="ht-judge-box"><p class="ht-judge-desc">回答までのタイムが速いほど、高評価を得られる。</p><div class="ht-meter-demo"><div class="meter-label">FAST</div><div class="meter-bar"><div class="m-seg seg-marv">MARV</div><div class="m-seg seg-exc">EXC</div><div class="m-seg seg-grt">GRT</div><div class="m-seg seg-good">GOOD</div><div class="m-seg seg-ok">OK</div></div><div class="meter-label">SLOW</div></div><div class="ht-rank-grid"><div class="rank-cell c-secret" style="grid-column: span 3;">???</div><div class="rank-cell c-s">S</div><div class="rank-cell c-a">A</div><div class="rank-cell c-b">B</div><div class="rank-cell c-c">C</div><div class="rank-cell c-d">D</div></div></div>
               <div class="ht-sec-title">MODES</div>
               <div class="ht-mode-list"><div class="ht-mode-item m-easy"><div class="hm-head">EASY / NORMAL</div><div class="hm-body">基本モード。<br>入力は常に<span class="hl">1桁</span>。</div></div><div class="ht-mode-item m-hard"><div class="hm-head">HARD / EXTREME</div><div class="hm-body">上級者向け。<br>入力は常に<span class="hl">2桁</span>。</div></div><div class="ht-mode-item m-random"><div class="hm-head">RANDOM (超上級者向け)</div><div class="hm-body">配置が完全にバラバラになるカオスモード。<br>空間認識能力の限界に挑め。<br>※右上のボタンでON/OFF切替</div></div></div>
               <div class="ht-sec-title">UNLOCK CONDITIONS</div>
@@ -446,7 +456,7 @@
 
     /* --- 設定・定数 (CONFIG) --- */
     const CONFIG = {
-        VERSION: 'Ver 41.3', 
+        VERSION: 'Ver 42.3 RISE', 
         capPerItemSec: 0.1,
         capCh: 36000
     };
@@ -471,7 +481,6 @@
         },
         'HARD': { 
             count: 10, time: 4.0, color: 'var(--c-hard)', type: 'HARD',
-            /* 修正: タイムバーぎりぎりでも正解判定が出るように good: 4.0 を追加 */
             judgments: { marv: 1.2, exc: 1.6, great: 2.5, good: 4.0 },
             rankThresholds: { god: 5000, z: 4000, s: 3000, a: 2000, b: 1200, c: 800, f: 0 }
         },
@@ -487,11 +496,76 @@
     const $qs = (s) => document.querySelector(s);
     const $qsa = (s) => document.querySelectorAll(s);
 
+    /* --- バッグ・システム (公平な乱数) --- */
+    const BagSystem = {
+        bags: { EASY: [], NORMAL: [], HARD: [] },
+        getNext: function(mode) {
+            if (!this.bags[mode]) this.bags[mode] = [];
+            if (this.bags[mode].length === 0) this.refill(mode);
+            return this.bags[mode].pop();
+        },
+        refill: function(mode) {
+            let arr = [];
+            if (mode === 'EASY') { arr = [2,2, 3,3, 4,4,4, 5,5,5]; }
+            else if (mode === 'NORMAL') { arr = [2,3,4, 5,5, 6,6, 7, 8, 9]; }
+            else if (mode === 'HARD') { arr = [10,11,12,13,14,15,16,17,18,19,20]; }
+            for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+            this.bags[mode] = arr;
+        }
+    };
+
+    /* --- オブジェクト・プール --- */
+    const DomPool = {
+        poolContainer: null, 
+        elements: { block: [], column: [], cube: [], cluster: [] },
+        init: function() { this.poolContainer = $id('pool-container'); },
+        get: function(type) {
+            if (this.elements[type] && this.elements[type].length > 0) return this.elements[type].pop();
+            if (type === 'block') { const d = document.createElement('div'); d.className = 'block'; return d; }
+            else if (type === 'column') { const d = document.createElement('div'); d.className = 'block-column'; return d; }
+            else if (type === 'cluster') { const d = document.createElement('div'); d.className = 'cluster-container'; return d; }
+            else if (type === 'cube') { return this.createCubeDOM(); }
+        },
+        recycle: function(el, type) {
+            if(!el || !this.poolContainer) return;
+            el.className = ''; el.style.cssText = ''; 
+            if (el.parentNode) el.parentNode.removeChild(el);
+            if (type === 'cube') el.className = 'cube'; else if (type === 'block') el.className = 'block';
+            this.poolContainer.appendChild(el); if(this.elements[type]) this.elements[type].push(el);
+        },
+        createCubeDOM: function() {
+            const c=document.createElement('div'); c.className='cube';
+            ['front','back','left','right','top','bottom'].forEach(f=>{ const d=document.createElement('div'); d.className='face face-'+f; c.appendChild(d); }); 
+            return c;
+        },
+        clearView: function(viewEl) {
+            while(viewEl.firstChild) {
+                const cluster = viewEl.firstChild;
+                while(cluster.firstChild) {
+                    const child = cluster.firstChild;
+                    if (child.classList.contains('block-column')) {
+                         while(child.firstChild) this.recycle(child.firstChild, 'block');
+                         this.recycle(child, 'column');
+                    } else if (child.classList.contains('block')) this.recycle(child, 'block');
+                    else if (child.classList.contains('cube')) this.recycle(child, 'cube');
+                    else child.remove();
+                }
+                this.recycle(cluster, 'cluster');
+            }
+        }
+    };
+
     /* --- ステート管理 --- */
     const STATE = {
         status: 'IDLE', is3DMode: false, isRandomMode: false, randomAtPlay: false,
         score: 0, queue: [], current: null, currentModeKey: 'EASY', rafId: null,
-        lapStartTime: 0, totalPlayTime: 0, currentInput: '',
+        // スローモーション用
+        elapsedTime: 0, 
+        lastTick: 0, 
+        slowUntil: 0, 
+        chargesToday: 3, 
+        
+        totalPlayTime: 0, currentInput: '',
         statsDetail: { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } },
         missedLog: [], questionCount: 0, generatedCount: 0, isExtreme: false, isInputBlocked: false,
         currentKbLayout: 'PHONE', 
@@ -502,8 +576,7 @@
         },
         history: [], historyIndex: 0, hasPlayedOnce: false, lastCount: null, lastShapeSig: null, consecutiveCountValue: 0
     };
-
-    let UI = {};
+let UI = {};
     const KB = { keys: {} };
 
     /* --- 起動時処理 (onload) --- */
@@ -527,11 +600,14 @@
             tuteCount: $id('tute-count'), tuteInput: $id('tute-input'), tuteStartBtn: $id('tute-start-btn'),
             tuteModeSelect: $id('tute-mode-select'), virtualKeyboard: $id('virtual-keyboard'),
             btnHowToBottom: $id('btn-how-to-bottom'), btnHowToOpening: $id('btn-how-to-opening'),
-            btnKeyLayoutToggle: $id('btn-key-layout-toggle'), timerPathL: null, timerPathR: null
+            btnKeyLayoutToggle: $id('btn-key-layout-toggle'), btnSlowMo: $id('btn-slow-mo'),
+            timerPathL: null, timerPathR: null
         };
 
         ['1','2','3','4','5','6','7','8','9','0','DEL'].forEach(k => { KB.keys[k] = $qs(`.kb-key[data-key="${k}"]`); });
 
+        DomPool.init(); 
+        initSlowMo();
         updateLoginStreak();
         initKeyLayout();
         adjustCentralLayout();
@@ -556,10 +632,7 @@
                     else { let val = parseInt(valStr, 10); if (!Number.isNaN(val)) processInput(val); }
                 }
             };
-            const clearState = (e) => {
-                const k = e.target.closest('.kb-key');
-                if(k) k.classList.remove('active-state');
-            };
+            const clearState = (e) => { const k = e.target.closest('.kb-key'); if(k) k.classList.remove('active-state'); };
             UI.virtualKeyboard.addEventListener('touchstart', handleKbInput, {passive: false});
             UI.virtualKeyboard.addEventListener('mousedown', handleKbInput);
             UI.virtualKeyboard.addEventListener('touchend', clearState);
@@ -591,14 +664,59 @@
         updateModeButtons(STATE.currentModeKey);
     };
 
+    /* --- スローモーション機能 (ALEXANDER - TIME STOP) --- */
+    function initSlowMo() {
+        const today = new Date().toLocaleDateString('ja-JP');
+        const lastDate = localStorage.getItem('snow_sm_date');
+        let left = parseInt(localStorage.getItem('snow_sm_left'), 10);
+        if (lastDate !== today || isNaN(left)) {
+            left = 3; localStorage.setItem('snow_sm_date', today); localStorage.setItem('snow_sm_left', 3);
+        }
+        STATE.chargesToday = left;
+        renderSlowMoBtn();
+    }
+    
+    function renderSlowMoBtn() {
+        const btn = UI.btnSlowMo;
+        const chargesContainer = $id('ts-charges');
+        if(!btn || !chargesContainer) return;
+        
+        let html = '';
+        // 3つのアイコンを描画 (active or used)
+        for(let i=0; i<3; i++) {
+            // i < chargesToday なら有効(⚡)、そうでなければ使用済み(usedクラス)
+            const isActive = i < STATE.chargesToday;
+            html += `<span class="ts-charge-icon ${isActive ? '' : 'used'}">⚡</span>`;
+        }
+        chargesContainer.innerHTML = html;
+        
+        if (STATE.chargesToday <= 0) btn.classList.add('disabled'); else btn.classList.remove('disabled');
+    }
+    
+    function activateSlowMo() {
+        if (STATE.status !== 'PLAYING' || STATE.chargesToday <= 0) return;
+        
+        const now = Date.now();
+        const DURATION = 13000; // ★13秒間
+
+        if (now < STATE.slowUntil) {
+            STATE.slowUntil += DURATION;
+        } else {
+            STATE.slowUntil = now + DURATION;
+            document.body.classList.add('slow-motion');
+        }
+        
+        STATE.chargesToday--;
+        localStorage.setItem('snow_sm_left', STATE.chargesToday);
+        renderSlowMoBtn(); // 再描画でアニメーション適用
+    }
+
     /* --- 機能関数群 --- */
     function adjustCentralLayout() {
         if (!UI.virtualKeyboard || !UI.tuteCentralMsg) return;
         const windowH = window.innerHeight;
         const kbH = UI.virtualKeyboard.offsetHeight;
-        const gameAreaH = windowH - kbH;
-        const centerY = (gameAreaH / 2) + 40;
-        UI.tuteCentralMsg.style.top = `${centerY}px`;
+        UI.tuteCentralMsg.style.top = `${(windowH - kbH) / 2 + 40}px`;
     }
     function initKeyLayout() {
         const saved = localStorage.getItem('snow_key_layout');
@@ -608,15 +726,13 @@
     }
     function toggleKeyLayout() {
         const currIdx = KB_SETTINGS.findIndex(s => s.id === STATE.currentKbLayout);
-        const nextIdx = (currIdx + 1) % KB_SETTINGS.length;
-        STATE.currentKbLayout = KB_SETTINGS[nextIdx].id;
+        STATE.currentKbLayout = KB_SETTINGS[(currIdx + 1) % KB_SETTINGS.length].id;
         localStorage.setItem('snow_key_layout', STATE.currentKbLayout);
         applyKeyLayout(STATE.currentKbLayout);
     }
     function applyKeyLayout(layoutId) {
         if(!UI.virtualKeyboard) return;
         const setting = KB_SETTINGS.find(s => s.id === layoutId);
-        if(!setting) return;
         KB_SETTINGS.forEach(s => {
              UI.virtualKeyboard.classList.remove(s.layoutClass);
              if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.classList.remove(s.btnClass);
@@ -627,7 +743,6 @@
             UI.btnKeyLayoutToggle.classList.add(setting.btnClass);
         }
     }
-
     function animateKey(kVal) {
         const btn = KB.keys[kVal];
         if(btn && !btn.classList.contains('disabled')) {
@@ -662,7 +777,6 @@
         } else { if(streak===0) streak=1; }
         if($id('login-streak-display')) $id('login-streak-display').innerText = '🔥' + streak;
     }
-
     function setupSlotTimerSVG() {
         const c = UI.slot1; if(!c) return;
         if(c.querySelector('.slot-timer-svg')) c.querySelector('.slot-timer-svg').remove();
@@ -728,10 +842,14 @@
         UI.tutorialOverlay.classList.add('active'); UI.hudModeLabel.classList.remove('show');
         $qsa('.eval-effect').forEach(e => e.remove());
         updateToggleButtonText(); UI.btnModeToggle.classList.remove('disabled');
+        
+        // ★ツールバー制御：アイドル時はキーボード切替のみ
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'flex';
+        if(UI.btnSlowMo) UI.btnSlowMo.style.display = 'none';
+        
         if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'flex';
         if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
-        UI.view1.innerHTML = ''; UI.view2.innerHTML = ''; UI.view3.innerHTML = '';
+        DomPool.clearView(UI.view1); DomPool.clearView(UI.view2); DomPool.clearView(UI.view3);
         checkUnlocks();
         $qsa('.mode-btn').forEach(b => { b.style.transform='skewX(-15deg)'; setTimeout(() => b.style.transform='', 50); });
         updateModeButtons(STATE.currentModeKey);
@@ -782,9 +900,13 @@
     function startCountdown() {
         STATE.status = 'COUNTDOWN'; STATE.isInputBlocked = true; STATE.hasPlayedOnce = true;
         UI.btnModeToggle.classList.add('disabled');
+        
+        // カウントダウン中もツールバー要素を隠す
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none';
+        if(UI.btnSlowMo) UI.btnSlowMo.style.display = 'none';
         if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'none';
         if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'none';
+        
         UI.bottomUi.classList.add('bottom-ui-dimmed');
         if(UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
         const seq = ['READY', '3', '2', '1']; let idx = 0;
@@ -795,7 +917,6 @@
         UI.hudModeLabel.innerText = `${STATE.currentModeKey}${STATE.isRandomMode ? ' [R]' : ''}`;
         UI.hudModeLabel.style.borderColor = mode.color; UI.hudModeLabel.style.color = mode.color; UI.hudModeLabel.classList.add('show');
         adjustCentralLayout();
-        /* 修正: カウントダウンを高速化 (600ms -> 300ms) */
         const t = setInterval(() => {
             idx++; UI.tuteBigMsg.classList.remove('pop'); void UI.tuteBigMsg.offsetWidth;
             if(idx < seq.length) { UI.tuteBigMsg.innerText = seq[idx]; UI.tuteBigMsg.classList.add('pop'); }
@@ -808,22 +929,56 @@
         STATE.statsDetail = { marvelous: {count:0,time:0}, excellent: {count:0,time:0}, great: {count:0,time:0}, good: {count:0,time:0}, ok: {count:0,time:0} };
         STATE.randomAtPlay = STATE.isRandomMode; STATE.lastCount = null; STATE.lastShapeSig = null; STATE.consecutiveCountValue = 0;
         if(UI.slot1) UI.slot1.style.border = 'none';
+        
+        // スロー初期化
+        STATE.slowUntil = 0; document.body.classList.remove('slow-motion');
+        
+        // ★戦闘モードUI: スローボタン表示、KB切替非表示
+        if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none';
+        if(UI.btnSlowMo) { UI.btnSlowMo.style.display = 'flex'; renderSlowMoBtn(); }
+        
         setupSlotTimerSVG(); addQueueItem(); addQueueItem(); addQueueItem();
         STATE.current = STATE.queue.shift(); renderQueue(); resetTimerVisuals();
-        STATE.lapStartTime = Date.now(); if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
+        
+        STATE.elapsedTime = 0;
+        STATE.lastTick = Date.now();
+        if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
         updateKeyboardLayoutForMode(); gameLoop();
     }
+    
     function gameLoop() {
         if(STATE.status !== 'PLAYING') return;
-        const now = Date.now(); const mode = MODES[STATE.currentModeKey];
-        const lap = (now - STATE.lapStartTime) / 1000;
-        if(lap > mode.time) { handleMiss("TIME", "-", STATE.current.count); return; }
-        const pct = Math.max(0, 1 - (lap / mode.time));
+        const now = Date.now();
+        const rawDelta = (now - STATE.lastTick) / 1000;
+        STATE.lastTick = now;
+
+        // スロー処理 (0.2倍速)
+        let timeFactor = 1.0;
+        if (now < STATE.slowUntil) {
+            timeFactor = 0.2; 
+        } else if (document.body.classList.contains('slow-motion')) {
+            document.body.classList.remove('slow-motion');
+        }
+
+        const effectiveDelta = rawDelta * timeFactor;
+        STATE.elapsedTime += effectiveDelta;
+        STATE.totalPlayTime += effectiveDelta; 
+
+        const mode = MODES[STATE.currentModeKey];
+        if (STATE.elapsedTime > mode.time) {
+            handleMiss("TIME", "-", STATE.current.count);
+            return;
+        }
+
+        const pct = Math.max(0, 1 - (STATE.elapsedTime / mode.time));
         const j = mode.judgments; let c = '#a0a0a0';
-        if (lap <= j.marv) c = '#fff200'; else if (lap <= j.exc) c = '#00ffff'; else if (lap <= j.great) c = '#00ff2a';
-        else if (j.good && lap <= j.good) c = '#ffaa00'; else if (j.ok && lap <= j.ok) c = '#b0b0b0'; else c = '#ff0033';
-        updateTimerSVG(pct, c); STATE.rafId = requestAnimationFrame(gameLoop);
+        if (STATE.elapsedTime <= j.marv) c = '#fff200'; else if (STATE.elapsedTime <= j.exc) c = '#00ffff'; else if (STATE.elapsedTime <= j.great) c = '#00ff2a';
+        else if (j.good && STATE.elapsedTime <= j.good) c = '#ffaa00'; else if (j.ok && STATE.elapsedTime <= j.ok) c = '#b0b0b0'; else c = '#ff0033';
+        
+        updateTimerSVG(pct, c);
+        STATE.rafId = requestAnimationFrame(gameLoop);
     }
+
     function processInput(val) { if(!STATE.current || STATE.isInputBlocked) return; checkAnswer(val); }
     function processInputExtreme(key) {
         if(!STATE.current || STATE.isInputBlocked) return;
@@ -833,10 +988,9 @@
         if (STATE.currentInput.length === tLen) { checkAnswer(parseInt(STATE.currentInput, 10)); STATE.currentInput = ''; }
     }
     function checkAnswer(val) {
-        const delta = (Date.now() - STATE.lapStartTime) / 1000;
+        const delta = STATE.elapsedTime;
         if(val === STATE.current.count) {
             const eff = Math.max(delta, CONFIG.capPerItemSec);
-            STATE.totalPlayTime += eff;
             const mode = MODES[STATE.currentModeKey]; const j = mode.judgments;
             let k="miss", l="MISS";
             if (delta <= j.marv) { k="marvelous"; l="MARVELOUS"; } else if (delta <= j.exc) { k="excellent"; l="EXCELLENT"; }
@@ -844,7 +998,7 @@
             else if (j.ok && delta <= j.ok) { k="ok"; l="OK"; } else { handleMiss("SLOW", val, STATE.current.count); return; }
             STATE.statsDetail[k].count++; STATE.statsDetail[k].time += eff;
             triggerEvalEffect(l); flashSlot(l);
-            if(STATE.questionCount >= mode.count - 1) { UI.view1.innerHTML = ''; gameOver("FINISHED"); } else nextQuestion();
+            if(STATE.questionCount >= mode.count - 1) { DomPool.clearView(UI.view1); gameOver("FINISHED"); } else nextQuestion();
         } else handleMiss("TYPE", val, STATE.current.count);
     }
     function flashSlot(grade) {
@@ -858,13 +1012,12 @@
     }
     function handleMiss(res, inp, ans) {
         STATE.missedLog.push({ input:inp, answer:ans, shape:STATE.is3DMode?STATE.current.shape.map(r=>[...r]):[...STATE.current.shape], layout:STATE.current.shape._rndPositions?STATE.current.shape._rndPositions.map(p=>({x:p.x,y:p.y})):null, mode:STATE.currentModeKey, is3D:STATE.is3DMode, isRandom:STATE.randomAtPlay });
-        STATE.totalPlayTime += (Date.now() - STATE.lapStartTime)/1000;
         flashSlot("MISS"); gameOver(res==="TIME"?"TIME OVER":res==="SLOW"?"TOO SLOW":"NICE TRY");
     }
     function nextQuestion() {
         STATE.questionCount++; if(STATE.queue.length < 3) addQueueItem();
         STATE.current = STATE.queue.shift(); renderQueue(); resetTimerVisuals();
-        STATE.lapStartTime = Date.now(); STATE.currentInput = '';
+        STATE.elapsedTime = 0; STATE.currentInput = '';
     }
     function triggerEvalEffect(txt) {
         $qsa('.eval-effect').forEach(e => e.remove());
@@ -877,19 +1030,21 @@
         if(STATE.generatedCount >= mode.count) { STATE.queue.push({count:null,shape:[]}); return; }
         let n;
         for (let i=0; i<2000; i++) {
-            if(mk==='EASY') { const r=Math.random()*100; n = (r<28)?2:(r<56)?3:(r<85)?4:5; }
-            else if(mk==='NORMAL') { const r=Math.random()*100; if(r<25) n=(Math.random()<0.5)?3:4; else { n=5+Math.floor(Math.random()*4); if(Math.random()>0.9)n=9; } }
-            else if(mk==='HARD') n = (STATE.generatedCount<5) ? Math.floor(10+Math.random()*6) : Math.floor(15+Math.random()*5);
-            else { const q=STATE.generatedCount+1; let min,max; if(q===1){min=13;max=16;}else if(q<=3){min=17;max=22;}else if(q<=5){min=23;max=29;}else if(q<=7){min=30;max=35;}else if(q<=9){min=36;max=39;}else{min=40;max=42;} n=Math.floor(min+Math.random()*(max-min+1)); }
-            
+            if (mk === 'EASY' || mk === 'NORMAL' || mk === 'HARD') n = BagSystem.getNext(mk);
+            else { 
+                const q = STATE.generatedCount+1; 
+                let min,max; 
+                if(q===1){min=13;max=16;}else if(q<=3){min=17;max=22;}else if(q<=5){min=23;max=29;}else if(q<=7){min=30;max=35;}else if(q<=9){min=36;max=39;}else{min=40;max=42;} 
+                n = Math.floor(min + Math.random()*(max-min+1)); 
+            }
             let maxH=(mk==='EASY'?3:mk==='NORMAL'?5:mk==='HARD'?7:9), cols=(mk==='EASY'||mk==='NORMAL'?3:mk==='HARD'?4:9);
             if(mk==='HARD' && STATE.queue.length>0 && STATE.queue[STATE.queue.length-1].shape.length===5) cols=4; else if(mk==='HARD') cols=Math.random()<0.5?4:5;
-            
             let sData = STATE.is3DMode ? generateStadium3D_Strict(n,cols,maxH) : generateShape2D_Connected(n,cols,maxH);
             let tCount = 0; if(STATE.is3DMode) sData.forEach(r=>r.forEach(h=>tCount+=h)); else sData.forEach(h=>tCount+=h);
             if(tCount===0 && n>0) tCount=1;
             const sig = JSON.stringify(sData);
-            if((STATE.lastShapeSig && sig===STATE.lastShapeSig) || (STATE.lastCount===tCount && STATE.consecutiveCountValue>=2)) continue;
+            if(STATE.lastShapeSig && sig===STATE.lastShapeSig) continue;
+            if((mk==='EXTREME') && (STATE.lastCount===tCount && STATE.consecutiveCountValue>=2)) continue;
             if(STATE.lastCount===tCount) STATE.consecutiveCountValue++; else STATE.consecutiveCountValue=1;
             STATE.lastCount=tCount; STATE.lastShapeSig=sig; STATE.queue.push({count:tCount, shape:sData}); break;
         }
@@ -917,14 +1072,14 @@
         renderShape(UI.view1, STATE.current?STATE.current.shape:[]); renderShape(UI.view2, STATE.queue[0]?STATE.queue[0].shape:[]); renderShape(UI.view3, STATE.queue[1]?STATE.queue[1].shape:[]);
     }
     function renderShape(el, d) {
-        if(!el) return; el.innerHTML=''; if(!d) return;
+        if(!el) return; DomPool.clearView(el); if(!d) return;
         const mc = 'mode-'+STATE.currentModeKey.toLowerCase();
         if(STATE.is3DMode) render3D(el,d,mc); else render2D(el,Array.isArray(d[0])?d.flat().filter(h=>h>0):d,mc,STATE.randomAtPlay);
     }
     function render2D(el, arr, mc, rnd) {
         const t = Array.isArray(arr)?arr.reduce((a,b)=>a+b,0):0; if(t<=0) return;
         if(rnd) {
-            const c = document.createElement('div'); c.className='cluster-container random-layout'; el.appendChild(c);
+            const c = DomPool.get('cluster'); c.className='cluster-container random-layout'; el.appendChild(c);
             let pos = arr._rndPositions || [];
             if(pos.length!==t) {
                 pos=[]; const used=[]; const r=el.getBoundingClientRect(), W=r.width||window.innerWidth, H=r.height||(window.innerHeight*0.5), S=Math.min(window.innerWidth*0.075,30);
@@ -937,29 +1092,35 @@
                     } used.push(best); pos.push(best.pct);
                 } arr._rndPositions = pos;
             }
-            pos.forEach(p => { const b=document.createElement('div'); b.className='block '+mc+' block-random'; b.style.left=p.x+'%'; b.style.top=p.y+'%'; b.style.transform='translate(-50%,-50%)'; c.appendChild(b); });
+            pos.forEach(p => { const b=DomPool.get('block'); b.className='block '+mc+' block-random'; b.style.left=p.x+'%'; b.style.top=p.y+'%'; b.style.transform='translate(-50%,-50%)'; c.appendChild(b); });
         } else {
-            const c=document.createElement('div'); c.className='cluster-container';
-            arr.forEach(h=>{ if(h===0)return; const col=document.createElement('div'); col.className='block-column'; for(let i=0;i<h;i++){const b=document.createElement('div');b.className='block '+mc;col.appendChild(b);} c.appendChild(col); });
+            const c=DomPool.get('cluster'); c.className='cluster-container';
+            arr.forEach(h=>{ 
+                if(h===0)return; 
+                const col=DomPool.get('column'); col.className='block-column'; 
+                for(let i=0;i<h;i++){ const b=DomPool.get('block'); b.className='block '+mc; col.appendChild(b); } 
+                c.appendChild(col); 
+            });
             el.appendChild(c);
         }
     }
     function render3D(el, g, mc) {
-        const c=document.createElement('div'); c.className='cluster-container real-3d';
+        const c=DomPool.get('cluster'); c.className='cluster-container real-3d';
         const bs=parseInt(getComputedStyle(document.body).getPropertyValue('--block-size-3d')), off=(g.length*bs)/2 - bs/2;
         let cubes=[];
-        g.forEach((r,x)=>{ r.forEach((h,z)=>{ if(h===0)return; for(let y=0;y<h;y++) cubes.push({html:createCubeHTML(mc,(x*bs)-off, y*bs, (z*bs)-off), k:x-z}); }); });
+        g.forEach((r,x)=>{ r.forEach((h,z)=>{ if(h===0)return; for(let y=0;y<h;y++) {
+            const cube = DomPool.get('cube'); cube.className = 'cube '+mc;
+            cube.style.transform=`translateX(${(x*bs)-off}px) translateY(${-(y*bs)}px) translateZ(${(z*bs)-off}px)`;
+            cubes.push({html:cube, k:x-z}); 
+        }}); });
         cubes.sort((a,b)=>a.k-b.k).forEach(o=>c.appendChild(o.html)); el.appendChild(c);
-    }
-    function createCubeHTML(mc,x,y,z) {
-        const c=document.createElement('div'); c.className='cube '+mc; c.style.transform=`translateX(${x}px) translateY(${-y}px) translateZ(${z}px)`;
-        ['front','back','left','right','top','bottom'].forEach(f=>{ const d=document.createElement('div'); d.className='face face-'+f; c.appendChild(d); }); return c;
     }
     function triggerRipple(el) { if(!el)return; el.classList.remove('ripple'); void el.offsetWidth; el.classList.add('ripple'); setTimeout(()=>el.classList.remove('ripple'),350); }
     function gameOver(res) {
         if(STATE.status==='GAMEOVER') return; STATE.status='GAMEOVER'; STATE.isInputBlocked=true; if(STATE.rafId)cancelAnimationFrame(STATE.rafId);
         $qsa('.kb-key').forEach(k=>k.classList.remove('active-state'));
         if(res==="FINISHED") UI.victoryShutter.classList.add('active'); else UI.failShutter.classList.add('active');
+        document.body.classList.remove('slow-motion'); 
         const ac=(res==='FINISHED')?MODES[STATE.currentModeKey].count:STATE.questionCount;
         const ts=Math.max(0.1, STATE.totalPlayTime); let ch=Math.floor((ac/ts)*3600); if(ch>CONFIG.capCh) ch=CONFIG.capCh;
         
@@ -1001,11 +1162,10 @@
         else UI.resultCardContainer.classList.add('bg-'+d.rank.toLowerCase());
         
         if(nt) { UI.resMsg.style.display='none'; } else { UI.resMsg.innerText=(d.reason==="FINISHED")?"":d.reason; UI.resMsg.style.display='block'; UI.resMsg.className=""; if(d.reason==="NICE TRY"||d.reason==="TOO SLOW")UI.resMsg.classList.add("res-msg-nice"); else if(d.reason==="TIME OVER")UI.resMsg.classList.add("res-msg-platinum"); }
-        /* 修正: "STAGE CLEAR"の文言を非表示 */
         UI.resStatusMsg.classList.remove('show'); UI.resStatusMsg.innerText=''; UI.resUnlockWrapper.classList.remove('show'); UI.resUnlockWrapper.innerHTML='';
         if(d.reason==="FINISHED") {
             if(d.unlockEvent) { UI.resUnlockWrapper.innerHTML=`<div class="unlock-badge mode-${d.unlockEvent.toLowerCase()}"><div class="main-text">UNLOCKED</div><div class="sub-text">${d.unlockEvent}</div></div>`; UI.resUnlockWrapper.classList.add('show'); }
-            else { UI.resStatusMsg.innerText="STAGE CLEAR"; UI.resStatusMsg.classList.add('status-clear','show'); /* ここも実際にはCSSで非表示にするか、UI.resStatusMsg.style.display='none'でも良いが、要望通り文言を空にするだけで対応済 */ UI.resStatusMsg.innerText = ""; }
+            else { UI.resStatusMsg.innerText=""; }
         }
         UI.newRecordBadge.classList[d.isNewRecord?'add':'remove']('show');
         const avgT=(d.totalTime/d.count).toFixed(2);
@@ -1038,7 +1198,8 @@
                 const b=document.createElement('div'); b.className='fb-body';
                 const i=document.createElement('div'); i.className='fb-body-inner'+(m.is3D?' fb-3d':' fb-2d')+(m.mode==='EXTREME'?' fb-extreme':'');
                 if(m.layout && Array.isArray(m.shape)) m.shape._rndPositions=m.layout.map(p=>({x:p.x,y:p.y}));
-                renderShape(i,m.shape); b.appendChild(i);
+                renderShape(i,m.shape); 
+                b.appendChild(i);
                 const f=document.createElement('div'); f.className='fb-footer'; f.innerHTML=`<span class="fb-lbl">INP</span><span class="fb-val-wrong">${m.input}</span> <span class="fb-lbl">ANS</span><span class="fb-val-correct">${m.answer}</span>`;
                 r.appendChild(b); r.appendChild(f); UI.missItemsRow.appendChild(r);
             });
