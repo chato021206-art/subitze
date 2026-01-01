@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SNOW: SMASH SUBITIZING - FERMATA</title>
+<title>SNOW: SMASH SUBITIZING - FERMATA AESTHETIC</title>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +14,15 @@
     --g-exc: #fff200;  --g-perf: #00ffff; --g-grt: #00ff2a;
     --g-good: #ffaa00; --g-ok:   #b0b0b0; --g-miss: #ff0033;
     --c-easy: #55ff33; --c-normal: #00aaff; --c-hard: #ffcc00; --c-extreme: #ff0022; --c-random: #d000ff;
+    
+    /* FERMATA COLORS */
+    --f-warm-border: rgba(170, 153, 136, 0.6); /* グレージュの枠 */
+    --f-warm-bg: rgba(40, 36, 32, 0.85);       /* 暖かみのあるダークグレー */
+    --f-icon-active: #EEDDCC;                  /* 暖かみのある白（ボーンホワイト） */
+    
+    --f-cool-bg: rgba(20, 22, 25, 0.4);        /* 通常世界より少し冷たい背景 */
+    --f-icon-cesura: #9A9A9A;                  /* 冷たいニュートラルグレー */
+
     --font-ui: 'Montserrat', 'Noto Sans JP', sans-serif;
     --font-num: 'Montserrat', sans-serif;
     --block-size-base: min(7.5vw, 30px);
@@ -93,27 +102,60 @@
   #btn-mode-toggle:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   #btn-mode-toggle.random-on { background: #330033; border-color: #d000ff; color: #fff; box-shadow: 0 0 15px rgba(208, 0, 255, 0.4); }
 
-  /* ツールバー & フェルマータボタン */
-  #kb-toolbar { width: 100%; display: flex; justify-content: flex-start; align-items: flex-end; padding: 0 10px; margin-bottom: 8px; z-index: 3001; position: relative; pointer-events: none; gap: 8px; }
+  /* ツールバー */
+  #kb-toolbar { 
+      width: 100%; display: flex; justify-content: space-between; 
+      align-items: flex-end; padding: 0 10px; margin-bottom: 8px; z-index: 3001; position: relative; pointer-events: none; 
+  }
   
-  #btn-key-layout-toggle { pointer-events: auto; background: #000; border: 3px solid #444; color: #ddd; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; transition: all 0.2s; display: flex; }
+  #btn-key-layout-toggle { pointer-events: auto; background: #000; border: 3px solid #444; color: #ddd; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; transition: all 0.2s; display: flex; margin-right: auto; }
   #btn-key-layout-toggle:active { transform: skewX(-10deg) translateY(2px); filter: brightness(1.2); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
   
-  /* FERMATAボタン */
-  #btn-slow-mo { pointer-events: auto; background: #2a1a00; border: 2px solid #eebb00; color: #ffeeaa; border-radius: 4px; padding: 4px 16px; font-family: var(--font-ui); font-weight: 900; font-size: 11px; font-style: italic; cursor: pointer; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,0.8); letter-spacing: 0.5px; transform: skewX(-10deg); transform-origin: bottom left; display: none; align-items: center; gap: 8px; transition: all 0.1s; }
-  #btn-slow-mo:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); filter: brightness(1.5); }
-  #btn-slow-mo.disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; border-color: #555; background: #222; color: #888; }
-  
-  /* インジケーター演出 (フェルマータ -> 休符) */
-  .ts-charge-container { display: flex; gap: 4px; }
-  /* ★サイズアップ 14px -> 18px */
-  .ts-charge-icon { 
-      font-size: 18px; font-weight: 400; color: #eebb00; text-shadow: 0 0 5px #ffaa00; 
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; width: 18px; text-align: center;
+  /* FERMATAボタン (Aesthetic) */
+  #btn-slow-mo { 
+      pointer-events: auto; 
+      border-radius: 4px; padding: 0px 8px; 
+      font-family: var(--font-ui); font-weight: 900; font-style: italic; cursor: pointer; text-transform: uppercase; 
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.8); transform: skewX(-10deg); transform-origin: bottom left; 
+      display: none; align-items: center; justify-content: center; transition: all 0.2s; min-width: 80px; height: 36px;
+      margin-left: auto; 
+      
+      /* デフォルト(Ready) */
+      background: var(--f-warm-bg);
+      border: 2px solid var(--f-warm-border);
+      color: var(--f-icon-active);
   }
-  /* ★休符（使用済み）の色を明るいグレーにして、くっきりと表示 */
-  .ts-charge-icon.used { 
-      color: #999; text-shadow: 1px 1px 0 #000; opacity: 1; transform: rotate(360deg) scale(0.9);
+  #btn-slow-mo:active { transform: skewX(-10deg) translateY(2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.8); }
+  
+  /* 枯渇状態 (//) - 枠線消去、背景冷色 */
+  #btn-slow-mo.depleted { 
+      background: var(--f-cool-bg);
+      border: 2px solid transparent; /* 枠線を消す */
+      box-shadow: none;
+      pointer-events: none;
+      filter: none;
+  }
+  
+  /* 発動中 (Running) - 干渉不可 */
+  #btn-slow-mo.running {
+      opacity: 0.7;
+      pointer-events: none; /* 押せないようにする */
+      filter: brightness(0.8);
+      border-color: rgba(255,255,255,0.2);
+  }
+
+  /* インジケーター */
+  .ts-charge-container { display: flex; gap: 6px; justify-content: center; width: 100%; align-items: center; } 
+  .ts-charge-icon { 
+      font-size: 36px; font-weight: 400; text-shadow: 0 0 5px rgba(238, 221, 204, 0.3);
+      color: var(--f-icon-active);
+      display: inline-block; text-align: center; line-height: 0.8; letter-spacing: -4px;
+  }
+  /* カエスーラ (#9A9A9A) */
+  .ts-charge-icon.used-cesura { 
+      color: var(--f-icon-cesura); 
+      text-shadow: none; 
+      font-size: 24px; letter-spacing: 2px; font-weight: 900; font-style: italic; font-family: monospace;
   }
   
   .btn-color-a { border-color: #00ccff !important; color: #00ccff !important; text-shadow: 0 0 5px rgba(0, 204, 255, 0.5); background: linear-gradient(to top, rgba(0, 204, 255, 0.1), #000) !important; }
@@ -381,7 +423,6 @@
     <div id="kb-toolbar">
         <button id="btn-key-layout-toggle" class="btn-color-a">KEYBOARD TYPE A</button>
         <button id="btn-slow-mo" onclick="activateSlowMo()">
-            <span>FERMATA</span>
             <div id="ts-charges" class="ts-charge-container"></div>
         </button>
     </div>
@@ -464,7 +505,7 @@
 
     /* --- 設定・定数 (CONFIG) --- */
     const CONFIG = {
-        VERSION: 'Ver 43.2 ', 
+        VERSION: 'Ver 43.6 FERMATA', 
         capPerItemSec: 0.1,
         capCh: 36000
     };
@@ -584,9 +625,11 @@
         },
         history: [], historyIndex: 0, hasPlayedOnce: false, lastCount: null, lastShapeSig: null, consecutiveCountValue: 0
     };
-
 let UI = {};
     const KB = { keys: {} };
+    
+    // 裏コマンド用変数 (Admin Cheat)
+    let lastSlashPressTime = 0;
 
     /* --- 起動時処理 (onload) --- */
     window.onload = () => {
@@ -651,6 +694,20 @@ let UI = {};
 
         window.addEventListener('keydown', (e) => {
             if(e.repeat) return;
+            
+            // ★裏コマンド: '/' (Slash) のダブルタップ検知
+            if (e.key === '/') {
+                const now = Date.now();
+                if (now - lastSlashPressTime < 400) { // 0.4秒以内の連打で発動
+                    STATE.chargesToday = 3;
+                    localStorage.setItem('snow_sm_left', 3);
+                    renderSlowMoBtn();
+                    // Admin機能のためフィードバックなし
+                }
+                lastSlashPressTime = now;
+                return; 
+            }
+
             if ((e.key === '.' || e.code === 'NumpadDecimal') && STATE.status === 'IDLE') { e.preventDefault(); toggleDimensionMode(); return; }
             if (STATE.isInputBlocked) { if(STATE.status === 'GAMEOVER' && e.key === 'Enter') resetToIdle(); return; }
             if(STATE.status === 'PLAYING') {
@@ -673,7 +730,7 @@ let UI = {};
         updateModeButtons(STATE.currentModeKey);
     };
 
-    /* --- スローモーション機能 (FERMATA) --- */
+    /* --- スローモーション機能 (FERMATA AESTHETIC) --- */
     function initSlowMo() {
         const today = new Date().toLocaleDateString('ja-JP');
         const lastDate = localStorage.getItem('snow_sm_date');
@@ -691,34 +748,39 @@ let UI = {};
         if(!btn || !chargesContainer) return;
         
         let html = '';
-        // 3つのアイコンを描画 (フェルマータ or 休符)
-        for(let i=0; i<3; i++) {
-            const isActive = i < STATE.chargesToday;
-            // 𝄐 (Fermata) / 𝄽 (Quarter Rest)
-            const symbol = isActive ? '𝄐' : '𝄽';
-            html += `<span class="ts-charge-icon ${isActive ? '' : 'used'}">${symbol}</span>`;
+        if (STATE.chargesToday > 0) {
+            // 残りの数だけ 𝄐 (フェルマータ) を表示
+            // 暖かみのある色、枠線あり
+            for(let i=0; i<STATE.chargesToday; i++) {
+                html += '<span class="ts-charge-icon">𝄐</span>';
+            }
+            btn.classList.remove('disabled', 'depleted');
+        } else {
+            // 使い切ったら // (Cesura - カエスーラ)
+            // 枠線消去、冷たい背景、冷たいグレーの記号
+            html = '<span class="ts-charge-icon used-cesura">//</span>';
+            btn.classList.add('disabled', 'depleted');
         }
         chargesContainer.innerHTML = html;
-        
-        if (STATE.chargesToday <= 0) btn.classList.add('disabled'); else btn.classList.remove('disabled');
     }
     
     function activateSlowMo() {
+        // 発動条件: プレイ中かつ、残弾ありかつ、既にスロー中でないこと
         if (STATE.status !== 'PLAYING' || STATE.chargesToday <= 0) return;
+        if (Date.now() < STATE.slowUntil) return; // 既に発動中なら無視
         
         const now = Date.now();
-        const DURATION = 13000; // 13秒間
+        const DURATION = 13000; // 13秒
 
-        if (now < STATE.slowUntil) {
-            STATE.slowUntil += DURATION;
-        } else {
-            STATE.slowUntil = now + DURATION;
-            document.body.classList.add('slow-motion');
-        }
+        STATE.slowUntil = now + DURATION;
+        document.body.classList.add('slow-motion');
+        
+        // ボタンをロック (running状態)
+        if(UI.btnSlowMo) UI.btnSlowMo.classList.add('running');
         
         STATE.chargesToday--;
         localStorage.setItem('snow_sm_left', STATE.chargesToday);
-        renderSlowMoBtn(); // 再描画でアニメーション適用
+        renderSlowMoBtn(); // 残数更新
     }
 
     /* --- 機能関数群 --- */
@@ -853,9 +915,12 @@ let UI = {};
         $qsa('.eval-effect').forEach(e => e.remove());
         updateToggleButtonText(); UI.btnModeToggle.classList.remove('disabled');
         
-        // ★ツールバー制御
+        // ★ツールバー制御: IDLE時は切替ボタンのみ
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'flex';
-        if(UI.btnSlowMo) UI.btnSlowMo.style.display = 'none';
+        if(UI.btnSlowMo) {
+            UI.btnSlowMo.style.display = 'none';
+            UI.btnSlowMo.classList.remove('running'); // リセット時にロックも解除
+        }
         
         if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'flex';
         if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
@@ -910,13 +975,11 @@ let UI = {};
     function startCountdown() {
         STATE.status = 'COUNTDOWN'; STATE.isInputBlocked = true; STATE.hasPlayedOnce = true;
         UI.btnModeToggle.classList.add('disabled');
-        
-        // カウントダウン中もツールバー要素を隠す
+        // カウントダウン中はツールバー要素を隠す
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none';
         if(UI.btnSlowMo) UI.btnSlowMo.style.display = 'none';
         if(UI.btnModeToggle) UI.btnModeToggle.style.display = 'none';
         if(UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'none';
-        
         UI.bottomUi.classList.add('bottom-ui-dimmed');
         if(UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'none';
         const seq = ['READY', '3', '2', '1']; let idx = 0;
@@ -940,12 +1003,15 @@ let UI = {};
         STATE.randomAtPlay = STATE.isRandomMode; STATE.lastCount = null; STATE.lastShapeSig = null; STATE.consecutiveCountValue = 0;
         if(UI.slot1) UI.slot1.style.border = 'none';
         
-        // スロー初期化
         STATE.slowUntil = 0; document.body.classList.remove('slow-motion');
         
         // ★戦闘モードUI
         if(UI.btnKeyLayoutToggle) UI.btnKeyLayoutToggle.style.display = 'none';
-        if(UI.btnSlowMo) { UI.btnSlowMo.style.display = 'flex'; renderSlowMoBtn(); }
+        if(UI.btnSlowMo) { 
+            UI.btnSlowMo.style.display = 'flex'; 
+            UI.btnSlowMo.classList.remove('running'); // ゲーム開始時はロック解除
+            renderSlowMoBtn(); 
+        }
         
         setupSlotTimerSVG(); addQueueItem(); addQueueItem(); addQueueItem();
         STATE.current = STATE.queue.shift(); renderQueue(); resetTimerVisuals();
@@ -966,8 +1032,13 @@ let UI = {};
         let timeFactor = 1.0;
         if (now < STATE.slowUntil) {
             timeFactor = 0.2; 
-        } else if (document.body.classList.contains('slow-motion')) {
-            document.body.classList.remove('slow-motion');
+        } else {
+            // スロー終了処理
+            if (document.body.classList.contains('slow-motion')) {
+                document.body.classList.remove('slow-motion');
+                // ロック解除
+                if(UI.btnSlowMo) UI.btnSlowMo.classList.remove('running');
+            }
         }
 
         const effectiveDelta = rawDelta * timeFactor;
@@ -1208,7 +1279,6 @@ let UI = {};
                 const b=document.createElement('div'); b.className='fb-body';
                 const i=document.createElement('div'); i.className='fb-body-inner'+(m.is3D?' fb-3d':' fb-2d')+(m.mode==='EXTREME'?' fb-extreme':'');
                 if(m.layout && Array.isArray(m.shape)) m.shape._rndPositions=m.layout.map(p=>({x:p.x,y:p.y}));
-                // 静的表示用なのでPoolは使わず直接描画
                 renderShape(i,m.shape); 
                 b.appendChild(i);
                 const f=document.createElement('div'); f.className='fb-footer'; f.innerHTML=`<span class="fb-lbl">INP</span><span class="fb-val-wrong">${m.input}</span> <span class="fb-lbl">ANS</span><span class="fb-val-correct">${m.answer}</span>`;
