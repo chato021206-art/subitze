@@ -28,7 +28,8 @@
     --block-size-base: min(7.5vw, 30px);
     --block-size-2d: var(--block-size-base);
     --block-size-3d: calc(var(--block-size-base) * 1.1);
-    --kb-height: clamp(200px, 33dvh, 320px);
+    --kb-height-base: clamp(200px, 33dvh, 320px);
+    --kb-height: calc(var(--kb-height-base) + 6mm);
     --footer-base-height: 80px;
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     --footer-total-height: calc(var(--footer-base-height) + var(--safe-area-bottom));
@@ -300,6 +301,7 @@
   .res-title { font-size: 32px; font-weight: 900; font-style: italic; letter-spacing: -3px; paint-order: stroke fill; -webkit-text-stroke: 1.5px #000; text-shadow: 3px 3px 0 #000; }
   .res-status-msg { font-size: min(50px, 12vw); font-weight: 900; font-style: italic; margin-top: 10px; display: none; text-transform: uppercase; letter-spacing: -4px; paint-order: stroke fill; -webkit-text-stroke: 2px #000; transform: skewX(-10deg) scale(1, 1.1); filter: drop-shadow(5px 5px 0 #000); text-align: center; line-height: 0.9; padding-right: 0.2em; }
   .res-status-msg.show { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .score-fermata-mark { color: #ffe6c9; margin-left: 8px; text-shadow: 0 0 8px rgba(255, 208, 150, 0.7); }
   @keyframes popIn { from { transform: translateY(20px) scale(0.5) skewX(-10deg); opacity: 0; } to { transform: translateY(0) scale(1) skewX(-10deg); opacity: 1; } }
   .status-clear { color: #fff; background: linear-gradient(to bottom, #fff 30%, #00aaff 60%, #003366 100%); -webkit-background-clip: text; color: transparent; -webkit-text-stroke: 0; text-shadow: 0 0 10px rgba(0,170,255,0.8); position: relative; }
   .res-unlock-wrapper { display: none; justify-content: center; margin-top: 20px; margin-bottom: 15px; }
@@ -623,7 +625,8 @@
             ranks3D: { EASY: null, NORMAL: null, HARD: null, EXTREME: null },
             bestCH: 0, bestEasyCH: 0, modeScores: { EASY: 0, NORMAL: 0, HARD: 0, EXTREME: 0 }
         },
-        history: [], historyIndex: 0, hasPlayedOnce: false, lastCount: null, lastShapeSig: null, consecutiveCountValue: 0
+        history: [], historyIndex: 0, hasPlayedOnce: false, lastCount: null, lastShapeSig: null, consecutiveCountValue: 0,
+        fermataUsedInRun: false
     };
 let UI = {};
     const KB = { keys: {} };
@@ -774,7 +777,8 @@ let UI = {};
 
         STATE.slowUntil = now + DURATION;
         document.body.classList.add('slow-motion');
-        
+        STATE.fermataUsedInRun = true;
+      
         // ボタンをロック (running状態)
         if(UI.btnSlowMo) UI.btnSlowMo.classList.add('running');
         
@@ -1001,6 +1005,7 @@ let UI = {};
         STATE.totalPlayTime = 0; STATE.missedLog = []; STATE.queue = []; STATE.currentInput = '';
         STATE.statsDetail = { marvelous: {count:0,time:0}, excellent: {count:0,time:0}, great: {count:0,time:0}, good: {count:0,time:0}, ok: {count:0,time:0} };
         STATE.randomAtPlay = STATE.isRandomMode; STATE.lastCount = null; STATE.lastShapeSig = null; STATE.consecutiveCountValue = 0;
+        STATE.fermataUsedInRun = false;
         if(UI.slot1) UI.slot1.style.border = 'none';
         
         STATE.slowUntil = 0; document.body.classList.remove('slow-motion');
@@ -1115,7 +1120,7 @@ let UI = {};
             else { 
                 const q = STATE.generatedCount+1; 
                 let min,max; 
-                if(q===1){min=13;max=16;}else if(q<=3){min=17;max=22;}else if(q<=5){min=23;max=29;}else if(q<=7){min=30;max=35;}else if(q<=9){min=36;max=39;}else{min=40;max=42;} 
+                if(q===1){min=13;max=16;}else if(q<=3){min=17;max=22;}else if(q<=5){min=23;max=29;}else if(q<=7){min=30;max=35;}else if(q<=9){min=36;max=39;}else{min=40;max=45;} 
                 n = Math.floor(min + Math.random()*(max-min+1)); 
             }
             let maxH=(mk==='EASY'?3:mk==='NORMAL'?5:mk==='HARD'?7:9), cols=(mk==='EASY'||mk==='NORMAL'?3:mk==='HARD'?4:9);
@@ -1205,7 +1210,7 @@ let UI = {};
         const ac=(res==='FINISHED')?MODES[STATE.currentModeKey].count:STATE.questionCount;
         const ts=Math.max(0.1, STATE.totalPlayTime); let ch=Math.floor((ac/ts)*3600); if(ch>CONFIG.capCh) ch=CONFIG.capCh;
         
-        const dat={ modeName:STATE.currentModeKey, is3D:STATE.is3DMode, isRandom:STATE.randomAtPlay, score:ch, totalTime:ts, count:ac, reason:res, missedLog:[...STATE.missedLog], statsDetail:JSON.parse(JSON.stringify(STATE.statsDetail)), isNewRecord:false, unlockEvent:null, rank:'F' };
+        const dat={ modeName:STATE.currentModeKey, is3D:STATE.is3DMode, isRandom:STATE.randomAtPlay, score:ch, totalTime:ts, count:ac,totalQuestions:MODES[STATE.currentModeKey].count, reason:res, missedLog:[...STATE.missedLog], statsDetail:JSON.parse(JSON.stringify(STATE.statsDetail)), isNewRecord:false, unlockEvent:null, rank:'F', fermataUsed:STATE.fermataUsedInRun }; 
         
         const wNL=isModeLocked('NORMAL'), wHL=isModeLocked('HARD'), wEL=isModeLocked('EXTREME');
         if(res==="FINISHED") {
@@ -1246,10 +1251,15 @@ let UI = {};
         UI.resStatusMsg.classList.remove('show'); UI.resStatusMsg.innerText=''; UI.resUnlockWrapper.classList.remove('show'); UI.resUnlockWrapper.innerHTML='';
         if(d.reason==="FINISHED") {
             if(d.unlockEvent) { UI.resUnlockWrapper.innerHTML=`<div class="unlock-badge mode-${d.unlockEvent.toLowerCase()}"><div class="main-text">UNLOCKED</div><div class="sub-text">${d.unlockEvent}</div></div>`; UI.resUnlockWrapper.classList.add('show'); }
+            else if(d.fermataUsed) { UI.resStatusMsg.innerText='FERMATA USED 𝄐'; UI.resStatusMsg.classList.add('show'); }
             else { UI.resStatusMsg.innerText=""; }
+           } else if(d.fermataUsed) {
+            UI.resStatusMsg.innerText='FERMATA USED 𝄐'; UI.resStatusMsg.classList.add('show');
         }
         UI.newRecordBadge.classList[d.isNewRecord?'add':'remove']('show');
         const avgT=(d.totalTime/d.count).toFixed(2);
+        const scoreSuffix = d.fermataUsed ? '<span class="score-fermata-mark" title="Fermata Used">𝄐</span>' : '';
+        const totalQuestions = d.totalQuestions || MODES[d.modeName].count;
         let nxt=""; 
         if(d.reason==='FINISHED') {
              const ri=RANK_ORDER.indexOf(d.rank);
@@ -1258,8 +1268,7 @@ let UI = {};
                  if(th) nxt=`<div class="next-rank-line">NEXT RANK ${nr==='GOD'||nr==='Z'?'???':nr}: +${(Math.max(0,th-d.score)).toLocaleString()} ch</div>`;
              } else nxt=`<div class="next-rank-line">MAX RANK</div>`;
         }
-        UI.resTotalBox.innerHTML = d.score>0 ? `<span class="total-label">TOTAL SCORE</span>${Number(d.score).toLocaleString()} <span style="font-size:16px;">ch</span><span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgT}s</span></span>${nxt}` : `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>`;
-        
+               UI.resTotalBox.innerHTML = d.score>0 ? `<span class="total-label">TOTAL SCORE</span>${Number(d.score).toLocaleString()} <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgT}s</span></span><span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>${nxt}` : `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>`;
         UI.detailTableBody.innerHTML='';
         [{k:'marvelous',l:'MARVELOUS',c:'var(--g-exc)'},{k:'excellent',l:'EXCELLENT',c:'var(--g-perf)'},{k:'great',l:'GREAT',c:'var(--g-grt)'},{k:'good',l:'GOOD',c:'var(--g-good)'},{k:'ok',l:'OK',c:'var(--g-ok)'}].forEach(g=>{
             const i=d.statsDetail[g.k];
