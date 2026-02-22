@@ -29,7 +29,7 @@
     --block-size-2d: var(--block-size-base);
     --block-size-3d: calc(var(--block-size-base) * 1.1);
     --kb-height-base: clamp(200px, 33dvh, 320px);
-    --kb-height: calc(var(--kb-height-base) + 6mm);
+    --kb-height: calc(var(--kb-height-base) + 4mm);
     --footer-base-height: 80px;
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     --footer-total-height: calc(var(--footer-base-height) + var(--safe-area-bottom));
@@ -195,7 +195,7 @@
   .virtual-keyboard.layout-phone { grid-template-areas: "k1 k2 k3" "k4 k5 k6" "k7 k8 k9" "ver k0 del"; }
   .virtual-keyboard.layout-calc { grid-template-areas: "k7 k8 k9" "k4 k5 k6" "k1 k2 k3" "ver k0 del"; }
   .virtual-keyboard.layout-special { grid-template-areas: "k0 k1 k2" "k3 k4 ver" "k5 k6 del" "k7 k8 k9"; }
-  .kb-key { background: linear-gradient(to bottom, #2a2a2a, #111); border-radius: 6px; border: 2px solid #444; box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); color: #ccc; font-family: var(--font-num); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s; }
+  .kb-key { background: linear-gradient(to bottom, #2a2a2a, #111); border-radius: 6px; border: 2px solid #444; box-shadow: 0 4px 0 #000, inset 0 2px 0 rgba(255,255,255,0.1); color: #ccc; font-family: var(--font-num); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; touch-action: manipulation; overflow: hidden; transition: all 0.05s;margin-top: -0.5mm; margin-bottom: -0.5mm;  }
   .kb-key:active, .kb-key.active-state { transform: translateY(4px); box-shadow: 0 0 0 #000; background: linear-gradient(to bottom, #ffcc00, #ff9900); color: #000; border-color: #fff; }
   .kb-key-main { font-size: clamp(24px, 5vh, 36px); font-weight: 900; font-style: italic; text-shadow: 2px 2px 0 #000; letter-spacing: -2px; }
   .kb-key.disabled { opacity: 0.15; pointer-events: none; box-shadow: none; border-color: #222; background: #000; }
@@ -1268,8 +1268,9 @@ let UI = {};
                  if(th) nxt=`<div class="next-rank-line">NEXT RANK ${nr==='GOD'||nr==='Z'?'???':nr}: +${(Math.max(0,th-d.score)).toLocaleString()} ch</div>`;
              } else nxt=`<div class="next-rank-line">MAX RANK</div>`;
         }
-               UI.resTotalBox.innerHTML = d.score>0 ? `<span class="total-label">TOTAL SCORE</span>${Number(d.score).toLocaleString()} <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgT}s</span></span><span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>${nxt}` : `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>`;
-        UI.detailTableBody.innerHTML='';
+      UI.resTotalBox.innerHTML = d.score>0 ? `<span class="total-label">TOTAL SCORE</span>${Number(d.score).toLocaleString()} <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgT}s</span></span><span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>${nxt}` : `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>`;
+
+      UI.detailTableBody.innerHTML='';
         [{k:'marvelous',l:'MARVELOUS',c:'var(--g-exc)'},{k:'excellent',l:'EXCELLENT',c:'var(--g-perf)'},{k:'great',l:'GREAT',c:'var(--g-grt)'},{k:'good',l:'GOOD',c:'var(--g-good)'},{k:'ok',l:'OK',c:'var(--g-ok)'}].forEach(g=>{
             const i=d.statsDetail[g.k];
             if(i&&i.count>0) {
