@@ -704,6 +704,10 @@ body {
 }
 
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* Assist overlay */
+.assist-overlay { animation: assistFadeIn 0.3s ease-out; }
+@keyframes assistFadeIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
 </style>
 </head>
 <body>
@@ -795,11 +799,12 @@ body {
       <div class="fail-text-wrap">
         <div id="fail-title" class="fail-title">MISS!</div>
         <div id="fail-sub" class="fail-sub"></div>
+        <div id="fail-xp" style="font-size:13px;color:#58CC02;font-weight:900;margin-top:4px"></div>
       </div>
     </div>
     <div class="fail-btns">
       <button class="fbtn fbtn-back" onclick="backToMap()">やめる</button>
-      <button class="fbtn fbtn-retry" onclick="retryStage()">もう一回</button>
+      <button class="fbtn fbtn-retry" id="fbtn-retry" onclick="retryStage()">もう一回</button>
     </div>
   </div>
 </div>
@@ -958,6 +963,8 @@ let GS = {
   maxCombo:0, xp:0
 };
 let sBag = [];
+let curRetryCount = 0;
+let _isRetry = false;
 
 /* =============== SAVE / LOAD =============== */
 let totalXP = 0;
@@ -1058,7 +1065,7 @@ function updateMapXP() {
   document.getElementById('map-xp-text').textContent = totalXP.toLocaleString() + ' XP';
   // Perks display
   const xpBonus = Math.round((lv.level - 1) * 5);
-  const timeBonus = Math.min(100, (lv.level - 1) * 3);
+  const timeBonus = Math.round(Math.min(150, (lv.level - 1) * 1.5));
   const perks = document.getElementById('map-xp-perks');
   if(perks) perks.textContent = xpBonus > 0 ? 'XP+'+xpBonus+'% TIME+'+timeBonus+'%' : '';
 }
@@ -1074,7 +1081,7 @@ function showLevelUp(newLevel) {
 function showLevelInfo() {
   const lv = getLevel();
   const xpB = Math.round((lv.level - 1) * 5);
-  const timeB = Math.min(100, (lv.level - 1) * 3);
+  const timeB = Math.round(Math.min(150, (lv.level - 1) * 1.5));
   const nextXP = lv.next - totalXP;
   document.querySelectorAll('.level-info-backdrop').forEach(e=>e.remove());
   const backdrop = document.createElement('div');
@@ -1191,6 +1198,8 @@ function updateProg() {
 
 /* =============== START STAGE =============== */
 function startStage(d, idx) {
+  if(!_isRetry) curRetryCount = 0;
+  _isRetry = false;
   curDiff = d; curIdx = idx;
   const s = STAGES[d][idx];
   const dc = DC[d];
@@ -1234,28 +1243,39 @@ function startStage(d, idx) {
   document.getElementById('enemy-hp-fill').className = 'enemy-hp-fill';
   document.getElementById('enemy-hp-text').textContent = QS + '/' + QS;
 
-  if(s.boss) showBossIntro(s.boss, () => startCountdown());
-  else startCountdown();
+  showEnemyIntro(s.boss || null, () => startCountdown());
 }
 
-function showBossIntro(type, cb) {
+function showEnemyIntro(type, cb) {
+  const enemy = ENEMIES[curDiff][curIdx];
+  const isBoss = type === 'final';
+  const isMid = type === 'mid';
+  const dc = DC[curDiff];
+  const label = isBoss ? '👑 BOSS 👑' : isMid ? '⚡ MID BOSS ⚡' : 'STAGE ' + (curIdx + 1);
+  const labelColor = isBoss ? '#FF4B4B' : isMid ? '#FF9600' : dc.main;
+  const enemySize = isBoss ? 100 : isMid ? 80 : 60;
+  const duration = isBoss ? 1800 : isMid ? 1500 : 900;
+
   const ov = document.createElement('div');
   ov.className = 'boss-intro';
+  if (!isBoss && !isMid) ov.style.background = 'rgba(255,248,232,0.82)';
   const content = document.createElement('div');
   content.className = 'boss-intro-content';
-  const enemy = ENEMIES[curDiff][curIdx];
-  content.innerHTML = '<div class="boss-intro-label">'+(type==='mid'?'⚡ MID BOSS ⚡':'👑 BOSS 👑')+'</div>'+
-    '<div class="boss-intro-enemy">'+enemy.svg()+'</div>'+
+  content.innerHTML =
+    '<div class="boss-intro-label" style="color:'+labelColor+'">'+label+'</div>'+
+    '<div class="boss-intro-enemy" style="width:'+enemySize+'px;height:'+enemySize+'px;margin:0 auto 8px">'+enemy.svg()+'</div>'+
     '<div class="boss-intro-name">'+enemy.name+'</div>';
   ov.appendChild(content);
   document.body.appendChild(ov);
   setTimeout(() => {
     ov.remove();
-    const gv = document.getElementById('game-view');
-    gv.classList.add('boss-shake');
-    setTimeout(() => gv.classList.remove('boss-shake'), 500);
+    if (isBoss || isMid) {
+      const gv = document.getElementById('game-view');
+      gv.classList.add('boss-shake');
+      setTimeout(() => gv.classList.remove('boss-shake'), 500);
+    }
     cb();
-  }, 1800);
+  }, duration);
 }
 
 function startCountdown() {
@@ -1286,8 +1306,8 @@ function startCountdown() {
 function getTimeLimit(s) {
   const j = s.j;
   const base = j.ok || j.gd || j.g || j.e || j.m;
-  // Level benefit: +3% time per level (max +100%)
-  const lvExt = Math.min(1.00, (getLevel().level - 1) * 0.03);
+  // Level benefit: +1.5% time per level (max +150%)
+  const lvExt = Math.min(1.50, (getLevel().level - 1) * 0.015);
   return base * (1 + lvExt);
 }
 
@@ -1335,6 +1355,7 @@ function gameLoop() {
   else if(GS.elapsed<=j.g) c='#58CC02';
   else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
   else if(j.ok&&GS.elapsed<=j.ok) c='#CCCCCC';
+  else if(GS.elapsed<=tl) c='#AAAAAA'; // level-extended zone (still safe)
   else c='#FF4B4B';
   fill.style.background = c;
 
@@ -1445,7 +1466,60 @@ function renderBlocks() {
     let sc = 1;
     if(n>30) sc=0.5; else if(n>20) sc=0.65; else if(n>12) sc=0.8;
     el.style.transform = 'scale('+sc+')';
+    if(curRetryCount > 0) setTimeout(renderAssist, 80);
   }
+}
+
+function renderAssist() {
+  if(isRandomMode || curRetryCount <= 0 || !GS.current) return;
+  const n = GS.current.n;
+  if(n < 4) return;
+  const shape = GS.current.shape;
+  const slot = document.getElementById('game-slot');
+  const cluster = slot.querySelector('.s-cluster');
+  if(!cluster) return;
+  const columns = Array.from(cluster.querySelectorAll('.s-column'));
+  if(!columns.length) return;
+
+  slot.querySelectorAll('.assist-overlay').forEach(e => e.remove());
+
+  // Group size grows with retries: retry 1 → small groups, retry 2+ → larger groups
+  const targetSize = 2 + curRetryCount * 2;
+  const groups = [];
+  let cur = { cols:[], count:0 };
+  columns.forEach((col, i) => {
+    const h = shape[i] || 0;
+    if(!h) return;
+    cur.cols.push(col);
+    cur.count += h;
+    if(cur.count >= targetSize || i === columns.length - 1) {
+      if(cur.count > 0) groups.push({ cols:[...cur.cols], count:cur.count });
+      cur = { cols:[], count:0 };
+    }
+  });
+
+  const colors = ['#FF6B6B','#45B7D1','#58CC02','#FF9600','#CE82FF'];
+  const slotRect = slot.getBoundingClientRect();
+
+  groups.forEach((g, gi) => {
+    if(!g.cols.length) return;
+    const allBlocks = g.cols.flatMap(c => Array.from(c.querySelectorAll('.s-block')));
+    if(!allBlocks.length) return;
+    const rects = allBlocks.map(b => b.getBoundingClientRect());
+    const top = Math.min(...rects.map(r => r.top)) - slotRect.top - 6;
+    const bottom = Math.max(...rects.map(r => r.bottom)) - slotRect.top + 6;
+    const left = Math.min(...rects.map(r => r.left)) - slotRect.left - 6;
+    const right = Math.max(...rects.map(r => r.right)) - slotRect.left + 6;
+    const color = colors[gi % colors.length];
+    const ov = document.createElement('div');
+    ov.className = 'assist-overlay';
+    ov.style.cssText = 'position:absolute;left:'+left+'px;top:'+top+'px;width:'+(right-left)+'px;height:'+(bottom-top)+'px;border:3px solid '+color+';border-radius:10px;background:'+color+'18;pointer-events:none;z-index:5;display:flex;align-items:center;justify-content:center;';
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'font-family:var(--font-num);font-size:clamp(18px,8vw,34px);font-weight:900;color:'+color+';opacity:0.38;';
+    lbl.textContent = g.count;
+    ov.appendChild(lbl);
+    slot.appendChild(ov);
+  });
 }
 
 function updateProgressBar() {
@@ -1576,11 +1650,23 @@ function handleMiss(type,inp,ans) {
   // Game over on any miss
   GS.status = 'GAMEOVER'; GS.blocked = true;
   if(GS.rafId) cancelAnimationFrame(GS.rafId);
+
+  // Add earned XP even on fail
+  if(GS.xp > 0) {
+    const prevLevel = getLevel().level;
+    totalXP += GS.xp;
+    save();
+    const newLevel = getLevel().level;
+    if(newLevel > prevLevel) setTimeout(() => showLevelUp(newLevel), 400);
+  }
+
   const ft = document.getElementById('fail-title');
   const fs = document.getElementById('fail-sub');
+  const fx = document.getElementById('fail-xp');
   if(type==='TIME'){ft.textContent='タイムオーバー！';fs.textContent='こたえ: '+ans;}
   else if(type==='SLOW'){ft.textContent='おそすぎた！';fs.textContent='こたえ: '+ans;}
   else{ft.textContent='ざんねん！';fs.textContent=inp+' → こたえ: '+ans;}
+  if(fx) fx.textContent = GS.xp > 0 ? '⚡ +' + GS.xp + ' XP' : '';
   document.getElementById('fail-overlay').classList.add('show');
 }
 
@@ -1728,6 +1814,8 @@ function launchConfetti(count) {
 function goBack() { window.location.href = 'index.html'; }
 
 function retryStage() {
+  _isRetry = true;
+  curRetryCount++;
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
   startStage(curDiff, curIdx);
