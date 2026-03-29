@@ -229,6 +229,9 @@
   @keyframes modeSelectPulse { 0% { transform: scale(0.95); opacity: 1; border-width: 8px; } 40% { opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; border-width: 0px; } }
   .tute-mode-select { display: none; width: 95%; max-width: 460px; flex-direction: row; gap: 8px; justify-content: center; }
   .tute-mode-select .mode-btn { height: clamp(60px, 15vh, 80px); }
+  .stage-mode-btn { display: none; padding: 14px 40px; border-radius: 50px; background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff; font-family: var(--font-ui); font-size: 18px; font-weight: 900; letter-spacing: 0.5px; text-decoration: none; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); transition: all 0.2s; margin-top: 12px; border: 3px solid rgba(255,255,255,0.5); animation: adventurePulse 2s ease-in-out infinite; }
+  .stage-mode-btn:active { transform: scale(0.95); }
+  @keyframes adventurePulse { 0%, 100% { box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); } 50% { box-shadow: 0 6px 25px rgba(124, 58, 237, 0.7); } }
 
   #how-to-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 7000; display: none; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   #how-to-modal.active { display: flex; opacity: 1; pointer-events: auto; }
@@ -404,6 +407,7 @@
                   <button class="mode-btn mode-hard" onclick="handleModeSelect('HARD', this)"><div class="mode-val">HARD</div></button>
                   <button class="mode-btn mode-extreme" onclick="handleModeSelect('EXTREME', this)"><div class="mode-val">EXTREME</div></button>
               </div>
+              <a href="stage.html" id="btn-stage-mode" class="stage-mode-btn">🗺️ ADVENTURE</a>
               <div id="tute-big-msg" class="tute-big-msg">READY</div>
           </div>
       </div>
@@ -611,8 +615,8 @@
         status: 'IDLE', is3DMode: false, isRandomMode: false, randomAtPlay: false,
         score: 0, queue: [], current: null, currentModeKey: 'EASY', rafId: null,
         // スローモーション用
-        elapsedTime: 0, 
-        lastTick: 0, 
+        elapsedTime: 0, realElapsedTime: 0,
+        lastTick: 0,
         slowUntil: 0, 
         chargesToday: 3, 
         
@@ -656,7 +660,7 @@ let UI = {};
             tuteModeSelect: $id('tute-mode-select'), virtualKeyboard: $id('virtual-keyboard'),
             btnHowToBottom: $id('btn-how-to-bottom'), btnHowToOpening: $id('btn-how-to-opening'),
             btnKeyLayoutToggle: $id('btn-key-layout-toggle'), btnSlowMo: $id('btn-slow-mo'),
-            timerPathL: null, timerPathR: null
+            btnStageMode: $id('btn-stage-mode'), timerPathL: null, timerPathR: null
         };
 
         ['1','2','3','4','5','6','7','8','9','0','DEL'].forEach(k => { KB.keys[k] = $qs(`.kb-key[data-key="${k}"]`); });
@@ -891,7 +895,7 @@ let UI = {};
     function handleTapToStart() {
         if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
         if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
-        if (UI.tuteModeSelect) { UI.tuteModeSelect.style.display = 'flex'; if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex'; checkUnlocks(); }
+        if (UI.tuteModeSelect) { UI.tuteModeSelect.style.display = 'flex'; if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex'; if (UI.btnStageMode) UI.btnStageMode.style.display = 'inline-block'; checkUnlocks(); }
         adjustCentralLayout();
     }
     function toggleDimensionMode() {
@@ -940,10 +944,12 @@ let UI = {};
         if (!STATE.hasPlayedOnce) {
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'inline-flex';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
+            if (UI.btnStageMode) UI.btnStageMode.style.display = 'none';
         } else {
             if (UI.btnHowToOpening) UI.btnHowToOpening.style.display = 'flex';
             if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
             if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'flex';
+            if (UI.btnStageMode) UI.btnStageMode.style.display = 'inline-block';
         }
         updateKeyboardLayoutForMode(); adjustCentralLayout();
     }
@@ -990,6 +996,7 @@ let UI = {};
         UI.tuteBigMsg.style.display = 'block'; UI.tuteBigMsg.innerText = seq[0]; UI.tuteBigMsg.classList.add('pop');
         if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
         if (UI.tuteModeSelect) UI.tuteModeSelect.style.display = 'none';
+        if (UI.btnStageMode) UI.btnStageMode.style.display = 'none';
         const mode = MODES[STATE.currentModeKey];
         UI.hudModeLabel.innerText = `${STATE.currentModeKey}${STATE.isRandomMode ? ' [R]' : ''}`;
         UI.hudModeLabel.style.borderColor = mode.color; UI.hudModeLabel.style.color = mode.color; UI.hudModeLabel.classList.add('show');
@@ -1022,6 +1029,7 @@ let UI = {};
         STATE.current = STATE.queue.shift(); renderQueue(); resetTimerVisuals();
         
         STATE.elapsedTime = 0;
+        STATE.realElapsedTime = 0;
         STATE.lastTick = Date.now();
         if(STATE.rafId) cancelAnimationFrame(STATE.rafId);
         updateKeyboardLayoutForMode(); gameLoop();
@@ -1048,7 +1056,8 @@ let UI = {};
 
         const effectiveDelta = rawDelta * timeFactor;
         STATE.elapsedTime += effectiveDelta;
-        STATE.totalPlayTime += effectiveDelta; 
+        STATE.realElapsedTime += rawDelta;
+        STATE.totalPlayTime += rawDelta;
 
         const mode = MODES[STATE.currentModeKey];
         if (STATE.elapsedTime > mode.time) {
@@ -1076,7 +1085,7 @@ let UI = {};
     function checkAnswer(val) {
         const delta = STATE.elapsedTime;
         if(val === STATE.current.count) {
-            const eff = Math.max(delta, CONFIG.capPerItemSec);
+            const eff = Math.max(STATE.realElapsedTime, CONFIG.capPerItemSec);
             const mode = MODES[STATE.currentModeKey]; const j = mode.judgments;
             let k="miss", l="MISS";
             if (delta <= j.marv) { k="marvelous"; l="MARVELOUS"; } else if (delta <= j.exc) { k="excellent"; l="EXCELLENT"; }
@@ -1103,7 +1112,7 @@ let UI = {};
     function nextQuestion() {
         STATE.questionCount++; if(STATE.queue.length < 3) addQueueItem();
         STATE.current = STATE.queue.shift(); renderQueue(); resetTimerVisuals();
-        STATE.elapsedTime = 0; STATE.currentInput = '';
+        STATE.elapsedTime = 0; STATE.realElapsedTime = 0; STATE.currentInput = '';
     }
     function triggerEvalEffect(txt) {
         $qsa('.eval-effect').forEach(e => e.remove());
@@ -1251,14 +1260,11 @@ let UI = {};
         UI.resStatusMsg.classList.remove('show'); UI.resStatusMsg.innerText=''; UI.resUnlockWrapper.classList.remove('show'); UI.resUnlockWrapper.innerHTML='';
         if(d.reason==="FINISHED") {
             if(d.unlockEvent) { UI.resUnlockWrapper.innerHTML=`<div class="unlock-badge mode-${d.unlockEvent.toLowerCase()}"><div class="main-text">UNLOCKED</div><div class="sub-text">${d.unlockEvent}</div></div>`; UI.resUnlockWrapper.classList.add('show'); }
-            else if(d.fermataUsed) { UI.resStatusMsg.innerText='FERMATA USED 𝄐'; UI.resStatusMsg.classList.add('show'); }
             else { UI.resStatusMsg.innerText=""; }
-           } else if(d.fermataUsed) {
-            UI.resStatusMsg.innerText='FERMATA USED 𝄐'; UI.resStatusMsg.classList.add('show');
         }
         UI.newRecordBadge.classList[d.isNewRecord?'add':'remove']('show');
         const avgT=(d.totalTime/d.count).toFixed(2);
-        const scoreSuffix = d.fermataUsed ? '<span class="score-fermata-mark" title="Fermata Used">𝄐</span>' : '';
+        const scoreSuffix = '';
         const totalQuestions = d.totalQuestions || MODES[d.modeName].count;
         let nxt=""; 
         if(d.reason==='FINISHED') {
