@@ -705,9 +705,6 @@ body {
 
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
-/* Assist overlay */
-.assist-overlay { animation: assistFadeIn 0.3s ease-out; }
-@keyframes assistFadeIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
 </style>
 </head>
 <body>
@@ -963,8 +960,6 @@ let GS = {
   maxCombo:0, xp:0
 };
 let sBag = [];
-let curRetryCount = 0;
-let _isRetry = false;
 
 /* =============== SAVE / LOAD =============== */
 let totalXP = 0;
@@ -1198,8 +1193,6 @@ function updateProg() {
 
 /* =============== START STAGE =============== */
 function startStage(d, idx) {
-  if(!_isRetry) curRetryCount = 0;
-  _isRetry = false;
   curDiff = d; curIdx = idx;
   const s = STAGES[d][idx];
   const dc = DC[d];
@@ -1466,60 +1459,7 @@ function renderBlocks() {
     let sc = 1;
     if(n>30) sc=0.5; else if(n>20) sc=0.65; else if(n>12) sc=0.8;
     el.style.transform = 'scale('+sc+')';
-    if(curRetryCount > 0) setTimeout(renderAssist, 80);
   }
-}
-
-function renderAssist() {
-  if(isRandomMode || curRetryCount <= 0 || !GS.current) return;
-  const n = GS.current.n;
-  if(n < 4) return;
-  const shape = GS.current.shape;
-  const slot = document.getElementById('game-slot');
-  const cluster = slot.querySelector('.s-cluster');
-  if(!cluster) return;
-  const columns = Array.from(cluster.querySelectorAll('.s-column'));
-  if(!columns.length) return;
-
-  slot.querySelectorAll('.assist-overlay').forEach(e => e.remove());
-
-  // Group size grows with retries: retry 1 → small groups, retry 2+ → larger groups
-  const targetSize = 2 + curRetryCount * 2;
-  const groups = [];
-  let cur = { cols:[], count:0 };
-  columns.forEach((col, i) => {
-    const h = shape[i] || 0;
-    if(!h) return;
-    cur.cols.push(col);
-    cur.count += h;
-    if(cur.count >= targetSize || i === columns.length - 1) {
-      if(cur.count > 0) groups.push({ cols:[...cur.cols], count:cur.count });
-      cur = { cols:[], count:0 };
-    }
-  });
-
-  const colors = ['#FF6B6B','#45B7D1','#58CC02','#FF9600','#CE82FF'];
-  const slotRect = slot.getBoundingClientRect();
-
-  groups.forEach((g, gi) => {
-    if(!g.cols.length) return;
-    const allBlocks = g.cols.flatMap(c => Array.from(c.querySelectorAll('.s-block')));
-    if(!allBlocks.length) return;
-    const rects = allBlocks.map(b => b.getBoundingClientRect());
-    const top = Math.min(...rects.map(r => r.top)) - slotRect.top - 6;
-    const bottom = Math.max(...rects.map(r => r.bottom)) - slotRect.top + 6;
-    const left = Math.min(...rects.map(r => r.left)) - slotRect.left - 6;
-    const right = Math.max(...rects.map(r => r.right)) - slotRect.left + 6;
-    const color = colors[gi % colors.length];
-    const ov = document.createElement('div');
-    ov.className = 'assist-overlay';
-    ov.style.cssText = 'position:absolute;left:'+left+'px;top:'+top+'px;width:'+(right-left)+'px;height:'+(bottom-top)+'px;border:3px solid '+color+';border-radius:10px;background:'+color+'18;pointer-events:none;z-index:5;display:flex;align-items:center;justify-content:center;';
-    const lbl = document.createElement('div');
-    lbl.style.cssText = 'font-family:var(--font-num);font-size:clamp(18px,8vw,34px);font-weight:900;color:'+color+';opacity:0.38;';
-    lbl.textContent = g.count;
-    ov.appendChild(lbl);
-    slot.appendChild(ov);
-  });
 }
 
 function updateProgressBar() {
@@ -1814,8 +1754,6 @@ function launchConfetti(count) {
 function goBack() { window.location.href = 'index.html'; }
 
 function retryStage() {
-  _isRetry = true;
-  curRetryCount++;
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
   startStage(curDiff, curIdx);
