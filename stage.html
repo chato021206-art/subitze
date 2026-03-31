@@ -923,12 +923,12 @@ function makePlusStages(base) {
   return base.map((s, i) => {
     const t = i / 9;
     const bagExtra  = Math.round(1 + 2 * t);    // +1(面1)〜+3(面10)
-    const colsExtra = Math.round(1 + 2 * t);    // +1(面1)〜+3(面10), cols上限9
+    const colsExtra = 3;                         // 全面固定+3、上限15
     const newBag = s.bag.map(n => n + bagExtra);
     const maxVal = Math.max(...newBag);
     let tp = s.tp;
     if(tp === 'S' && maxVal > 9) tp = 'H';
-    return { ...s, bag: newBag, cols: Math.min(s.cols + colsExtra, 9), mh: Math.min(s.mh + colsExtra, 9), tp, plus: true };
+    return { ...s, bag: newBag, cols: Math.min(s.cols + colsExtra, 15), mh: Math.min(s.mh + colsExtra, 15), tp, plus: true };
   });
 }
 STAGES['EASY+']    = makePlusStages(STAGES.EASY);
@@ -1387,18 +1387,12 @@ function startCountdown() {
 }
 
 /* =============== GAME ENGINE =============== */
-function getLvMult() {
-  return 1 + Math.min(2.00, (getLevel().level - 1) * 0.012);
-}
-function getScaledJ(s) {
-  const mult = getLvMult();
-  const sj = {};
-  for(const k in s.j) sj[k] = s.j[k] * mult;
-  return sj;
-}
 function getTimeLimit(s) {
-  const sj = getScaledJ(s);
-  return sj.ok || sj.gd || sj.g || sj.e || sj.m;
+  const j = s.j;
+  const base = j.ok || j.gd || j.g || j.e || j.m;
+  // レベル延長分は判定閾値に乗算せず、追加時間として末尾に付加
+  const lvExt = Math.min(2.00, (getLevel().level - 1) * 0.012);
+  return base * (1 + lvExt);
 }
 
 function beginGame() {
@@ -1438,13 +1432,14 @@ function gameLoop() {
   const fill = document.getElementById('timer-fill');
   fill.style.width = (pct*100)+'%';
 
-  const sj = getScaledJ(s);
+  const j = s.j;
   let c;
-  if(GS.elapsed<=sj.m) c='#FFC800';
-  else if(GS.elapsed<=sj.e) c='#1CB0F6';
-  else if(GS.elapsed<=sj.g) c='#58CC02';
-  else if(sj.gd&&GS.elapsed<=sj.gd) c='#FF9600';
-  else if(sj.ok&&GS.elapsed<=sj.ok) c='#CCCCCC';
+  if(GS.elapsed<=j.m) c='#FFC800';
+  else if(GS.elapsed<=j.e) c='#1CB0F6';
+  else if(GS.elapsed<=j.g) c='#58CC02';
+  else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
+  else if(j.ok&&GS.elapsed<=j.ok) c='#CCCCCC';
+  else if(GS.elapsed<=tl) c='#FF9600'; // 延長帯 = GOOD判定
   else c='#FF4B4B';
   fill.style.background = c;
 
@@ -1583,15 +1578,17 @@ function processInput(val) {
 function checkAns(val) {
   const dt = GS.elapsed;
   const s = STAGES[curDiff][curIdx];
-  const sj = getScaledJ(s);
+  const j = s.j;
+  const tl = getTimeLimit(s);
   if(val===GS.current.n) {
     const eff = Math.max(dt, CAP_SEC);
     let k='miss', lbl='MISS';
-    if(dt<=sj.m){k='marvelous';lbl='MARVELOUS';}
-    else if(dt<=sj.e){k='excellent';lbl='EXCELLENT';}
-    else if(dt<=sj.g){k='great';lbl='GREAT';}
-    else if(sj.gd&&dt<=sj.gd){k='good';lbl='GOOD';}
-    else if(sj.ok&&dt<=sj.ok){k='ok';lbl='OK';}
+    if(dt<=j.m){k='marvelous';lbl='MARVELOUS';}
+    else if(dt<=j.e){k='excellent';lbl='EXCELLENT';}
+    else if(dt<=j.g){k='great';lbl='GREAT';}
+    else if(j.gd&&dt<=j.gd){k='good';lbl='GOOD';}
+    else if(j.ok&&dt<=j.ok){k='ok';lbl='OK';}
+    else if(dt<=tl){k='good';lbl='GOOD';}  // 延長帯 = GOOD
     else{handleMiss('SLOW',val,GS.current.n);return;}
     GS.stats[k].c++; GS.stats[k].t+=eff;
 
