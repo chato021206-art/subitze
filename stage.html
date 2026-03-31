@@ -919,19 +919,22 @@ const STAGES = {
   ]
 };
 
-function makePlusStages(base, extra) {
-  return base.map(s => {
-    const newBag = s.bag.map(n => n + extra);
+function makePlusStages(base) {
+  return base.map((s, i) => {
+    const t = i / 9;
+    const bagExtra  = Math.round(2 + 3 * t);   // +2(面1)〜+5(面10)
+    const colsExtra = Math.round(1 + 2 * t);    // +1(面1)〜+3(面10)
+    const newBag = s.bag.map(n => n + bagExtra);
     const maxVal = Math.max(...newBag);
     let tp = s.tp;
     if(tp === 'S' && maxVal > 9) tp = 'H';
-    return { ...s, bag: newBag, cols: Math.min(s.cols+1, 8), mh: Math.min(s.mh+1, 8), tp, plus: true };
+    return { ...s, bag: newBag, cols: Math.min(s.cols + colsExtra, 9), mh: Math.min(s.mh + colsExtra, 9), tp, plus: true };
   });
 }
-STAGES['EASY+']    = makePlusStages(STAGES.EASY, 2);
-STAGES['NORMAL+']  = makePlusStages(STAGES.NORMAL, 2);
-STAGES['HARD+']    = makePlusStages(STAGES.HARD, 2);
-STAGES['EXTREME+'] = makePlusStages(STAGES.EXTREME, 3);
+STAGES['EASY+']    = makePlusStages(STAGES.EASY);
+STAGES['NORMAL+']  = makePlusStages(STAGES.NORMAL);
+STAGES['HARD+']    = makePlusStages(STAGES.HARD);
+STAGES['EXTREME+'] = makePlusStages(STAGES.EXTREME);
 
 const DC = {
   EASY:    { main:'#58CC02', bg:'linear-gradient(135deg,#7FE030,#58CC02)', block:'#7FE030', glow:'88,204,2' },
