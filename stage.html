@@ -1149,7 +1149,7 @@ function updateMapXP() {
   el.style.background = bg; el.style.borderColor = bd;
   document.getElementById('map-xp-text').textContent = totalXP.toLocaleString() + ' XP';
   // Perks display
-  const xpBonus = Math.round((lv.level - 1) * 5);
+  const xpBonus = Math.round((lv.level - 1) * 2.5);
   const timeBonus = Math.round(Math.min(200, (lv.level - 1) * 1.2));
   const perks = document.getElementById('map-xp-perks');
   if(perks) perks.textContent = xpBonus > 0 ? 'XP+'+xpBonus+'% TIME+'+timeBonus+'%' : '';
@@ -1165,7 +1165,7 @@ function showLevelUp(newLevel) {
 
 function showLevelInfo() {
   const lv = getLevel();
-  const xpB = Math.round((lv.level - 1) * 5);
+  const xpB = Math.round((lv.level - 1) * 2.5);
   const timeB = Math.round(Math.min(200, (lv.level - 1) * 1.2));
   const nextXP = lv.next - totalXP;
   document.querySelectorAll('.level-info-backdrop').forEach(e=>e.remove());
@@ -1613,7 +1613,7 @@ function checkAns(val) {
     // XP gain — difficulty multiplier + level bonus
     const baseXP = {marvelous:15,excellent:12,great:10,good:8,ok:5}[k];
     const diffMult = {'EASY':1,'NORMAL':2,'HARD':3,'EXTREME':5,'EASY+':1.5,'NORMAL+':3,'HARD+':4.5,'EXTREME+':7.5}[curDiff]||1;
-    const lvBonus = 1 + (getLevel().level - 1) * 0.05; // +5% per level
+    const lvBonus = 1 + (getLevel().level - 1) * 0.025; // +2.5% per level
     const xpGain = Math.round(baseXP * diffMult * lvBonus);
     GS.xp += xpGain;
 
