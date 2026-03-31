@@ -922,8 +922,8 @@ const STAGES = {
 function makePlusStages(base) {
   return base.map((s, i) => {
     const t = i / 9;
-    const bagExtra  = Math.round(2 + 3 * t);   // +2(面1)〜+5(面10)
-    const colsExtra = Math.round(1 + 2 * t);    // +1(面1)〜+3(面10)
+    const bagExtra  = Math.round(1 + 2 * t);    // +1(面1)〜+3(面10)
+    const colsExtra = Math.round(1 + 2 * t);    // +1(面1)〜+3(面10), cols上限9
     const newBag = s.bag.map(n => n + bagExtra);
     const maxVal = Math.max(...newBag);
     let tp = s.tp;
