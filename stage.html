@@ -125,6 +125,33 @@ body {
 .diff-tab[data-diff="NORMAL"] { --tab-c: #1CB0F6; }
 .diff-tab[data-diff="HARD"] { --tab-c: #FF9600; }
 .diff-tab[data-diff="EXTREME"] { --tab-c: #FF4B4B; }
+.diff-tab[data-diff="EASY+"] { --tab-c: #46A302; }
+.diff-tab[data-diff="NORMAL+"] { --tab-c: #0891C4; }
+.diff-tab[data-diff="HARD+"] { --tab-c: #E08600; }
+.diff-tab[data-diff="EXTREME+"] { --tab-c: #CC3C3C; }
+.tab-star-avg {
+  display: block; font-size: 9px; font-weight: 700;
+  color: #FFB800; line-height: 1; margin-top: 2px;
+  letter-spacing: -0.5px;
+}
+.diff-tab.active .tab-star-avg { color: rgba(255,255,255,0.9); }
+.plus-tabs {
+  display: none; gap: 6px; flex-shrink: 0;
+  background: #E8E0FF; padding: 6px 8px; border-bottom: 3px dashed #C8B8F0;
+}
+.plus-tabs.visible { display: flex; }
+.plus-tab {
+  flex: 1; padding: 6px 0; text-align: center;
+  font-size: 11px; font-weight: 900;
+  color: #999; background: #fff; border: 3px solid #ddd; border-radius: 30px;
+  cursor: pointer; transition: all 0.2s; box-shadow: 2px 3px 0 rgba(0,0,0,0.08);
+}
+.plus-tab.active {
+  color: #fff; border-color: var(--tab-c); background: var(--tab-c);
+  box-shadow: 3px 4px 0 rgba(0,0,0,0.15); transform: scale(1.05) rotate(-1deg);
+}
+.plus-tab.locked { opacity: 0.3; pointer-events: none; }
+.plus-tab.locked::after { content: ' 🔒'; font-size: 9px; }
 
 .map-scroll {
   flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -724,10 +751,16 @@ body {
     </div>
   </div>
   <div class="diff-tabs">
-    <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY</button>
-    <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL</button>
-    <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD</button>
-    <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME</button>
+    <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span></button>
+    <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span></button>
+    <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD<span class="tab-star-avg" id="avg-HARD"></span></button>
+    <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span></button>
+  </div>
+  <div class="plus-tabs" id="plus-tabs">
+    <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span></button>
+    <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span></button>
+    <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span></button>
+    <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
   </div>
   <div id="map-scroll" class="map-scroll" data-diff="EASY">
     <div id="stage-list" class="stage-list"></div>
@@ -858,7 +891,7 @@ const STAGES = {
     { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:0.9,e:1.2,g:1.7,gd:2.4},        cols:3, mh:5, tp:'S' },
     { bag:[3,4,5,6,6,7,7,8,9],   t:3.2, j:{m:0.85,e:1.1,g:1.6,gd:2.2},       cols:3, mh:5, tp:'S' },
     { bag:[4,5,6,7,7,8,8,9],     t:3.0, j:{m:0.8,e:1.1,g:1.5,gd:2.0},        cols:3, mh:5, tp:'S' },
-    { bag:[10,11,12,13,14,15,16,17,18,19,20], t:4.0, j:{m:1.8,e:2.3,g:3.0,gd:4.0}, cols:4, mh:7, tp:'H', boss:'final' },
+    { bag:[7,8,9,9,10,10,11,12], t:5.0, j:{m:1.5,e:2.2,g:3.2,gd:4.2,ok:5.0}, cols:4, mh:5, tp:'H', boss:'final' },
   ],
   HARD: [
     { bag:[10,11,12,13,14,15],    t:5.0, j:{m:2.0,e:2.8,g:3.5,gd:4.5,ok:5.0}, cols:4, mh:5, tp:'H' },
@@ -886,11 +919,29 @@ const STAGES = {
   ]
 };
 
+function makePlusStages(base, extra) {
+  return base.map(s => {
+    const newBag = s.bag.map(n => n + extra);
+    const maxVal = Math.max(...newBag);
+    let tp = s.tp;
+    if(tp === 'S' && maxVal > 9) tp = 'H';
+    return { ...s, bag: newBag, cols: Math.min(s.cols+1, 8), mh: Math.min(s.mh+1, 8), tp, plus: true };
+  });
+}
+STAGES['EASY+']    = makePlusStages(STAGES.EASY, 2);
+STAGES['NORMAL+']  = makePlusStages(STAGES.NORMAL, 2);
+STAGES['HARD+']    = makePlusStages(STAGES.HARD, 2);
+STAGES['EXTREME+'] = makePlusStages(STAGES.EXTREME, 3);
+
 const DC = {
   EASY:    { main:'#58CC02', bg:'linear-gradient(135deg,#7FE030,#58CC02)', block:'#7FE030', glow:'88,204,2' },
   NORMAL:  { main:'#1CB0F6', bg:'linear-gradient(135deg,#5DCBF8,#1CB0F6)', block:'#5DCBF8', glow:'28,176,246' },
   HARD:    { main:'#FF9600', bg:'linear-gradient(135deg,#FFB84D,#FF9600)', block:'#FFB84D', glow:'255,150,0' },
-  EXTREME: { main:'#FF4B4B', bg:'linear-gradient(135deg,#FF7B7B,#FF4B4B)', block:'#FF7B7B', glow:'255,75,75' }
+  EXTREME: { main:'#FF4B4B', bg:'linear-gradient(135deg,#FF7B7B,#FF4B4B)', block:'#FF7B7B', glow:'255,75,75' },
+  'EASY+':    { main:'#46A302', bg:'linear-gradient(135deg,#46A302,#2E7D00)', block:'#5BBF10', glow:'70,163,2' },
+  'NORMAL+':  { main:'#0891C4', bg:'linear-gradient(135deg,#0891C4,#0670A0)', block:'#36A8D4', glow:'8,145,196' },
+  'HARD+':    { main:'#E08600', bg:'linear-gradient(135deg,#E08600,#B86000)', block:'#E8A020', glow:'224,134,0' },
+  'EXTREME+': { main:'#CC3C3C', bg:'linear-gradient(135deg,#CC3C3C,#AA2828)', block:'#DC5555', glow:'204,60,60' }
 };
 
 const ENEMIES = {
@@ -944,6 +995,14 @@ const ENEMIES = {
   ]
 };
 
+const ENEMIES_PLUS = {
+  'EASY+':    ENEMIES.EASY,
+  'NORMAL+':  ENEMIES.NORMAL,
+  'HARD+':    ENEMIES.HARD,
+  'EXTREME+': ENEMIES.EXTREME
+};
+Object.assign(ENEMIES, ENEMIES_PLUS);
+
 const QS = 10;
 const CAP_CH = 36000;
 const CAP_SEC = 0.1;
@@ -975,7 +1034,7 @@ let curKbIdx = 0;
 function load() {
   try { const r = localStorage.getItem('snow_stage_progress'); if(r) prog = JSON.parse(r); } catch(e){}
   try { const x = localStorage.getItem('snow_total_xp'); if(x) totalXP = parseInt(x)||0; } catch(e){}
-  ['EASY','NORMAL','HARD','EXTREME'].forEach(d => {
+  ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
   });
@@ -1017,9 +1076,16 @@ function toggleRandom() {
   btn.textContent = isRandomMode ? 'RANDOM ON' : 'RANDOM';
 }
 
+function plusUnlocked(d) {
+  const base = d.replace('+','');
+  if(!prog[base]) return false;
+  for(let i=0;i<10;i++) if(!prog[base][i]||!prog[base][i].cleared) return false;
+  return true;
+}
 function unlocked(d,i) {
   if(i===0) {
     if(d==='EASY') return true;
+    if(d.endsWith('+')) return plusUnlocked(d);
     const prev = {NORMAL:'EASY',HARD:'NORMAL',EXTREME:'HARD'}[d];
     return prev && prog[prev] && prog[prev][9] && prog[prev][9].cleared;
   }
@@ -1033,14 +1099,35 @@ function totalCleared() {
 }
 
 /* =============== MAP =============== */
+function updateDiffTabs() {
+  const allDiffs = ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'];
+  allDiffs.forEach(d => {
+    const el = document.getElementById('avg-' + d);
+    if(!el || !prog[d]) return;
+    let total = 0;
+    for(let i=0;i<10;i++) total += (prog[d][i]&&prog[d][i].cleared ? prog[d][i].stars : 0);
+    const avg = total / 10;
+    el.textContent = avg > 0 ? '⭐' + avg.toFixed(1) : '';
+  });
+  // Show/hide plus tabs
+  const plusTabsEl = document.getElementById('plus-tabs');
+  const anyPlusUnlocked = ['EASY+','NORMAL+','HARD+','EXTREME+'].some(d => plusUnlocked(d));
+  plusTabsEl.classList.toggle('visible', anyPlusUnlocked);
+  // Update locked state on plus tabs
+  document.querySelectorAll('.plus-tab').forEach(t => {
+    t.classList.toggle('locked', !diffUnlocked(t.dataset.diff));
+  });
+}
+
 function switchTab(d) {
   if(!diffUnlocked(d)) return;
   curDiff = d;
-  document.querySelectorAll('.diff-tab').forEach(t => {
+  document.querySelectorAll('.diff-tab, .plus-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.diff===d);
     t.classList.toggle('locked', !diffUnlocked(t.dataset.diff));
   });
-  document.getElementById('map-scroll').setAttribute('data-diff', d);
+  const baseDiff = d.replace('+','');
+  document.getElementById('map-scroll').setAttribute('data-diff', baseDiff);
   renderMap();
 }
 
@@ -1060,7 +1147,7 @@ function updateMapXP() {
   document.getElementById('map-xp-text').textContent = totalXP.toLocaleString() + ' XP';
   // Perks display
   const xpBonus = Math.round((lv.level - 1) * 5);
-  const timeBonus = Math.round(Math.min(150, (lv.level - 1) * 1.5));
+  const timeBonus = Math.round(Math.min(200, (lv.level - 1) * 1.2));
   const perks = document.getElementById('map-xp-perks');
   if(perks) perks.textContent = xpBonus > 0 ? 'XP+'+xpBonus+'% TIME+'+timeBonus+'%' : '';
 }
@@ -1076,7 +1163,7 @@ function showLevelUp(newLevel) {
 function showLevelInfo() {
   const lv = getLevel();
   const xpB = Math.round((lv.level - 1) * 5);
-  const timeB = Math.round(Math.min(150, (lv.level - 1) * 1.5));
+  const timeB = Math.round(Math.min(200, (lv.level - 1) * 1.2));
   const nextXP = lv.next - totalXP;
   document.querySelectorAll('.level-info-backdrop').forEach(e=>e.remove());
   const backdrop = document.createElement('div');
@@ -1179,6 +1266,7 @@ function renderMap() {
   }
 
   updateProg();
+  updateDiffTabs();
   setTimeout(() => {
     const av = list.querySelector('.available');
     if(av) av.scrollIntoView({behavior:'smooth',block:'center'});
@@ -1296,12 +1384,18 @@ function startCountdown() {
 }
 
 /* =============== GAME ENGINE =============== */
+function getLvMult() {
+  return 1 + Math.min(2.00, (getLevel().level - 1) * 0.012);
+}
+function getScaledJ(s) {
+  const mult = getLvMult();
+  const sj = {};
+  for(const k in s.j) sj[k] = s.j[k] * mult;
+  return sj;
+}
 function getTimeLimit(s) {
-  const j = s.j;
-  const base = j.ok || j.gd || j.g || j.e || j.m;
-  // Level benefit: +1.5% time per level (max +150%)
-  const lvExt = Math.min(1.50, (getLevel().level - 1) * 0.015);
-  return base * (1 + lvExt);
+  const sj = getScaledJ(s);
+  return sj.ok || sj.gd || sj.g || sj.e || sj.m;
 }
 
 function beginGame() {
@@ -1341,14 +1435,13 @@ function gameLoop() {
   const fill = document.getElementById('timer-fill');
   fill.style.width = (pct*100)+'%';
 
-  const j = s.j;
+  const sj = getScaledJ(s);
   let c;
-  if(GS.elapsed<=j.m) c='#FFC800';
-  else if(GS.elapsed<=j.e) c='#1CB0F6';
-  else if(GS.elapsed<=j.g) c='#58CC02';
-  else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
-  else if(j.ok&&GS.elapsed<=j.ok) c='#CCCCCC';
-  else if(GS.elapsed<=tl) c='#AAAAAA'; // level-extended zone (still safe)
+  if(GS.elapsed<=sj.m) c='#FFC800';
+  else if(GS.elapsed<=sj.e) c='#1CB0F6';
+  else if(GS.elapsed<=sj.g) c='#58CC02';
+  else if(sj.gd&&GS.elapsed<=sj.gd) c='#FF9600';
+  else if(sj.ok&&GS.elapsed<=sj.ok) c='#CCCCCC';
   else c='#FF4B4B';
   fill.style.background = c;
 
@@ -1487,21 +1580,21 @@ function processInput(val) {
 function checkAns(val) {
   const dt = GS.elapsed;
   const s = STAGES[curDiff][curIdx];
-  const j = s.j;
+  const sj = getScaledJ(s);
   if(val===GS.current.n) {
     const eff = Math.max(dt, CAP_SEC);
     let k='miss', lbl='MISS';
-    if(dt<=j.m){k='marvelous';lbl='MARVELOUS';}
-    else if(dt<=j.e){k='excellent';lbl='EXCELLENT';}
-    else if(dt<=j.g){k='great';lbl='GREAT';}
-    else if(j.gd&&dt<=j.gd){k='good';lbl='GOOD';}
-    else if(j.ok&&dt<=j.ok){k='ok';lbl='OK';}
+    if(dt<=sj.m){k='marvelous';lbl='MARVELOUS';}
+    else if(dt<=sj.e){k='excellent';lbl='EXCELLENT';}
+    else if(dt<=sj.g){k='great';lbl='GREAT';}
+    else if(sj.gd&&dt<=sj.gd){k='good';lbl='GOOD';}
+    else if(sj.ok&&dt<=sj.ok){k='ok';lbl='OK';}
     else{handleMiss('SLOW',val,GS.current.n);return;}
     GS.stats[k].c++; GS.stats[k].t+=eff;
 
     // XP gain — difficulty multiplier + level bonus
     const baseXP = {marvelous:15,excellent:12,great:10,good:8,ok:5}[k];
-    const diffMult = {EASY:1, NORMAL:2, HARD:3, EXTREME:5}[curDiff];
+    const diffMult = {'EASY':1,'NORMAL':2,'HARD':3,'EXTREME':5,'EASY+':1.5,'NORMAL+':3,'HARD+':4.5,'EXTREME+':7.5}[curDiff]||1;
     const lvBonus = 1 + (getLevel().level - 1) * 0.05; // +5% per level
     const xpGain = Math.round(baseXP * diffMult * lvBonus);
     GS.xp += xpGain;
