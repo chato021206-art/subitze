@@ -104,6 +104,20 @@ body {
   height: 100%; border-radius: 20px; transition: width 0.6s ease;
   background: repeating-linear-gradient(45deg, #66bb6a, #66bb6a 8px, #81c784 8px, #81c784 16px);
 }
+.plus-prog-section {
+  display: none; padding: 4px 10px 6px; background: #E8E0FF;
+  border-bottom: 3px dashed #C8B8F0;
+}
+.plus-prog-section.visible { display: block; }
+.plus-prog-label { font-size: 10px; font-weight: 900; color: #7B5EA7; margin-bottom: 3px; }
+.plus-prog-bar-outer {
+  height: 10px; background: #fff; border-radius: 20px; overflow: hidden;
+  border: 2px solid #9B7BC8; box-shadow: 1px 1px 0 rgba(0,0,0,0.08);
+}
+.plus-prog-bar-inner {
+  height: 100%; border-radius: 20px; transition: width 0.6s ease;
+  background: repeating-linear-gradient(45deg, #9B59B6, #9B59B6 8px, #B07ED4 8px, #B07ED4 16px);
+}
 
 .diff-tabs {
   display: flex; gap: 6px; flex-shrink: 0;
@@ -762,6 +776,10 @@ body {
     <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span></button>
     <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
   </div>
+  <div class="plus-prog-section" id="plus-prog-section">
+    <div class="plus-prog-label"><span id="plus-prog-text">0 / 40 CLEARED</span></div>
+    <div class="plus-prog-bar-outer"><div id="plus-prog-bar" class="plus-prog-bar-inner" style="width:0%"></div></div>
+  </div>
   <div id="map-scroll" class="map-scroll" data-diff="EASY">
     <div id="stage-list" class="stage-list"></div>
   </div>
@@ -1280,6 +1298,18 @@ function updateProg() {
   const t = totalCleared();
   document.getElementById('prog-text').textContent = t + ' / 40 CLEARED';
   document.getElementById('prog-bar').style.width = (t/40*100) + '%';
+
+  let pt = 0;
+  ['EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
+    for(let i=0;i<10;i++) if(prog[d]&&prog[d][i]&&prog[d][i].cleared) pt++;
+  });
+  const anyPlus = ['EASY+','NORMAL+','HARD+','EXTREME+'].some(d => plusUnlocked(d));
+  const sec = document.getElementById('plus-prog-section');
+  sec.classList.toggle('visible', anyPlus);
+  if(anyPlus) {
+    document.getElementById('plus-prog-text').textContent = pt + ' / 40 CLEARED';
+    document.getElementById('plus-prog-bar').style.width = (pt/40*100) + '%';
+  }
 }
 
 /* =============== START STAGE =============== */
