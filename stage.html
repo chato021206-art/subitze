@@ -104,20 +104,6 @@ body {
   height: 100%; border-radius: 20px; transition: width 0.6s ease;
   background: repeating-linear-gradient(45deg, #66bb6a, #66bb6a 8px, #81c784 8px, #81c784 16px);
 }
-.plus-prog-section {
-  display: none; padding: 4px 12px 6px; background: #E8E0FF;
-  border-bottom: 2px dashed #C8B8F0; align-items: center; gap: 8px;
-}
-.plus-prog-section.visible { display: flex; }
-.plus-prog-label { font-size: 10px; font-weight: 900; color: #7B5EA7; white-space: nowrap; }
-.plus-prog-bar-outer {
-  flex: 1; height: 10px; background: #fff; border-radius: 20px; overflow: hidden;
-  border: 2px solid #9B7BC8;
-}
-.plus-prog-bar-inner {
-  height: 100%; border-radius: 20px; transition: width 0.6s ease;
-  background: repeating-linear-gradient(45deg, #9B59B6, #9B59B6 8px, #B07ED4 8px, #B07ED4 16px);
-}
 
 .diff-tabs {
   display: flex; gap: 6px; flex-shrink: 0;
@@ -762,10 +748,7 @@ body {
     <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span></button>
     <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
   </div>
-  <div class="plus-prog-section" id="plus-prog-section">
-    <span class="plus-prog-label" id="plus-prog-text">+ 0 / 40</span>
-    <div class="plus-prog-bar-outer"><div id="plus-prog-bar" class="plus-prog-bar-inner" style="width:0%"></div></div>
-  </div>
+
   <div id="map-scroll" class="map-scroll" data-diff="EASY">
     <div id="stage-list" class="stage-list"></div>
   </div>
@@ -869,28 +852,28 @@ body {
 /* =============== STAGE CONFIG =============== */
 const STAGES = {
   EASY: [
-    { bag:[1,1,2,2,3,3],         t:5.0, j:{m:0.8,e:1.5,g:2.5,gd:3.5,ok:5.0}, cols:3, mh:2, tp:'S' },
-    { bag:[1,2,2,3,3,3],         t:4.8, j:{m:0.8,e:1.4,g:2.3,gd:3.2,ok:4.8}, cols:3, mh:3, tp:'S' },
-    { bag:[2,2,3,3,3,4],         t:4.5, j:{m:0.7,e:1.3,g:2.0,gd:3.0,ok:4.5}, cols:3, mh:3, tp:'S' },
-    { bag:[2,3,3,4,4,4],         t:4.2, j:{m:0.6,e:1.2,g:1.8,gd:2.8,ok:4.2}, cols:3, mh:3, tp:'S' },
-    { bag:[1,2,3,4,5,6,7,8,9],   t:4.0, j:{m:0.6,e:1.1,g:1.7,gd:2.5,ok:4.0}, cols:3, mh:5, tp:'S', boss:'mid' },
-    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{m:0.5,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:3, tp:'S' },
-    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{m:0.5,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:3, tp:'S' },
-    { bag:[2,3,3,4,4,5,5,5],     t:3.0, j:{m:0.5,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:4, tp:'S' },
-    { bag:[3,3,4,4,5,5,5],       t:3.0, j:{m:0.5,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:4, tp:'S' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:0.65,e:0.9,g:1.4,gd:2.0},       cols:3, mh:5, tp:'S', boss:'final' },
+    { bag:[1,1,2,2,3,3],         t:5.0, j:{m:1.2,e:1.5,g:2.5,gd:3.5,ok:5.0}, cols:3, mh:2, tp:'S' },
+    { bag:[1,2,2,3,3,3],         t:4.8, j:{m:1.2,e:1.4,g:2.3,gd:3.2,ok:4.8}, cols:3, mh:3, tp:'S' },
+    { bag:[2,2,3,3,3,4],         t:4.5, j:{m:1.0,e:1.3,g:2.0,gd:3.0,ok:4.5}, cols:3, mh:3, tp:'S' },
+    { bag:[2,3,3,4,4,4],         t:4.2, j:{m:0.9,e:1.2,g:1.8,gd:2.8,ok:4.2}, cols:3, mh:3, tp:'S' },
+    { bag:[1,2,3,4,5,6,7,8,9],   t:4.0, j:{m:0.9,e:1.1,g:1.7,gd:2.5,ok:4.0}, cols:3, mh:5, tp:'S', boss:'mid' },
+    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{m:0.8,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:3, tp:'S' },
+    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{m:0.8,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:3, tp:'S' },
+    { bag:[2,3,3,4,4,5,5,5],     t:3.0, j:{m:0.8,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:4, tp:'S' },
+    { bag:[3,3,4,4,5,5,5],       t:3.0, j:{m:0.8,e:1.0,g:1.5,gd:2.0,ok:3.0}, cols:3, mh:4, tp:'S' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:0.8,e:0.9,g:1.4,gd:2.0},        cols:3, mh:5, tp:'S', boss:'final' },
   ],
   NORMAL: [
-    { bag:[2,3,4,4,5,5],         t:4.5, j:{m:1.0,e:1.5,g:2.2,gd:3.2,ok:4.5}, cols:3, mh:3, tp:'S' },
-    { bag:[3,4,4,5,5,6],         t:4.2, j:{m:1.0,e:1.4,g:2.0,gd:3.0,ok:4.2}, cols:3, mh:4, tp:'S' },
-    { bag:[3,4,5,5,6,6,7],       t:4.0, j:{m:0.9,e:1.3,g:1.9,gd:2.8,ok:4.0}, cols:3, mh:4, tp:'S' },
-    { bag:[4,5,5,6,6,7,7],       t:3.8, j:{m:0.9,e:1.3,g:1.8,gd:2.6},        cols:3, mh:5, tp:'S' },
-    { bag:[2,3,4,5,6,7,8,9],     t:3.5, j:{m:0.85,e:1.2,g:1.7,gd:2.4},       cols:3, mh:5, tp:'S', boss:'mid' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:0.9,e:1.2,g:1.7,gd:2.4},        cols:3, mh:5, tp:'S' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:0.9,e:1.2,g:1.7,gd:2.4},        cols:3, mh:5, tp:'S' },
-    { bag:[3,4,5,6,6,7,7,8,9],   t:3.2, j:{m:0.85,e:1.1,g:1.6,gd:2.2},       cols:3, mh:5, tp:'S' },
-    { bag:[4,5,6,7,7,8,8,9],     t:3.0, j:{m:0.8,e:1.1,g:1.5,gd:2.0},        cols:3, mh:5, tp:'S' },
-    { bag:[7,8,9,9,10,10,11,12], t:5.0, j:{m:1.5,e:2.2,g:3.2,gd:4.2,ok:5.0}, cols:4, mh:5, tp:'H', boss:'final' },
+    { bag:[2,3,4,4,5,5],         t:4.5, j:{m:1.3,e:1.5,g:2.2,gd:3.2,ok:4.5}, cols:3, mh:3, tp:'S' },
+    { bag:[3,4,4,5,5,6],         t:4.2, j:{m:1.3,e:1.4,g:2.0,gd:3.0,ok:4.2}, cols:3, mh:4, tp:'S' },
+    { bag:[3,4,5,5,6,6,7],       t:4.0, j:{m:1.2,e:1.3,g:1.9,gd:2.8,ok:4.0}, cols:3, mh:4, tp:'S' },
+    { bag:[4,5,5,6,6,7,7],       t:3.8, j:{m:1.2,e:1.3,g:1.8,gd:2.6},        cols:3, mh:5, tp:'S' },
+    { bag:[2,3,4,5,6,7,8,9],     t:3.5, j:{m:1.1,e:1.2,g:1.7,gd:2.4},        cols:3, mh:5, tp:'S', boss:'mid' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:1.1,e:1.2,g:1.7,gd:2.4},        cols:3, mh:5, tp:'S' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:1.1,e:1.2,g:1.7,gd:2.4},        cols:3, mh:5, tp:'S' },
+    { bag:[3,4,5,6,6,7,7,8,9],   t:3.2, j:{m:1.0,e:1.1,g:1.6,gd:2.2},        cols:3, mh:5, tp:'S' },
+    { bag:[4,5,6,7,7,8,8,9],     t:3.0, j:{m:1.0,e:1.1,g:1.5,gd:2.0},        cols:3, mh:5, tp:'S' },
+    { bag:[7,8,9,9,10,10,11,12], t:5.0, j:{m:2.0,e:2.2,g:3.2,gd:4.2,ok:5.0}, cols:4, mh:5, tp:'H', boss:'final' },
   ],
   HARD: [
     { bag:[10,11,12,13,14,15],    t:5.0, j:{m:2.0,e:2.8,g:3.5,gd:4.5,ok:5.0}, cols:4, mh:5, tp:'H' },
@@ -1071,7 +1054,24 @@ function initKeyboard() {
   const btn = document.getElementById('kb-btn');
   if(btn) { btn.textContent = kb.label; btn.className = 'setting-btn ' + kb.cls + ' active'; }
 }
+let _randomPressCt = 0;
 function toggleRandom() {
+  _randomPressCt++;
+  if(_randomPressCt >= 10) {
+    _randomPressCt = 0;
+    if(confirm('セーブデータを全削除しますか？\nこの操作は元に戻せません。')) {
+      prog = {}; totalXP = 0;
+      localStorage.removeItem('snow_stage_progress');
+      localStorage.removeItem('snow_total_xp');
+      load();
+      isRandomMode = false;
+      const btn = document.getElementById('random-btn');
+      btn.classList.remove('on');
+      btn.textContent = 'RANDOM';
+      switchTab('EASY');
+    }
+    return;
+  }
   isRandomMode = !isRandomMode;
   const btn = document.getElementById('random-btn');
   btn.classList.toggle('on', isRandomMode);
@@ -1279,15 +1279,11 @@ function updateProg() {
   const isPlus = curDiff.endsWith('+');
   const header = document.querySelector('.map-header');
 
-  // +専用バー（常時）
+  // +クリア数集計
   let plusCount = 0;
   ['EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     for(let i=0;i<10;i++) if(prog[d]&&prog[d][i]&&prog[d][i].cleared) plusCount++;
   });
-  const anyPlus = ['EASY+','NORMAL+','HARD+','EXTREME+'].some(d => plusUnlocked(d));
-  document.getElementById('plus-prog-section').classList.toggle('visible', anyPlus);
-  document.getElementById('plus-prog-text').textContent = '+ ' + plusCount + ' / 40';
-  document.getElementById('plus-prog-bar').style.width = (plusCount/40*100) + '%';
 
   // ヘッダーバー：+タブ選択時は紫テーマに切り替え
   if(isPlus) {
@@ -1295,7 +1291,7 @@ function updateProg() {
     document.getElementById('prog-text').textContent = plusCount + ' / 40 CLEARED';
     document.getElementById('prog-bar').style.width = (plusCount/40*100) + '%';
     document.getElementById('prog-bar').style.background =
-      'repeating-linear-gradient(45deg,#9B59B6,#9B59B6 8px,#B07ED4 8px,#B07ED4 16px)';
+      'repeating-linear-gradient(45deg,rgba(255,255,255,0.85),rgba(255,255,255,0.85) 8px,rgba(255,255,255,0.55) 8px,rgba(255,255,255,0.55) 16px)';
     document.getElementById('prog-text').style.color = '#F3E6FF';
   } else {
     if(header) { header.style.background = ''; header.style.borderBottomColor = ''; }
@@ -1462,7 +1458,7 @@ function gameLoop() {
   else if(GS.elapsed<=j.g) c='#58CC02';
   else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
   else if(j.ok&&GS.elapsed<=j.ok) c='#CCCCCC';
-  else if(GS.elapsed<=tl) c='#FF9600'; // 延長帯 = GOOD判定
+  else if(GS.elapsed<=tl) c='#CCCCCC'; // 延長帯 = OK判定
   else c='#FF4B4B';
   fill.style.background = c;
 
@@ -1626,7 +1622,7 @@ function checkAns(val) {
     else if(dt<=j.g){k='great';lbl='GREAT';}
     else if(j.gd&&dt<=j.gd){k='good';lbl='GOOD';}
     else if(j.ok&&dt<=j.ok){k='ok';lbl='OK';}
-    else if(dt<=tl){k='good';lbl='GOOD';}  // 延長帯 = GOOD
+    else if(dt<=tl){k='ok';lbl='OK';}  // 延長帯 = OK
     else{handleMiss('SLOW',val,GS.current.n);return;}
     GS.stats[k].c++; GS.stats[k].t+=eff;
 
