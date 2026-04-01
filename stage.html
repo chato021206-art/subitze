@@ -1054,34 +1054,89 @@ function cycleKeyboard() {
   btn.className = 'setting-btn ' + kb.cls + ' active';
 }
 function showThresholdList() {
-  let html = '<div id="thresh-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;" onclick="document.getElementById(\'thresh-overlay\').remove()">';
-  html += '<div style="background:#fff;border-radius:18px;padding:16px 12px;max-height:82dvh;overflow-y:auto;max-width:92vw;min-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.35);" onclick="event.stopPropagation()">';
-  html += '<div style="font-size:16px;font-weight:900;text-align:center;margin-bottom:10px;color:#333;">閾値一覧 <span style="font-size:10px;font-weight:400;color:#aaa;">☆=中ボス ★=ラスボス</span></div>';
+  const DC2 = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B'};
   const diffs = ['EASY','NORMAL','HARD','EXTREME'];
-  const colors = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B'};
+  const tabBtns = diffs.map(d =>
+    `<button id="ttab-${d}" onclick="thShowTab('${d}')"
+      style="flex:1;padding:6px 2px;border:none;border-radius:8px;font-size:11px;font-weight:900;cursor:pointer;
+             color:${d==='EASY'?'#fff':'#999'};background:${d==='EASY'?DC2[d]:'#eee'};transition:all 0.15s;">${d}</button>`
+  ).join('');
+  let sections = '';
   for(const diff of diffs) {
-    html += `<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:900;color:${colors[diff]};margin-bottom:3px;border-left:4px solid ${colors[diff]};padding-left:6px;">${diff}</div>`;
-    html += '<table style="width:100%;border-collapse:collapse;font-size:10.5px;font-family:monospace;">';
-    html += '<tr style="color:#888;border-bottom:1px solid #ddd;"><th style="padding:2px 3px;text-align:center;">#</th><th style="padding:2px 3px;">t</th><th style="padding:2px 3px;">m</th><th style="padding:2px 3px;">e</th><th style="padding:2px 3px;">g</th><th style="padding:2px 3px;">gd</th><th style="padding:2px 3px;color:#1CB0F6;">e幅</th></tr>';
-    STAGES[diff].forEach((s, i) => {
+    const color = DC2[diff];
+    const rows = STAGES[diff].map((s,i) => {
       const j = s.j;
-      const eWin = (j.e && j.m) ? (j.e - j.m).toFixed(1) : '-';
-      const eWinColor = parseFloat(eWin) >= 0.5 ? '#333' : '#FF4B4B';
+      const bag = s.bag;
+      const minN = Math.min(...bag), maxN = Math.max(...bag);
       const bossMark = s.boss === 'final' ? '★' : s.boss === 'mid' ? '☆' : '';
-      const bg = i % 2 === 0 ? '#f6f6f6' : '#fff';
-      html += `<tr style="background:${bg};"><td style="padding:2px 4px;text-align:center;font-weight:900;">${i+1}${bossMark}</td>`;
-      html += `<td style="padding:2px 3px;text-align:center;">${s.t}</td>`;
-      html += `<td style="padding:2px 3px;text-align:center;">${j.m||'-'}</td>`;
-      html += `<td style="padding:2px 3px;text-align:center;">${j.e||'-'}</td>`;
-      html += `<td style="padding:2px 3px;text-align:center;">${j.g||'-'}</td>`;
-      html += `<td style="padding:2px 3px;text-align:center;">${j.gd||'-'}</td>`;
-      html += `<td style="padding:2px 3px;text-align:center;font-weight:700;color:${eWinColor};">${eWin}</td></tr>`;
-    });
-    html += '</table></div>';
+      const bg = i % 2 === 0 ? '#f8f8f8' : '#fff';
+      const mSec  = j.m ? j.m.toFixed(1) : '-';
+      const eWin  = (j.e && j.m) ? (j.e - j.m).toFixed(1) : '-';
+      const gWin  = (j.g && j.e) ? (j.g - j.e).toFixed(1) : '-';
+      const gdWin = (j.gd && j.g) ? (j.gd - j.g).toFixed(1) : '-';
+      const eOk   = parseFloat(eWin) >= 0.5;
+      return `<tr style="background:${bg};">
+        <td style="padding:3px 5px;text-align:center;font-weight:900;font-size:12px;">${i+1}<span style="color:${color};font-size:10px;">${bossMark}</span></td>
+        <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${minN}〜${maxN}</td>
+        <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${s.t}秒</td>
+        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#A07800;">〜${mSec}秒</td>
+        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:${eOk?'#0A8CB8':'#FF4B4B'};">${eWin}秒</td>
+        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#2D8000;">${gWin}秒</td>
+        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#CC6600;">${gdWin}秒</td>
+        <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${s.cols}列${s.mh}行</td>
+      </tr>`;
+    }).join('');
+    sections += `<div id="tsec-${diff}" style="display:${diff==='EASY'?'block':'none'};">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+        <table style="width:100%;border-collapse:collapse;min-width:340px;">
+          <thead>
+            <tr style="border-bottom:2px solid ${color};font-size:10px;color:#666;">
+              <th style="padding:4px 3px;text-align:center;">ST</th>
+              <th style="padding:4px 3px;text-align:center;">出題数<br><span style="font-weight:400;font-size:9px;">(最小〜最大)</span></th>
+              <th style="padding:4px 3px;text-align:center;">制限<br>時間</th>
+              <th style="padding:4px 3px;text-align:center;background:#FFFBE6;">MARVELOUS<br><span style="font-weight:400;font-size:9px;">この秒数以内</span></th>
+              <th style="padding:4px 3px;text-align:center;background:#E6F6FF;">EXCELLENT<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
+              <th style="padding:4px 3px;text-align:center;background:#EDFAE6;">GREAT<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
+              <th style="padding:4px 3px;text-align:center;background:#FFF3E6;">GOOD<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
+              <th style="padding:4px 3px;text-align:center;">ブロック<br>配置</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="font-size:9px;color:#bbb;margin-top:5px;line-height:1.6;">
+        MARVELOUS = 表示からこの秒数以内に正解　/　EXCELLENT〜GOOD = そのゾーンの幅が広いほど狙いやすい<br>
+        GOOD = 制限時間ぴったりまで　/　OK = タイムエクステンデッド（レベル補正）のみ
+      </div>
+    </div>`;
   }
-  html += '<button style="display:block;width:100%;margin-top:8px;padding:10px;background:#58CC02;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;letter-spacing:1px;" onclick="document.getElementById(\'thresh-overlay\').remove()">閉じる</button>';
-  html += '</div></div>';
-  document.body.insertAdjacentHTML('beforeend', html);
+  const markup = `<div id="thresh-overlay"
+    style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;"
+    onclick="document.getElementById('thresh-overlay').remove()">
+    <div style="background:#fff;border-radius:18px;padding:14px 12px;max-height:86dvh;display:flex;flex-direction:column;
+                max-width:96vw;width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.4);"
+         onclick="event.stopPropagation()">
+      <div style="font-size:15px;font-weight:900;text-align:center;margin-bottom:10px;color:#333;">
+        ステージ設定一覧
+        <span style="font-size:9px;font-weight:400;color:#aaa;display:block;margin-top:2px;">☆=中ボス  ★=ラスボス</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:10px;flex-shrink:0;">${tabBtns}</div>
+      <div style="flex:1;overflow-y:auto;min-height:0;">${sections}</div>
+      <button style="display:block;width:100%;margin-top:10px;padding:10px;background:#58CC02;color:#fff;
+                     border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;flex-shrink:0;"
+              onclick="document.getElementById('thresh-overlay').remove()">閉じる</button>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', markup);
+}
+function thShowTab(diff) {
+  const DC2 = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B'};
+  ['EASY','NORMAL','HARD','EXTREME'].forEach(d => {
+    document.getElementById('tsec-'+d).style.display = d===diff ? 'block' : 'none';
+    const btn = document.getElementById('ttab-'+d);
+    btn.style.color      = d===diff ? '#fff' : '#999';
+    btn.style.background = d===diff ? DC2[d] : '#eee';
+  });
 }
 function initKeyboard() {
   const saved = localStorage.getItem('snow_key_layout');
