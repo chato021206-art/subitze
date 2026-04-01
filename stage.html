@@ -349,6 +349,7 @@ body {
 .enemy-char svg { width: 100%; height: 100%; }
 .enemy-char.boss-enemy { width: 160px; height: 160px; animation: enemyIdleBoss 1.5s ease-in-out infinite; }
 .enemy-char.mid-boss-enemy { width: 144px; height: 144px; }
+.enemy-char.plus-enemy { filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12)) hue-rotate(200deg) saturate(1.4) brightness(1.05); }
 @keyframes enemyIdle {
   0%,100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-4px) rotate(2deg); }
@@ -1338,7 +1339,7 @@ function startStage(d, idx) {
   const enemyChar = document.getElementById('enemy-char');
   const enemyName = document.getElementById('enemy-name');
   enemyChar.innerHTML = enemy.svg();
-  enemyChar.className = 'enemy-char' + (enemy.boss ? ' boss-enemy' : enemy.mid ? ' mid-boss-enemy' : '');
+  enemyChar.className = 'enemy-char' + (enemy.boss ? ' boss-enemy' : enemy.mid ? ' mid-boss-enemy' : '') + (d.endsWith('+') ? ' plus-enemy' : '');
   enemyName.textContent = enemy.name;
 
   const labelEl = document.getElementById('enemy-label');
@@ -1484,7 +1485,9 @@ function bagNext() {
   return sBag.pop();
 }
 
-function genShape(n,cols,mh) {
+function genShape(n, cols, mh, hBias) {
+  // hBias: 0=no bias, 0.6=60% chance to prefer horizontal spread on each step
+  hBias = hBias || 0;
   const a = new Array(cols).fill(0);
   a[Math.floor(cols/2)]++;
   let p=1, safe=0;
@@ -1493,7 +1496,16 @@ function genShape(n,cols,mh) {
     for(let i=0;i<cols;i++) if(a[i]<mh&&(a[i]>0||(i>0&&a[i-1]>0)||(i<cols-1&&a[i+1]>0))) cand.push(i);
     if(!cand.length) for(let i=0;i<cols;i++) if(a[i]<mh) cand.push(i);
     if(!cand.length) break;
-    a[cand[Math.floor(Math.random()*cand.length)]]++; p++; safe++;
+    let pick;
+    if(hBias > 0 && Math.random() < hBias) {
+      // prefer columns with lower height (horizontal spread)
+      const minH = Math.min(...cand.map(i => a[i]));
+      const flat = cand.filter(i => a[i] === minH);
+      pick = flat[Math.floor(Math.random() * flat.length)];
+    } else {
+      pick = cand[Math.floor(Math.random() * cand.length)];
+    }
+    a[pick]++; p++; safe++;
     if(safe>150) break;
   }
   return a;
@@ -1504,7 +1516,7 @@ function addQ() {
   if(GS.genCount>=QS) { GS.queue.push({n:null,shape:[]}); return; }
   for(let att=0;att<2000;att++) {
     const n = bagNext();
-    const shape = genShape(n, s.cols, s.mh);
+    const shape = genShape(n, s.cols, s.mh, curDiff.endsWith('+') ? 0.6 : 0);
     const total = shape.reduce((a,b)=>a+b,0);
     const sig = JSON.stringify(shape);
     if(GS.lastSig&&sig===GS.lastSig) continue;
