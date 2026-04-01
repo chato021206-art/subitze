@@ -320,48 +320,35 @@ body {
   50% { box-shadow: inset 0 0 70px rgba(255,215,0,0.3); }
 }
 
-/* Duolingo-style top bar */
+/* Game top bar — stage label + HP */
 .game-top-bar {
-  padding: 10px 16px; padding-top: calc(10px + var(--safe-top));
+  padding: 8px 16px; padding-top: calc(8px + var(--safe-top));
   display: flex; align-items: center; gap: 10px; flex-shrink: 0; z-index: 10;
 }
 .game-close-btn {
   background: none; border: none; font-size: 22px; color: #aaa; cursor: pointer;
   width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; transition: all 0.15s;
+  border-radius: 50%; transition: all 0.15s; flex-shrink: 0;
 }
 .game-close-btn:active { background: rgba(0,0,0,0.05); }
+.top-hp-wrap {
+  flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0;
+}
+.top-hp-wrap .enemy-hp-bar { flex: 1; }
 
-/* Duolingo green progress bar */
-.game-progress-wrap {
-  flex: 1; height: 18px; background: #E5E5E5; border-radius: 20px;
-  overflow: hidden; position: relative; border: 3px solid rgba(0,0,0,0.06);
-}
-.game-progress-fill {
-  height: 100%; border-radius: 20px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
-  background: var(--duo-green);
-  position: relative;
-}
-.game-progress-fill::after {
-  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 4px;
-  background: rgba(255,255,255,0.3); border-radius: 4px;
-}
-
-/* Enemy section — prominent display */
+/* Enemy section — character only, centred */
 .enemy-section {
-  display: flex; align-items: center; gap: 12px; padding: 6px 24px; flex-shrink: 0;
-}
-.enemy-info {
-  display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0; padding: 0 0 4px;
 }
 .enemy-char {
-  width: 64px; height: 64px; transition: transform 0.1s;
-  filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.1));
+  width: 128px; height: 128px; transition: transform 0.1s;
+  filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12));
   animation: enemyIdle 2s ease-in-out infinite;
 }
 .enemy-char svg { width: 100%; height: 100%; }
-.enemy-char.boss-enemy { width: 80px; height: 80px; animation: enemyIdleBoss 1.5s ease-in-out infinite; }
-.enemy-char.mid-boss-enemy { width: 72px; height: 72px; }
+.enemy-char.boss-enemy { width: 160px; height: 160px; animation: enemyIdleBoss 1.5s ease-in-out infinite; }
+.enemy-char.mid-boss-enemy { width: 144px; height: 144px; }
 @keyframes enemyIdle {
   0%,100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-4px) rotate(2deg); }
@@ -376,13 +363,10 @@ body {
   background: rgba(255,255,255,0.85); padding: 2px 10px; border-radius: 10px;
   border: 2px solid rgba(0,0,0,0.06); white-space: nowrap;
 }
-.enemy-hp-wrap {
-  display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;
-}
 .enemy-label {
   font-size: 10px; font-weight: 900; color: #fff; background: #FF4B4B;
-  padding: 2px 10px; border-radius: 20px; display: inline-block;
-  letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 20px; display: inline-block;
+  letter-spacing: 1px; white-space: nowrap; flex-shrink: 0;
 }
 .enemy-hp-bar {
   width: 100%; height: 14px; background: #E5E5E5; border-radius: 20px;
@@ -420,7 +404,8 @@ body {
   justify-content: center; position: relative; overflow: hidden; min-height: 0;
 }
 .game-slot {
-  width: 88%; max-width: 340px; aspect-ratio: 4/3;
+  width: 88%; max-width: 340px;
+  height: calc(100% - 12px); min-height: 160px;
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
   background: rgba(255,255,255,0.5); border-radius: 22px;
@@ -791,24 +776,19 @@ body {
 
 <!-- =============== GAME VIEW =============== -->
 <div id="game-view">
-  <!-- Duolingo-style top bar -->
+  <!-- Top bar: close + stage label + HP -->
   <div class="game-top-bar">
     <button class="game-close-btn" onclick="backToMap()">✕</button>
-    <div class="game-progress-wrap">
-      <div id="game-progress-fill" class="game-progress-fill" style="width:0%"></div>
-    </div>
-  </div>
-  <!-- Enemy section -->
-  <div class="enemy-section">
-    <div class="enemy-info">
-      <div id="enemy-char" class="enemy-char"></div>
-      <div id="enemy-name" class="enemy-name-tag"></div>
-    </div>
-    <div class="enemy-hp-wrap">
-      <div id="enemy-label" class="enemy-label">STAGE 1</div>
+    <div id="enemy-label" class="enemy-label">STAGE 1</div>
+    <div class="top-hp-wrap">
       <div class="enemy-hp-bar"><div id="enemy-hp-fill" class="enemy-hp-fill"></div></div>
       <div id="enemy-hp-text" class="enemy-hp-text">10/10</div>
     </div>
+  </div>
+  <!-- Enemy character only -->
+  <div class="enemy-section">
+    <div id="enemy-char" class="enemy-char"></div>
+    <div id="enemy-name" class="enemy-name-tag"></div>
   </div>
   <!-- Game area -->
   <div class="game-stage-area">
@@ -1295,16 +1275,10 @@ function renderMap() {
 }
 
 function updateProg() {
-  // ベースバー（ヘッダー）
   const isPlus = curDiff.endsWith('+');
-  const baseCount = totalCleared();
-  document.getElementById('prog-text').textContent = baseCount + ' / 40 CLEARED';
-  document.getElementById('prog-bar').style.width = (baseCount/40*100) + '%';
-  document.getElementById('prog-bar').style.background =
-    'repeating-linear-gradient(45deg,#66bb6a,#66bb6a 8px,#81c784 8px,#81c784 16px)';
-  document.getElementById('prog-text').style.color = '#6B5300';
+  const header = document.querySelector('.map-header');
 
-  // +専用バー（+タブ行の下）
+  // +専用バー（常時）
   let plusCount = 0;
   ['EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     for(let i=0;i<10;i++) if(prog[d]&&prog[d][i]&&prog[d][i].cleared) plusCount++;
@@ -1313,6 +1287,24 @@ function updateProg() {
   document.getElementById('plus-prog-section').classList.toggle('visible', anyPlus);
   document.getElementById('plus-prog-text').textContent = '+ ' + plusCount + ' / 40';
   document.getElementById('plus-prog-bar').style.width = (plusCount/40*100) + '%';
+
+  // ヘッダーバー：+タブ選択時は紫テーマに切り替え
+  if(isPlus) {
+    if(header) { header.style.background = 'linear-gradient(135deg,#C084FC,#9B59B6)'; header.style.borderBottomColor = '#7E3FB3'; }
+    document.getElementById('prog-text').textContent = plusCount + ' / 40 CLEARED';
+    document.getElementById('prog-bar').style.width = (plusCount/40*100) + '%';
+    document.getElementById('prog-bar').style.background =
+      'repeating-linear-gradient(45deg,#9B59B6,#9B59B6 8px,#B07ED4 8px,#B07ED4 16px)';
+    document.getElementById('prog-text').style.color = '#F3E6FF';
+  } else {
+    if(header) { header.style.background = ''; header.style.borderBottomColor = ''; }
+    const baseCount = totalCleared();
+    document.getElementById('prog-text').textContent = baseCount + ' / 40 CLEARED';
+    document.getElementById('prog-bar').style.width = (baseCount/40*100) + '%';
+    document.getElementById('prog-bar').style.background =
+      'repeating-linear-gradient(45deg,#66bb6a,#66bb6a 8px,#81c784 8px,#81c784 16px)';
+    document.getElementById('prog-text').style.color = '#6B5300';
+  }
 }
 
 /* =============== START STAGE =============== */
@@ -1331,8 +1323,6 @@ function startStage(d, idx) {
 
   document.getElementById('map-view').style.display = 'none';
 
-  // Progress bar reset
-  document.getElementById('game-progress-fill').style.width = '0%';
 
   // Keyboard setup
   const multi = (s.tp==='H'||s.tp==='E');
@@ -1438,11 +1428,10 @@ function beginGame() {
   sBag = [];
   document.getElementById('input-display').textContent = '';
   document.getElementById('game-blocks').innerHTML = '';
-  document.getElementById('game-progress-fill').style.width = '0%';
 
   for(let i=0;i<3;i++) addQ();
   GS.current = GS.queue.shift();
-  renderBlocks(); updateProgressBar();
+  renderBlocks();
 
   GS.elapsed = 0; GS.lastTick = Date.now();
   if(GS.rafId) cancelAnimationFrame(GS.rafId);
@@ -1580,16 +1569,20 @@ function renderBlocks() {
       cluster.appendChild(col);
     });
     el.appendChild(cluster);
-    let sc = 1;
-    if(n>30) sc=0.5; else if(n>20) sc=0.65; else if(n>12) sc=0.8;
-    el.style.transform = 'scale('+sc+')';
+    // Dynamic scale based on slot dimensions + stage cols/mh
+    const st = STAGES[curDiff][curIdx];
+    const blockPx = Math.min(window.innerWidth * 0.075, 30);
+    const gap = 4;
+    const natW = st.cols * blockPx + Math.max(0, st.cols - 1) * gap;
+    const natH = st.mh  * blockPx + Math.max(0, st.mh  - 1) * gap;
+    const slot = document.getElementById('game-slot');
+    const avW = (slot.clientWidth  || 300) * 0.88;
+    const avH = (slot.clientHeight || 250) * 0.78;
+    const sc = Math.min(1, avW / natW, avH / natH);
+    el.style.transform = 'scale(' + sc + ')';
   }
 }
 
-function updateProgressBar() {
-  const pct = (GS.qCount / QS) * 100;
-  document.getElementById('game-progress-fill').style.width = pct + '%';
-}
 
 /* =============== INPUT =============== */
 function processInput(val) {
@@ -1706,7 +1699,7 @@ function nextQ() {
   GS.qCount++;
   if(GS.queue.length<3) addQ();
   GS.current = GS.queue.shift();
-  renderBlocks(); updateProgressBar();
+  renderBlocks();
   GS.elapsed = 0; GS.input = '';
 }
 
@@ -1749,8 +1742,6 @@ function gameOver(result) {
   document.getElementById('enemy-hp-fill').style.width = '0%';
   document.getElementById('enemy-hp-text').textContent = '0/' + QS;
 
-  // Fill progress bar
-  document.getElementById('game-progress-fill').style.width = '100%';
 
   if(result!=='CLEAR') return;
 
