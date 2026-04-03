@@ -155,6 +155,7 @@ body {
 .map-scroll {
   flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
   padding: 30px 16px 120px 16px; position: relative;
+  touch-action: pan-y;
 }
 .map-scroll[data-diff="EASY"] {
   background: #E8FFF5;
@@ -792,7 +793,7 @@ body {
   will-change:transform;
 }
 .panel {
-  min-width:100%; width:100%; display:flex; flex-direction:column;
+  min-width:100%; width:100%; height:100%; display:flex; flex-direction:column;
   overflow:hidden; flex-shrink:0;
 }
 .panel-modes { background:#F5F0FF; }
@@ -3295,16 +3296,16 @@ document.addEventListener('DOMContentLoaded', () => {
   panelWrap.addEventListener('touchstart', e => {
     swipeTouchX = e.touches[0].clientX;
     swipeTouchY = e.touches[0].clientY;
-  }, { passive: true });
+  });
   panelWrap.addEventListener('touchend', e => {
     if(swipeTouchX === null) return;
     const dx = e.changedTouches[0].clientX - swipeTouchX;
     const dy = Math.abs(e.changedTouches[0].clientY - swipeTouchY);
     swipeTouchX = null; swipeTouchY = null;
-    if(dy > Math.abs(dx) * 0.8) return; // mostly vertical = scroll, ignore
+    if(dy > Math.abs(dx) * 0.8) return;
     if(Math.abs(dx) < 45) return;
     goToPanel(dx < 0 ? currentPanel + 1 : currentPanel - 1);
-  }, { passive: true });
+  });
 
   updatePanelIndicator();
 });
