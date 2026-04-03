@@ -763,6 +763,26 @@ body {
 .ta-best-display { font-size:10px;color:#bbb;text-align:center;line-height:1.8; }
 .ta-score-bar { display:flex;justify-content:center;gap:20px;padding:4px 0;font-size:13px;font-weight:900;color:#333; }
 .survival-btn { background:linear-gradient(135deg,#9B59B6,#7D3C98);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:15px;font-weight:900;cursor:pointer; }
+.daily-bar { display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#FFF8E1;border-bottom:2px solid #FFE082;gap:8px;flex-shrink:0;cursor:pointer; }
+.daily-streak { font-size:13px;font-weight:900;color:#FF6D00; }
+.daily-mission-dots { display:flex;gap:5px;align-items:center; }
+.daily-dot { width:14px;height:14px;border-radius:50%;background:#E0E0E0;transition:background 0.3s; }
+.daily-dot.done { background:#58CC02; }
+.daily-dot.active { background:#FFD600; }
+.daily-label { font-size:11px;font-weight:900;color:#888; }
+.daily-modal { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+.daily-modal.show { opacity:1;pointer-events:all; }
+.daily-sheet { background:#fff;border-radius:24px 24px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;box-shadow:0 -8px 32px rgba(0,0,0,0.18);transform:translateY(20px);transition:transform 0.2s; }
+.daily-modal.show .daily-sheet { transform:translateY(0); }
+.daily-sheet-title { font-size:17px;font-weight:900;color:#333;margin-bottom:4px; }
+.daily-sheet-sub { font-size:12px;color:#aaa;margin-bottom:16px; }
+.daily-mission-item { display:flex;align-items:center;gap:12px;padding:12px;background:#F8F8F8;border-radius:14px;margin-bottom:8px; }
+.daily-mission-icon { font-size:22px;flex-shrink:0; }
+.daily-mission-text { flex:1; }
+.daily-mission-desc { font-size:13px;font-weight:900;color:#333; }
+.daily-mission-prog { font-size:11px;color:#888;margin-top:2px; }
+.daily-mission-check { font-size:20px;flex-shrink:0; }
+.daily-close-btn { display:block;width:100%;margin-top:14px;padding:12px;background:#58CC02;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer; }
 .survival-score-bar { display:flex;justify-content:center;gap:16px;padding:4px 0;font-size:13px;font-weight:900;color:#333; }
 .survival-levelup-toast { position:fixed;top:30%;left:50%;transform:translateX(-50%);z-index:150;background:linear-gradient(135deg,#9B59B6,#7D3C98);color:#fff;font-size:18px;font-weight:900;padding:10px 24px;border-radius:20px;animation:fadeIn 0.2s ease,fadeIn 0.3s ease 1.2s reverse forwards;pointer-events:none; }
 .drill-lives-bar { display:flex;align-items:center;justify-content:center;gap:2px;padding:3px 0;font-size:20px;line-height:1; }
@@ -787,6 +807,17 @@ body {
       <div id="map-xp-perks" class="map-xp-perks"></div>
     </div>
   </div>
+  <!-- Daily mission bar -->
+  <div class="daily-bar" id="daily-bar" onclick="showDailyModal()">
+    <div id="daily-streak-disp" class="daily-streak">🔥 0日</div>
+    <div class="daily-mission-dots">
+      <div class="daily-dot" id="daily-dot-0"></div>
+      <div class="daily-dot" id="daily-dot-1"></div>
+      <div class="daily-dot" id="daily-dot-2"></div>
+    </div>
+    <div id="daily-label-disp" class="daily-label">ミッション 0/3</div>
+  </div>
+
   <div class="diff-tabs">
     <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span><span class="tab-medal" id="medal-EASY"></span></button>
     <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span><span class="tab-medal" id="medal-NORMAL"></span></button>
@@ -814,6 +845,16 @@ body {
       <button class="ta-btn" onclick="openTASelect()">⏱TA</button>
       <button class="survival-btn" onclick="startSurvival()">∞</button>
     </div>
+  </div>
+</div>
+
+<!-- =============== DAILY MODAL =============== -->
+<div class="daily-modal" id="daily-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="daily-sheet">
+    <div class="daily-sheet-title">🎯 デイリーミッション</div>
+    <div id="daily-sheet-sub" class="daily-sheet-sub"></div>
+    <div id="daily-missions-list"></div>
+    <button class="daily-close-btn" onclick="document.getElementById('daily-modal').classList.remove('show')">閉じる</button>
   </div>
 </div>
 
@@ -1130,6 +1171,10 @@ let survivalCorrect = 0;
 let survivalBlocks = 0;
 let survivalBest = { correct:0, blocks:0 };
 let drillUnlocked = false;
+let streak = 0;
+let lastStreakDate = '';
+let dailyMissions = [];   // [{type, desc, icon, goal, prog, done}]
+let dailyDate = '';       // 'YYYY-MM-DD' of last generation
 let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
@@ -1159,6 +1204,7 @@ function load() {
   try { const tb = localStorage.getItem('snow_ta_best'); if(tb) taBest = JSON.parse(tb); } catch(e){}
   try { const sb = localStorage.getItem('snow_survival_best'); if(sb) survivalBest = JSON.parse(sb); } catch(e){}
   drillUnlocked = localStorage.getItem('snow_drill_unlocked') === '1';
+  try { const d = localStorage.getItem('snow_daily'); if(d) { const p = JSON.parse(d); streak=p.streak||0; lastStreakDate=p.lastStreakDate||''; dailyMissions=p.missions||[]; dailyDate=p.date||''; } } catch(e){}
   ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -1172,6 +1218,7 @@ function save() {
   localStorage.setItem('snow_ta_best', JSON.stringify(taBest));
   localStorage.setItem('snow_survival_best', JSON.stringify(survivalBest));
   if(drillUnlocked) localStorage.setItem('snow_drill_unlocked', '1');
+  localStorage.setItem('snow_daily', JSON.stringify({streak, lastStreakDate, missions:dailyMissions, date:dailyDate}));
 }
 
 function getLevel() {
@@ -1302,8 +1349,10 @@ function toggleRandom() {
       localStorage.removeItem('snow_ta_best');
       localStorage.removeItem('snow_survival_best');
       localStorage.removeItem('snow_drill_unlocked');
+      localStorage.removeItem('snow_daily');
       survivalBest = { correct:0, blocks:0 };
       drillUnlocked = false;
+      streak = 0; lastStreakDate = ''; dailyMissions = []; dailyDate = '';
       load();
       isRandomMode = false;
       const btn = document.getElementById('random-btn');
@@ -2029,11 +2078,21 @@ function checkAns(val) {
       if(widx >= 0) missedShapes.splice(widx, 1);
     }
 
-    // XP gain — difficulty multiplier + level bonus
+    // Daily progress: excellent / speed_excellent / weak_correct
+    if(k === 'excellent') {
+      checkDailyProgress('excellent', { dt });
+      if(GS.current.sig) {
+        const widx2 = dailyMissions.findIndex(m => m.type==='weak' && m.targetSig===GS.current.sig);
+        if(widx2 >= 0) checkDailyProgress('weak_correct', { sig: GS.current.sig });
+      }
+    }
+
+    // XP gain — difficulty multiplier + level bonus + streak bonus
     const baseXP = {excellent:12,great:10,good:8,ok:5}[k];
     const diffMult = survivalMode ? (survivalLevel + 1) : ({'EASY':1,'NORMAL':2,'HARD':3,'EXTREME':5,'EASY+':1.5,'NORMAL+':3,'HARD+':4.5,'EXTREME+':7.5}[curDiff]||1);
-    const lvBonus = 1 + (getLevel().level - 1) * 0.025; // +2.5% per level
-    const xpGain = Math.round(baseXP * diffMult * lvBonus);
+    const lvBonus = 1 + (getLevel().level - 1) * 0.025;
+    const streakBonus = 1 + getStreakXPBonus() / 100;
+    const xpGain = Math.round(baseXP * diffMult * lvBonus * streakBonus);
     GS.xp += xpGain;
 
     showEval(lbl, k, xpGain);
@@ -2041,6 +2100,7 @@ function checkAns(val) {
       survivalCorrect++;
       survivalBlocks += GS.current.n;
       updateSurvivalDisplay();
+      checkDailyProgress('survival_correct', {});
       if(survivalCorrect % 10 === 0) {
         const next = Math.min(survivalLevel + 1, SURVIVAL_LEVELS.length - 1);
         if(next > survivalLevel) {
@@ -2227,6 +2287,9 @@ function gameOver(result) {
 
 
   if(result!=='CLEAR') return;
+
+  // Daily: stage clear
+  checkDailyProgress('clear', { diff: curDiff });
 
   const ts = Math.max(0.1, GS.totalTime);
   let ch = Math.floor((QS/ts)*3600);
@@ -2633,6 +2696,9 @@ function taGameOver(reason, inp) {
   document.getElementById('game-blocks').innerHTML = '';
   document.getElementById('input-display').textContent = '';
 
+  // Daily: TA play
+  checkDailyProgress('ta_play', {});
+
   if(!taBest[taDiff]) taBest[taDiff] = {correct:0, blocks:0};
   const isNewCorrect = taCorrect > taBest[taDiff].correct;
   const isNewBlocks  = taBlocks  > taBest[taDiff].blocks;
@@ -2839,6 +2905,159 @@ function drillEnd(result) {
   }
 }
 
+/* =============== DAILY MISSIONS =============== */
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function generateDailyMissions() {
+  const today = todayStr();
+  if(dailyDate === today && dailyMissions.length === 3) return; // already generated today
+
+  dailyDate = today;
+
+  // Streak check: reset if yesterday was missed
+  if(lastStreakDate && lastStreakDate !== today) {
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    const yStr = yesterday.getFullYear() + '-' + String(yesterday.getMonth()+1).padStart(2,'0') + '-' + String(yesterday.getDate()).padStart(2,'0');
+    if(lastStreakDate !== yStr) streak = 0; // missed a day
+  }
+
+  // Seed from date for reproducibility
+  const seed = parseInt(today.replace(/-/g,''), 10);
+  const rng = (n) => { const x = Math.sin(seed + n) * 10000; return x - Math.floor(x); };
+
+  const missions = [];
+
+  // Mission 1: 弱点練習 (weak shape specific, or general if no weak shapes)
+  if(missedShapes.length > 0) {
+    const sorted = [...missedShapes].sort((a,b) => b.miss - a.miss);
+    const target = sorted[0];
+    missions.push({ type:'weak', icon:'⚔️', desc:'苦手な形('+target.n+'ブロック)を2回正解', goal:2, prog:0, done:false, targetSig: target.sig, targetN: target.n });
+  } else {
+    missions.push({ type:'clear', icon:'🎯', desc:'NORMAL以上を1ステージクリア', goal:1, prog:0, done:false, minDiff:'NORMAL' });
+  }
+
+  // Mission 2: 精度 or スピード (alternates by day parity)
+  const pick2 = Math.floor(rng(1) * 2);
+  if(pick2 === 0) {
+    missions.push({ type:'excellent', icon:'⭐', desc:'EXCELLENTを5問獲得', goal:5, prog:0, done:false });
+  } else {
+    missions.push({ type:'speed', icon:'⚡', desc:'2秒以内にEXCELLENTを3問', goal:3, prog:0, done:false });
+  }
+
+  // Mission 3: 挑戦
+  const pick3 = Math.floor(rng(2) * 3);
+  const challenges = [
+    { type:'hard_clear', icon:'🔥', desc:'HARDを1ステージクリア', goal:1, prog:0, done:false },
+    { type:'ta_play',    icon:'⏱', desc:'タイムアタックを1回プレイ', goal:1, prog:0, done:false },
+    { type:'survival10', icon:'∞', desc:'サバイバルで10問生存', goal:10, prog:0, done:false },
+  ];
+  missions.push(challenges[pick3]);
+
+  dailyMissions = missions;
+  save();
+}
+
+function updateDailyBar() {
+  const doneCount = dailyMissions.filter(m => m.done).length;
+  document.getElementById('daily-streak-disp').textContent = '🔥 ' + streak + '日';
+  document.getElementById('daily-label-disp').textContent = 'ミッション ' + doneCount + '/3';
+  for(let i=0;i<3;i++) {
+    const dot = document.getElementById('daily-dot-' + i);
+    if(!dot) continue;
+    const m = dailyMissions[i];
+    if(!m) { dot.className = 'daily-dot'; continue; }
+    dot.className = 'daily-dot' + (m.done ? ' done' : (m.prog > 0 ? ' active' : ''));
+  }
+}
+
+function showDailyModal() {
+  const doneCount = dailyMissions.filter(m => m.done).length;
+  document.getElementById('daily-sheet-sub').textContent =
+    '🔥 ' + streak + '日ストリーク  •  今日のミッション ' + doneCount + '/3  •  XPボーナス +' + Math.min(50, streak) + '%';
+  const list = document.getElementById('daily-missions-list');
+  list.innerHTML = '';
+  dailyMissions.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'daily-mission-item';
+    item.innerHTML =
+      '<div class="daily-mission-icon">' + m.icon + '</div>' +
+      '<div class="daily-mission-text">' +
+        '<div class="daily-mission-desc">' + m.desc + '</div>' +
+        '<div class="daily-mission-prog">' + (m.done ? '✅ クリア！' : m.prog + ' / ' + m.goal) + '</div>' +
+      '</div>' +
+      '<div class="daily-mission-check">' + (m.done ? '✅' : '⬜') + '</div>';
+    list.appendChild(item);
+  });
+  document.getElementById('daily-modal').classList.add('show');
+}
+
+function checkDailyProgress(event, data) {
+  // event: 'excellent'|'speed_excellent'|'clear'|'weak_correct'|'ta_play'|'survival_correct'
+  // data: {diff, sig, n, dt} etc.
+  let changed = false;
+  const today = todayStr();
+
+  dailyMissions.forEach(m => {
+    if(m.done) return;
+    if(event === 'excellent' && (m.type === 'excellent' || m.type === 'speed')) {
+      if(m.type === 'speed' && data.dt > 2.0) return;
+      m.prog = Math.min(m.goal, m.prog + 1);
+      if(m.prog >= m.goal) { m.done = true; changed = true; }
+    }
+    if(event === 'clear' && m.type === 'clear') {
+      const diffOrder = ['EASY','NORMAL','HARD','EXTREME'];
+      if(diffOrder.indexOf(data.diff.replace('+','')) >= diffOrder.indexOf(m.minDiff||'NORMAL')) {
+        m.prog = Math.min(m.goal, m.prog + 1);
+        if(m.prog >= m.goal) { m.done = true; changed = true; }
+      }
+    }
+    if(event === 'clear' && m.type === 'hard_clear') {
+      const diffOrder = ['EASY','NORMAL','HARD','EXTREME'];
+      if(diffOrder.indexOf(data.diff.replace('+','')) >= diffOrder.indexOf('HARD')) {
+        m.prog = Math.min(m.goal, m.prog + 1);
+        if(m.prog >= m.goal) { m.done = true; changed = true; }
+      }
+    }
+    if(event === 'weak_correct' && m.type === 'weak' && m.targetSig === data.sig) {
+      m.prog = Math.min(m.goal, m.prog + 1);
+      if(m.prog >= m.goal) { m.done = true; changed = true; }
+    }
+    if(event === 'ta_play' && m.type === 'ta_play') {
+      m.done = true; changed = true;
+    }
+    if(event === 'survival_correct' && m.type === 'survival10') {
+      m.prog = Math.min(m.goal, m.prog + 1);
+      if(m.prog >= m.goal) { m.done = true; changed = true; }
+    }
+  });
+
+  if(changed) {
+    // Streak: mark today if any mission done
+    const doneCount = dailyMissions.filter(m => m.done).length;
+    if(doneCount >= 1 && lastStreakDate !== today) {
+      streak++;
+      lastStreakDate = today;
+    }
+    save();
+    updateDailyBar();
+    // Toast if all 3 done
+    if(doneCount === 3) {
+      const t = document.createElement('div');
+      t.className = 'level-up-toast';
+      t.textContent = '🎯 デイリーミッション全クリア！';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2000);
+    }
+  }
+}
+
+function getStreakXPBonus() {
+  return Math.min(50, streak);
+}
+
 /* =============== NAVIGATION =============== */
 function goBack() { window.location.href = 'index.html'; }
 
@@ -2886,6 +3105,8 @@ function backToMap() {
 document.addEventListener('DOMContentLoaded', () => {
   load();
   initKeyboard();
+  generateDailyMissions();
+  updateDailyBar();
   switchTab('EASY');
 
   const kb = document.getElementById('game-kb');
