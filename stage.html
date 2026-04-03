@@ -745,6 +745,10 @@ body {
 .weak-shape-warn { position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:15px;font-weight:900;color:#FF4B4B;letter-spacing:1px;animation:warn-pulse 0.7s infinite;pointer-events:none;z-index:5;background:rgba(255,255,255,0.85);padding:2px 8px;border-radius:10px; }
 @keyframes warn-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .skill-map-btn { background:#f0f0f0;border:none;border-radius:12px;padding:6px 10px;font-size:16px;cursor:pointer; }
+.drill-btn { background:linear-gradient(135deg,#FF6B6B,#FF4B4B);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 2px 6px rgba(255,75,75,0.35); }
+.drill-lives-bar { display:flex;align-items:center;justify-content:center;gap:2px;padding:3px 0;font-size:20px;line-height:1; }
+.drill-heart { transition:transform 0.2s,opacity 0.2s;display:inline-block; }
+.drill-heart.lost { opacity:0.2;transform:scale(0.7); }
 
 </style>
 </head>
@@ -784,6 +788,7 @@ body {
     <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">KEY: A</button>
     <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
     <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
+    <button id="drill-btn" class="drill-btn" onclick="startDrill()" style="display:none">⚔️特訓</button>
   </div>
 </div>
 
@@ -814,6 +819,8 @@ body {
     <div id="enemy-char" class="enemy-char"></div>
     <div id="enemy-name" class="enemy-name-tag"></div>
   </div>
+  <!-- Drill lives -->
+  <div id="drill-lives-bar" class="drill-lives-bar" style="display:none"></div>
   <!-- Game area -->
   <div class="game-stage-area">
     <div id="game-slot" class="game-slot">
@@ -875,7 +882,7 @@ body {
       <div><span id="r-xp-val" class="r-xp-val">0</span> <span class="r-xp-label">XP</span><span id="r-xp-bonus" style="font-size:12px;color:#CE82FF;font-weight:900;margin-left:6px"></span></div>
     </div>
     <div style="font-size:11px;color:#aaa;font-weight:900;letter-spacing:2px">SCORE</div>
-    <div><span id="r-score" style="font-size:28px;font-weight:900;color:#555;font-family:var(--font-num)">0</span> <span style="font-size:12px;color:#bbb;font-weight:700">ch</span></div>
+    <div><span id="r-score" style="font-size:28px;font-weight:900;color:#555;font-family:var(--font-num)">0</span> <span id="r-score-unit" style="font-size:12px;color:#bbb;font-weight:700">ch</span></div>
     <div id="r-ratings" class="r-rating-bars"></div>
     <div id="r-detail" class="r-detail"></div>
     <div id="r-record" class="r-record">🏆 NEW RECORD!</div>
@@ -1031,12 +1038,15 @@ Object.assign(ENEMIES, ENEMIES_PLUS);
 const QS = 10;
 const CAP_CH = 36000;
 const CAP_SEC = 0.1;
+const DRILL_CONFIG = { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:6, mh:6, tp:'S' };
 
 /* =============== STATE =============== */
 let curDiff = 'EASY', curIdx = 0;
 let prog = {};
 let numberStats = {};   // {n: {c, t}} 数字別正答統計
 let missedShapes = [];  // [{sig, n, miss, ts}] ミスした形リスト
+let drillMode = false;
+let drillLives = 3;
 let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
@@ -1417,6 +1427,8 @@ function renderMap() {
 
   updateProg();
   updateDiffTabs();
+  const drillBtn = document.getElementById('drill-btn');
+  if(drillBtn) drillBtn.style.display = missedShapes.length >= 10 ? 'inline-block' : 'none';
   setTimeout(() => {
     const av = list.querySelector('.available');
     if(av) av.scrollIntoView({behavior:'smooth',block:'center'});
@@ -1591,7 +1603,7 @@ function gameLoop() {
   GS.elapsed += dt;
   GS.totalTime += dt;
 
-  const s = STAGES[curDiff][curIdx];
+  const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   const tl = getTimeLimit(s);
   if(GS.elapsed > tl) { handleMiss('TIME','-',GS.current.n); return; }
 
@@ -1601,10 +1613,10 @@ function gameLoop() {
 
   const j = s.j;
   let c;
-  else if(GS.elapsed<=j.e) c='#FFC800';
+  if(GS.elapsed<=j.e) c='#FFC800';
   else if(GS.elapsed<=j.g) c='#1CB0F6';
   else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
-  else if(GS.elapsed<=tl) c='#CCCCCC'; // 延長帯 = OK判定
+  else if(GS.elapsed<=tl) c='#CCCCCC';
   else c='#FF4B4B';
   fill.style.background = c;
 
@@ -1654,10 +1666,24 @@ function genShape(n, cols, mh, hBias) {
 }
 
 function addQ() {
-  const s = STAGES[curDiff][curIdx];
   if(GS.genCount>=QS) { GS.queue.push({n:null,shape:[]}); return; }
+
+  // Drill mode: prioritize weak shapes from missedShapes
+  if(drillMode && missedShapes.length > 0) {
+    const cands = missedShapes.filter(m => m.sig !== GS.lastSig);
+    const pool = cands.length > 0 ? cands : missedShapes;
+    pool.sort((a,b) => b.miss - a.miss);
+    const pick = pool[Math.floor(Math.random() * Math.min(3, pool.length))];
+    const shape = JSON.parse(pick.sig);
+    GS.lastSig = pick.sig; GS.lastN = pick.n; GS.consec = 1;
+    GS.queue.push({n: pick.n, shape, sig: pick.sig});
+    GS.genCount++;
+    return;
+  }
+
+  const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   for(let att=0;att<2000;att++) {
-    const n = bagNext();
+    const n = drillMode ? (2 + Math.floor(Math.random() * 7)) : bagNext();
     const shape = genShape(n, s.cols, s.mh, curDiff.endsWith('+') ? 0.3 : 0);
     const total = shape.reduce((a,b)=>a+b,0);
     const sig = JSON.stringify(shape);
@@ -1723,15 +1749,15 @@ function renderBlocks() {
       cluster.appendChild(col);
     });
     el.appendChild(cluster);
-    // Weak shape warning
-    if(GS.current.sig && missedShapes.some(m => m.sig === GS.current.sig)) {
+    // Weak shape warning (only in normal mode, not drill)
+    if(!drillMode && GS.current.sig && missedShapes.some(m => m.sig === GS.current.sig)) {
       const warn = document.createElement('div');
       warn.className = 'weak-shape-warn';
       warn.textContent = '⚠️ 苦手な形!';
       el.appendChild(warn);
     }
     // Dynamic scale based on slot dimensions + stage cols/mh
-    const st = STAGES[curDiff][curIdx];
+    const st = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
     const blockPx = Math.min(window.innerWidth * 0.075, 30);
     const gap = 4;
     const natW = st.cols * blockPx + Math.max(0, st.cols - 1) * gap;
@@ -1748,7 +1774,7 @@ function renderBlocks() {
 /* =============== INPUT =============== */
 function processInput(val) {
   if(!GS.current||GS.blocked||GS.status!=='PLAYING') return;
-  const s = STAGES[curDiff][curIdx];
+  const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   const inputEl = document.getElementById('input-display');
   if(s.tp==='H'||s.tp==='E') {
     if(val==='DEL'){GS.input=GS.input.slice(0,-1);inputEl.textContent=GS.input;return;}
@@ -1764,7 +1790,7 @@ function processInput(val) {
 
 function checkAns(val) {
   const dt = GS.elapsed;
-  const s = STAGES[curDiff][curIdx];
+  const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   const j = s.j;
   const tl = getTimeLimit(s);
   if(val===GS.current.n) {
@@ -1796,7 +1822,7 @@ function checkAns(val) {
     GS.xp += xpGain;
 
     showEval(lbl, k, xpGain);
-    if(GS.qCount>=QS-1) gameOver('CLEAR');
+    if(GS.qCount>=QS-1) { if(drillMode) drillEnd('CLEAR'); else gameOver('CLEAR'); }
     else nextQ();
   } else handleMiss('WRONG',val,GS.current.n);
 }
@@ -1886,6 +1912,43 @@ function handleMiss(type,inp,ans) {
       missedShapes.sort((a,b) => b.ts - a.ts);
       missedShapes = missedShapes.slice(0, 50);
     }
+  }
+
+  // Drill mode: reduce life, continue if lives remain
+  if(drillMode) {
+    drillLives--;
+    updateDrillLives();
+    // MISS popup
+    const missEl = document.createElement('div');
+    missEl.className = 'game-eval';
+    missEl.textContent = type === 'TIME' ? 'TIME' : type === 'SLOW' ? 'SLOW' : 'MISS';
+    missEl.style.color = '#FF4B4B';
+    document.body.appendChild(missEl);
+    setTimeout(() => missEl.remove(), 600);
+    // Update question counter
+    GS.qCount++;
+    const remaining = Math.max(0, QS - GS.qCount);
+    document.getElementById('enemy-hp-fill').style.width = (remaining/QS*100) + '%';
+    document.getElementById('enemy-hp-text').textContent = remaining + '/' + QS;
+    if(drillLives <= 0) {
+      GS.status = 'GAMEOVER'; GS.blocked = true;
+      if(GS.rafId) cancelAnimationFrame(GS.rafId);
+      drillEnd('FAIL');
+      return;
+    }
+    if(GS.qCount >= QS) {
+      GS.status = 'GAMEOVER'; GS.blocked = true;
+      if(GS.rafId) cancelAnimationFrame(GS.rafId);
+      drillEnd('CLEAR');
+      return;
+    }
+    // Continue to next question
+    if(GS.queue.length < 3) addQ();
+    GS.current = GS.queue.shift();
+    renderBlocks();
+    GS.elapsed = 0; GS.input = '';
+    document.getElementById('input-display').textContent = '';
+    return;
   }
 
   // Game over on any miss
@@ -2062,6 +2125,7 @@ function showResult(score, stars, isNew) {
   document.getElementById('r-xp-val').textContent = GS.xp;
   document.getElementById('r-xp-bonus').textContent = isRandomMode ? '(RANDOM +50%)' : '';
   document.getElementById('r-score').textContent = score.toLocaleString();
+  document.getElementById('r-score-unit').textContent = 'ch';
 
   // Rating bars
   const ratings = document.getElementById('r-ratings');
@@ -2130,12 +2194,147 @@ function launchConfetti(count) {
   }
 }
 
+/* =============== DRILL MODE =============== */
+function startDrill() {
+  if(missedShapes.length < 10) return;
+  drillMode = true;
+  drillLives = 3;
+  curDiff = 'EASY'; curIdx = 0; // dummy for keyboard/enemy fallback
+
+  const gv = document.getElementById('game-view');
+  gv.style.display = 'flex';
+  gv.setAttribute('data-diff', 'EASY');
+  gv.classList.remove('boss-mid','boss-final');
+  document.getElementById('map-view').style.display = 'none';
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('timer-fill').style.width = '100%';
+
+  // Single-digit keyboard
+  document.querySelector('.gk[data-key="0"]').classList.add('disabled');
+  document.querySelector('.gk[data-key="DEL"]').classList.add('disabled');
+  const kb = document.getElementById('game-kb');
+  kb.classList.remove('layout-phone','layout-calc','layout-special');
+  kb.classList.add(KB_LAYOUTS[curKbIdx].layout);
+
+  // Header labels
+  const labelEl = document.getElementById('enemy-label');
+  labelEl.textContent = '⚔️ 特訓';
+  labelEl.style.background = '#FF6B6B';
+
+  // Enemy area
+  const enemyChar = document.getElementById('enemy-char');
+  enemyChar.innerHTML = ENEMIES['EASY'][0].svg();
+  enemyChar.className = 'enemy-char';
+  document.getElementById('enemy-name').textContent = '弱点特訓モード';
+
+  // HP bar = question progress
+  document.getElementById('enemy-hp-fill').style.width = '100%';
+  document.getElementById('enemy-hp-fill').className = 'enemy-hp-fill';
+  document.getElementById('enemy-hp-text').textContent = QS + '/' + QS;
+  document.querySelector('.top-hp-wrap').style.display = '';
+
+  // Lives display
+  updateDrillLives();
+  document.getElementById('drill-lives-bar').style.display = 'flex';
+
+  startCountdown();
+}
+
+function updateDrillLives() {
+  const bar = document.getElementById('drill-lives-bar');
+  if(!bar) return;
+  bar.innerHTML = '';
+  for(let i = 0; i < 3; i++) {
+    const h = document.createElement('span');
+    h.className = 'drill-heart' + (i < drillLives ? '' : ' lost');
+    h.textContent = '❤️';
+    bar.appendChild(h);
+  }
+}
+
+function drillEnd(result) {
+  GS.status = 'GAMEOVER'; GS.blocked = true;
+  if(GS.rafId) cancelAnimationFrame(GS.rafId);
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('input-display').textContent = '';
+
+  if(result === 'CLEAR') {
+    const mult = drillLives >= 3 ? 2.0 : drillLives >= 2 ? 1.5 : 1.25;
+    const multLabel = drillLives >= 3 ? '×200%(❤️❤️❤️)' : drillLives >= 2 ? '×150%(❤️❤️)' : '×125%(❤️)';
+    GS.xp = Math.round(GS.xp * mult);
+    const prevLevel = getLevel().level;
+    totalXP += GS.xp;
+    save();
+    const newLevel = getLevel().level;
+    if(newLevel > prevLevel) setTimeout(() => showLevelUp(newLevel), 800);
+
+    document.getElementById('r-enemy').innerHTML = '⚔️';
+    document.getElementById('r-lbl').textContent = '弱点特訓';
+    document.getElementById('r-clear').textContent = '特訓クリア!';
+    document.getElementById('r-clear').className = 'r-clear-txt cleared';
+    document.getElementById('r-perfect').style.display = 'none';
+
+    // Hearts as stars
+    const sr = document.getElementById('r-stars');
+    sr.innerHTML = '';
+    for(let i = 0; i < 3; i++) {
+      const s = document.createElement('span');
+      s.className = 'r-star';
+      s.textContent = '❤️';
+      if(i < drillLives) { s.classList.add('show'); s.style.animationDelay = (0.3 + i*0.2) + 's'; }
+      else { s.classList.add('dim'); }
+      sr.appendChild(s);
+    }
+
+    document.getElementById('r-xp-val').textContent = GS.xp;
+    document.getElementById('r-xp-bonus').textContent = '(' + multLabel + ')';
+    document.getElementById('r-score').textContent = GS.stats.excellent.c;
+    document.getElementById('r-score-unit').textContent = 'EXCELLENT';
+
+    const ratings = document.getElementById('r-ratings');
+    ratings.innerHTML = '';
+    [{k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},{k:'great',lbl:'GREAT',c:'#1CB0F6'},{k:'good',lbl:'GOOD',c:'#FF9600'},{k:'ok',lbl:'OK',c:'#CCCCCC'}].forEach((r,ri) => {
+      const cnt = GS.stats[r.k].c;
+      if(!cnt && ri >= 2) return;
+      const row = document.createElement('div');
+      row.className = 'r-rating-row';
+      row.innerHTML = '<div class="r-rating-label" style="color:'+r.c+'">'+r.lbl+'</div>'+
+        '<div class="r-rating-bar-outer"><div class="r-rating-bar-inner" style="width:0%;background:'+r.c+'"></div></div>'+
+        '<div class="r-rating-count">'+cnt+'</div>';
+      ratings.appendChild(row);
+      setTimeout(() => row.querySelector('.r-rating-bar-inner').style.width = (cnt/QS*100)+'%', 200+ri*100);
+    });
+
+    document.getElementById('r-detail').innerHTML = '<span>残り苦手形: ' + missedShapes.length + '件</span>';
+    document.getElementById('r-record').style.display = 'none';
+    document.getElementById('r-unlock').style.display = 'none';
+    document.getElementById('r-next').style.display = 'none';
+    document.getElementById('result-overlay').classList.add('show');
+    launchConfetti(drillLives >= 3 ? 80 : 30);
+
+  } else {
+    // FAIL
+    if(GS.xp > 0) {
+      const prevLevel = getLevel().level;
+      totalXP += GS.xp;
+      save();
+      const newLevel = getLevel().level;
+      if(newLevel > prevLevel) setTimeout(() => showLevelUp(newLevel), 400);
+    }
+    document.getElementById('fail-title').textContent = '特訓失敗...';
+    document.getElementById('fail-sub').textContent = '苦手形: ' + missedShapes.length + '件残っています';
+    document.getElementById('fail-xp').textContent = GS.xp > 0 ? '⚡ +' + GS.xp + ' XP' : '';
+    document.getElementById('fail-overlay').classList.add('show');
+  }
+}
+
 /* =============== NAVIGATION =============== */
 function goBack() { window.location.href = 'index.html'; }
 
 function retryStage() {
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
+  if(drillMode) { startDrill(); return; }
   startStage(curDiff, curIdx);
 }
 function nextStage() {
@@ -2150,6 +2349,12 @@ function backToMap() {
   document.getElementById('map-view').style.display = 'flex';
   GS.status = 'IDLE';
   if(GS.rafId) cancelAnimationFrame(GS.rafId);
+  if(drillMode) {
+    drillMode = false;
+    drillLives = 3;
+    document.getElementById('drill-lives-bar').style.display = 'none';
+    document.querySelector('.top-hp-wrap').style.display = '';
+  }
   switchTab(curDiff);
 }
 
