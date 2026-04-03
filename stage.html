@@ -1129,6 +1129,7 @@ let survivalLevel = 0;
 let survivalCorrect = 0;
 let survivalBlocks = 0;
 let survivalBest = { correct:0, blocks:0 };
+let drillUnlocked = false;
 let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
@@ -1157,6 +1158,7 @@ function load() {
   try { const ms = localStorage.getItem('snow_missed_shapes'); if(ms) missedShapes = JSON.parse(ms); } catch(e){}
   try { const tb = localStorage.getItem('snow_ta_best'); if(tb) taBest = JSON.parse(tb); } catch(e){}
   try { const sb = localStorage.getItem('snow_survival_best'); if(sb) survivalBest = JSON.parse(sb); } catch(e){}
+  drillUnlocked = localStorage.getItem('snow_drill_unlocked') === '1';
   ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -1169,6 +1171,7 @@ function save() {
   localStorage.setItem('snow_missed_shapes', JSON.stringify(missedShapes));
   localStorage.setItem('snow_ta_best', JSON.stringify(taBest));
   localStorage.setItem('snow_survival_best', JSON.stringify(survivalBest));
+  if(drillUnlocked) localStorage.setItem('snow_drill_unlocked', '1');
 }
 
 function getLevel() {
@@ -1298,7 +1301,9 @@ function toggleRandom() {
       localStorage.removeItem('snow_missed_shapes');
       localStorage.removeItem('snow_ta_best');
       localStorage.removeItem('snow_survival_best');
+      localStorage.removeItem('snow_drill_unlocked');
       survivalBest = { correct:0, blocks:0 };
+      drillUnlocked = false;
       load();
       isRandomMode = false;
       const btn = document.getElementById('random-btn');
@@ -1516,8 +1521,12 @@ function renderMap() {
 
   updateProg();
   updateDiffTabs();
+  if(missedShapes.length >= 10 && !drillUnlocked) {
+    drillUnlocked = true;
+    save();
+  }
   const drillBtn = document.getElementById('drill-btn');
-  if(drillBtn) drillBtn.style.display = missedShapes.length >= 10 ? 'inline-block' : 'none';
+  if(drillBtn) drillBtn.style.display = drillUnlocked ? 'inline-block' : 'none';
   setTimeout(() => {
     const av = list.querySelector('.available');
     if(av) av.scrollIntoView({behavior:'smooth',block:'center'});
