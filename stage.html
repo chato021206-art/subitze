@@ -135,6 +135,9 @@ body {
   letter-spacing: -0.5px;
 }
 .diff-tab.active .tab-star-avg { color: rgba(255,255,255,0.9); }
+.tab-medal {
+  display: block; font-size: 13px; line-height: 1; margin-top: 1px;
+}
 .plus-tabs {
   display: none; gap: 6px; flex-shrink: 0;
   background: #E8E0FF; padding: 6px 8px; border-bottom: 3px dashed #C8B8F0;
@@ -718,6 +721,31 @@ body {
 
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
+/* === SKILL MAP === */
+.skill-map-modal { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+.skill-map-modal.show { opacity:1;pointer-events:all; }
+.skill-map-box { background:#fff;border-radius:20px;padding:20px 20px 28px;width:90%;max-width:400px;max-height:82vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.skill-map-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:16px; }
+.skill-map-title { font-size:18px;font-weight:900;color:#333; }
+.skill-map-close { width:32px;height:32px;border-radius:50%;border:none;background:#f0f0f0;font-size:16px;cursor:pointer; }
+.skill-map-sec { margin-bottom:18px; }
+.skill-map-sec-title { font-size:11px;font-weight:900;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px; }
+.skill-num-row { display:flex;align-items:center;gap:8px;margin-bottom:5px; }
+.skill-num-label { font-size:13px;font-weight:900;color:#333;min-width:32px;text-align:right; }
+.skill-num-count { font-size:10px;color:#aaa;min-width:30px; }
+.skill-num-bar-outer { flex:1;height:10px;background:#f0f0f0;border-radius:10px;overflow:hidden; }
+.skill-num-bar-inner { height:100%;border-radius:10px;transition:width 0.6s ease; }
+.skill-num-avg { font-size:11px;color:#888;min-width:38px;text-align:right; }
+.skill-weak-grid { display:flex;flex-wrap:wrap;gap:10px;margin-top:4px; }
+.skill-weak-item { display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;background:#fff3f3;border-radius:8px;border:2px solid #ffcccc; }
+.mini-shape { display:flex;gap:2px;align-items:flex-end;min-height:20px; }
+.mini-shape-col { display:flex;flex-direction:column-reverse;gap:1px; }
+.mini-shape-block { width:5px;height:5px;background:#FF4B4B;border-radius:1px; }
+.skill-weak-label { font-size:9px;color:#FF4B4B;font-weight:700; }
+.weak-shape-warn { position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:15px;font-weight:900;color:#FF4B4B;letter-spacing:1px;animation:warn-pulse 0.7s infinite;pointer-events:none;z-index:5;background:rgba(255,255,255,0.85);padding:2px 8px;border-radius:10px; }
+@keyframes warn-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.skill-map-btn { background:#f0f0f0;border:none;border-radius:12px;padding:6px 10px;font-size:16px;cursor:pointer; }
+
 </style>
 </head>
 <body>
@@ -737,16 +765,16 @@ body {
     </div>
   </div>
   <div class="diff-tabs">
-    <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span></button>
-    <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span></button>
-    <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD<span class="tab-star-avg" id="avg-HARD"></span></button>
-    <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span></button>
+    <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span><span class="tab-medal" id="medal-EASY"></span></button>
+    <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span><span class="tab-medal" id="medal-NORMAL"></span></button>
+    <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD<span class="tab-star-avg" id="avg-HARD"></span><span class="tab-medal" id="medal-HARD"></span></button>
+    <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span><span class="tab-medal" id="medal-EXTREME"></span></button>
   </div>
   <div class="plus-tabs" id="plus-tabs">
-    <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span></button>
-    <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span></button>
-    <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span></button>
-    <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
+    <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span><span class="tab-medal" id="medal-EASY+"></span></button>
+    <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span><span class="tab-medal" id="medal-NORMAL+"></span></button>
+    <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span><span class="tab-medal" id="medal-HARD+"></span></button>
+    <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span><span class="tab-medal" id="medal-EXTREME+"></span></button>
   </div>
 
   <div id="map-scroll" class="map-scroll" data-diff="EASY">
@@ -755,6 +783,18 @@ body {
   <div class="map-settings">
     <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">KEY: A</button>
     <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
+    <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
+  </div>
+</div>
+
+<!-- =============== SKILL MAP MODAL =============== -->
+<div class="skill-map-modal" id="skill-map-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="skill-map-box">
+    <div class="skill-map-header">
+      <div class="skill-map-title">📊 スキルマップ</div>
+      <button class="skill-map-close" onclick="document.getElementById('skill-map-modal').classList.remove('show')">✕</button>
+    </div>
+    <div id="skill-map-body"></div>
   </div>
 </div>
 
@@ -995,6 +1035,8 @@ const CAP_SEC = 0.1;
 /* =============== STATE =============== */
 let curDiff = 'EASY', curIdx = 0;
 let prog = {};
+let numberStats = {};   // {n: {c, t}} 数字別正答統計
+let missedShapes = [];  // [{sig, n, miss, ts}] ミスした形リスト
 let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
@@ -1019,6 +1061,8 @@ let curKbIdx = 0;
 function load() {
   try { const r = localStorage.getItem('snow_stage_progress'); if(r) prog = JSON.parse(r); } catch(e){}
   try { const x = localStorage.getItem('snow_total_xp'); if(x) totalXP = parseInt(x)||0; } catch(e){}
+  try { const ns = localStorage.getItem('snow_number_stats'); if(ns) numberStats = JSON.parse(ns); } catch(e){}
+  try { const ms = localStorage.getItem('snow_missed_shapes'); if(ms) missedShapes = JSON.parse(ms); } catch(e){}
   ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -1027,6 +1071,8 @@ function load() {
 function save() {
   localStorage.setItem('snow_stage_progress', JSON.stringify(prog));
   localStorage.setItem('snow_total_xp', totalXP.toString());
+  localStorage.setItem('snow_number_stats', JSON.stringify(numberStats));
+  localStorage.setItem('snow_missed_shapes', JSON.stringify(missedShapes));
 }
 
 function getLevel() {
@@ -1149,9 +1195,11 @@ function toggleRandom() {
   if(_randomPressCt >= 10) {
     _randomPressCt = 0;
     if(confirm('セーブデータを全削除しますか？\nこの操作は元に戻せません。')) {
-      prog = {}; totalXP = 0;
+      prog = {}; totalXP = 0; numberStats = {}; missedShapes = [];
       localStorage.removeItem('snow_stage_progress');
       localStorage.removeItem('snow_total_xp');
+      localStorage.removeItem('snow_number_stats');
+      localStorage.removeItem('snow_missed_shapes');
       load();
       isRandomMode = false;
       const btn = document.getElementById('random-btn');
@@ -1199,6 +1247,17 @@ function updateDiffTabs() {
     for(let i=0;i<10;i++) total += (prog[d][i]&&prog[d][i].cleared ? prog[d][i].stars : 0);
     const avg = total / 10;
     el.textContent = avg > 0 ? '⭐' + avg.toFixed(1) : '';
+
+    // Medal badge
+    const medalEl = document.getElementById('medal-' + d);
+    if(!medalEl) return;
+    const allCleared = Array.from({length:10}, (_,i) => prog[d][i]?.cleared).every(Boolean);
+    if(allCleared) {
+      const minStars = Math.min(...Array.from({length:10}, (_,i) => prog[d][i]?.stars || 0));
+      medalEl.textContent = minStars >= 3 ? '🥇' : minStars >= 2 ? '🥈' : '🥉';
+    } else {
+      medalEl.textContent = '';
+    }
   });
   // Show/hide plus tabs
   const plusTabsEl = document.getElementById('plus-tabs');
@@ -1380,7 +1439,7 @@ function updateProg() {
     document.getElementById('prog-text').textContent = plusCount + ' / 40 CLEARED';
     document.getElementById('prog-bar').style.width = (plusCount/40*100) + '%';
     document.getElementById('prog-bar').style.background =
-      'repeating-linear-gradient(45deg,rgba(255,255,255,0.85),rgba(255,255,255,0.85) 8px,rgba(255,255,255,0.55) 8px,rgba(255,255,255,0.55) 16px)';
+      'repeating-linear-gradient(45deg,#C084FC,#C084FC 8px,#9B59B6 8px,#9B59B6 16px)';
     document.getElementById('prog-text').style.color = '#F3E6FF';
   } else {
     if(header) { header.style.background = ''; header.style.borderBottomColor = ''; }
@@ -1606,7 +1665,7 @@ function addQ() {
     if(GS.lastN===total&&GS.consec>=2) continue;
     GS.consec = GS.lastN===total ? GS.consec+1 : 1;
     GS.lastN = total; GS.lastSig = sig;
-    GS.queue.push({n:total,shape}); break;
+    GS.queue.push({n:total,shape,sig}); break;
   }
   GS.genCount++;
 }
@@ -1664,6 +1723,13 @@ function renderBlocks() {
       cluster.appendChild(col);
     });
     el.appendChild(cluster);
+    // Weak shape warning
+    if(GS.current.sig && missedShapes.some(m => m.sig === GS.current.sig)) {
+      const warn = document.createElement('div');
+      warn.className = 'weak-shape-warn';
+      warn.textContent = '⚠️ 苦手な形!';
+      el.appendChild(warn);
+    }
     // Dynamic scale based on slot dimensions + stage cols/mh
     const st = STAGES[curDiff][curIdx];
     const blockPx = Math.min(window.innerWidth * 0.075, 30);
@@ -1710,6 +1776,17 @@ function checkAns(val) {
     else if(dt<=tl){k='ok';lbl='OK';}  // 延長帯 = OK
     else{handleMiss('SLOW',val,GS.current.n);return;}
     GS.stats[k].c++; GS.stats[k].t+=eff;
+
+    // Number stats tracking
+    const cn = GS.current.n;
+    if(!numberStats[cn]) numberStats[cn] = {c:0, t:0};
+    numberStats[cn].c++;
+    numberStats[cn].t += eff;
+    // Resolve weak shape on correct answer
+    if(GS.current.sig) {
+      const widx = missedShapes.findIndex(m => m.sig === GS.current.sig);
+      if(widx >= 0) missedShapes.splice(widx, 1);
+    }
 
     // XP gain — difficulty multiplier + level bonus
     const baseXP = {excellent:12,great:10,good:8,ok:5}[k];
@@ -1799,6 +1876,18 @@ function nextQ() {
 function handleMiss(type,inp,ans) {
   document.getElementById('input-display').textContent = '';
 
+  // Record missed shape
+  if(type === 'WRONG' && GS.current && GS.current.sig) {
+    const sig = GS.current.sig;
+    const existing = missedShapes.find(m => m.sig === sig);
+    if(existing) { existing.miss++; existing.ts = Date.now(); }
+    else { missedShapes.push({sig, n: GS.current.n, miss:1, ts: Date.now()}); }
+    if(missedShapes.length > 50) {
+      missedShapes.sort((a,b) => b.ts - a.ts);
+      missedShapes = missedShapes.slice(0, 50);
+    }
+  }
+
   // Game over on any miss
   GS.status = 'GAMEOVER'; GS.blocked = true;
   if(GS.rafId) cancelAnimationFrame(GS.rafId);
@@ -1862,6 +1951,88 @@ function gameOver(result) {
   if(newLevel > prevLevel) setTimeout(() => showLevelUp(newLevel), 800);
 
   setTimeout(() => showResult(ch, stars, isNew), 600);
+}
+
+/* =============== SKILL MAP =============== */
+function showSkillMap() {
+  const body = document.getElementById('skill-map-body');
+  body.innerHTML = '';
+
+  // --- Number response time bars ---
+  const numSec = document.createElement('div');
+  numSec.className = 'skill-map-sec';
+  numSec.innerHTML = '<div class="skill-map-sec-title">数字別 平均応答時間</div>';
+
+  const nums = Object.keys(numberStats).map(Number).sort((a,b)=>a-b);
+  if(nums.length === 0) {
+    numSec.innerHTML += '<div style="font-size:12px;color:#aaa;padding:8px 0">まだデータがありません</div>';
+  } else {
+    // max avg for bar scaling
+    const avgs = nums.map(n => numberStats[n].t / numberStats[n].c);
+    const maxAvg = Math.max(...avgs, 3);
+    nums.forEach((n, i) => {
+      const avg = avgs[i];
+      const pct = Math.min(100, (avg / maxAvg) * 100);
+      const color = avg <= 1 ? '#4CAF50' : avg <= 2 ? '#FF9600' : '#FF4B4B';
+      const row = document.createElement('div');
+      row.className = 'skill-num-row';
+      row.innerHTML = `
+        <div class="skill-num-label">${n}</div>
+        <div class="skill-num-bar-outer"><div class="skill-num-bar-inner" style="width:${pct}%;background:${color}"></div></div>
+        <div class="skill-num-avg">${avg.toFixed(2)}s</div>
+        <div class="skill-num-count">×${numberStats[n].c}</div>
+      `;
+      numSec.appendChild(row);
+    });
+  }
+  body.appendChild(numSec);
+
+  // --- Weak shapes list ---
+  const weakSec = document.createElement('div');
+  weakSec.className = 'skill-map-sec';
+  const weakCount = missedShapes.length;
+  weakSec.innerHTML = `<div class="skill-map-sec-title">苦手な形 (${weakCount}件)</div>`;
+
+  if(weakCount === 0) {
+    weakSec.innerHTML += '<div style="font-size:12px;color:#aaa;padding:8px 0">苦手な形はありません 🎉</div>';
+  } else {
+    const grid = document.createElement('div');
+    grid.className = 'skill-weak-grid';
+    // show up to 10, sorted by miss count desc
+    const sorted = [...missedShapes].sort((a,b) => b.miss - a.miss).slice(0, 10);
+    sorted.forEach(m => {
+      const shape = JSON.parse(m.sig);
+      const item = document.createElement('div');
+      item.className = 'skill-weak-item';
+
+      // mini shape preview
+      const miniShape = document.createElement('div');
+      miniShape.className = 'mini-shape';
+      shape.forEach(h => {
+        if(!h) return;
+        const col = document.createElement('div');
+        col.className = 'mini-shape-col';
+        for(let i=0;i<h;i++) {
+          const b = document.createElement('div');
+          b.className = 'mini-shape-block';
+          col.appendChild(b);
+        }
+        miniShape.appendChild(col);
+      });
+
+      const lbl = document.createElement('div');
+      lbl.className = 'skill-weak-label';
+      lbl.textContent = m.n + ' (×' + m.miss + ')';
+
+      item.appendChild(miniShape);
+      item.appendChild(lbl);
+      grid.appendChild(item);
+    });
+    weakSec.appendChild(grid);
+  }
+  body.appendChild(weakSec);
+
+  document.getElementById('skill-map-modal').classList.add('show');
 }
 
 /* =============== RESULT =============== */
