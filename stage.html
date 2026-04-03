@@ -759,6 +759,69 @@ body {
 .ta-best-display { font-size:10px;color:#bbb;text-align:center;line-height:1.8; }
 .ta-score-bar { display:flex;justify-content:center;gap:20px;padding:4px 0;font-size:13px;font-weight:900;color:#333; }
 .survival-btn { background:linear-gradient(135deg,#9B59B6,#7D3C98);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:15px;font-weight:900;cursor:pointer; }
+/* ---- Header daily inline ---- */
+.header-daily {
+  flex:1; display:flex; align-items:center; gap:8px; cursor:pointer;
+  padding:5px 10px; background:rgba(255,255,255,0.55); border-radius:12px;
+  border:2px solid rgba(0,0,0,0.08); min-width:0; overflow:hidden;
+}
+.header-daily .daily-streak { font-size:13px; white-space:nowrap; }
+.header-daily .daily-label { font-size:11px; font-weight:900; color:#8B6914; white-space:nowrap; }
+.header-daily .daily-mission-dots { flex-shrink:0; }
+
+/* ---- Panel indicator ---- */
+.panel-indicator {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:4px 10px; background:#FFF3D0; border-bottom:2px solid #E0C860; flex-shrink:0;
+}
+.pi-dots { display:flex; gap:6px; align-items:center; }
+.pi-dot { width:8px; height:8px; border-radius:50%; background:#D4C860; transition:all 0.25s; }
+.pi-dot.active { background:#8B6914; width:20px; border-radius:4px; }
+.pi-side {
+  font-size:11px; font-weight:900; color:#8B6914; cursor:pointer;
+  padding:3px 8px; border-radius:10px; background:rgba(255,255,255,0.5);
+  transition:all 0.15s; white-space:nowrap; user-select:none;
+}
+.pi-side:active { background:rgba(255,255,255,0.8); }
+.pi-side.pi-hidden { opacity:0; pointer-events:none; }
+
+/* ---- 3-panel container ---- */
+.panels-wrap {
+  flex:1; display:flex; overflow:hidden; position:relative;
+  transition:transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+  will-change:transform;
+}
+.panel {
+  min-width:100%; width:100%; display:flex; flex-direction:column;
+  overflow:hidden; flex-shrink:0;
+}
+.panel-modes { background:#F5F0FF; }
+
+/* ---- Modes scroll panel ---- */
+.modes-scroll {
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:16px 14px 20px; display:flex; flex-direction:column; gap:11px;
+}
+.modes-title {
+  font-size:11px; font-weight:900; color:#A08898; text-align:center;
+  letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px;
+}
+.mode-card {
+  display:flex; align-items:center; gap:14px;
+  background:#fff; border-radius:18px; padding:15px 18px;
+  box-shadow:0 3px 0 rgba(0,0,0,0.08); cursor:pointer;
+  border:3px solid #f0eaf8; transition:all 0.12s; touch-action:manipulation;
+}
+.mode-card:active { transform:scale(0.97); box-shadow:0 1px 0 rgba(0,0,0,0.06); }
+.mode-icon { font-size:34px; flex-shrink:0; width:44px; text-align:center; }
+.mode-info { flex:1; min-width:0; }
+.mode-name { font-size:15px; font-weight:900; color:#333; }
+.mode-desc { font-size:12px; color:#999; margin-top:2px; }
+
+/* plus-tabs always flex inside panel-2 */
+.plus-tabs { display:flex; gap:6px; flex-shrink:0;
+  background:#E8E0FF; padding:6px 8px; border-bottom:3px dashed #C8B8F0; }
+
 .daily-bar { display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#FFF8E1;border-bottom:2px solid #FFE082;gap:8px;flex-shrink:0;cursor:pointer; }
 .daily-streak { font-size:13px;font-weight:900;color:#FF6D00; }
 .daily-mission-dots { display:flex;gap:5px;align-items:center; }
@@ -791,11 +854,17 @@ body {
 
 <!-- =============== MAP VIEW =============== -->
 <div id="map-view">
+  <!-- Header: back + daily (inline) + xp badge -->
   <div class="map-header">
     <button class="btn-back" onclick="goBack()">←</button>
-    <div class="progress-section">
-      <div class="progress-label"><span id="prog-text">0 / 40 CLEARED</span></div>
-      <div class="progress-bar-outer"><div id="prog-bar" class="progress-bar-inner" style="width:0%"></div></div>
+    <div class="header-daily" onclick="showDailyModal()">
+      <div id="daily-streak-disp" class="daily-streak">🔥 0日</div>
+      <div class="daily-mission-dots">
+        <div class="daily-dot" id="daily-dot-0"></div>
+        <div class="daily-dot" id="daily-dot-1"></div>
+        <div class="daily-dot" id="daily-dot-2"></div>
+      </div>
+      <div id="daily-label-disp" class="daily-label">0/3</div>
     </div>
     <div class="map-xp-badge" onclick="showLevelInfo()">
       <div id="map-level" class="map-xp-level">Lv1</div>
@@ -803,43 +872,89 @@ body {
       <div id="map-xp-perks" class="map-xp-perks"></div>
     </div>
   </div>
-  <!-- Daily mission bar -->
-  <div class="daily-bar" id="daily-bar" onclick="showDailyModal()">
-    <div id="daily-streak-disp" class="daily-streak">🔥 0日</div>
-    <div class="daily-mission-dots">
-      <div class="daily-dot" id="daily-dot-0"></div>
-      <div class="daily-dot" id="daily-dot-1"></div>
-      <div class="daily-dot" id="daily-dot-2"></div>
+
+  <!-- Panel indicator (arrows + dots) -->
+  <div class="panel-indicator" id="panel-indicator">
+    <div class="pi-side" id="pi-left" onclick="goToPanel(currentPanel-1)">◀ モード</div>
+    <div class="pi-dots">
+      <div class="pi-dot" id="pi-dot-0"></div>
+      <div class="pi-dot active" id="pi-dot-1"></div>
+      <div class="pi-dot" id="pi-dot-2"></div>
     </div>
-    <div id="daily-label-disp" class="daily-label">ミッション 0/3</div>
+    <div class="pi-side" id="pi-right" onclick="goToPanel(currentPanel+1)">＋ ▶</div>
   </div>
 
-  <div class="diff-tabs">
-    <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span><span class="tab-medal" id="medal-EASY"></span></button>
-    <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span><span class="tab-medal" id="medal-NORMAL"></span></button>
-    <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD<span class="tab-star-avg" id="avg-HARD"></span><span class="tab-medal" id="medal-HARD"></span></button>
-    <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span><span class="tab-medal" id="medal-EXTREME"></span></button>
-  </div>
-  <div class="plus-tabs" id="plus-tabs">
-    <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span><span class="tab-medal" id="medal-EASY+"></span></button>
-    <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span><span class="tab-medal" id="medal-NORMAL+"></span></button>
-    <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span><span class="tab-medal" id="medal-HARD+"></span></button>
-    <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span><span class="tab-medal" id="medal-EXTREME+"></span></button>
-  </div>
+  <!-- 3-panel sliding container -->
+  <div class="panels-wrap" id="panels-wrap">
 
-  <div id="map-scroll" class="map-scroll" data-diff="EASY">
-    <div id="stage-list" class="stage-list"></div>
-  </div>
+    <!-- Panel 0: Modes -->
+    <div class="panel panel-modes" id="panel-0">
+      <div class="modes-scroll">
+        <div class="modes-title">モード選択</div>
+        <div class="mode-card" onclick="showSkillMap()">
+          <div class="mode-icon">📊</div>
+          <div class="mode-info">
+            <div class="mode-name">スキルマップ</div>
+            <div class="mode-desc">数字別・形別の得意苦手を確認</div>
+          </div>
+        </div>
+        <div class="mode-card" id="mode-drill-card" onclick="startDrill()">
+          <div class="mode-icon">⚔️</div>
+          <div class="mode-info">
+            <div class="mode-name">弱点特訓</div>
+            <div class="mode-desc">苦手な形を集中練習。3ライフ制</div>
+          </div>
+        </div>
+        <div class="mode-card" onclick="openTASelect()">
+          <div class="mode-icon">⏱</div>
+          <div class="mode-info">
+            <div class="mode-name">タイムアタック</div>
+            <div class="mode-desc">60秒で何問解けるか挑戦！</div>
+          </div>
+        </div>
+        <div class="mode-card" onclick="startSurvival()">
+          <div class="mode-icon">∞</div>
+          <div class="mode-info">
+            <div class="mode-name">サバイバル</div>
+            <div class="mode-desc">1ミス即終了。何問生き残れる？</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 1: Normal stages -->
+    <div class="panel" id="panel-1">
+      <div class="diff-tabs">
+        <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span><span class="tab-medal" id="medal-EASY"></span></button>
+        <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span><span class="tab-medal" id="medal-NORMAL"></span></button>
+        <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD<span class="tab-star-avg" id="avg-HARD"></span><span class="tab-medal" id="medal-HARD"></span></button>
+        <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span><span class="tab-medal" id="medal-EXTREME"></span></button>
+      </div>
+      <div id="map-scroll" class="map-scroll" data-diff="EASY">
+        <div id="stage-list" class="stage-list"></div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Plus stages -->
+    <div class="panel" id="panel-2">
+      <div class="plus-tabs" id="plus-tabs">
+        <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span><span class="tab-medal" id="medal-EASY+"></span></button>
+        <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span><span class="tab-medal" id="medal-NORMAL+"></span></button>
+        <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span><span class="tab-medal" id="medal-HARD+"></span></button>
+        <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span><span class="tab-medal" id="medal-EXTREME+"></span></button>
+      </div>
+      <div id="plus-scroll" class="map-scroll" data-diff="EASY">
+        <div id="plus-stage-list" class="stage-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /panels-wrap -->
+
+  <!-- Settings: KEY + RANDOM only -->
   <div class="map-settings">
     <div class="map-settings-row">
       <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">KEY: A</button>
       <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
-      <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
-    </div>
-    <div class="map-settings-row">
-      <button id="drill-btn" class="drill-btn" onclick="startDrill()">⚔️特訓</button>
-      <button class="ta-btn" onclick="openTASelect()">⏱TA</button>
-      <button class="survival-btn" onclick="startSurvival()">∞</button>
     </div>
   </div>
 </div>
@@ -1167,6 +1282,9 @@ let survivalCorrect = 0;
 let survivalBlocks = 0;
 let survivalBest = { correct:0, blocks:0 };
 let drillUnlocked = false;
+let currentPanel = 1; // 0=modes, 1=normal, 2=plus
+let lastNormalDiff = 'EASY';
+let lastPlusDiff = 'EASY+';
 let streak = 0;
 let lastStreakDate = '';
 let dailyMissions = [];   // [{type, desc, icon, goal, prog, done}]
@@ -1408,25 +1526,61 @@ function updateDiffTabs() {
       medalEl.textContent = '';
     }
   });
-  // Show/hide plus tabs
-  const plusTabsEl = document.getElementById('plus-tabs');
-  const anyPlusUnlocked = ['EASY+','NORMAL+','HARD+','EXTREME+'].some(d => plusUnlocked(d));
-  plusTabsEl.classList.toggle('visible', anyPlusUnlocked);
-  // Update locked state on plus tabs
+  // Update locked state on plus tabs + panel indicator
   document.querySelectorAll('.plus-tab').forEach(t => {
     t.classList.toggle('locked', !diffUnlocked(t.dataset.diff));
   });
+  updatePanelIndicator();
+}
+
+/* =============== PANEL SYSTEM =============== */
+function anyPlusUnlocked() {
+  return ['EASY+','NORMAL+','HARD+','EXTREME+'].some(d => plusUnlocked(d));
+}
+
+function goToPanel(n) {
+  const total = anyPlusUnlocked() ? 3 : 2;
+  n = Math.max(0, Math.min(n, total - 1));
+  currentPanel = n;
+  document.getElementById('panels-wrap').style.transform = 'translateX(' + (-n * 100) + '%)';
+  updatePanelIndicator();
+  // Ensure correct diff is active for the target panel
+  if(n === 2 && !curDiff.endsWith('+')) {
+    const plDiff = diffUnlocked(lastPlusDiff) ? lastPlusDiff :
+      ['EASY+','NORMAL+','HARD+','EXTREME+'].find(d => diffUnlocked(d));
+    if(plDiff) switchTab(plDiff);
+  } else if(n === 1 && curDiff.endsWith('+')) {
+    switchTab(lastNormalDiff);
+  }
+}
+
+function updatePanelIndicator() {
+  const total = anyPlusUnlocked() ? 3 : 2;
+  for(let i = 0; i < 3; i++) {
+    const dot = document.getElementById('pi-dot-' + i);
+    if(!dot) continue;
+    dot.style.display = i < total ? '' : 'none';
+    dot.classList.toggle('active', i === currentPanel);
+  }
+  const leftEl  = document.getElementById('pi-left');
+  const rightEl = document.getElementById('pi-right');
+  leftEl.classList.toggle('pi-hidden', currentPanel === 0);
+  rightEl.classList.toggle('pi-hidden', currentPanel >= total - 1);
+  leftEl.textContent  = currentPanel === 1 ? '◀ モード' : '◀ ステージ';
+  rightEl.textContent = currentPanel === 0 ? 'ステージ ▶' : '＋ ▶';
 }
 
 function switchTab(d) {
   if(!diffUnlocked(d)) return;
   curDiff = d;
+  if(d.endsWith('+')) lastPlusDiff = d; else lastNormalDiff = d;
   document.querySelectorAll('.diff-tab, .plus-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.diff===d);
     t.classList.toggle('locked', !diffUnlocked(t.dataset.diff));
   });
   const baseDiff = d.replace('+','');
-  document.getElementById('map-scroll').setAttribute('data-diff', baseDiff);
+  const scrollId = d.endsWith('+') ? 'plus-scroll' : 'map-scroll';
+  document.getElementById(scrollId).setAttribute('data-diff', baseDiff);
   renderMap();
 }
 
@@ -1485,7 +1639,8 @@ function showLevelInfo() {
 }
 
 function renderMap() {
-  const list = document.getElementById('stage-list');
+  const isPlus = curDiff.endsWith('+');
+  const list = document.getElementById(isPlus ? 'plus-stage-list' : 'stage-list');
   list.innerHTML = '';
   const dc = DC[curDiff];
   const pos = ['center','right','left','right','center','left','right','left','right','center'];
@@ -1575,29 +1730,11 @@ function renderMap() {
 function updateProg() {
   const isPlus = curDiff.endsWith('+');
   const header = document.querySelector('.map-header');
-
-  // +クリア数集計
-  let plusCount = 0;
-  ['EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
-    for(let i=0;i<10;i++) if(prog[d]&&prog[d][i]&&prog[d][i].cleared) plusCount++;
-  });
-
-  // ヘッダーバー：+タブ選択時は紫テーマに切り替え
+  // Tint header purple when viewing plus panel
   if(isPlus) {
     if(header) { header.style.background = 'linear-gradient(135deg,#C084FC,#9B59B6)'; header.style.borderBottomColor = '#7E3FB3'; }
-    document.getElementById('prog-text').textContent = plusCount + ' / 40 CLEARED';
-    document.getElementById('prog-bar').style.width = (plusCount/40*100) + '%';
-    document.getElementById('prog-bar').style.background =
-      'repeating-linear-gradient(45deg,#C084FC,#C084FC 8px,#9B59B6 8px,#9B59B6 16px)';
-    document.getElementById('prog-text').style.color = '#F3E6FF';
   } else {
     if(header) { header.style.background = ''; header.style.borderBottomColor = ''; }
-    const baseCount = totalCleared();
-    document.getElementById('prog-text').textContent = baseCount + ' / 40 CLEARED';
-    document.getElementById('prog-bar').style.width = (baseCount/40*100) + '%';
-    document.getElementById('prog-bar').style.background =
-      'repeating-linear-gradient(45deg,#66bb6a,#66bb6a 8px,#81c784 8px,#81c784 16px)';
-    document.getElementById('prog-text').style.color = '#6B5300';
   }
 }
 
@@ -1957,6 +2094,12 @@ function renderBlocks() {
       cluster.appendChild(col);
     });
     el.appendChild(cluster);
+    // Drill: update 0/DEL key state per question based on current n
+    if(drillMode && GS.current) {
+      const drillMulti = GS.current.n > 9;
+      document.querySelector('.gk[data-key="0"]').classList.toggle('disabled', !drillMulti);
+      document.querySelector('.gk[data-key="DEL"]').classList.toggle('disabled', !drillMulti);
+    }
     // Weak shape warning (only in normal mode, not drill)
     if(!drillMode && GS.current.sig && missedShapes.some(m => m.sig === GS.current.sig)) {
       const warn = document.createElement('div');
@@ -1992,8 +2135,10 @@ function renderBlocks() {
 function processInput(val) {
   if(!GS.current||GS.blocked||GS.status!=='PLAYING') return;
   const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]));
+  // Drill: use multi-digit input when current number > 9
+  const effectiveTp = (drillMode && GS.current && GS.current.n > 9) ? 'H' : s.tp;
   const inputEl = document.getElementById('input-display');
-  if(s.tp==='H'||s.tp==='E') {
+  if(effectiveTp==='H'||effectiveTp==='E') {
     if(val==='DEL'){GS.input=GS.input.slice(0,-1);inputEl.textContent=GS.input;return;}
     const tLen = String(GS.current.n).length;
     if(GS.input.length<tLen) GS.input+=val;
@@ -2763,7 +2908,17 @@ function showTAResult(isNewCorrect, isNewBlocks) {
 
 /* =============== DRILL MODE =============== */
 function startDrill() {
-  if(missedShapes.length < 10) return;
+  if(missedShapes.length < 10) {
+    const card = document.getElementById('mode-drill-card');
+    if(card) {
+      const desc = card.querySelector('.mode-desc');
+      const orig = desc.textContent;
+      desc.textContent = '苦手形が' + missedShapes.length + '/10件。もっとプレイしよう！';
+      desc.style.color = '#FF4B4B';
+      setTimeout(() => { desc.textContent = orig; desc.style.color = ''; }, 2500);
+    }
+    return;
+  }
   drillMode = true;
   drillLives = 3;
   curDiff = 'EASY'; curIdx = 0; // dummy for keyboard/enemy fallback
@@ -2776,9 +2931,7 @@ function startDrill() {
   document.getElementById('game-blocks').innerHTML = '';
   document.getElementById('timer-fill').style.width = '100%';
 
-  // Single-digit keyboard
-  document.querySelector('.gk[data-key="0"]').classList.add('disabled');
-  document.querySelector('.gk[data-key="DEL"]').classList.add('disabled');
+  // Keyboard: 0/DEL state updated per-question in renderBlocks()
   const kb = document.getElementById('game-kb');
   kb.classList.remove('layout-phone','layout-calc','layout-special');
   kb.classList.add(KB_LAYOUTS[curKbIdx].layout);
@@ -2924,7 +3077,7 @@ function generateDailyMissions() {
   if(missedShapes.length > 0) {
     const sorted = [...missedShapes].sort((a,b) => b.miss - a.miss);
     const target = sorted[0];
-    missions.push({ type:'weak', icon:'⚔️', desc:'苦手な形('+target.n+'ブロック)を2回正解', goal:2, prog:0, done:false, targetSig: target.sig, targetN: target.n });
+    missions.push({ type:'weak', icon:'⚔️', desc:'苦手な形('+target.n+'ブロック)を1回正解', goal:1, prog:0, done:false, targetSig: target.sig, targetN: target.n });
   } else {
     missions.push({ type:'clear', icon:'🎯', desc:'NORMAL以上を1ステージクリア', goal:1, prog:0, done:false, minDiff:'NORMAL' });
   }
@@ -2937,13 +3090,13 @@ function generateDailyMissions() {
     missions.push({ type:'speed', icon:'⚡', desc:'2秒以内にEXCELLENTを3問', goal:3, prog:0, done:false });
   }
 
-  // Mission 3: 挑戦
-  const pick3 = Math.floor(rng(2) * 3);
-  const challenges = [
-    { type:'hard_clear', icon:'🔥', desc:'HARDを1ステージクリア', goal:1, prog:0, done:false },
-    { type:'ta_play',    icon:'⏱', desc:'タイムアタックを1回プレイ', goal:1, prog:0, done:false },
-    { type:'survival10', icon:'∞', desc:'サバイバルで10問生存', goal:10, prog:0, done:false },
-  ];
+  // Mission 3: 挑戦 (only unlocked difficulties)
+  const challenges = [];
+  if(diffUnlocked('EXTREME')) challenges.push({ type:'hard_clear', icon:'🔥', desc:'EXTREMEを1ステージクリア', goal:1, prog:0, done:false });
+  else if(diffUnlocked('HARD')) challenges.push({ type:'hard_clear', icon:'🔥', desc:'HARDを1ステージクリア', goal:1, prog:0, done:false });
+  challenges.push({ type:'ta_play',    icon:'⏱', desc:'タイムアタックを1回プレイ', goal:1, prog:0, done:false });
+  challenges.push({ type:'survival10', icon:'∞', desc:'サバイバルで10問生存', goal:10, prog:0, done:false });
+  const pick3 = Math.floor(rng(2) * challenges.length);
   missions.push(challenges[pick3]);
 
   dailyMissions = missions;
@@ -3089,6 +3242,14 @@ function backToMap() {
     document.querySelector('.top-hp-wrap').style.display = '';
   }
   switchTab(curDiff);
+  // Restore correct panel without animation
+  const targetPanel = curDiff.endsWith('+') ? 2 : 1;
+  const wrap = document.getElementById('panels-wrap');
+  wrap.style.transition = 'none';
+  wrap.style.transform = 'translateX(' + (-targetPanel * 100) + '%)';
+  currentPanel = targetPanel;
+  setTimeout(() => { wrap.style.transition = ''; }, 50);
+  updatePanelIndicator();
 }
 
 /* =============== INIT =============== */
@@ -3114,8 +3275,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', (e) => {
     if(e.repeat) return;
     if(GS.status==='PLAYING') {
-      const s = STAGES[curDiff][curIdx];
-      if(s.tp==='H'||s.tp==='E') {
+      const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]));
+      const effectiveTp = (drillMode && GS.current && GS.current.n > 9) ? 'H' : s.tp;
+      if(effectiveTp==='H'||effectiveTp==='E') {
         if(e.key>='0'&&e.key<='9') processInput(e.key);
         else if(e.key==='Backspace'||e.key==='Delete') processInput('DEL');
       } else {
@@ -3126,6 +3288,25 @@ document.addEventListener('DOMContentLoaded', () => {
       if(GS.status==='PLAYING'||GS.status==='COUNTDOWN') backToMap();
     }
   });
+
+  // Panel swipe gestures
+  let swipeTouchX = null, swipeTouchY = null;
+  const panelWrap = document.getElementById('panels-wrap');
+  panelWrap.addEventListener('touchstart', e => {
+    swipeTouchX = e.touches[0].clientX;
+    swipeTouchY = e.touches[0].clientY;
+  }, { passive: true });
+  panelWrap.addEventListener('touchend', e => {
+    if(swipeTouchX === null) return;
+    const dx = e.changedTouches[0].clientX - swipeTouchX;
+    const dy = Math.abs(e.changedTouches[0].clientY - swipeTouchY);
+    swipeTouchX = null; swipeTouchY = null;
+    if(dy > Math.abs(dx) * 0.8) return; // mostly vertical = scroll, ignore
+    if(Math.abs(dx) < 45) return;
+    goToPanel(dx < 0 ? currentPanel + 1 : currentPanel - 1);
+  }, { passive: true });
+
+  updatePanelIndicator();
 });
 </script>
 </body>
