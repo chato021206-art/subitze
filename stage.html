@@ -129,12 +129,8 @@ body {
 .diff-tab[data-diff="NORMAL+"] { --tab-c: #0891C4; }
 .diff-tab[data-diff="HARD+"] { --tab-c: #E08600; }
 .diff-tab[data-diff="EXTREME+"] { --tab-c: #CC3C3C; }
-.tab-star-avg {
-  display: block; font-size: 9px; font-weight: 700;
-  color: #FFB800; line-height: 1; margin-top: 2px;
-  letter-spacing: -0.5px;
-}
-.diff-tab.active .tab-star-avg { color: rgba(255,255,255,0.9); }
+.tab-star-avg { display: none; }
+
 .tab-medal {
   display: block; font-size: 13px; line-height: 1; margin-top: 1px;
 }
@@ -841,7 +837,7 @@ body {
       <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
     </div>
     <div class="map-settings-row">
-      <button id="drill-btn" class="drill-btn" onclick="startDrill()" style="display:none">⚔️特訓</button>
+      <button id="drill-btn" class="drill-btn" onclick="startDrill()">⚔️特訓</button>
       <button class="ta-btn" onclick="openTASelect()">⏱TA</button>
       <button class="survival-btn" onclick="startSurvival()">∞</button>
     </div>
@@ -1570,12 +1566,6 @@ function renderMap() {
 
   updateProg();
   updateDiffTabs();
-  if(missedShapes.length >= 10 && !drillUnlocked) {
-    drillUnlocked = true;
-    save();
-  }
-  const drillBtn = document.getElementById('drill-btn');
-  if(drillBtn) drillBtn.style.display = drillUnlocked ? 'inline-block' : 'none';
   setTimeout(() => {
     const av = list.querySelector('.available');
     if(av) av.scrollIntoView({behavior:'smooth',block:'center'});
