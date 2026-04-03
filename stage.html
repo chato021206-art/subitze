@@ -129,7 +129,8 @@ body {
 .tab-star-avg { display: none; }
 
 .tab-medal {
-  display: block; font-size: 13px; line-height: 1; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1; margin-top: 2px; min-height: 18px;
 }
 .plus-tabs {
   display: none; gap: 6px; flex-shrink: 0;
@@ -1524,7 +1525,17 @@ function updateDiffTabs() {
     const allCleared = Array.from({length:10}, (_,i) => prog[d][i]?.cleared).every(Boolean);
     if(allCleared) {
       const minStars = Math.min(...Array.from({length:10}, (_,i) => prog[d][i]?.stars || 0));
-      medalEl.textContent = minStars >= 3 ? '🏆' : minStars >= 2 ? '⭐' : '✅';
+      const medalSVG = (fill, stroke, shine) =>
+        `<svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">` +
+          `<path d="M3.5 1 L7 6 L10.5 1" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
+          `<circle cx="7" cy="13" r="5" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>` +
+          `<ellipse cx="5.5" cy="11.5" rx="1.8" ry="1.1" fill="${shine}" transform="rotate(-30 5.5 11.5)"/>` +
+        `</svg>`;
+      medalEl.innerHTML = minStars >= 3
+        ? medalSVG('#FFD700','#B8860B','rgba(255,255,255,0.45)')
+        : minStars >= 2
+        ? medalSVG('#C8C8C8','#888888','rgba(255,255,255,0.5)')
+        : medalSVG('#CD7F32','#8B5A2B','rgba(255,255,255,0.35)');
     } else {
       medalEl.textContent = '';
     }
