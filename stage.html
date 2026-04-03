@@ -760,6 +760,9 @@ body {
 .ta-diff-btn.extreme { background:#FF4B4B; }
 .ta-best-display { font-size:10px;color:#bbb;text-align:center;line-height:1.8; }
 .ta-score-bar { display:flex;justify-content:center;gap:20px;padding:4px 0;font-size:13px;font-weight:900;color:#333; }
+.survival-btn { background:linear-gradient(135deg,#9B59B6,#7D3C98);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:15px;font-weight:900;cursor:pointer; }
+.survival-score-bar { display:flex;justify-content:center;gap:16px;padding:4px 0;font-size:13px;font-weight:900;color:#333; }
+.survival-levelup-toast { position:fixed;top:30%;left:50%;transform:translateX(-50%);z-index:150;background:linear-gradient(135deg,#9B59B6,#7D3C98);color:#fff;font-size:18px;font-weight:900;padding:10px 24px;border-radius:20px;animation:fadeIn 0.2s ease,fadeIn 0.3s ease 1.2s reverse forwards;pointer-events:none; }
 .drill-lives-bar { display:flex;align-items:center;justify-content:center;gap:2px;padding:3px 0;font-size:20px;line-height:1; }
 .drill-heart { transition:transform 0.2s,opacity 0.2s;display:inline-block; }
 .drill-heart.lost { opacity:0.2;transform:scale(0.7); }
@@ -804,6 +807,7 @@ body {
     <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
     <button id="drill-btn" class="drill-btn" onclick="startDrill()" style="display:none">⚔️特訓</button>
     <button class="ta-btn" onclick="openTASelect()">⏱TA</button>
+    <button class="survival-btn" onclick="startSurvival()">∞</button>
   </div>
 </div>
 
@@ -850,6 +854,12 @@ body {
   </div>
   <!-- Drill lives -->
   <div id="drill-lives-bar" class="drill-lives-bar" style="display:none"></div>
+  <!-- Survival score bar -->
+  <div id="survival-score-bar" class="survival-score-bar" style="display:none">
+    <span id="sv-correct-disp">0問</span>
+    <span id="sv-blocks-disp">0ブロック</span>
+    <span id="sv-level-disp">EASY</span>
+  </div>
   <!-- TA score bar -->
   <div id="ta-score-bar" class="ta-score-bar" style="display:none">
     <span id="ta-correct-disp">0問</span>
@@ -1084,6 +1094,15 @@ const TA_CONFIGS = {
   EXTREME: { cols:9,  mh:9,  tp:'E', diffMult:5 }
 };
 
+const SURVIVAL_LEVELS = [
+  { bag:[1,2,2,3,3,4,4,5,5,6,7,8,9],            cols:5, mh:5, tp:'S', t:5.0, j:{e:2.0,g:4.0,gd:5.0}, label:'EASY'    },
+  { bag:[5,6,7,8,9,10,11,12,13,14],              cols:7, mh:6, tp:'H', t:5.0, j:{e:2.0,g:4.0,gd:5.0}, label:'NORMAL'  },
+  { bag:[10,12,14,15,16,17,18,19,20],            cols:8, mh:8, tp:'H', t:5.0, j:{e:2.0,g:4.0,gd:5.0}, label:'HARD'    },
+  { bag:[15,18,20,22,24,26,28,30,33,36],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:4.0},        label:'EXTREME' },
+  { bag:[25,28,32,36,40,44,48,52,56,60],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:4.0},        label:'BEAST'   },
+  { bag:[35,40,45,50,55,60,65,70,75,80],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:4.0},        label:'LEGEND'  },
+];
+
 /* =============== STATE =============== */
 let curDiff = 'EASY', curIdx = 0;
 let prog = {};
@@ -1099,6 +1118,11 @@ let taBlocks = 0;
 let taBest = {};
 let taRafId = null;
 let taLastTick = 0;
+let survivalMode = false;
+let survivalLevel = 0;
+let survivalCorrect = 0;
+let survivalBlocks = 0;
+let survivalBest = { correct:0, blocks:0 };
 let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
@@ -1126,6 +1150,7 @@ function load() {
   try { const ns = localStorage.getItem('snow_number_stats'); if(ns) numberStats = JSON.parse(ns); } catch(e){}
   try { const ms = localStorage.getItem('snow_missed_shapes'); if(ms) missedShapes = JSON.parse(ms); } catch(e){}
   try { const tb = localStorage.getItem('snow_ta_best'); if(tb) taBest = JSON.parse(tb); } catch(e){}
+  try { const sb = localStorage.getItem('snow_survival_best'); if(sb) survivalBest = JSON.parse(sb); } catch(e){}
   ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -1137,6 +1162,7 @@ function save() {
   localStorage.setItem('snow_number_stats', JSON.stringify(numberStats));
   localStorage.setItem('snow_missed_shapes', JSON.stringify(missedShapes));
   localStorage.setItem('snow_ta_best', JSON.stringify(taBest));
+  localStorage.setItem('snow_survival_best', JSON.stringify(survivalBest));
 }
 
 function getLevel() {
@@ -1265,6 +1291,8 @@ function toggleRandom() {
       localStorage.removeItem('snow_number_stats');
       localStorage.removeItem('snow_missed_shapes');
       localStorage.removeItem('snow_ta_best');
+      localStorage.removeItem('snow_survival_best');
+      survivalBest = { correct:0, blocks:0 };
       load();
       isRandomMode = false;
       const btn = document.getElementById('random-btn');
@@ -1648,6 +1676,13 @@ function beginGame() {
     taTimer = 60; taLastTick = Date.now();
     if(taRafId) cancelAnimationFrame(taRafId);
     taRafId = requestAnimationFrame(taGameLoop);
+  } else if(survivalMode) {
+    for(let i=0;i<3;i++) addSurvivalQ();
+    GS.current = GS.queue.shift();
+    renderBlocks();
+    GS.elapsed = 0; GS.lastTick = Date.now();
+    if(GS.rafId) cancelAnimationFrame(GS.rafId);
+    gameLoop();
   } else {
     for(let i=0;i<3;i++) addQ();
     GS.current = GS.queue.shift();
@@ -1666,7 +1701,7 @@ function gameLoop() {
   GS.elapsed += dt;
   GS.totalTime += dt;
 
-  const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
+  const s = survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
   const tl = getTimeLimit(s);
   if(GS.elapsed > tl) { handleMiss('TIME','-',GS.current.n); return; }
 
@@ -1774,6 +1809,26 @@ function addQ() {
   GS.genCount++;
 }
 
+function addSurvivalQ() {
+  const lv = SURVIVAL_LEVELS[survivalLevel];
+  const bag = lv.bag;
+  for(let att=0;att<2000;att++) {
+    const n = bag[Math.floor(Math.random() * bag.length)];
+    const shape = genShape(n, lv.cols, lv.mh, 0);
+    const total = shape.reduce((a,b)=>a+b,0);
+    const sig = JSON.stringify(shape);
+    if(sig === GS.lastSig) continue;
+    if(GS.lastN === total && GS.consec >= 2) continue;
+    GS.consec = GS.lastN===total ? GS.consec+1 : 1;
+    GS.lastN = total; GS.lastSig = sig;
+    GS.queue.push({n:total, shape, sig});
+    return;
+  }
+  const n = bag[0];
+  const shape = genShape(n, lv.cols, lv.mh, 0);
+  GS.queue.push({n, shape, sig: JSON.stringify(shape)});
+}
+
 function addTAQ() {
   const cfg = TA_CONFIGS[taDiff];
   const bag = TA_BAGS[taDiff];
@@ -1856,11 +1911,20 @@ function renderBlocks() {
       el.appendChild(warn);
     }
     // Dynamic scale based on slot dimensions + stage cols/mh
-    const st = taMode ? TA_CONFIGS[taDiff] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
+    const st = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]));
     const blockPx = Math.min(window.innerWidth * 0.075, 30);
     const gap = 4;
-    const natW = st.cols * blockPx + Math.max(0, st.cols - 1) * gap;
-    const natH = st.mh  * blockPx + Math.max(0, st.mh  - 1) * gap;
+    // For +MODE (st.plus) or survival/drill/TA, scale to actual shape size for bigger blocks
+    let scaleCols, scaleMh;
+    if(st.plus || drillMode || survivalMode) {
+      const shape = GS.current.shape;
+      scaleCols = Math.max(1, shape.filter(h => h > 0).length);
+      scaleMh   = Math.max(1, ...shape);
+    } else {
+      scaleCols = st.cols; scaleMh = st.mh;
+    }
+    const natW = scaleCols * blockPx + Math.max(0, scaleCols - 1) * gap;
+    const natH = scaleMh  * blockPx + Math.max(0, scaleMh  - 1) * gap;
     const slot = document.getElementById('game-slot');
     const avW = (slot.clientWidth  || 300) * 0.88;
     const avH = (slot.clientHeight || 250) * 0.78;
@@ -1873,7 +1937,7 @@ function renderBlocks() {
 /* =============== INPUT =============== */
 function processInput(val) {
   if(!GS.current||GS.blocked||GS.status!=='PLAYING') return;
-  const s = taMode ? TA_CONFIGS[taDiff] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
+  const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]));
   const inputEl = document.getElementById('input-display');
   if(s.tp==='H'||s.tp==='E') {
     if(val==='DEL'){GS.input=GS.input.slice(0,-1);inputEl.textContent=GS.input;return;}
@@ -1926,7 +1990,7 @@ function checkAns(val) {
   }
 
   const dt = GS.elapsed;
-  const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
+  const s = survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
   const j = s.j;
   const tl = getTimeLimit(s);
   if(val===GS.current.n) {
@@ -1952,14 +2016,28 @@ function checkAns(val) {
 
     // XP gain — difficulty multiplier + level bonus
     const baseXP = {excellent:12,great:10,good:8,ok:5}[k];
-    const diffMult = {'EASY':1,'NORMAL':2,'HARD':3,'EXTREME':5,'EASY+':1.5,'NORMAL+':3,'HARD+':4.5,'EXTREME+':7.5}[curDiff]||1;
+    const diffMult = survivalMode ? (survivalLevel + 1) : ({'EASY':1,'NORMAL':2,'HARD':3,'EXTREME':5,'EASY+':1.5,'NORMAL+':3,'HARD+':4.5,'EXTREME+':7.5}[curDiff]||1);
     const lvBonus = 1 + (getLevel().level - 1) * 0.025; // +2.5% per level
     const xpGain = Math.round(baseXP * diffMult * lvBonus);
     GS.xp += xpGain;
 
     showEval(lbl, k, xpGain);
-    if(GS.qCount>=QS-1) { if(drillMode) drillEnd('CLEAR'); else gameOver('CLEAR'); }
-    else nextQ();
+    if(survivalMode) {
+      survivalCorrect++;
+      survivalBlocks += GS.current.n;
+      updateSurvivalDisplay();
+      if(survivalCorrect % 10 === 0) {
+        const next = Math.min(survivalLevel + 1, SURVIVAL_LEVELS.length - 1);
+        if(next > survivalLevel) {
+          survivalLevel = next;
+          updateSurvivalKeyboard();
+          showSurvivalLevelUp(SURVIVAL_LEVELS[survivalLevel].label);
+        }
+      }
+      nextQ();
+    } else if(GS.qCount>=QS-1) {
+      if(drillMode) drillEnd('CLEAR'); else gameOver('CLEAR');
+    } else nextQ();
   } else handleMiss('WRONG',val,GS.current.n);
 }
 
@@ -2029,7 +2107,8 @@ function spawnParticles(lbl) {
 
 function nextQ() {
   GS.qCount++;
-  if(GS.queue.length<3) addQ();
+  if(survivalMode) { if(GS.queue.length<3) addSurvivalQ(); }
+  else { if(GS.queue.length<3) addQ(); }
   GS.current = GS.queue.shift();
   renderBlocks();
   GS.elapsed = 0; GS.input = '';
@@ -2048,6 +2127,14 @@ function handleMiss(type,inp,ans) {
       missedShapes.sort((a,b) => b.ts - a.ts);
       missedShapes = missedShapes.slice(0, 50);
     }
+  }
+
+  // Survival mode: 1 miss = instant end
+  if(survivalMode) {
+    GS.status = 'GAMEOVER'; GS.blocked = true;
+    if(GS.rafId) cancelAnimationFrame(GS.rafId);
+    survivalGameOver();
+    return;
   }
 
   // Drill mode: reduce life, continue if lives remain
@@ -2330,6 +2417,140 @@ function launchConfetti(count) {
   }
 }
 
+/* =============== SURVIVAL MODE =============== */
+function startSurvival() {
+  survivalMode = true;
+  survivalLevel = 0;
+  survivalCorrect = 0;
+  survivalBlocks = 0;
+  curDiff = 'EASY'; curIdx = 0;
+
+  const gv = document.getElementById('game-view');
+  gv.style.display = 'flex';
+  gv.setAttribute('data-diff', 'EASY');
+  gv.classList.remove('boss-mid','boss-final');
+  document.getElementById('map-view').style.display = 'none';
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('timer-fill').style.width = '100%';
+
+  // Single-digit keyboard initially
+  document.querySelector('.gk[data-key="0"]').classList.add('disabled');
+  document.querySelector('.gk[data-key="DEL"]').classList.add('disabled');
+  const kb = document.getElementById('game-kb');
+  kb.classList.remove('layout-phone','layout-calc','layout-special');
+  kb.classList.add(KB_LAYOUTS[curKbIdx].layout);
+
+  const labelEl = document.getElementById('enemy-label');
+  labelEl.textContent = '∞ SURVIVAL';
+  labelEl.style.background = '#9B59B6';
+
+  document.getElementById('enemy-char').innerHTML = ENEMIES['EASY'][0].svg();
+  document.getElementById('enemy-char').className = 'enemy-char';
+  document.getElementById('enemy-name').textContent = 'サバイバルモード';
+
+  // HP bar = progress to next level (X/10)
+  document.getElementById('enemy-hp-fill').style.width = '0%';
+  document.getElementById('enemy-hp-fill').className = 'enemy-hp-fill';
+  document.getElementById('enemy-hp-text').textContent = '0/10';
+  document.querySelector('.top-hp-wrap').style.display = '';
+
+  updateSurvivalDisplay();
+  document.getElementById('survival-score-bar').style.display = 'flex';
+
+  startCountdown();
+}
+
+function updateSurvivalDisplay() {
+  document.getElementById('sv-correct-disp').textContent = survivalCorrect + '問';
+  document.getElementById('sv-blocks-disp').textContent = survivalBlocks + 'ブロック';
+  document.getElementById('sv-level-disp').textContent = SURVIVAL_LEVELS[survivalLevel].label;
+  const progress = survivalCorrect % 10;
+  document.getElementById('enemy-hp-fill').style.width = (progress / 10 * 100) + '%';
+  document.getElementById('enemy-hp-text').textContent = progress + '/10';
+}
+
+function updateSurvivalKeyboard() {
+  const lv = SURVIVAL_LEVELS[survivalLevel];
+  const multi = lv.tp !== 'S';
+  document.querySelector('.gk[data-key="0"]').classList.toggle('disabled', !multi);
+  document.querySelector('.gk[data-key="DEL"]').classList.toggle('disabled', !multi);
+}
+
+function showSurvivalLevelUp(label) {
+  const toast = document.createElement('div');
+  toast.className = 'survival-levelup-toast';
+  toast.textContent = '🔥 LEVEL UP! ' + label;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1500);
+}
+
+function survivalGameOver() {
+  GS.status = 'GAMEOVER'; GS.blocked = true;
+  if(GS.rafId) cancelAnimationFrame(GS.rafId);
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('input-display').textContent = '';
+
+  const isNewCorrect = survivalCorrect > survivalBest.correct;
+  const isNewBlocks  = survivalBlocks  > survivalBest.blocks;
+  if(isNewCorrect) survivalBest.correct = survivalCorrect;
+  if(isNewBlocks)  survivalBest.blocks  = survivalBlocks;
+
+  const prevLevel = getLevel().level;
+  totalXP += GS.xp;
+  save();
+  const newLevel = getLevel().level;
+  if(newLevel > prevLevel) setTimeout(() => showLevelUp(newLevel), 600);
+
+  showSurvivalResult(isNewCorrect, isNewBlocks);
+}
+
+function showSurvivalResult(isNewCorrect, isNewBlocks) {
+  document.getElementById('r-enemy').innerHTML = '∞';
+  document.getElementById('r-lbl').textContent = 'サバイバル — ' + SURVIVAL_LEVELS[survivalLevel].label + '到達';
+  document.getElementById('r-clear').textContent = survivalCorrect + '問生存!';
+  document.getElementById('r-clear').className = 'r-clear-txt cleared';
+  document.getElementById('r-perfect').style.display = 'none';
+
+  const sr = document.getElementById('r-stars');
+  sr.innerHTML = '';
+  const starCount = (isNewCorrect && isNewBlocks) ? 3 : (isNewCorrect || isNewBlocks) ? 2 : 1;
+  for(let i=0;i<3;i++) {
+    const s = document.createElement('span');
+    s.className = 'r-star'; s.textContent = '⭐';
+    if(i<starCount){s.classList.add('show');s.style.animationDelay=(0.3+i*0.2)+'s';}
+    else s.classList.add('dim');
+    sr.appendChild(s);
+  }
+
+  document.getElementById('r-xp-val').textContent = GS.xp;
+  document.getElementById('r-xp-bonus').textContent = '';
+  document.getElementById('r-score').textContent = survivalCorrect;
+  document.getElementById('r-score-unit').textContent = '問';
+
+  const ratings = document.getElementById('r-ratings');
+  ratings.innerHTML = '';
+  [[survivalCorrect, survivalBest.correct, '生存問数', '#9B59B6'],
+   [survivalBlocks,  survivalBest.blocks,  'ブロック', '#1CB0F6']].forEach(([val, bestVal, lbl, c], ri) => {
+    const pct = bestVal > 0 ? Math.min(100, val/bestVal*100) : 100;
+    const isNew = ri===0 ? isNewCorrect : isNewBlocks;
+    const row = document.createElement('div');
+    row.className = 'r-rating-row';
+    row.innerHTML = '<div class="r-rating-label" style="color:'+c+'">'+lbl+'</div>'+
+      '<div class="r-rating-bar-outer"><div class="r-rating-bar-inner" style="width:0%;background:'+c+'"></div></div>'+
+      '<div class="r-rating-count">'+val+(isNew?' 🆕':'')+'</div>';
+    ratings.appendChild(row);
+    setTimeout(() => row.querySelector('.r-rating-bar-inner').style.width = pct+'%', 200+ri*100);
+  });
+
+  document.getElementById('r-detail').innerHTML =
+    '<span>ベスト: '+survivalBest.correct+'問 / '+survivalBest.blocks+'ブロック</span>';
+  document.getElementById('r-record').style.display = (isNewCorrect||isNewBlocks) ? 'block' : 'none';
+  document.getElementById('r-unlock').style.display = 'none';
+  document.getElementById('r-next').style.display = 'none';
+  document.getElementById('result-overlay').classList.add('show');
+  if(survivalCorrect >= 10) launchConfetti(Math.min(100, survivalCorrect * 2));
+}
+
 /* =============== TIME ATTACK MODE =============== */
 function openTASelect() {
   const bestEl = document.getElementById('ta-best-display');
@@ -2610,6 +2831,7 @@ function retryStage() {
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
   if(taMode) { startTA(taDiff); return; }
+  if(survivalMode) { startSurvival(); return; }
   if(drillMode) { startDrill(); return; }
   startStage(curDiff, curIdx);
 }
@@ -2629,6 +2851,11 @@ function backToMap() {
     taMode = false;
     if(taRafId) cancelAnimationFrame(taRafId);
     document.getElementById('ta-score-bar').style.display = 'none';
+    document.querySelector('.top-hp-wrap').style.display = '';
+  }
+  if(survivalMode) {
+    survivalMode = false;
+    document.getElementById('survival-score-bar').style.display = 'none';
     document.querySelector('.top-hp-wrap').style.display = '';
   }
   if(drillMode) {
