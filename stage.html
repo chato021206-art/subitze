@@ -688,9 +688,11 @@ body {
 
 /* Settings bar on map */
 .map-settings {
-  display: flex; gap: 8px; padding: 8px 12px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 6px; padding: 8px 12px 10px; flex-shrink: 0;
   background: #FFF3D0; border-top: 3px dashed #E0C860;
-  align-items: center; justify-content: center;
+}
+.map-settings-row {
+  display: flex; gap: 8px; align-items: center; justify-content: center;
 }
 .setting-btn {
   padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 900;
@@ -706,8 +708,8 @@ body {
   padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 900;
   cursor: pointer; transition: all 0.2s; border: 3px solid #ddd;
   background: #fff; color: #888; box-shadow: 2px 3px 0 rgba(0,0,0,0.08);
-  margin-left: auto;
 }
+
 .random-toggle:active { transform: scale(0.95); }
 .random-toggle.on { color: #fff; border-color: #CE82FF; background: #CE82FF; box-shadow: 3px 4px 0 rgba(0,0,0,0.15); }
 
@@ -802,12 +804,16 @@ body {
     <div id="stage-list" class="stage-list"></div>
   </div>
   <div class="map-settings">
-    <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">KEY: A</button>
-    <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
-    <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
-    <button id="drill-btn" class="drill-btn" onclick="startDrill()" style="display:none">⚔️特訓</button>
-    <button class="ta-btn" onclick="openTASelect()">⏱TA</button>
-    <button class="survival-btn" onclick="startSurvival()">∞</button>
+    <div class="map-settings-row">
+      <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">KEY: A</button>
+      <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
+      <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
+    </div>
+    <div class="map-settings-row">
+      <button id="drill-btn" class="drill-btn" onclick="startDrill()" style="display:none">⚔️特訓</button>
+      <button class="ta-btn" onclick="openTASelect()">⏱TA</button>
+      <button class="survival-btn" onclick="startSurvival()">∞</button>
+    </div>
   </div>
 </div>
 
