@@ -787,8 +787,11 @@ body {
 .pi-side.pi-hidden { opacity:0; pointer-events:none; }
 
 /* ---- 3-panel container ---- */
+.panels-outer {
+  flex:1; overflow:hidden; position:relative;
+}
 .panels-wrap {
-  flex:1; display:flex; overflow:hidden; position:relative;
+  display:flex; height:100%;
   transition:transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
   will-change:transform;
 }
@@ -886,6 +889,7 @@ body {
   </div>
 
   <!-- 3-panel sliding container -->
+  <div class="panels-outer" id="panels-outer">
   <div class="panels-wrap" id="panels-wrap">
 
     <!-- Panel 0: Modes -->
@@ -950,6 +954,7 @@ body {
     </div>
 
   </div><!-- /panels-wrap -->
+  </div><!-- /panels-outer -->
 
   <!-- Settings: KEY + RANDOM only -->
   <div class="map-settings">
@@ -1543,7 +1548,8 @@ function goToPanel(n) {
   const total = anyPlusUnlocked() ? 3 : 2;
   n = Math.max(0, Math.min(n, total - 1));
   currentPanel = n;
-  document.getElementById('panels-wrap').style.transform = 'translateX(' + (-n * 100) + '%)';
+  const outerW = document.getElementById('panels-outer').offsetWidth || 390;
+  document.getElementById('panels-wrap').style.transform = 'translateX(' + (-n * outerW) + 'px)';
   updatePanelIndicator();
   // Ensure correct diff is active for the target panel
   if(n === 2 && !curDiff.endsWith('+')) {
@@ -3246,8 +3252,9 @@ function backToMap() {
   // Restore correct panel without animation
   const targetPanel = curDiff.endsWith('+') ? 2 : 1;
   const wrap = document.getElementById('panels-wrap');
+  const outerW2 = (document.getElementById('panels-outer') || {offsetWidth: 390}).offsetWidth || 390;
   wrap.style.transition = 'none';
-  wrap.style.transform = 'translateX(' + (-targetPanel * 100) + '%)';
+  wrap.style.transform = 'translateX(' + (-targetPanel * outerW2) + 'px)';
   currentPanel = targetPanel;
   setTimeout(() => { wrap.style.transition = ''; }, 50);
   updatePanelIndicator();
@@ -3260,6 +3267,14 @@ document.addEventListener('DOMContentLoaded', () => {
   generateDailyMissions();
   updateDailyBar();
   switchTab('EASY');
+  // Set initial panel to 1 (normal stages) without animation
+  (function() {
+    const wrap = document.getElementById('panels-wrap');
+    const outerW = document.getElementById('panels-outer').offsetWidth || 390;
+    wrap.style.transition = 'none';
+    wrap.style.transform = 'translateX(' + (-outerW) + 'px)';
+    setTimeout(() => { wrap.style.transition = ''; }, 50);
+  })();
 
   const kb = document.getElementById('game-kb');
   const handle = (e) => {
@@ -3292,7 +3307,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Panel swipe gestures
   let swipeTouchX = null, swipeTouchY = null;
-  const panelWrap = document.getElementById('panels-wrap');
+  const panelWrap = document.getElementById('panels-outer');
   panelWrap.addEventListener('touchstart', e => {
     swipeTouchX = e.touches[0].clientX;
     swipeTouchY = e.touches[0].clientY;
