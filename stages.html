@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>SNOW: ステージ設定一覧</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  background: #0E1A20;
+  color: #e8e8e8;
+  min-height: 100dvh;
+  padding-bottom: 40px;
+}
+
+/* ── ヘッダー ── */
+.header {
+  background: linear-gradient(135deg, #1A2E35, #0E1A20);
+  border-bottom: 3px solid #2A4A55;
+  padding: 16px 16px 12px;
+  text-align: center;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 20px; font-weight: 900; letter-spacing: 2px;
+  color: #FFC800;
+  text-shadow: 0 2px 8px rgba(255,200,0,0.3);
+}
+.header-sub { font-size: 11px; color: #888; margin-top: 3px; }
+.back-btn {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  background: #2A4A55; border: none; border-radius: 10px;
+  color: #aaa; font-size: 18px; width: 38px; height: 38px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+}
+.back-btn:active { opacity: 0.7; }
+
+/* ── タブ ── */
+.tabs {
+  display: flex; gap: 8px; padding: 12px 14px 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0; padding: 8px 18px; border: none; border-radius: 12px 12px 0 0;
+  font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 900;
+  cursor: pointer; transition: all 0.15s; letter-spacing: 1px;
+  color: #666; background: #1A2E35;
+}
+.tab-btn.active { color: #fff; }
+.tab-btn[data-diff="EASY"].active    { background: #58CC02; box-shadow: 0 -3px 0 #46A302 inset; }
+.tab-btn[data-diff="NORMAL"].active  { background: #1CB0F6; box-shadow: 0 -3px 0 #0E8DC5 inset; }
+.tab-btn[data-diff="HARD"].active    { background: #FF9600; box-shadow: 0 -3px 0 #CC7800 inset; }
+.tab-btn[data-diff="EXTREME"].active { background: #FF4B4B; box-shadow: 0 -3px 0 #CC3030 inset; }
+
+/* ── テーブルコンテナ ── */
+.section {
+  display: none;
+  padding: 0 14px 14px;
+}
+.section.active { display: block; }
+.section-border {
+  border-radius: 0 12px 12px 12px;
+  overflow: hidden;
+  border: 2px solid var(--diff-color);
+}
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── テーブル ── */
+table {
+  width: 100%; border-collapse: collapse;
+  min-width: 520px;
+  background: #121E24;
+}
+thead th {
+  padding: 10px 8px; font-size: 11px; font-weight: 900;
+  text-align: center; white-space: nowrap;
+  background: var(--diff-color); color: #fff;
+  letter-spacing: 0.5px;
+}
+thead th .sub {
+  display: block; font-size: 9px; font-weight: 500;
+  color: rgba(255,255,255,0.75); margin-top: 2px;
+}
+thead th.col-e  { background: #0B8EC4; }
+thead th.col-g  { background: #3A9F00; }
+thead th.col-gd { background: #C06800; }
+
+tbody tr { border-bottom: 1px solid #1E3040; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #1A2E38; }
+tbody tr.boss-row { background: #1E2A20; }
+tbody tr.boss-row:hover { background: #243520; }
+
+td {
+  padding: 9px 8px; text-align: center;
+  font-size: 12px; color: #ccc; white-space: nowrap;
+}
+td.td-num { font-family: 'Montserrat', sans-serif; font-weight: 700; }
+
+/* 各判定ゾーンの色 */
+td.col-m  { color: #FFC800; font-weight: 900; }
+td.col-e  { color: #1CB0F6; font-weight: 900; }
+td.col-g  { color: #58CC02; font-weight: 900; }
+td.col-gd { color: #FF9600; font-weight: 900; }
+td.col-e.warn { color: #FF4B4B; }
+
+/* ボス行のバッジ */
+.st-num {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900; font-size: 14px; color: #fff;
+}
+.boss-badge {
+  display: inline-block; font-size: 9px; font-weight: 900;
+  padding: 1px 5px; border-radius: 6px; margin-left: 4px;
+  vertical-align: middle; white-space: nowrap;
+}
+.badge-mid   { background: #CE82FF; color: #fff; }
+.badge-final { background: #FFC800; color: #6B5300; }
+
+/* ── 凡例 ── */
+.legend {
+  margin: 10px 14px 0;
+  background: #1A2E35; border-radius: 12px;
+  padding: 12px 14px; font-size: 11px; line-height: 1.8; color: #99b;
+}
+.legend-title { font-weight: 900; color: #ddd; margin-bottom: 6px; font-size: 12px; }
+.legend-row { display: flex; align-items: flex-start; gap: 8px; }
+.legend-badge {
+  flex-shrink: 0; display: inline-block;
+  width: 10px; height: 10px; border-radius: 3px; margin-top: 3px;
+}
+
+/* ── タイムバー可視化 ── */
+.timebar {
+  display: flex; height: 6px; border-radius: 3px; overflow: hidden;
+  margin-top: 2px; min-width: 80px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" href="stage.html">←</a>
+  <div class="header-title">ステージ設定一覧</div>
+  <div class="header-sub">SNOW: SMASH SUBITIZING — 全難易度 全10ステージ</div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div id="sections"></div>
+
+<div class="legend">
+  <div class="legend-title">各列の見かた</div>
+  <div class="legend-row"><span class="legend-badge" style="background:#888"></span> <span><b>出題数</b> — その面で出るブロック数の最小〜最大</span></div>
+  <div class="legend-row"><span class="legend-badge" style="background:#555"></span> <span><b>制限時間</b> — この秒数を超えるとタイムアウト失点</span></div>
+  <div class="legend-row"><span class="legend-badge" style="background:#1CB0F6"></span> <span><b>EXCELLENTの幅</b> — 表示から<b>e秒以内</b>に正解すればEXCELLENT（0秒スタート）。<span style="color:#FF4B4B">赤字は1.0秒未満</span></span></div>
+  <div class="legend-row"><span class="legend-badge" style="background:#58CC02"></span> <span><b>GREATの幅</b> — EXCELLENTを過ぎてから次のゾーンまでの幅</span></div>
+  <div class="legend-row"><span class="legend-badge" style="background:#FF9600"></span> <span><b>GOODの幅</b> — GREATを過ぎてから制限時間ぴったりまでの幅</span></div>
+  <div class="legend-row"><span class="legend-badge" style="background:#CCCCCC"></span> <span><b>OK</b> — タイムエクステンデッドのみ（レベルが上がると延長される）</span></div>
+  <div class="legend-row"><span class="legend-badge" style="background:#444"></span> <span><b>配置</b> — ブロックの列数 × 最大行数</span></div>
+</div>
+
+<script>
+const STAGES = {
+  EASY: [
+    { bag:[1,1,2,2,3,3],         t:5.0, j:{e:1.8,g:3.0,gd:5.0}, cols:3, mh:2, tp:'S' },
+    { bag:[1,2,2,3,3,3],         t:4.8, j:{e:1.7,g:2.9,gd:4.8}, cols:3, mh:3, tp:'S' },
+    { bag:[2,2,3,3,3,4],         t:4.5, j:{e:1.5,g:2.7,gd:4.5}, cols:3, mh:3, tp:'S' },
+    { bag:[2,3,3,4,4,4],         t:4.2, j:{e:1.4,g:2.5,gd:4.2}, cols:3, mh:3, tp:'S' },
+    { bag:[1,2,3,4,5,6,7,8,9],   t:4.5, j:{e:1.5,g:2.8,gd:4.5}, cols:3, mh:5, tp:'S', boss:'mid' },
+    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:3, tp:'S' },
+    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:3, tp:'S' },
+    { bag:[2,3,3,4,4,5,5,5],     t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:4, tp:'S' },
+    { bag:[3,3,4,4,5,5,5],       t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:4, tp:'S' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:1.8,g:3.0,gd:5.0}, cols:3, mh:5, tp:'S', boss:'final' },
+  ],
+  NORMAL: [
+    { bag:[2,3,4,4,5,5],         t:4.5, j:{e:1.8,g:2.8,gd:4.5}, cols:3, mh:3, tp:'S' },
+    { bag:[3,4,4,5,5,6],         t:4.2, j:{e:1.7,g:2.7,gd:4.2}, cols:3, mh:4, tp:'S' },
+    { bag:[3,4,5,5,6,6,7],       t:4.0, j:{e:1.6,g:2.6,gd:4.0}, cols:3, mh:4, tp:'S' },
+    { bag:[4,5,5,6,6,7,7],       t:3.8, j:{e:1.5,g:2.5,gd:3.8}, cols:3, mh:5, tp:'S' },
+    { bag:[2,3,4,5,6,7,8,9],     t:3.5, j:{e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S', boss:'mid' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S' },
+    { bag:[3,4,5,6,6,7,7,8,9],   t:3.2, j:{e:1.3,g:2.1,gd:3.2}, cols:3, mh:5, tp:'S' },
+    { bag:[4,5,6,7,7,8,8,9],     t:3.0, j:{e:1.2,g:2.0,gd:3.0}, cols:3, mh:5, tp:'S' },
+    { bag:[7,8,9,9,10,10,11,12], t:5.0, j:{e:2.0,g:3.2,gd:5.0}, cols:4, mh:5, tp:'H', boss:'final' },
+  ],
+  HARD: [
+    { bag:[10,11,12,13,14,15],    t:5.0, j:{e:2.8,g:3.6,gd:5.0}, cols:4, mh:5, tp:'H' },
+    { bag:[10,11,12,13,14,15,16], t:4.8, j:{e:2.6,g:3.4,gd:4.8}, cols:4, mh:5, tp:'H' },
+    { bag:[11,12,13,14,15,16,17], t:4.5, j:{e:2.6,g:3.2,gd:4.1}, cols:4, mh:6, tp:'H' },
+    { bag:[12,13,14,15,16,17,18], t:4.2, j:{e:2.5,g:3.1,gd:3.9}, cols:4, mh:6, tp:'H' },
+    { bag:[10,12,14,15,16,17,18,19,20], t:4.0, j:{e:2.4,g:3.0,gd:4.0}, cols:4, mh:7, tp:'H', boss:'mid' },
+    { bag:[10,11,12,13,14,15,16,17,18,19,20], t:4.0, j:{e:2.4,g:3.0,gd:4.0}, cols:4, mh:7, tp:'H' },
+    { bag:[11,12,13,14,15,16,17,18,19,20], t:4.0, j:{e:2.4,g:3.0,gd:3.8}, cols:4, mh:7, tp:'H' },
+    { bag:[12,14,15,16,17,18,19,20], t:3.8, j:{e:2.3,g:2.9,gd:3.6}, cols:4, mh:7, tp:'H' },
+    { bag:[13,15,16,17,18,19,20,22], t:3.8, j:{e:2.4,g:3.0,gd:3.8}, cols:5, mh:7, tp:'H' },
+    { bag:[15,17,18,19,20,22,24,25], t:5.0, j:{e:3.0,g:4.0,gd:5.0}, cols:5, mh:7, tp:'H', boss:'final' },
+  ],
+  EXTREME: [
+    { bag:[13,14,15,16,17,18],    t:6.0, j:{e:3.5,g:5.0,gd:6.0}, cols:5, mh:5, tp:'E' },
+    { bag:[15,16,17,18,19,20],    t:5.5, j:{e:3.3,g:4.8,gd:5.5}, cols:6, mh:5, tp:'E' },
+    { bag:[17,18,19,20,22,24],    t:5.5, j:{e:3.2,g:4.5,gd:5.5}, cols:6, mh:6, tp:'E' },
+    { bag:[20,22,24,26,28,30],    t:5.2, j:{e:3.0,g:4.5,gd:5.2}, cols:7, mh:6, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0,gd:5.0}, cols:8, mh:7, tp:'E', boss:'mid' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0,gd:5.0}, cols:9, mh:9, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0,gd:5.0}, cols:9, mh:9, tp:'E' },
+    { bag:[20,25,28,30,33,36,39], t:4.8, j:{e:2.8,g:4.5,gd:4.8}, cols:9, mh:9, tp:'E' },
+    { bag:[25,30,33,36,39,40,42], t:4.5, j:{e:2.8,g:4.5,gd:4.5}, cols:9, mh:9, tp:'E' },
+    { bag:[30,33,36,39,40,42,45], t:5.0, j:{e:3.0,g:5.0,gd:5.0}, cols:9, mh:9, tp:'E', boss:'final' },
+  ]
+};
+
+const DIFF_COLOR = {
+  EASY: '#58CC02', NORMAL: '#1CB0F6', HARD: '#FF9600', EXTREME: '#FF4B4B'
+};
+const DIFF_ORDER = ['EASY','NORMAL','HARD','EXTREME'];
+
+function fmt(n) { return n != null ? n.toFixed(1) : '-'; }
+
+function makeTimebar(j, t) {
+  const total = t;
+  const segs = [
+    { w: j.e||0,           color: '#1CB0F6' },
+    { w: (j.g||j.e)-(j.e||0), color: '#58CC02' },
+    { w: t - (j.g||j.e||0), color: '#FF9600' },
+  ];
+  const bars = segs.map(seg => {
+    const pct = Math.max(0, seg.w / total * 100).toFixed(1);
+    return `<div style="width:${pct}%;background:${seg.color};height:100%;"></div>`;
+  }).join('');
+  return `<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:#2A4050;min-width:80px;">${bars}</div>`;
+}
+
+function buildTable(diff) {
+  const color = DIFF_COLOR[diff];
+  const stages = STAGES[diff];
+
+  const rows = stages.map((s, i) => {
+    const j = s.j;
+    const minN = Math.min(...s.bag), maxN = Math.max(...s.bag);
+    const eWin  = j.e ? j.e : null;
+    const gWin  = (j.g && j.e) ? (j.g - j.e) : null;
+    const gdWin = (j.gd && j.g) ? (j.gd - j.g) : null;
+    const eOk   = parseFloat(eWin) >= 1.0;
+    const isBoss = s.boss === 'final';
+    const isMid  = s.boss === 'mid';
+    const rowCls = isBoss ? 'boss-row' : isMid ? 'boss-row' : '';
+
+    const bossBadge = isBoss
+      ? '<span class="boss-badge badge-final">★ラスボス</span>'
+      : isMid
+        ? '<span class="boss-badge badge-mid">☆中ボス</span>'
+        : '';
+
+    const timebar = makeTimebar(j, s.t);
+
+    return `<tr class="${rowCls}">
+      <td><span class="st-num">${i+1}</span>${bossBadge}</td>
+      <td class="td-num">${minN}〜${maxN}</td>
+      <td>
+        <span class="td-num" style="color:#aaa;">${s.t}秒</span>
+        ${timebar}
+      </td>
+      <td class="col-e td-num ${eOk ? '' : 'warn'}">${eWin != null ? eWin.toFixed(1)+'秒' : '-'}</td>
+      <td class="col-g td-num">${gWin != null ? gWin.toFixed(1)+'秒' : '-'}</td>
+      <td class="col-gd td-num">${gdWin != null ? gdWin.toFixed(1)+'秒' : '-'}</td>
+      <td style="color:#778;">${s.cols}列×${s.mh}行</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ST</th>
+            <th>出題数<span class="sub">最小〜最大</span></th>
+            <th>制限時間<span class="sub">タイムバー付き</span></th>
+            <th class="col-e">💙EXCELLENTの幅<span class="sub">0秒〜e秒（秒）</span></th>
+            <th class="col-g">💚GREATの幅<span class="sub">ゾーンの広さ（秒）</span></th>
+            <th class="col-gd">🟠GOODの幅<span class="sub">ゾーンの広さ（秒）</span></th>
+            <th>ブロック配置<span class="sub">列数×行数</span></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// タブ＋セクション生成
+const tabsEl = document.getElementById('tabs');
+const sectionsEl = document.getElementById('sections');
+
+DIFF_ORDER.forEach((diff, idx) => {
+  // タブボタン
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (idx === 0 ? ' active' : '');
+  btn.dataset.diff = diff;
+  btn.textContent = diff;
+  btn.onclick = () => switchTab(diff);
+  tabsEl.appendChild(btn);
+
+  // セクション
+  const sec = document.createElement('div');
+  sec.className = 'section' + (idx === 0 ? ' active' : '');
+  sec.id = 'sec-' + diff;
+  sec.style.setProperty('--diff-color', DIFF_COLOR[diff]);
+  sec.innerHTML = `<div class="section-border">${buildTable(diff)}</div>`;
+  sectionsEl.appendChild(sec);
+});
+
+function switchTab(diff) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-diff="${diff}"]`).classList.add('active');
+  document.getElementById('sec-' + diff).classList.add('active');
+}
+</script>
+</body>
+</html>

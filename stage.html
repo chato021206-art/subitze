@@ -852,52 +852,52 @@ body {
 /* =============== STAGE CONFIG =============== */
 const STAGES = {
   EASY: [
-    { bag:[1,1,2,2,3,3],         t:5.0, j:{m:1.0,e:1.8,g:3.0,gd:5.0}, cols:3, mh:2, tp:'S' },
-    { bag:[1,2,2,3,3,3],         t:4.8, j:{m:0.9,e:1.7,g:2.9,gd:4.8}, cols:3, mh:3, tp:'S' },
-    { bag:[2,2,3,3,3,4],         t:4.5, j:{m:0.8,e:1.5,g:2.7,gd:4.5}, cols:3, mh:3, tp:'S' },
-    { bag:[2,3,3,4,4,4],         t:4.2, j:{m:0.8,e:1.4,g:2.5,gd:4.2}, cols:3, mh:3, tp:'S' },
-    { bag:[1,2,3,4,5,6,7,8,9],   t:4.5, j:{m:0.8,e:1.5,g:2.8,gd:4.5}, cols:3, mh:5, tp:'S', boss:'mid' },
-    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{m:0.6,e:1.1,g:2.0,gd:3.0}, cols:3, mh:3, tp:'S' },
-    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{m:0.6,e:1.1,g:2.0,gd:3.0}, cols:3, mh:3, tp:'S' },
-    { bag:[2,3,3,4,4,5,5,5],     t:3.0, j:{m:0.6,e:1.1,g:2.0,gd:3.0}, cols:3, mh:4, tp:'S' },
-    { bag:[3,3,4,4,5,5,5],       t:3.0, j:{m:0.6,e:1.1,g:2.0,gd:3.0}, cols:3, mh:4, tp:'S' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{m:1.0,e:1.8,g:3.0,gd:5.0}, cols:3, mh:5, tp:'S', boss:'final' },
+    { bag:[1,1,2,2,3,3],         t:5.0, j:{e:1.8,g:3.0,gd:5.0}, cols:3, mh:2, tp:'S' },
+    { bag:[1,2,2,3,3,3],         t:4.8, j:{e:1.7,g:2.9,gd:4.8}, cols:3, mh:3, tp:'S' },
+    { bag:[2,2,3,3,3,4],         t:4.5, j:{e:1.5,g:2.7,gd:4.5}, cols:3, mh:3, tp:'S' },
+    { bag:[2,3,3,4,4,4],         t:4.2, j:{e:1.4,g:2.5,gd:4.2}, cols:3, mh:3, tp:'S' },
+    { bag:[1,2,3,4,5,6,7,8,9],   t:4.5, j:{e:1.5,g:2.8,gd:4.5}, cols:3, mh:5, tp:'S', boss:'mid' },
+    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:3, tp:'S' },
+    { bag:[2,2,3,3,4,4,4,5,5,5], t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:3, tp:'S' },
+    { bag:[2,3,3,4,4,5,5,5],     t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:4, tp:'S' },
+    { bag:[3,3,4,4,5,5,5],       t:3.0, j:{e:1.1,g:2.0,gd:3.0}, cols:3, mh:4, tp:'S' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:1.8,g:3.0,gd:5.0}, cols:3, mh:5, tp:'S', boss:'final' },
   ],
   NORMAL: [
-    { bag:[2,3,4,4,5,5],         t:4.5, j:{m:1.1,e:1.8,g:2.8,gd:4.5}, cols:3, mh:3, tp:'S' },
-    { bag:[3,4,4,5,5,6],         t:4.2, j:{m:1.0,e:1.7,g:2.7,gd:4.2}, cols:3, mh:4, tp:'S' },
-    { bag:[3,4,5,5,6,6,7],       t:4.0, j:{m:0.9,e:1.6,g:2.6,gd:4.0}, cols:3, mh:4, tp:'S' },
-    { bag:[4,5,5,6,6,7,7],       t:3.8, j:{m:0.9,e:1.5,g:2.5,gd:3.8}, cols:3, mh:5, tp:'S' },
-    { bag:[2,3,4,5,6,7,8,9],     t:3.5, j:{m:0.8,e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S', boss:'mid' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:0.8,e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{m:0.8,e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S' },
-    { bag:[3,4,5,6,6,7,7,8,9],   t:3.2, j:{m:0.7,e:1.3,g:2.1,gd:3.2}, cols:3, mh:5, tp:'S' },
-    { bag:[4,5,6,7,7,8,8,9],     t:3.0, j:{m:0.7,e:1.2,g:2.0,gd:3.0}, cols:3, mh:5, tp:'S' },
-    { bag:[7,8,9,9,10,10,11,12], t:5.0, j:{m:1.3,e:2.0,g:3.2,gd:5.0}, cols:4, mh:5, tp:'H', boss:'final' },
+    { bag:[2,3,4,4,5,5],         t:4.5, j:{e:1.8,g:2.8,gd:4.5}, cols:3, mh:3, tp:'S' },
+    { bag:[3,4,4,5,5,6],         t:4.2, j:{e:1.7,g:2.7,gd:4.2}, cols:3, mh:4, tp:'S' },
+    { bag:[3,4,5,5,6,6,7],       t:4.0, j:{e:1.6,g:2.6,gd:4.0}, cols:3, mh:4, tp:'S' },
+    { bag:[4,5,5,6,6,7,7],       t:3.8, j:{e:1.5,g:2.5,gd:3.8}, cols:3, mh:5, tp:'S' },
+    { bag:[2,3,4,5,6,7,8,9],     t:3.5, j:{e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S', boss:'mid' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:3.5, j:{e:1.4,g:2.3,gd:3.5}, cols:3, mh:5, tp:'S' },
+    { bag:[3,4,5,6,6,7,7,8,9],   t:3.2, j:{e:1.3,g:2.1,gd:3.2}, cols:3, mh:5, tp:'S' },
+    { bag:[4,5,6,7,7,8,8,9],     t:3.0, j:{e:1.2,g:2.0,gd:3.0}, cols:3, mh:5, tp:'S' },
+    { bag:[7,8,9,9,10,10,11,12], t:5.0, j:{e:2.0,g:3.2,gd:5.0}, cols:4, mh:5, tp:'H', boss:'final' },
   ],
   HARD: [
-    { bag:[10,11,12,13,14,15],    t:5.0, j:{m:2.0,e:2.8,g:3.6,gd:5.0}, cols:4, mh:5, tp:'H' },
-    { bag:[10,11,12,13,14,15,16], t:4.8, j:{m:1.8,e:2.6,g:3.4,gd:4.8}, cols:4, mh:5, tp:'H' },
-    { bag:[11,12,13,14,15,16,17], t:4.5, j:{m:1.9,e:2.6,g:3.2,gd:4.1},        cols:4, mh:6, tp:'H' },
-    { bag:[12,13,14,15,16,17,18], t:4.2, j:{m:1.8,e:2.5,g:3.1,gd:3.9},        cols:4, mh:6, tp:'H' },
-    { bag:[10,12,14,15,16,17,18,19,20], t:4.0, j:{m:1.8,e:2.4,g:3.0,gd:4.0},  cols:4, mh:7, tp:'H', boss:'mid' },
-    { bag:[10,11,12,13,14,15,16,17,18,19,20], t:4.0, j:{m:1.8,e:2.4,g:3.0,gd:4.0}, cols:4, mh:7, tp:'H' },
-    { bag:[11,12,13,14,15,16,17,18,19,20], t:4.0, j:{m:1.8,e:2.4,g:3.0,gd:3.8}, cols:4, mh:7, tp:'H' },
-    { bag:[12,14,15,16,17,18,19,20], t:3.8, j:{m:1.7,e:2.3,g:2.9,gd:3.6},     cols:4, mh:7, tp:'H' },
-    { bag:[13,15,16,17,18,19,20,22], t:3.8, j:{m:1.8,e:2.4,g:3.0,gd:3.8},     cols:5, mh:7, tp:'H' },
-    { bag:[15,17,18,19,20,22,24,25], t:5.0, j:{m:2.2,e:3.0,g:4.0,gd:5.0},     cols:5, mh:7, tp:'H', boss:'final' },
+    { bag:[10,11,12,13,14,15],    t:5.0, j:{e:2.8,g:3.6,gd:5.0}, cols:4, mh:5, tp:'H' },
+    { bag:[10,11,12,13,14,15,16], t:4.8, j:{e:2.6,g:3.4,gd:4.8}, cols:4, mh:5, tp:'H' },
+    { bag:[11,12,13,14,15,16,17], t:4.5, j:{e:2.6,g:3.2,gd:4.1},        cols:4, mh:6, tp:'H' },
+    { bag:[12,13,14,15,16,17,18], t:4.2, j:{e:2.5,g:3.1,gd:3.9},        cols:4, mh:6, tp:'H' },
+    { bag:[10,12,14,15,16,17,18,19,20], t:4.0, j:{e:2.4,g:3.0,gd:4.0},  cols:4, mh:7, tp:'H', boss:'mid' },
+    { bag:[10,11,12,13,14,15,16,17,18,19,20], t:4.0, j:{e:2.4,g:3.0,gd:4.0}, cols:4, mh:7, tp:'H' },
+    { bag:[11,12,13,14,15,16,17,18,19,20], t:4.0, j:{e:2.4,g:3.0,gd:3.8}, cols:4, mh:7, tp:'H' },
+    { bag:[12,14,15,16,17,18,19,20], t:3.8, j:{e:2.3,g:2.9,gd:3.6},     cols:4, mh:7, tp:'H' },
+    { bag:[13,15,16,17,18,19,20,22], t:3.8, j:{e:2.4,g:3.0,gd:3.8},     cols:5, mh:7, tp:'H' },
+    { bag:[15,17,18,19,20,22,24,25], t:5.0, j:{e:3.0,g:4.0,gd:5.0},     cols:5, mh:7, tp:'H', boss:'final' },
   ],
   EXTREME: [
-    { bag:[13,14,15,16,17,18],    t:6.0, j:{m:2.5,e:3.5,g:5.0,gd:6.0}, cols:5, mh:5, tp:'E' },
-    { bag:[15,16,17,18,19,20],    t:5.5, j:{m:2.3,e:3.3,g:4.8,gd:5.5}, cols:6, mh:5, tp:'E' },
-    { bag:[17,18,19,20,22,24],    t:5.5, j:{m:2.2,e:3.2,g:4.5,gd:5.5}, cols:6, mh:6, tp:'E' },
-    { bag:[20,22,24,26,28,30],    t:5.2, j:{m:2.0,e:3.0,g:4.5,gd:5.2}, cols:7, mh:6, tp:'E' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{m:2.0,e:3.0,g:5.0}, cols:8, mh:7, tp:'E', boss:'mid' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{m:2.0,e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{m:2.0,e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
-    { bag:[20,25,28,30,33,36,39], t:4.8, j:{m:1.8,e:2.8,g:4.5},         cols:9, mh:9, tp:'E' },
-    { bag:[25,30,33,36,39,40,42], t:4.5, j:{m:1.8,e:2.8,g:4.5},         cols:9, mh:9, tp:'E' },
-    { bag:[30,33,36,39,40,42,45], t:5.0, j:{m:2.0,e:3.0,g:5.0},         cols:9, mh:9, tp:'E', boss:'final' },
+    { bag:[13,14,15,16,17,18],    t:6.0, j:{e:3.5,g:5.0,gd:6.0}, cols:5, mh:5, tp:'E' },
+    { bag:[15,16,17,18,19,20],    t:5.5, j:{e:3.3,g:4.8,gd:5.5}, cols:6, mh:5, tp:'E' },
+    { bag:[17,18,19,20,22,24],    t:5.5, j:{e:3.2,g:4.5,gd:5.5}, cols:6, mh:6, tp:'E' },
+    { bag:[20,22,24,26,28,30],    t:5.2, j:{e:3.0,g:4.5,gd:5.2}, cols:7, mh:6, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:8, mh:7, tp:'E', boss:'mid' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
+    { bag:[20,25,28,30,33,36,39], t:4.8, j:{e:2.8,g:4.5},         cols:9, mh:9, tp:'E' },
+    { bag:[25,30,33,36,39,40,42], t:4.5, j:{e:2.8,g:4.5},         cols:9, mh:9, tp:'E' },
+    { bag:[30,33,36,39,40,42,45], t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:9, tp:'E', boss:'final' },
   ]
 };
 
@@ -999,7 +999,7 @@ let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
   input:'', blocked:false,
-  stats:{ marvelous:{c:0,t:0}, excellent:{c:0,t:0}, great:{c:0,t:0}, good:{c:0,t:0}, ok:{c:0,t:0} },
+  stats:{ excellent:{c:0,t:0}, great:{c:0,t:0}, good:{c:0,t:0}, ok:{c:0,t:0} },
   lastN:null, lastSig:null, consec:0,
   maxCombo:0, xp:0
 };
@@ -1070,16 +1070,14 @@ function showThresholdList() {
       const minN = Math.min(...bag), maxN = Math.max(...bag);
       const bossMark = s.boss === 'final' ? '★' : s.boss === 'mid' ? '☆' : '';
       const bg = i % 2 === 0 ? '#f8f8f8' : '#fff';
-      const mSec  = j.m ? j.m.toFixed(1) : '-';
-      const eWin  = (j.e && j.m) ? (j.e - j.m).toFixed(1) : '-';
+      const eWin  = j.e ? j.e.toFixed(1) : '-';
       const gWin  = (j.g && j.e) ? (j.g - j.e).toFixed(1) : '-';
       const gdWin = (j.gd && j.g) ? (j.gd - j.g).toFixed(1) : '-';
-      const eOk   = parseFloat(eWin) >= 0.5;
+      const eOk   = parseFloat(eWin) >= 1.0;
       return `<tr style="background:${bg};">
         <td style="padding:3px 5px;text-align:center;font-weight:900;font-size:12px;">${i+1}<span style="color:${color};font-size:10px;">${bossMark}</span></td>
         <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${minN}〜${maxN}</td>
         <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${s.t}秒</td>
-        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#A07800;">〜${mSec}秒</td>
         <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:${eOk?'#0A8CB8':'#FF4B4B'};">${eWin}秒</td>
         <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#2D8000;">${gWin}秒</td>
         <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#CC6600;">${gdWin}秒</td>
@@ -1094,8 +1092,7 @@ function showThresholdList() {
               <th style="padding:4px 3px;text-align:center;">ST</th>
               <th style="padding:4px 3px;text-align:center;">出題数<br><span style="font-weight:400;font-size:9px;">(最小〜最大)</span></th>
               <th style="padding:4px 3px;text-align:center;">制限<br>時間</th>
-              <th style="padding:4px 3px;text-align:center;background:#FFFBE6;">MARVELOUS<br><span style="font-weight:400;font-size:9px;">この秒数以内</span></th>
-              <th style="padding:4px 3px;text-align:center;background:#E6F6FF;">EXCELLENT<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
+              <th style="padding:4px 3px;text-align:center;background:#E6F6FF;">EXCELLENT<br><span style="font-weight:400;font-size:9px;">0秒〜e秒（幅）</span></th>
               <th style="padding:4px 3px;text-align:center;background:#EDFAE6;">GREAT<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
               <th style="padding:4px 3px;text-align:center;background:#FFF3E6;">GOOD<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
               <th style="padding:4px 3px;text-align:center;">ブロック<br>配置</th>
@@ -1105,7 +1102,7 @@ function showThresholdList() {
         </table>
       </div>
       <div style="font-size:9px;color:#bbb;margin-top:5px;line-height:1.6;">
-        MARVELOUS = 表示からこの秒数以内に正解　/　EXCELLENT〜GOOD = そのゾーンの幅が広いほど狙いやすい<br>
+        EXCELLENT = 表示からe秒以内に正解（幅が広いほど狙いやすい）　/　GREAT・GOODも幅が広いほど余裕あり<br>
         GOOD = 制限時間ぴったりまで　/　OK = タイムエクステンデッド（レベル補正）のみ
       </div>
     </div>`;
@@ -1501,7 +1498,7 @@ function startCountdown() {
 /* =============== GAME ENGINE =============== */
 function getTimeLimit(s) {
   const j = s.j;
-  const base = j.gd || j.g || j.e || j.m;
+  const base = j.gd || j.g || j.e;
   // レベル延長分は判定閾値に乗算せず、追加時間として末尾に付加
   const lvExt = Math.min(2.00, (getLevel().level - 1) * 0.012);
   return base * (1 + lvExt);
@@ -1513,7 +1510,7 @@ function beginGame() {
   GS.totalTime = 0; GS.input = ''; GS.xp = 0;
   GS.lastN = null; GS.lastSig = null; GS.consec = 0;
   GS.maxCombo = 0;
-  GS.stats = { marvelous:{c:0,t:0}, excellent:{c:0,t:0}, great:{c:0,t:0}, good:{c:0,t:0}, ok:{c:0,t:0} };
+  GS.stats = { excellent:{c:0,t:0}, great:{c:0,t:0}, good:{c:0,t:0}, ok:{c:0,t:0} };
   sBag = [];
   document.getElementById('input-display').textContent = '';
   document.getElementById('game-blocks').innerHTML = '';
@@ -1545,7 +1542,6 @@ function gameLoop() {
 
   const j = s.j;
   let c;
-  if(GS.elapsed<=j.m) c='#FFC800';
   else if(GS.elapsed<=j.e) c='#1CB0F6';
   else if(GS.elapsed<=j.g) c='#58CC02';
   else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
@@ -1708,8 +1704,7 @@ function checkAns(val) {
   if(val===GS.current.n) {
     const eff = Math.max(dt, CAP_SEC);
     let k='miss', lbl='MISS';
-    if(dt<=j.m){k='marvelous';lbl='MARVELOUS';}
-    else if(dt<=j.e){k='excellent';lbl='EXCELLENT';}
+    if(dt<=j.e){k='excellent';lbl='EXCELLENT';}
     else if(dt<=j.g){k='great';lbl='GREAT';}
     else if(j.gd&&dt<=j.gd){k='good';lbl='GOOD';}
     else if(dt<=tl){k='ok';lbl='OK';}  // 延長帯 = OK
@@ -1717,7 +1712,7 @@ function checkAns(val) {
     GS.stats[k].c++; GS.stats[k].t+=eff;
 
     // XP gain — difficulty multiplier + level bonus
-    const baseXP = {marvelous:15,excellent:12,great:10,good:8,ok:5}[k];
+    const baseXP = {excellent:12,great:10,good:8,ok:5}[k];
     const diffMult = {'EASY':1,'NORMAL':2,'HARD':3,'EXTREME':5,'EASY+':1.5,'NORMAL+':3,'HARD+':4.5,'EXTREME+':7.5}[curDiff]||1;
     const lvBonus = 1 + (getLevel().level - 1) * 0.025; // +2.5% per level
     const xpGain = Math.round(baseXP * diffMult * lvBonus);
@@ -1734,7 +1729,7 @@ function showEval(lbl, grade, xpGain) {
   document.querySelectorAll('.game-eval').forEach(e=>e.remove());
   const el = document.createElement('div');
   el.className = 'game-eval'; el.textContent = lbl;
-  const colors = {MARVELOUS:'#FFC800',EXCELLENT:'#1CB0F6',GREAT:'#58CC02',GOOD:'#FF9600',OK:'#CCCCCC'};
+  const colors = {EXCELLENT:'#1CB0F6',GREAT:'#58CC02',GOOD:'#FF9600',OK:'#CCCCCC'};
   el.style.color = colors[lbl]||'#fff';
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),600);
@@ -1772,10 +1767,10 @@ function showEval(lbl, grade, xpGain) {
 }
 
 function spawnParticles(lbl) {
-  const colors = {MARVELOUS:['#FFC800','#FFE082','#FFD54F'],EXCELLENT:['#1CB0F6','#5DCBF8','#80DEEA'],GREAT:['#58CC02','#7FE030','#A5D6A7'],GOOD:['#FF9600','#FFB84D','#FFCC80'],OK:['#CCCCCC','#E0E0E0','#BDBDBD']};
+  const colors = {EXCELLENT:['#1CB0F6','#5DCBF8','#80DEEA'],GREAT:['#58CC02','#7FE030','#A5D6A7'],GOOD:['#FF9600','#FFB84D','#FFCC80'],OK:['#CCCCCC','#E0E0E0','#BDBDBD']};
   const cs = colors[lbl] || ['#fff'];
   const cx = window.innerWidth / 2, cy = window.innerHeight * 0.38;
-  const count = lbl === 'MARVELOUS' ? 14 : lbl === 'EXCELLENT' ? 10 : 6;
+  const count = lbl === 'EXCELLENT' ? 12 : 6;
   for(let i=0;i<count;i++) {
     const p = document.createElement('div');
     p.className = 'hit-particle';
@@ -1901,7 +1896,6 @@ function showResult(score, stars, isNew) {
   const ratings = document.getElementById('r-ratings');
   ratings.innerHTML = '';
   const rData = [
-    {k:'marvelous',lbl:'MARVELOUS',c:'#FFC800'},
     {k:'excellent',lbl:'EXCELLENT',c:'#1CB0F6'},
     {k:'great',lbl:'GREAT',c:'#58CC02'},
     {k:'good',lbl:'GOOD',c:'#FF9600'},
