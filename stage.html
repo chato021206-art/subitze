@@ -746,6 +746,20 @@ body {
 @keyframes warn-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .skill-map-btn { background:#f0f0f0;border:none;border-radius:12px;padding:6px 10px;font-size:16px;cursor:pointer; }
 .drill-btn { background:linear-gradient(135deg,#FF6B6B,#FF4B4B);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 2px 6px rgba(255,75,75,0.35); }
+.ta-btn { background:linear-gradient(135deg,#1CB0F6,#1899D6);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:15px;font-weight:900;cursor:pointer; }
+.ta-select-modal { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+.ta-select-modal.show { opacity:1;pointer-events:all; }
+.ta-select-box { background:#fff;border-radius:20px;padding:24px 20px;width:88%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.ta-select-title { font-size:22px;font-weight:900;color:#333;text-align:center;margin-bottom:4px; }
+.ta-select-sub { font-size:13px;color:#888;text-align:center;margin-bottom:20px; }
+.ta-diff-btns { display:flex;gap:10px;margin-bottom:14px; }
+.ta-diff-btn { flex:1;border:none;border-radius:14px;padding:14px 6px;font-size:14px;font-weight:900;cursor:pointer;color:#fff;line-height:1.5; }
+.ta-diff-btn span { display:block;font-size:10px;font-weight:600;opacity:0.85; }
+.ta-diff-btn.easy { background:#58CC02; }
+.ta-diff-btn.hard { background:#FF9600; }
+.ta-diff-btn.extreme { background:#FF4B4B; }
+.ta-best-display { font-size:10px;color:#bbb;text-align:center;line-height:1.8; }
+.ta-score-bar { display:flex;justify-content:center;gap:20px;padding:4px 0;font-size:13px;font-weight:900;color:#333; }
 .drill-lives-bar { display:flex;align-items:center;justify-content:center;gap:2px;padding:3px 0;font-size:20px;line-height:1; }
 .drill-heart { transition:transform 0.2s,opacity 0.2s;display:inline-block; }
 .drill-heart.lost { opacity:0.2;transform:scale(0.7); }
@@ -789,6 +803,21 @@ body {
     <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
     <button class="skill-map-btn" onclick="showSkillMap()">📊</button>
     <button id="drill-btn" class="drill-btn" onclick="startDrill()" style="display:none">⚔️特訓</button>
+    <button class="ta-btn" onclick="openTASelect()">⏱TA</button>
+  </div>
+</div>
+
+<!-- =============== TA SELECT MODAL =============== -->
+<div class="ta-select-modal" id="ta-select-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="ta-select-box">
+    <div class="ta-select-title">⏱ タイムアタック</div>
+    <div class="ta-select-sub">60秒間で何問解けるか？</div>
+    <div class="ta-diff-btns">
+      <button class="ta-diff-btn easy" onclick="startTA('EASY')">EASY<span>1〜9</span></button>
+      <button class="ta-diff-btn hard" onclick="startTA('HARD')">HARD<span>10〜20</span></button>
+      <button class="ta-diff-btn extreme" onclick="startTA('EXTREME')">EXTREME<span>13〜45</span></button>
+    </div>
+    <div id="ta-best-display" class="ta-best-display"></div>
   </div>
 </div>
 
@@ -821,6 +850,11 @@ body {
   </div>
   <!-- Drill lives -->
   <div id="drill-lives-bar" class="drill-lives-bar" style="display:none"></div>
+  <!-- TA score bar -->
+  <div id="ta-score-bar" class="ta-score-bar" style="display:none">
+    <span id="ta-correct-disp">0問</span>
+    <span id="ta-blocks-disp">0ブロック</span>
+  </div>
   <!-- Game area -->
   <div class="game-stage-area">
     <div id="game-slot" class="game-slot">
@@ -957,7 +991,7 @@ function makePlusStages(base) {
     const maxVal = Math.max(...newBag);
     let tp = s.tp;
     if(tp === 'S' && maxVal > 9) tp = 'H';
-    return { ...s, bag: newBag, cols: 15, mh: 15, tp, plus: true };
+    return { ...s, bag: newBag, cols: 11, mh: 11, tp, plus: true };
   });
 }
 STAGES['EASY+']    = makePlusStages(STAGES.EASY);
@@ -1039,6 +1073,16 @@ const QS = 10;
 const CAP_CH = 36000;
 const CAP_SEC = 0.1;
 const DRILL_CONFIG = { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:6, mh:6, tp:'S' };
+const TA_BAGS = {
+  EASY:    [1,2,2,3,3,4,4,5,5,6,7,8,9],
+  HARD:    [10,11,12,13,14,15,16,17,18,19,20],
+  EXTREME: [13,16,19,22,25,28,30,33,36,39,40,42,45]
+};
+const TA_CONFIGS = {
+  EASY:    { cols:5,  mh:5,  tp:'S', diffMult:1 },
+  HARD:    { cols:9,  mh:9,  tp:'H', diffMult:3 },
+  EXTREME: { cols:9,  mh:9,  tp:'E', diffMult:5 }
+};
 
 /* =============== STATE =============== */
 let curDiff = 'EASY', curIdx = 0;
@@ -1047,6 +1091,14 @@ let numberStats = {};   // {n: {c, t}} 数字別正答統計
 let missedShapes = [];  // [{sig, n, miss, ts}] ミスした形リスト
 let drillMode = false;
 let drillLives = 3;
+let taMode = false;
+let taDiff = 'EASY';
+let taTimer = 60;
+let taCorrect = 0;
+let taBlocks = 0;
+let taBest = {};
+let taRafId = null;
+let taLastTick = 0;
 let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
@@ -1073,6 +1125,7 @@ function load() {
   try { const x = localStorage.getItem('snow_total_xp'); if(x) totalXP = parseInt(x)||0; } catch(e){}
   try { const ns = localStorage.getItem('snow_number_stats'); if(ns) numberStats = JSON.parse(ns); } catch(e){}
   try { const ms = localStorage.getItem('snow_missed_shapes'); if(ms) missedShapes = JSON.parse(ms); } catch(e){}
+  try { const tb = localStorage.getItem('snow_ta_best'); if(tb) taBest = JSON.parse(tb); } catch(e){}
   ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -1083,6 +1136,7 @@ function save() {
   localStorage.setItem('snow_total_xp', totalXP.toString());
   localStorage.setItem('snow_number_stats', JSON.stringify(numberStats));
   localStorage.setItem('snow_missed_shapes', JSON.stringify(missedShapes));
+  localStorage.setItem('snow_ta_best', JSON.stringify(taBest));
 }
 
 function getLevel() {
@@ -1205,11 +1259,12 @@ function toggleRandom() {
   if(_randomPressCt >= 10) {
     _randomPressCt = 0;
     if(confirm('セーブデータを全削除しますか？\nこの操作は元に戻せません。')) {
-      prog = {}; totalXP = 0; numberStats = {}; missedShapes = [];
+      prog = {}; totalXP = 0; numberStats = {}; missedShapes = []; taBest = {};
       localStorage.removeItem('snow_stage_progress');
       localStorage.removeItem('snow_total_xp');
       localStorage.removeItem('snow_number_stats');
       localStorage.removeItem('snow_missed_shapes');
+      localStorage.removeItem('snow_ta_best');
       load();
       isRandomMode = false;
       const btn = document.getElementById('random-btn');
@@ -1586,13 +1641,21 @@ function beginGame() {
   document.getElementById('input-display').textContent = '';
   document.getElementById('game-blocks').innerHTML = '';
 
-  for(let i=0;i<3;i++) addQ();
-  GS.current = GS.queue.shift();
-  renderBlocks();
-
-  GS.elapsed = 0; GS.lastTick = Date.now();
-  if(GS.rafId) cancelAnimationFrame(GS.rafId);
-  gameLoop();
+  if(taMode) {
+    for(let i=0;i<3;i++) addTAQ();
+    GS.current = GS.queue.shift();
+    renderBlocks();
+    taTimer = 60; taLastTick = Date.now();
+    if(taRafId) cancelAnimationFrame(taRafId);
+    taRafId = requestAnimationFrame(taGameLoop);
+  } else {
+    for(let i=0;i<3;i++) addQ();
+    GS.current = GS.queue.shift();
+    renderBlocks();
+    GS.elapsed = 0; GS.lastTick = Date.now();
+    if(GS.rafId) cancelAnimationFrame(GS.rafId);
+    gameLoop();
+  }
 }
 
 function gameLoop() {
@@ -1628,6 +1691,21 @@ function gameLoop() {
   }
 
   GS.rafId = requestAnimationFrame(gameLoop);
+}
+
+function taGameLoop() {
+  if(!taMode || GS.status !== 'PLAYING') return;
+  const now = Date.now();
+  taTimer -= (now - taLastTick) / 1000;
+  taLastTick = now;
+  if(taTimer <= 0) { taTimer = 0; taGameOver('TIME'); return; }
+  const pct = taTimer / 60;
+  document.getElementById('enemy-hp-fill').style.width = (pct*100) + '%';
+  document.getElementById('enemy-hp-text').textContent = Math.ceil(taTimer) + 's';
+  const fill = document.getElementById('timer-fill');
+  fill.style.width = (pct*100) + '%';
+  fill.style.background = taTimer > 15 ? '#58CC02' : '#FF4B4B';
+  taRafId = requestAnimationFrame(taGameLoop);
 }
 
 /* =============== BLOCK GEN =============== */
@@ -1696,6 +1774,27 @@ function addQ() {
   GS.genCount++;
 }
 
+function addTAQ() {
+  const cfg = TA_CONFIGS[taDiff];
+  const bag = TA_BAGS[taDiff];
+  for(let att=0;att<2000;att++) {
+    const n = bag[Math.floor(Math.random() * bag.length)];
+    const shape = genShape(n, cfg.cols, cfg.mh, 0);
+    const total = shape.reduce((a,b)=>a+b,0);
+    const sig = JSON.stringify(shape);
+    if(sig === GS.lastSig) continue;
+    if(GS.lastN === total && GS.consec >= 2) continue;
+    GS.consec = GS.lastN===total ? GS.consec+1 : 1;
+    GS.lastN = total; GS.lastSig = sig;
+    GS.queue.push({n:total, shape, sig});
+    return;
+  }
+  // fallback
+  const n = bag[0];
+  const shape = genShape(n, cfg.cols, cfg.mh, 0);
+  GS.queue.push({n, shape, sig: JSON.stringify(shape)});
+}
+
 /* =============== RENDER =============== */
 function renderBlocks() {
   const el = document.getElementById('game-blocks');
@@ -1757,7 +1856,7 @@ function renderBlocks() {
       el.appendChild(warn);
     }
     // Dynamic scale based on slot dimensions + stage cols/mh
-    const st = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
+    const st = taMode ? TA_CONFIGS[taDiff] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
     const blockPx = Math.min(window.innerWidth * 0.075, 30);
     const gap = 4;
     const natW = st.cols * blockPx + Math.max(0, st.cols - 1) * gap;
@@ -1774,7 +1873,7 @@ function renderBlocks() {
 /* =============== INPUT =============== */
 function processInput(val) {
   if(!GS.current||GS.blocked||GS.status!=='PLAYING') return;
-  const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
+  const s = taMode ? TA_CONFIGS[taDiff] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
   const inputEl = document.getElementById('input-display');
   if(s.tp==='H'||s.tp==='E') {
     if(val==='DEL'){GS.input=GS.input.slice(0,-1);inputEl.textContent=GS.input;return;}
@@ -1789,6 +1888,43 @@ function processInput(val) {
 }
 
 function checkAns(val) {
+  // TA mode: separate logic
+  if(taMode) {
+    if(val === GS.current.n) {
+      taCorrect++;
+      taBlocks += GS.current.n;
+      const lvBonus = 1 + (getLevel().level - 1) * 0.025;
+      const xpGain = Math.round(10 * TA_CONFIGS[taDiff].diffMult * lvBonus);
+      GS.xp += xpGain;
+      // Slot flash + XP popup
+      const slot = document.getElementById('game-slot');
+      slot.classList.remove('slot-correct'); void slot.offsetWidth; slot.classList.add('slot-correct');
+      setTimeout(() => slot.classList.remove('slot-correct'), 300);
+      document.querySelectorAll('.xp-popup').forEach(e=>e.remove());
+      const xpEl = document.createElement('div'); xpEl.className='xp-popup'; xpEl.textContent='+'+xpGain+' XP';
+      document.body.appendChild(xpEl); setTimeout(()=>xpEl.remove(),800);
+      // Update score display
+      document.getElementById('ta-correct-disp').textContent = taCorrect + '問';
+      document.getElementById('ta-blocks-disp').textContent = taBlocks + 'ブロック';
+      // Next question
+      if(GS.queue.length < 3) addTAQ();
+      GS.current = GS.queue.shift();
+      GS.input = ''; document.getElementById('input-display').textContent = '';
+      renderBlocks();
+    } else {
+      // Wrong → record missed shape + instant end
+      if(GS.current && GS.current.sig) {
+        const sig = GS.current.sig;
+        const existing = missedShapes.find(m => m.sig === sig);
+        if(existing) { existing.miss++; existing.ts = Date.now(); }
+        else { missedShapes.push({sig, n: GS.current.n, miss:1, ts: Date.now()}); }
+        if(missedShapes.length > 50) { missedShapes.sort((a,b)=>b.ts-a.ts); missedShapes=missedShapes.slice(0,50); }
+      }
+      taGameOver('WRONG', val);
+    }
+    return;
+  }
+
   const dt = GS.elapsed;
   const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   const j = s.j;
@@ -1902,8 +2038,8 @@ function nextQ() {
 function handleMiss(type,inp,ans) {
   document.getElementById('input-display').textContent = '';
 
-  // Record missed shape
-  if(type === 'WRONG' && GS.current && GS.current.sig) {
+  // Record missed shape (WRONG, TIME, SLOW all count as weak shape)
+  if((type === 'WRONG' || type === 'TIME' || type === 'SLOW') && GS.current && GS.current.sig) {
     const sig = GS.current.sig;
     const existing = missedShapes.find(m => m.sig === sig);
     if(existing) { existing.miss++; existing.ts = Date.now(); }
@@ -2194,6 +2330,145 @@ function launchConfetti(count) {
   }
 }
 
+/* =============== TIME ATTACK MODE =============== */
+function openTASelect() {
+  const bestEl = document.getElementById('ta-best-display');
+  if(bestEl) {
+    bestEl.innerHTML = ['EASY','HARD','EXTREME'].map(d => {
+      const b = taBest[d] || {correct:0, blocks:0};
+      return '<div><b>' + d + '</b>: ' + b.correct + '問 / ' + b.blocks + 'ブロック</div>';
+    }).join('');
+  }
+  document.getElementById('ta-select-modal').classList.add('show');
+}
+
+function startTA(diff) {
+  document.getElementById('ta-select-modal').classList.remove('show');
+  taMode = true; taDiff = diff;
+  taCorrect = 0; taBlocks = 0;
+  curDiff = diff; curIdx = 0;
+
+  const cfg = TA_CONFIGS[diff];
+  const colors = {EASY:'#58CC02', HARD:'#FF9600', EXTREME:'#FF4B4B'};
+
+  const gv = document.getElementById('game-view');
+  gv.style.display = 'flex';
+  gv.setAttribute('data-diff', diff);
+  gv.classList.remove('boss-mid','boss-final');
+  document.getElementById('map-view').style.display = 'none';
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('timer-fill').style.width = '100%';
+
+  // Keyboard
+  const multi = cfg.tp !== 'S';
+  document.querySelector('.gk[data-key="0"]').classList.toggle('disabled', !multi);
+  document.querySelector('.gk[data-key="DEL"]').classList.toggle('disabled', !multi);
+  const kb = document.getElementById('game-kb');
+  kb.classList.remove('layout-phone','layout-calc','layout-special');
+  kb.classList.add(KB_LAYOUTS[curKbIdx].layout);
+
+  // Labels
+  const labelEl = document.getElementById('enemy-label');
+  labelEl.textContent = '⏱ ' + diff;
+  labelEl.style.background = colors[diff];
+
+  // Enemy
+  document.getElementById('enemy-char').innerHTML = ENEMIES[diff][0].svg();
+  document.getElementById('enemy-char').className = 'enemy-char';
+  document.getElementById('enemy-name').textContent = 'タイムアタック';
+
+  // HP bar = countdown display
+  document.getElementById('enemy-hp-fill').style.width = '100%';
+  document.getElementById('enemy-hp-fill').className = 'enemy-hp-fill';
+  document.getElementById('enemy-hp-text').textContent = '60s';
+  document.querySelector('.top-hp-wrap').style.display = '';
+
+  // Score bar
+  document.getElementById('ta-correct-disp').textContent = '0問';
+  document.getElementById('ta-blocks-disp').textContent = '0ブロック';
+  document.getElementById('ta-score-bar').style.display = 'flex';
+
+  startCountdown();
+}
+
+function taGameOver(reason, inp) {
+  GS.status = 'GAMEOVER'; GS.blocked = true;
+  if(taRafId) cancelAnimationFrame(taRafId);
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('input-display').textContent = '';
+
+  if(!taBest[taDiff]) taBest[taDiff] = {correct:0, blocks:0};
+  const isNewCorrect = taCorrect > taBest[taDiff].correct;
+  const isNewBlocks  = taBlocks  > taBest[taDiff].blocks;
+  if(isNewCorrect) taBest[taDiff].correct = taCorrect;
+  if(isNewBlocks)  taBest[taDiff].blocks  = taBlocks;
+
+  const prevLevel = getLevel().level;
+  totalXP += GS.xp;
+  save();
+  const newLevel = getLevel().level;
+  if(newLevel > prevLevel) setTimeout(() => showLevelUp(newLevel), 600);
+
+  if(reason === 'TIME') {
+    showTAResult(isNewCorrect, isNewBlocks);
+  } else {
+    document.getElementById('fail-title').textContent = 'タイムアタック失敗...';
+    document.getElementById('fail-sub').textContent = (inp !== undefined ? inp + ' → ' : '') + '正解数: ' + taCorrect;
+    document.getElementById('fail-xp').textContent = GS.xp > 0 ? '⚡ +' + GS.xp + ' XP' : '';
+    document.getElementById('fail-overlay').classList.add('show');
+  }
+}
+
+function showTAResult(isNewCorrect, isNewBlocks) {
+  const colors = {EASY:'#58CC02', HARD:'#FF9600', EXTREME:'#FF4B4B'};
+  document.getElementById('r-enemy').innerHTML = '⏱';
+  document.getElementById('r-lbl').textContent = 'タイムアタック ' + taDiff;
+  document.getElementById('r-clear').textContent = 'TIME UP!';
+  document.getElementById('r-clear').className = 'r-clear-txt cleared';
+  document.getElementById('r-perfect').style.display = 'none';
+
+  const sr = document.getElementById('r-stars');
+  sr.innerHTML = '';
+  const starCount = (isNewCorrect && isNewBlocks) ? 3 : (isNewCorrect || isNewBlocks) ? 2 : 1;
+  for(let i=0;i<3;i++) {
+    const s = document.createElement('span');
+    s.className = 'r-star'; s.textContent = '⭐';
+    if(i<starCount){s.classList.add('show');s.style.animationDelay=(0.3+i*0.2)+'s';}
+    else s.classList.add('dim');
+    sr.appendChild(s);
+  }
+
+  document.getElementById('r-xp-val').textContent = GS.xp;
+  document.getElementById('r-xp-bonus').textContent = '';
+  document.getElementById('r-score').textContent = taCorrect;
+  document.getElementById('r-score-unit').textContent = '問';
+
+  const ratings = document.getElementById('r-ratings');
+  ratings.innerHTML = '';
+  const best = taBest[taDiff];
+  const color = colors[taDiff];
+
+  [[taCorrect, best.correct, '正解数', '#58CC02'],
+   [taBlocks,  best.blocks,  'ブロック', '#1CB0F6']].forEach(([val, bestVal, lbl, c], ri) => {
+    const pct = bestVal > 0 ? Math.min(100, val/bestVal*100) : 100;
+    const isNew = ri===0 ? isNewCorrect : isNewBlocks;
+    const row = document.createElement('div');
+    row.className = 'r-rating-row';
+    row.innerHTML = '<div class="r-rating-label" style="color:'+c+'">'+lbl+'</div>'+
+      '<div class="r-rating-bar-outer"><div class="r-rating-bar-inner" style="width:0%;background:'+c+'"></div></div>'+
+      '<div class="r-rating-count">'+val+(isNew?' 🆕':'')+'</div>';
+    ratings.appendChild(row);
+    setTimeout(() => row.querySelector('.r-rating-bar-inner').style.width = pct+'%', 200+ri*100);
+  });
+
+  document.getElementById('r-detail').innerHTML = '<span>ベスト: '+best.correct+'問 / '+best.blocks+'ブロック</span>';
+  document.getElementById('r-record').style.display = (isNewCorrect||isNewBlocks) ? 'block' : 'none';
+  document.getElementById('r-unlock').style.display = 'none';
+  document.getElementById('r-next').style.display = 'none';
+  document.getElementById('result-overlay').classList.add('show');
+  if(taCorrect > 0) launchConfetti(Math.min(80, taCorrect * 2));
+}
+
 /* =============== DRILL MODE =============== */
 function startDrill() {
   if(missedShapes.length < 10) return;
@@ -2334,6 +2609,7 @@ function goBack() { window.location.href = 'index.html'; }
 function retryStage() {
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
+  if(taMode) { startTA(taDiff); return; }
   if(drillMode) { startDrill(); return; }
   startStage(curDiff, curIdx);
 }
@@ -2349,6 +2625,12 @@ function backToMap() {
   document.getElementById('map-view').style.display = 'flex';
   GS.status = 'IDLE';
   if(GS.rafId) cancelAnimationFrame(GS.rafId);
+  if(taMode) {
+    taMode = false;
+    if(taRafId) cancelAnimationFrame(taRafId);
+    document.getElementById('ta-score-bar').style.display = 'none';
+    document.querySelector('.top-hp-wrap').style.display = '';
+  }
   if(drillMode) {
     drillMode = false;
     drillLives = 3;
