@@ -126,12 +126,10 @@ body {
 .diff-tab[data-diff="NORMAL+"] { --tab-c: #0891C4; }
 .diff-tab[data-diff="HARD+"] { --tab-c: #E08600; }
 .diff-tab[data-diff="EXTREME+"] { --tab-c: #CC3C3C; }
-.tab-star-avg { display: none; }
-
-.tab-medal {
-  display: flex; align-items: center; justify-content: center;
-  line-height: 1; margin-top: 2px; min-height: 18px;
-}
+.tab-star-avg { display: block; font-size: 9px; margin-top: 2px; line-height: 1; }
+.diff-tab.tab-gold, .plus-tab.tab-gold { border-color: #FFD700 !important; }
+.diff-tab.tab-silver, .plus-tab.tab-silver { border-color: #B0B0B0 !important; }
+.diff-tab.tab-bronze, .plus-tab.tab-bronze { border-color: #CD7F32 !important; }
 .plus-tabs {
   display: none; gap: 6px; flex-shrink: 0;
   background: #E8E0FF; padding: 6px 8px; border-bottom: 3px dashed #C8B8F0;
@@ -928,10 +926,10 @@ body {
     <!-- Panel 1: Normal stages -->
     <div class="panel" id="panel-1">
       <div class="diff-tabs">
-        <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span><span class="tab-medal" id="medal-EASY"></span></button>
-        <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span><span class="tab-medal" id="medal-NORMAL"></span></button>
-        <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD<span class="tab-star-avg" id="avg-HARD"></span><span class="tab-medal" id="medal-HARD"></span></button>
-        <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span><span class="tab-medal" id="medal-EXTREME"></span></button>
+        <button class="diff-tab active" data-diff="EASY" onclick="switchTab('EASY')">EASY<span class="tab-star-avg" id="avg-EASY"></span></button>
+        <button class="diff-tab" data-diff="NORMAL" onclick="switchTab('NORMAL')">NORMAL<span class="tab-star-avg" id="avg-NORMAL"></span></button>
+        <button class="diff-tab" data-diff="HARD" onclick="switchTab('HARD')">HARD<span class="tab-star-avg" id="avg-HARD"></span></button>
+        <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span></button>
       </div>
       <div id="map-scroll" class="map-scroll" data-diff="EASY">
         <div id="stage-list" class="stage-list"></div>
@@ -941,10 +939,10 @@ body {
     <!-- Panel 2: Plus stages -->
     <div class="panel" id="panel-2">
       <div class="plus-tabs" id="plus-tabs">
-        <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span><span class="tab-medal" id="medal-EASY+"></span></button>
-        <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span><span class="tab-medal" id="medal-NORMAL+"></span></button>
-        <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span><span class="tab-medal" id="medal-HARD+"></span></button>
-        <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span><span class="tab-medal" id="medal-EXTREME+"></span></button>
+        <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span></button>
+        <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span></button>
+        <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span></button>
+        <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
       </div>
       <div id="plus-scroll" class="map-scroll" data-diff="EASY">
         <div id="plus-stage-list" class="stage-list"></div>
@@ -1519,25 +1517,15 @@ function updateDiffTabs() {
     const avg = total / 10;
     el.textContent = avg > 0 ? '⭐' + avg.toFixed(1) : '';
 
-    // Medal badge
-    const medalEl = document.getElementById('medal-' + d);
-    if(!medalEl) return;
-    const allCleared = Array.from({length:10}, (_,i) => prog[d][i]?.cleared).every(Boolean);
-    if(allCleared) {
-      const minStars = Math.min(...Array.from({length:10}, (_,i) => prog[d][i]?.stars || 0));
-      const medalSVG = (fill, stroke, shine) =>
-        `<svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">` +
-          `<path d="M3.5 1 L7 6 L10.5 1" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
-          `<circle cx="7" cy="13" r="5" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>` +
-          `<ellipse cx="5.5" cy="11.5" rx="1.8" ry="1.1" fill="${shine}" transform="rotate(-30 5.5 11.5)"/>` +
-        `</svg>`;
-      medalEl.innerHTML = minStars >= 3
-        ? medalSVG('#FFD700','#B8860B','rgba(255,255,255,0.45)')
-        : minStars >= 2
-        ? medalSVG('#C8C8C8','#888888','rgba(255,255,255,0.5)')
-        : medalSVG('#CD7F32','#8B5A2B','rgba(255,255,255,0.35)');
-    } else {
-      medalEl.textContent = '';
+    // Tab border color based on completion
+    const tabEl = document.querySelector(`[data-diff="${d}"]`);
+    if(tabEl) {
+      tabEl.classList.remove('tab-gold','tab-silver','tab-bronze');
+      const allCleared = Array.from({length:10}, (_,i) => prog[d][i]?.cleared).every(Boolean);
+      if(allCleared) {
+        const minStars = Math.min(...Array.from({length:10}, (_,i) => prog[d][i]?.stars || 0));
+        tabEl.classList.add(minStars >= 3 ? 'tab-gold' : minStars >= 2 ? 'tab-silver' : 'tab-bronze');
+      }
     }
   });
   // Update locked state on plus tabs + panel indicator
