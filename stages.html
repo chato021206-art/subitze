@@ -86,8 +86,8 @@ thead th .sub {
   display: block; font-size: 9px; font-weight: 500;
   color: rgba(255,255,255,0.75); margin-top: 2px;
 }
-thead th.col-e  { background: #0B8EC4; }
-thead th.col-g  { background: #3A9F00; }
+thead th.col-e  { background: #B89000; }
+thead th.col-g  { background: #0B6EA8; }
 thead th.col-gd { background: #C06800; }
 
 tbody tr { border-bottom: 1px solid #1E3040; }
@@ -104,8 +104,8 @@ td.td-num { font-family: 'Montserrat', sans-serif; font-weight: 700; }
 
 /* 各判定ゾーンの色 */
 td.col-m  { color: #FFC800; font-weight: 900; }
-td.col-e  { color: #1CB0F6; font-weight: 900; }
-td.col-g  { color: #58CC02; font-weight: 900; }
+td.col-e  { color: #FFC800; font-weight: 900; }
+td.col-g  { color: #1CB0F6; font-weight: 900; }
 td.col-gd { color: #FF9600; font-weight: 900; }
 td.col-e.warn { color: #FF4B4B; }
 
@@ -226,8 +226,8 @@ function fmt(n) { return n != null ? n.toFixed(1) : '-'; }
 function makeTimebar(j, t) {
   const total = t;
   const segs = [
-    { w: j.e||0,           color: '#1CB0F6' },
-    { w: (j.g||j.e)-(j.e||0), color: '#58CC02' },
+    { w: j.e||0,           color: '#FFC800' },
+    { w: (j.g||j.e)-(j.e||0), color: '#1CB0F6' },
     { w: t - (j.g||j.e||0), color: '#FF9600' },
   ];
   const bars = segs.map(seg => {

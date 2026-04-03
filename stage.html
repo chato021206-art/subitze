@@ -1078,8 +1078,8 @@ function showThresholdList() {
         <td style="padding:3px 5px;text-align:center;font-weight:900;font-size:12px;">${i+1}<span style="color:${color};font-size:10px;">${bossMark}</span></td>
         <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${minN}〜${maxN}</td>
         <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${s.t}秒</td>
-        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:${eOk?'#0A8CB8':'#FF4B4B'};">${eWin}秒</td>
-        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#2D8000;">${gWin}秒</td>
+        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:${eOk?'#A07800':'#FF4B4B'};">${eWin}秒</td>
+        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#0B6EA8;">${gWin}秒</td>
         <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#CC6600;">${gdWin}秒</td>
         <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${s.cols}列${s.mh}行</td>
       </tr>`;
@@ -1092,8 +1092,8 @@ function showThresholdList() {
               <th style="padding:4px 3px;text-align:center;">ST</th>
               <th style="padding:4px 3px;text-align:center;">出題数<br><span style="font-weight:400;font-size:9px;">(最小〜最大)</span></th>
               <th style="padding:4px 3px;text-align:center;">制限<br>時間</th>
-              <th style="padding:4px 3px;text-align:center;background:#E6F6FF;">EXCELLENT<br><span style="font-weight:400;font-size:9px;">0秒〜e秒（幅）</span></th>
-              <th style="padding:4px 3px;text-align:center;background:#EDFAE6;">GREAT<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
+              <th style="padding:4px 3px;text-align:center;background:#FFFBE6;">EXCELLENT<br><span style="font-weight:400;font-size:9px;">0秒〜e秒（幅）</span></th>
+              <th style="padding:4px 3px;text-align:center;background:#E6F4FF;">GREAT<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
               <th style="padding:4px 3px;text-align:center;background:#FFF3E6;">GOOD<br><span style="font-weight:400;font-size:9px;">ゾーンの幅</span></th>
               <th style="padding:4px 3px;text-align:center;">ブロック<br>配置</th>
             </tr>
@@ -1542,8 +1542,8 @@ function gameLoop() {
 
   const j = s.j;
   let c;
-  else if(GS.elapsed<=j.e) c='#1CB0F6';
-  else if(GS.elapsed<=j.g) c='#58CC02';
+  else if(GS.elapsed<=j.e) c='#FFC800';
+  else if(GS.elapsed<=j.g) c='#1CB0F6';
   else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
   else if(GS.elapsed<=tl) c='#CCCCCC'; // 延長帯 = OK判定
   else c='#FF4B4B';
@@ -1729,7 +1729,7 @@ function showEval(lbl, grade, xpGain) {
   document.querySelectorAll('.game-eval').forEach(e=>e.remove());
   const el = document.createElement('div');
   el.className = 'game-eval'; el.textContent = lbl;
-  const colors = {EXCELLENT:'#1CB0F6',GREAT:'#58CC02',GOOD:'#FF9600',OK:'#CCCCCC'};
+  const colors = {EXCELLENT:'#FFC800',GREAT:'#1CB0F6',GOOD:'#FF9600',OK:'#CCCCCC'};
   el.style.color = colors[lbl]||'#fff';
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),600);
@@ -1767,7 +1767,7 @@ function showEval(lbl, grade, xpGain) {
 }
 
 function spawnParticles(lbl) {
-  const colors = {EXCELLENT:['#1CB0F6','#5DCBF8','#80DEEA'],GREAT:['#58CC02','#7FE030','#A5D6A7'],GOOD:['#FF9600','#FFB84D','#FFCC80'],OK:['#CCCCCC','#E0E0E0','#BDBDBD']};
+  const colors = {EXCELLENT:['#FFC800','#FFE082','#FFD54F'],GREAT:['#1CB0F6','#5DCBF8','#80DEEA'],GOOD:['#FF9600','#FFB84D','#FFCC80'],OK:['#CCCCCC','#E0E0E0','#BDBDBD']};
   const cs = colors[lbl] || ['#fff'];
   const cx = window.innerWidth / 2, cy = window.innerHeight * 0.38;
   const count = lbl === 'EXCELLENT' ? 12 : 6;
@@ -1896,8 +1896,8 @@ function showResult(score, stars, isNew) {
   const ratings = document.getElementById('r-ratings');
   ratings.innerHTML = '';
   const rData = [
-    {k:'excellent',lbl:'EXCELLENT',c:'#1CB0F6'},
-    {k:'great',lbl:'GREAT',c:'#58CC02'},
+    {k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},
+    {k:'great',lbl:'GREAT',c:'#1CB0F6'},
     {k:'good',lbl:'GOOD',c:'#FF9600'},
     {k:'ok',lbl:'OK',c:'#CCCCCC'}
   ];
