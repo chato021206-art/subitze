@@ -672,6 +672,7 @@ let UI = {};
         initKeyLayout();
         adjustCentralLayout();
         resetToIdle();
+        if(location.search.includes('autoselect=1')) setTimeout(handleTapToStart, 100);
 
         if(UI.histPrev) UI.histPrev.addEventListener('click', () => changeHistory(-1));
         if(UI.histNext) UI.histNext.addEventListener('click', () => changeHistory(1));
@@ -894,7 +895,10 @@ let UI = {};
         UI.appWrapper.classList.add('theme-'+STATE.currentModeKey.toLowerCase());
     }
     function handleTapToStart() {
-        window.location.href = 'stage.html';
+        if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
+        if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
+        if (UI.tuteModeSelect) { UI.tuteModeSelect.style.display = 'flex'; if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex'; if (UI.btnStageMode) UI.btnStageMode.style.display = 'inline-block'; checkUnlocks(); }
+        adjustCentralLayout();
     }
     function toggleDimensionMode() {
         if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;

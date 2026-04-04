@@ -1164,16 +1164,16 @@ const STAGES = {
     { bag:[15,17,18,19,20,22,24,25], t:5.0, j:{e:2.0,g:4.0,gd:5.0},     cols:9, mh:9, tp:'H', boss:'final' },
   ],
   EXTREME: [
-    { bag:[13,14,15,16,17,18],    t:5.0, j:{e:3.0,g:4.0}, cols:9, mh:5, tp:'E' },
-    { bag:[15,16,17,18,19,20],    t:5.0, j:{e:3.0,g:4.0}, cols:9, mh:5, tp:'E' },
-    { bag:[17,18,19,20,22,24],    t:5.0, j:{e:3.0,g:4.0}, cols:9, mh:6, tp:'E' },
-    { bag:[20,22,24,26,28,30],    t:5.0, j:{e:3.0,g:4.0}, cols:9, mh:6, tp:'E' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:4.0}, cols:9, mh:9, tp:'E', boss:'mid' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:4.0}, cols:9, mh:7, tp:'E' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:4.0}, cols:9, mh:7, tp:'E' },
-    { bag:[20,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:4.0},         cols:9, mh:8, tp:'E' },
-    { bag:[25,30,33,36,39,40,42], t:5.0, j:{e:3.0,g:4.0},         cols:9, mh:8, tp:'E' },
-    { bag:[30,33,36,39,40,42,45], t:5.0, j:{e:3.0,g:4.0},         cols:9, mh:9, tp:'E', boss:'final' },
+    { bag:[13,14,15,16,17,18],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:5, tp:'E' },
+    { bag:[15,16,17,18,19,20],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:5, tp:'E' },
+    { bag:[17,18,19,20,22,24],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:6, tp:'E' },
+    { bag:[20,22,24,26,28,30],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:6, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E', boss:'mid' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:7, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:7, tp:'E' },
+    { bag:[20,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:8, tp:'E' },
+    { bag:[25,30,33,36,39,40,42], t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:8, tp:'E' },
+    { bag:[30,33,36,39,40,42,45], t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:9, tp:'E', boss:'final' },
   ]
 };
 
@@ -1283,9 +1283,9 @@ const SURVIVAL_LEVELS = [
   { bag:[1,2,2,3,3,4,4,5,5,6,7,8,9],            cols:5, mh:5, tp:'S', t:5.0, j:{e:2.0,g:4.0,gd:5.0}, label:'EASY'    },
   { bag:[5,6,7,8,9,10,11,12,13,14],              cols:7, mh:6, tp:'H', t:5.0, j:{e:2.0,g:4.0,gd:5.0}, label:'NORMAL'  },
   { bag:[10,12,14,15,16,17,18,19,20],            cols:8, mh:8, tp:'H', t:5.0, j:{e:2.0,g:4.0,gd:5.0}, label:'HARD'    },
-  { bag:[15,18,20,22,24,26,28,30,33,36],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:4.0},        label:'EXTREME' },
-  { bag:[25,28,32,36,40,44,48,52,56,60],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:4.0},        label:'BEAST'   },
-  { bag:[35,40,45,50,55,60,65,70,75,80],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:4.0},        label:'LEGEND'  },
+  { bag:[15,18,20,22,24,26,28,30,33,36],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:5.0},        label:'EXTREME' },
+  { bag:[25,28,32,36,40,44,48,52,56,60],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:5.0},        label:'BEAST'   },
+  { bag:[35,40,45,50,55,60,65,70,75,80],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:5.0},        label:'LEGEND'  },
 ];
 
 /* =============== STATE =============== */
@@ -1395,7 +1395,7 @@ function showThresholdList() {
   const row1 = ['EASY','NORMAL','HARD','EXTREME'];
   const row2 = ['EASY+','NORMAL+','HARD+','EXTREME+'];
   const makeTabRow = (arr) => arr.map(d =>
-    `<button id="ttab-${CSS.escape(d)}" onclick="thShowTab('${d}')"
+    `<button id="ttab-${d}" onclick="thShowTab('${d}')"
       style="flex:1;padding:6px 2px;border:none;border-radius:8px;font-size:10px;font-weight:900;cursor:pointer;
              color:${d==='EASY'?'#fff':'#999'};background:${d==='EASY'?DC2[d]:'#eee'};transition:all 0.15s;">${d}</button>`
   ).join('');
@@ -3239,7 +3239,7 @@ function getStreakXPBonus() {
 }
 
 /* =============== NAVIGATION =============== */
-function goBack() { window.location.href = 'index.html?classic'; }
+function goBack() { window.location.href = 'index.html?classic&autoselect=1'; }
 
 function retryStage() {
   document.getElementById('fail-overlay').classList.remove('show');
