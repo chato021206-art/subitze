@@ -681,7 +681,8 @@ body {
 
 /* Settings bar on map */
 .map-settings {
-  display: flex; flex-direction: column; gap: 6px; padding: 8px 12px 10px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 6px; padding: 8px 12px; flex-shrink: 0;
+  padding-bottom: max(20px, calc(var(--safe-bottom) + 10px));
   background: #FFF3D0; border-top: 3px dashed #E0C860;
 }
 .map-settings-row {
@@ -747,6 +748,18 @@ body {
 .ta-select-box { background:#fff;border-radius:20px;padding:24px 20px;width:88%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3); }
 .ta-select-title { font-size:22px;font-weight:900;color:#333;text-align:center;margin-bottom:4px; }
 .ta-select-sub { font-size:13px;color:#888;text-align:center;margin-bottom:20px; }
+.drill-select-modal { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+.drill-select-modal.show { opacity:1;pointer-events:all; }
+.drill-select-box { background:#fff;border-radius:20px;padding:24px 20px;width:88%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.drill-select-title { font-size:22px;font-weight:900;color:#FF4B4B;text-align:center;margin-bottom:4px; }
+.drill-select-sub { font-size:13px;color:#888;text-align:center;margin-bottom:20px; }
+.drill-range-btns { display:flex;flex-direction:column;gap:10px; }
+.drill-range-btn { width:100%;padding:14px 16px;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform 0.1s; }
+.drill-range-btn:active { transform:scale(0.97); }
+.drill-range-btn.easy  { background:linear-gradient(135deg,#58CC02,#46A302);color:#fff; }
+.drill-range-btn.normal{ background:linear-gradient(135deg,#FF9600,#E08600);color:#fff; }
+.drill-range-btn.hard  { background:linear-gradient(135deg,#FF4B4B,#CC3C3C);color:#fff; }
+.drill-range-btn span  { font-size:12px;opacity:0.85;font-weight:700; }
 .ta-diff-btns { display:flex;gap:10px;margin-bottom:14px; }
 .ta-diff-btn { flex:1;border:none;border-radius:14px;padding:14px 6px;font-size:14px;font-weight:900;cursor:pointer;color:#fff;line-height:1.5; }
 .ta-diff-btn span { display:block;font-size:10px;font-weight:600;opacity:0.85; }
@@ -982,6 +995,19 @@ body {
       <button class="ta-diff-btn extreme" onclick="startTA('EXTREME')">EXTREME<span>13〜45</span></button>
     </div>
     <div id="ta-best-display" class="ta-best-display"></div>
+  </div>
+</div>
+
+<!-- =============== DRILL SELECT MODAL =============== -->
+<div class="drill-select-modal" id="drill-select-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="drill-select-box">
+    <div class="drill-select-title">⚔️ 弱点特訓</div>
+    <div class="drill-select-sub">出題するブロック数の範囲を選んでください</div>
+    <div class="drill-range-btns">
+      <button class="drill-range-btn easy"   onclick="startDrillWithRange(2,4)">かんたん<span>2〜4ブロック</span></button>
+      <button class="drill-range-btn normal" onclick="startDrillWithRange(2,7)">ふつう<span>2〜7ブロック</span></button>
+      <button class="drill-range-btn hard"   onclick="startDrillWithRange(2,10)">むずかしい<span>2〜10ブロック</span></button>
+    </div>
   </div>
 </div>
 
@@ -1283,7 +1309,9 @@ let survivalLevel = 0;
 let survivalCorrect = 0;
 let survivalBlocks = 0;
 let survivalBest = { correct:0, blocks:0 };
-let drillUnlocked = false;
+let drillUnlocked = true;
+let drillBlockMin = 2;
+let drillBlockMax = 8;
 let currentPanel = 1; // 0=modes, 1=normal, 2=plus
 let lastNormalDiff = 'EASY';
 let lastPlusDiff = 'EASY+';
@@ -1674,7 +1702,7 @@ function renderMap() {
     if(ok) {
       const num = document.createElement('div');
       num.className = 'node-num';
-      num.textContent = isBoss ? '👑' : isMid ? '⚡'+(i+1) : (i+1);
+      num.textContent = isMid ? '⚡'+(i+1) : (i+1);
       node.appendChild(num);
       node.addEventListener('click', ((d,idx) => () => startStage(d,idx))(curDiff,i));
 
@@ -1684,13 +1712,8 @@ function renderMap() {
       preview.innerHTML = ENEMIES[curDiff][i].svg();
       node.appendChild(preview);
 
-      // Crown for 3-star or checkmark for cleared
-      if(p.cleared && p.stars >= 3) {
-        const crown = document.createElement('div');
-        crown.className = 'node-crown';
-        crown.textContent = '👑';
-        node.appendChild(crown);
-      } else if(p.cleared) {
+      // Checkmark for cleared stages
+      if(p.cleared) {
         const check = document.createElement('div');
         check.className = 'node-check';
         check.textContent = '✓';
@@ -1990,7 +2013,7 @@ function addQ() {
 
   const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   for(let att=0;att<2000;att++) {
-    const n = drillMode ? (2 + Math.floor(Math.random() * 7)) : bagNext();
+    const n = drillMode ? (drillBlockMin + Math.floor(Math.random() * (drillBlockMax - drillBlockMin + 1))) : bagNext();
     const shape = genShape(n, s.cols, s.mh, curDiff.endsWith('+') ? 0.3 : 0);
     const total = shape.reduce((a,b)=>a+b,0);
     const sig = JSON.stringify(shape);
@@ -2911,17 +2934,13 @@ function showTAResult(isNewCorrect, isNewBlocks) {
 
 /* =============== DRILL MODE =============== */
 function startDrill() {
-  if(missedShapes.length < 10) {
-    const card = document.getElementById('mode-drill-card');
-    if(card) {
-      const desc = card.querySelector('.mode-desc');
-      const orig = desc.textContent;
-      desc.textContent = '苦手形が' + missedShapes.length + '/10件。もっとプレイしよう！';
-      desc.style.color = '#FF4B4B';
-      setTimeout(() => { desc.textContent = orig; desc.style.color = ''; }, 2500);
-    }
-    return;
-  }
+  document.getElementById('drill-select-modal').classList.add('show');
+}
+
+function startDrillWithRange(min, max) {
+  document.getElementById('drill-select-modal').classList.remove('show');
+  drillBlockMin = min;
+  drillBlockMax = max;
   drillMode = true;
   drillLives = 3;
   curDiff = 'EASY'; curIdx = 0; // dummy for keyboard/enemy fallback
@@ -3222,7 +3241,7 @@ function retryStage() {
   document.getElementById('result-overlay').classList.remove('show');
   if(taMode) { startTA(taDiff); return; }
   if(survivalMode) { startSurvival(); return; }
-  if(drillMode) { startDrill(); return; }
+  if(drillMode) { startDrillWithRange(drillBlockMin, drillBlockMax); return; }
   startStage(curDiff, curIdx);
 }
 function nextStage() {
