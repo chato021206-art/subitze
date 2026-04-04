@@ -1389,13 +1389,18 @@ function cycleKeyboard() {
   btn.className = 'setting-btn ' + kb.cls + ' active';
 }
 function showThresholdList() {
-  const DC2 = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B'};
-  const diffs = ['EASY','NORMAL','HARD','EXTREME'];
-  const tabBtns = diffs.map(d =>
-    `<button id="ttab-${d}" onclick="thShowTab('${d}')"
-      style="flex:1;padding:6px 2px;border:none;border-radius:8px;font-size:11px;font-weight:900;cursor:pointer;
+  const DC2 = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B',
+               'EASY+':'#46A302','NORMAL+':'#0891C4','HARD+':'#E08600','EXTREME+':'#CC3C3C'};
+  const diffs = ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'];
+  const row1 = ['EASY','NORMAL','HARD','EXTREME'];
+  const row2 = ['EASY+','NORMAL+','HARD+','EXTREME+'];
+  const makeTabRow = (arr) => arr.map(d =>
+    `<button id="ttab-${CSS.escape(d)}" onclick="thShowTab('${d}')"
+      style="flex:1;padding:6px 2px;border:none;border-radius:8px;font-size:10px;font-weight:900;cursor:pointer;
              color:${d==='EASY'?'#fff':'#999'};background:${d==='EASY'?DC2[d]:'#eee'};transition:all 0.15s;">${d}</button>`
   ).join('');
+  const tabBtns = `<div style="display:flex;gap:4px;margin-bottom:4px;">${makeTabRow(row1)}</div>
+                   <div style="display:flex;gap:4px;">${makeTabRow(row2)}</div>`;
   let sections = '';
   for(const diff of diffs) {
     const color = DC2[diff];
@@ -1452,7 +1457,7 @@ function showThresholdList() {
         ステージ設定一覧
         <span style="font-size:9px;font-weight:400;color:#aaa;display:block;margin-top:2px;">☆=中ボス  ★=ラスボス</span>
       </div>
-      <div style="display:flex;gap:4px;margin-bottom:10px;flex-shrink:0;">${tabBtns}</div>
+      <div style="margin-bottom:10px;flex-shrink:0;">${tabBtns}</div>
       <div style="flex:1;overflow-y:auto;min-height:0;">${sections}</div>
       <button style="display:block;width:100%;margin-top:10px;padding:10px;background:#58CC02;color:#fff;
                      border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;flex-shrink:0;"
@@ -1462,12 +1467,13 @@ function showThresholdList() {
   document.body.insertAdjacentHTML('beforeend', markup);
 }
 function thShowTab(diff) {
-  const DC2 = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B'};
-  ['EASY','NORMAL','HARD','EXTREME'].forEach(d => {
-    document.getElementById('tsec-'+d).style.display = d===diff ? 'block' : 'none';
-    const btn = document.getElementById('ttab-'+d);
-    btn.style.color      = d===diff ? '#fff' : '#999';
-    btn.style.background = d===diff ? DC2[d] : '#eee';
+  const DC2 = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B',
+               'EASY+':'#46A302','NORMAL+':'#0891C4','HARD+':'#E08600','EXTREME+':'#CC3C3C'};
+  ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+'].forEach(d => {
+    const sec = document.getElementById('tsec-'+d);
+    if(sec) sec.style.display = d===diff ? 'block' : 'none';
+    const btn = document.querySelector(`#ttab-${CSS.escape(d)}`);
+    if(btn) { btn.style.color = d===diff?'#fff':'#999'; btn.style.background = d===diff?DC2[d]:'#eee'; }
   });
 }
 function initKeyboard() {

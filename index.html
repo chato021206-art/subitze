@@ -894,10 +894,7 @@ let UI = {};
         UI.appWrapper.classList.add('theme-'+STATE.currentModeKey.toLowerCase());
     }
     function handleTapToStart() {
-        if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
-        if (UI.tuteStartBtn) UI.tuteStartBtn.style.display = 'none';
-        if (UI.tuteModeSelect) { UI.tuteModeSelect.style.display = 'flex'; if (UI.btnHowToBottom) UI.btnHowToBottom.style.display = 'flex'; if (UI.btnStageMode) UI.btnStageMode.style.display = 'inline-block'; checkUnlocks(); }
-        adjustCentralLayout();
+        window.location.href = 'stage.html';
     }
     function toggleDimensionMode() {
         if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
