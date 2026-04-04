@@ -1663,6 +1663,9 @@ function switchTab(d) {
   scrollEl.setAttribute('data-diff', baseDiff);
   setLandscapeBg(scrollEl, d);
   renderMap();
+  requestAnimationFrame(() => {
+    if(scrollEl) scrollEl.style.backgroundSize = '100% ' + scrollEl.scrollHeight + 'px';
+  });
 }
 
 function updateMapXP() {
