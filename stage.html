@@ -1855,9 +1855,10 @@ function showEnemyIntro(type, cb) {
   if (!isBoss && !isMid) ov.style.background = 'rgba(255,248,232,0.82)';
   const content = document.createElement('div');
   content.className = 'boss-intro-content';
+  const plusFilter = curDiff.endsWith('+') ? 'filter:hue-rotate(200deg) saturate(1.4) brightness(1.05);' : '';
   content.innerHTML =
     '<div class="boss-intro-label" style="color:'+labelColor+'">'+label+'</div>'+
-    '<div class="boss-intro-enemy" style="width:'+enemySize+'px;height:'+enemySize+'px;margin:0 auto 8px">'+enemy.svg()+'</div>'+
+    '<div class="boss-intro-enemy" style="width:'+enemySize+'px;height:'+enemySize+'px;margin:0 auto 8px;'+plusFilter+'">'+enemy.svg()+'</div>'+
     '<div class="boss-intro-name">'+enemy.name+'</div>';
   ov.appendChild(content);
   document.body.appendChild(ov);
