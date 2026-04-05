@@ -149,29 +149,23 @@ body {
 .plus-tab.locked::after { content: ' 🔒'; font-size: 9px; }
 
 .map-scroll {
-  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  flex: 1; overflow-y: auto;
   padding: 30px 16px 120px 16px; position: relative;
   touch-action: pan-y;
 }
-.map-scroll[data-diff="EASY"] {
-  background: #E8FFF5;
-  background-image: radial-gradient(circle, #C8F0E0 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-.map-scroll[data-diff="NORMAL"] {
-  background: #E4F4FF;
-  background-image: radial-gradient(circle, #C0E0F8 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-.map-scroll[data-diff="HARD"] {
-  background: #FFF5E8;
-  background-image: radial-gradient(circle, #F0DCC0 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-.map-scroll[data-diff="EXTREME"] {
-  background: #FFF0F0;
-  background-image: radial-gradient(circle, #F0C8C8 1px, transparent 1px);
-  background-size: 24px 24px;
+.map-scroll[data-diff="EASY"]    { background: #6CB33A; }
+.map-scroll[data-diff="NORMAL"]  { background: #5AA53C; }
+.map-scroll[data-diff="HARD"]    { background: #2D5F23; }
+.map-scroll[data-diff="EXTREME"] { background: #4B5041; }
+.map-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  min-height: 100%;
+  pointer-events: none;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  z-index: 0;
 }
 
 /* Map theme header */
@@ -941,6 +935,7 @@ body {
         <button class="diff-tab" data-diff="EXTREME" onclick="switchTab('EXTREME')">EXTREME<span class="tab-star-avg" id="avg-EXTREME"></span></button>
       </div>
       <div id="map-scroll" class="map-scroll" data-diff="EASY">
+        <div class="map-bg" id="map-bg"></div>
         <div id="stage-list" class="stage-list"></div>
       </div>
     </div>
@@ -954,6 +949,7 @@ body {
         <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
       </div>
       <div id="plus-scroll" class="map-scroll" data-diff="EASY">
+        <div class="map-bg" id="plus-bg"></div>
         <div id="plus-stage-list" class="stage-list"></div>
       </div>
     </div>
@@ -1505,12 +1501,13 @@ function setLandscapeBg(el, diff) {
      'EASY+':'rgb(20,50,35)','NORMAL+':'rgb(18,40,55)','HARD+':'rgb(12,30,20)','EXTREME+':'rgb(18,22,38)'
    };
    el.style.backgroundColor = baseBgColors[key] || 'rgb(80,150,50)';
-   el.style.backgroundImage = bg;
-   el.style.backgroundSize = '100% 100%';
-   el.style.backgroundRepeat = 'no-repeat';
-   el.style.backgroundPosition = '0% 0%';
-   el.style.backgroundAttachment = 'local';
-   el.style.transition = '';
+   const bgEl = el.querySelector('.map-bg');
+   if(bgEl) {
+     bgEl.style.backgroundImage = bg;
+     bgEl.style.backgroundSize = '100% 100%';
+     bgEl.style.backgroundRepeat = 'no-repeat';
+     bgEl.style.backgroundPosition = '0 0';
+   }
  }
 
 
@@ -1661,7 +1658,11 @@ function switchTab(d) {
   setLandscapeBg(scrollEl, d);
   renderMap();
   requestAnimationFrame(() => {
-    if(scrollEl) scrollEl.style.backgroundSize = '100% ' + scrollEl.scrollHeight + 'px';
+    if(scrollEl) {
+      const h = scrollEl.scrollHeight + 'px';
+      const bgEl = scrollEl.querySelector('.map-bg');
+      if(bgEl) { bgEl.style.height = h; bgEl.style.backgroundSize = '100% ' + h; }
+    }
   });
 }
 
