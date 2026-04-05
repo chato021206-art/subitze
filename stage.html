@@ -434,7 +434,7 @@ body {
 }
 .s-block.brain-block {
   background: #EFEFEF !important; border-color: #BBBBBB !important;
-  color: #222; font-size: 22px; font-weight: 900;
+  color: #222; font-size: 33px; font-weight: 900;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-num); line-height: 1;
   width: min(15vw, 60px) !important; height: min(15vw, 60px) !important;
@@ -756,13 +756,13 @@ body {
 .skill-num-count { font-size:10px;color:#aaa;min-width:30px; }
 .skill-num-bar-outer { flex:1;height:10px;background:#f0f0f0;border-radius:10px;overflow:hidden; }
 .skill-num-bar-inner { height:100%;border-radius:10px;transition:width 0.6s ease; }
-.skill-num-avg { font-size:11px;color:#888;min-width:38px;text-align:right; }
-.skill-weak-grid { display:flex;flex-wrap:wrap;gap:10px;margin-top:4px; }
-.skill-weak-item { display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;background:#fff3f3;border-radius:8px;border:2px solid #ffcccc; }
-.mini-shape { display:flex;gap:2px;align-items:flex-end;min-height:20px; }
-.mini-shape-col { display:flex;flex-direction:column-reverse;gap:1px; }
-.mini-shape-block { width:5px;height:5px;background:#FF4B4B;border-radius:1px; }
-.skill-weak-label { font-size:9px;color:#FF4B4B;font-weight:700; }
+.skill-num-avg { font-size:14px;color:#333;font-weight:700;min-width:44px;text-align:right; }
+.skill-weak-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px; }
+.skill-weak-item { display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px;background:#fff3f3;border-radius:8px;border:2px solid #ffcccc; }
+.mini-shape { display:flex;gap:3px;align-items:flex-end;min-height:30px; }
+.mini-shape-col { display:flex;flex-direction:column-reverse;gap:2px; }
+.mini-shape-block { width:8px;height:8px;background:#FF4B4B;border-radius:1px; }
+.skill-weak-label { font-size:10px;color:#FF4B4B;font-weight:700; }
 .weak-shape-warn { position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:15px;font-weight:900;color:#FF4B4B;letter-spacing:1px;animation:warn-pulse 0.7s infinite;pointer-events:none;z-index:5;background:rgba(255,255,255,0.85);padding:2px 8px;border-radius:10px; }
 @keyframes warn-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .skill-map-btn { background:#f0f0f0;border:none;border-radius:12px;padding:6px 10px;font-size:16px;cursor:pointer; }
@@ -1176,48 +1176,48 @@ const STAGES = {
     { bag:[1,2,2,3,3,3],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:3, tp:'S' },
     { bag:[2,2,3,3,3,4],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:3, tp:'S' },
     { bag:[2,3,3,4,4,4],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:3, tp:'S' },
-    { bag:[1,2,3,4,5,6,7,8,9],   t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:5, tp:'S', boss:'mid' },
+    { bag:[1,2,3,4,5,6],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:3, tp:'S', boss:'mid' },
     { bag:[2,2,3,3,4,4,4,5,5,5], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:3, tp:'S' },
     { bag:[2,2,3,3,4,4,4,5,5,5], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:3, tp:'S' },
     { bag:[2,3,3,4,4,5,5,5],     t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:4, tp:'S' },
     { bag:[3,3,4,4,5,5,5],       t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:4, tp:'S' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:5, tp:'S', boss:'final' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:5, tp:'S', boss:'final' },
   ],
   NORMAL: [
-    { bag:[2,3,4,4,5,5],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:3, tp:'S' },
-    { bag:[3,4,4,5,5,6],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:4, tp:'S' },
-    { bag:[3,4,5,5,6,6,7],       t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:4, tp:'S' },
-    { bag:[4,5,5,6,6,7,7],       t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:5, tp:'S' },
-    { bag:[2,3,4,5,6,7,8,9],     t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:9, mh:9, tp:'S', boss:'mid' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:5, tp:'S' },
-    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:5, tp:'S' },
-    { bag:[3,4,5,6,6,7,7,8,9],   t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:5, tp:'S' },
-    { bag:[4,5,6,7,7,8,8,9],     t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:3, mh:5, tp:'S' },
-    { bag:[7,8,9,9,10,10,11,12], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:9, mh:9, tp:'H', boss:'final' },
+    { bag:[2,3,4,4,5,5],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:3, tp:'S' },
+    { bag:[3,4,4,5,5,6],         t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:4, tp:'S' },
+    { bag:[3,4,5,5,6,6,7],       t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:4, tp:'S' },
+    { bag:[4,5,5,6,6,7,7],       t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'S' },
+    { bag:[2,3,4,5,6,7,8,9],     t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'S', boss:'mid' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'S' },
+    { bag:[2,3,4,5,5,6,6,7,8,9], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'S' },
+    { bag:[3,4,5,6,6,7,7,8,9],   t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'S' },
+    { bag:[4,5,6,7,7,8,8,9],     t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'S' },
+    { bag:[5,6,7,8,8,9,9],       t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:5, tp:'S', boss:'final' },
   ],
   HARD: [
     { bag:[10,11,12,13,14,15],    t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'H' },
     { bag:[10,11,12,13,14,15,16], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:4, mh:5, tp:'H' },
     { bag:[11,12,13,14,15,16,17], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:6, tp:'H' },
     { bag:[12,13,14,15,16,17,18], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:6, tp:'H' },
-    { bag:[10,12,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:9, mh:9, tp:'H', boss:'mid' },
-    { bag:[10,11,12,13,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:6, mh:7, tp:'H' },
-    { bag:[11,12,13,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:7, mh:7, tp:'H' },
-    { bag:[12,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0},     cols:7, mh:8, tp:'H' },
-    { bag:[13,15,16,17,18,19,20,22], t:5.0, j:{e:2.0,g:4.0,gd:5.0},     cols:8, mh:8, tp:'H' },
-    { bag:[15,17,18,19,20,22,24,25], t:5.0, j:{e:2.0,g:4.0,gd:5.0},     cols:9, mh:9, tp:'H', boss:'final' },
+    { bag:[10,12,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:7, tp:'H', boss:'mid' },
+    { bag:[10,11,12,13,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:7, tp:'H' },
+    { bag:[11,12,13,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:7, tp:'H' },
+    { bag:[12,14,15,16,17,18,19,20], t:5.0, j:{e:2.0,g:4.0,gd:5.0},     cols:5, mh:8, tp:'H' },
+    { bag:[13,15,16,17,18,19,20,22], t:5.0, j:{e:2.0,g:4.0,gd:5.0},     cols:6, mh:8, tp:'H' },
+    { bag:[15,17,18,19,20,22,24,25], t:5.0, j:{e:2.0,g:4.0,gd:5.0},     cols:6, mh:9, tp:'H', boss:'final' },
   ],
   EXTREME: [
-    { bag:[13,14,15,16,17,18],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:5, tp:'E' },
-    { bag:[15,16,17,18,19,20],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:5, tp:'E' },
-    { bag:[17,18,19,20,22,24],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:6, tp:'E' },
-    { bag:[20,22,24,26,28,30],    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:6, tp:'E' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E', boss:'mid' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:7, tp:'E' },
-    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:7, tp:'E' },
-    { bag:[20,25,28,30,33,36,39], t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:8, tp:'E' },
-    { bag:[25,30,33,36,39,40,42], t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:8, tp:'E' },
-    { bag:[30,33,36,39,40,42,45], t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:9, tp:'E', boss:'final' },
+    { bag:[13,14,15,16,17,18],    t:5.0, j:{e:2.5,g:4.0,gd:5.0}, cols:9, mh:5, tp:'E' },
+    { bag:[15,16,17,18,19,20],    t:5.0, j:{e:2.5,g:4.0,gd:5.0}, cols:9, mh:5, tp:'E' },
+    { bag:[17,18,19,20,22,24],    t:5.0, j:{e:2.5,g:4.0,gd:5.0}, cols:9, mh:6, tp:'E' },
+    { bag:[20,22,24,26,28,30],    t:5.0, j:{e:2.5,g:4.0,gd:5.0}, cols:9, mh:6, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:2.5,g:4.0,gd:5.0}, cols:9, mh:9, tp:'E', boss:'mid' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:2.5,g:4.0,gd:5.0}, cols:9, mh:7, tp:'E' },
+    { bag:[13,16,19,22,25,28,30,33,36,39], t:5.0, j:{e:2.5,g:4.0,gd:5.0}, cols:9, mh:7, tp:'E' },
+    { bag:[20,25,28,30,33,36,39], t:5.0, j:{e:2.5,g:4.0,gd:5.0},         cols:9, mh:8, tp:'E' },
+    { bag:[25,30,33,36,39,40,42], t:5.0, j:{e:2.5,g:4.0,gd:5.0},         cols:9, mh:8, tp:'E' },
+    { bag:[30,33,36,39,40,42,45], t:5.0, j:{e:2.5,g:4.0,gd:5.0},         cols:9, mh:9, tp:'E', boss:'final' },
   ],
   ULTIMATE: [
     { bag:[40,42,44,45,46],                       t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
@@ -2755,7 +2755,7 @@ function addTAQ() {
 function addBrainQ() {
   if(GS.genCount >= QS) { GS.queue.push({n: null, shape: []}); return; }
   for(let att = 0; att < 200; att++) {
-    const n = 1 + Math.floor(Math.random() * 9);
+    const n = 1 + Math.floor(Math.random() * 5);
     const shape = genShape(n, BRAIN_CONFIG.cols, BRAIN_CONFIG.mh, 0);
     const total = shape.reduce((a,b) => a+b, 0);
     const sig = JSON.stringify(shape);
@@ -2763,12 +2763,12 @@ function addBrainQ() {
     if(GS.lastN === total && GS.consec >= 2) continue;
     GS.consec = GS.lastN === total ? GS.consec + 1 : 1;
     GS.lastN = total; GS.lastSig = sig;
-    // 5% chance the displayed number matches the real count, otherwise ±2 range
+    // 10% chance the displayed number matches the real count, otherwise ±1
     let brainNum;
-    if(Math.random() < 0.05) {
+    if(Math.random() < 0.10) {
       brainNum = n;
     } else {
-      const lo = Math.max(1, n - 2), hi = Math.min(9, n + 2);
+      const lo = Math.max(1, n - 1), hi = Math.min(5, n + 1);
       const cands = [];
       for(let x = lo; x <= hi; x++) { if(x !== n) cands.push(x); }
       brainNum = cands.length > 0 ? cands[Math.floor(Math.random() * cands.length)] : n;
@@ -2849,7 +2849,7 @@ function renderBlocks() {
     // Dynamic scale based on slot dimensions + stage cols/mh
     const st = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
     let blockPx = Math.min(window.innerWidth * 0.075, 30);
-    if(brainMode) blockPx = Math.min(window.innerWidth * 0.15, 60);
+    if(brainMode) blockPx = Math.min(window.innerWidth * 0.225, 90);
     const gap = 4;
     // For +MODE (st.plus) or survival/drill/TA, scale to actual shape size for bigger blocks
     let scaleCols, scaleMh;
