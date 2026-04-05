@@ -1905,7 +1905,7 @@ function updateRoad() {
 
   const scrollH  = scrollEl.scrollHeight;
   const cw       = scrollEl.clientWidth;
-  const sw       = cw * 0.058;
+  const sw       = cw * 0.036;
   const sBcr     = scrollEl.getBoundingClientRect();
   const curST    = scrollEl.scrollTop;
 
@@ -1981,10 +1981,10 @@ function updateRoad() {
 
   // L1: border/shadow edge  L2: road surface  L3: texture (dashes)  L4: center marking
   svg.innerHTML =
-    `<path d="${d}" ${a} stroke="${rs.e}" stroke-width="${(sw*1.18).toFixed(1)}"/>` +
-    `<path d="${d}" ${a} stroke="${rs.b}" stroke-width="${sw.toFixed(1)}"/>` +
-    `<path d="${d}" ${a} stroke="${rs.t}" stroke-width="${(sw*0.52).toFixed(1)}" stroke-dasharray="${rs.tD}" opacity="0.9"/>` +
-    `<path d="${d}" ${a} stroke="${rs.c}" stroke-width="${(sw*rs.cW).toFixed(1)}" stroke-dasharray="${rs.cD}" opacity="0.88"/>`;
+    `<path d="${d}" ${a} stroke="${rs.e}" stroke-width="${(sw*1.18).toFixed(1)}" opacity="0.7"/>` +
+    `<path d="${d}" ${a} stroke="${rs.b}" stroke-width="${sw.toFixed(1)}" opacity="0.75"/>` +
+    `<path d="${d}" ${a} stroke="${rs.t}" stroke-width="${(sw*0.52).toFixed(1)}" stroke-dasharray="${rs.tD}" opacity="0.6"/>` +
+    `<path d="${d}" ${a} stroke="${rs.c}" stroke-width="${(sw*rs.cW).toFixed(1)}" stroke-dasharray="${rs.cD}" opacity="0.65"/>`;
 }
 
 /* =============== STAGE LANDMARKS =============== */
