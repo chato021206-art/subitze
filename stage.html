@@ -2767,6 +2767,7 @@ function handleMiss(type,inp,ans) {
   else if(type==='SLOW'){ft.textContent='おそすぎた！';fs.textContent='こたえ: '+ans;}
   else{ft.textContent='ざんねん！';fs.textContent=inp+' → こたえ: '+ans;}
   if(fx) fx.textContent = GS.xp > 0 ? '⚡ +' + GS.xp + ' XP' : '';
+  document.querySelector('.fbtn-back').textContent = brainMode ? 'モード' : 'やめる';
   document.getElementById('fail-overlay').classList.add('show');
 }
 
@@ -3006,6 +3007,8 @@ function showResult(score, stars, isNew) {
   }
 
   document.getElementById('r-next').style.display = (curIdx<9) ? 'inline-block' : 'none';
+  document.querySelector('.rbtn-map').textContent = 'MAP';
+  document.querySelector('.fbtn-back').textContent = 'やめる';
   document.getElementById('result-overlay').classList.add('show');
 
   // Confetti
@@ -3163,6 +3166,8 @@ function showSurvivalResult(isNewCorrect, isNewBlocks) {
   document.getElementById('r-record').style.display = (isNewCorrect||isNewBlocks) ? 'block' : 'none';
   document.getElementById('r-unlock').style.display = 'none';
   document.getElementById('r-next').style.display = 'none';
+  document.querySelector('.rbtn-map').textContent = 'モード';
+  document.querySelector('.fbtn-back').textContent = 'モード';
   document.getElementById('result-overlay').classList.add('show');
   if(survivalCorrect >= 10) launchConfetti(Math.min(100, survivalCorrect * 2));
 }
@@ -3306,6 +3311,8 @@ function showTAResult(isNewCorrect, isNewBlocks) {
   document.getElementById('r-record').style.display = (isNewCorrect||isNewBlocks) ? 'block' : 'none';
   document.getElementById('r-unlock').style.display = 'none';
   document.getElementById('r-next').style.display = 'none';
+  document.querySelector('.rbtn-map').textContent = 'モード';
+  document.querySelector('.fbtn-back').textContent = 'モード';
   document.getElementById('result-overlay').classList.add('show');
   if(taCorrect > 0) launchConfetti(Math.min(80, taCorrect * 2));
 }
@@ -3379,8 +3386,10 @@ function brainEnd(result) {
     document.getElementById('r-xp-val').textContent = GS.xp;
     document.getElementById('r-xp-bonus').textContent = '';
     document.getElementById('r-score').textContent = GS.stats.excellent.c;
-    document.getElementById('r-score-label').textContent = 'EXCELLENT';
-    document.getElementById('r-next-btn').style.display = 'none';
+    document.getElementById('r-score-unit').textContent = 'EXCELLENT';
+    document.getElementById('r-next').style.display = 'none';
+    document.querySelector('.rbtn-map').textContent = 'モード';
+    document.querySelector('.fbtn-back').textContent = 'モード';
     document.getElementById('result-overlay').classList.add('show');
   }
 }
@@ -3506,6 +3515,8 @@ function drillEnd(result) {
     document.getElementById('r-record').style.display = 'none';
     document.getElementById('r-unlock').style.display = 'none';
     document.getElementById('r-next').style.display = 'none';
+    document.querySelector('.rbtn-map').textContent = 'モード';
+    document.querySelector('.fbtn-back').textContent = 'モード';
     document.getElementById('result-overlay').classList.add('show');
     launchConfetti(drillLives >= 3 ? 80 : 30);
 
@@ -3706,6 +3717,7 @@ function nextStage() {
   else backToMap();
 }
 function backToMap() {
+  const wasMode = taMode || survivalMode || drillMode || brainMode;
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
   document.getElementById('game-view').style.display = 'none';
@@ -3730,6 +3742,7 @@ function backToMap() {
     document.querySelector('.top-hp-wrap').style.display = '';
   }
   if(brainMode) { brainMode = false; }
+  if(wasMode) { goToPanel(0); return; }
   switchTab(curDiff);
   // Restore correct panel without animation
   const targetPanel = curDiff.endsWith('+') ? 2 : 1;
