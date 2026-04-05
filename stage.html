@@ -775,6 +775,7 @@ body {
 .drill-range-btn.hard    { background:linear-gradient(135deg,#FF4B4B,#CC3C3C);color:#fff; }
 .drill-range-btn.extreme { background:linear-gradient(135deg,#4B4E6D,#2D2F45);color:#fff; }
 .drill-range-btn span  { font-size:12px;opacity:0.85;font-weight:700; }
+.drill-range-btn.no-data { background:linear-gradient(135deg,#ccc,#aaa) !important; color:#888 !important; opacity:0.55; pointer-events:none; cursor:default; }
 .ta-diff-btns { display:flex;gap:10px;margin-bottom:14px; }
 .ta-diff-btn { flex:1;border:none;border-radius:14px;padding:14px 6px;font-size:14px;font-weight:900;cursor:pointer;color:#fff;line-height:1.5; }
 .ta-diff-btn span { display:block;font-size:10px;font-weight:600;opacity:0.85; }
@@ -3461,6 +3462,8 @@ function startDrill() {
     if(!el) return;
     const cnt = getDrillWeakCount(d);
     el.textContent = cnt > 0 ? ' 苦手 ' + cnt + '件' : ' データなし';
+    const btn = el.closest('.drill-range-btn');
+    if(btn) btn.classList.toggle('no-data', cnt === 0);
   });
   document.getElementById('drill-select-modal').classList.add('show');
 }
