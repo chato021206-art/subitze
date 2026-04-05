@@ -424,9 +424,10 @@ body {
 }
 .s-block.brain-block {
   background: #EFEFEF !important; border-color: #BBBBBB !important;
-  color: #222; font-size: 12px; font-weight: 900;
+  color: #222; font-size: 22px; font-weight: 900;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-num); line-height: 1;
+  width: min(15vw, 60px) !important; height: min(15vw, 60px) !important;
 }
 
 /* Eval popup (Duolingo-style grade) */
@@ -2354,9 +2355,9 @@ function addBrainQ() {
     if(GS.lastN === total && GS.consec >= 2) continue;
     GS.consec = GS.lastN === total ? GS.consec + 1 : 1;
     GS.lastN = total; GS.lastSig = sig;
-    // 25% chance the displayed number matches the real count
+    // 5% chance the displayed number matches the real count
     let brainNum;
-    if(Math.random() < 0.25) {
+    if(Math.random() < 0.05) {
       brainNum = n;
     } else {
       const cands = [1,2,3,4,5,6,7,8,9].filter(x => x !== n);
@@ -2437,7 +2438,8 @@ function renderBlocks() {
     }
     // Dynamic scale based on slot dimensions + stage cols/mh
     const st = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
-    const blockPx = Math.min(window.innerWidth * 0.075, 30);
+    let blockPx = Math.min(window.innerWidth * 0.075, 30);
+    if(brainMode) blockPx = Math.min(window.innerWidth * 0.15, 60);
     const gap = 4;
     // For +MODE (st.plus) or survival/drill/TA, scale to actual shape size for bigger blocks
     let scaleCols, scaleMh;
@@ -2688,8 +2690,8 @@ function nextQ() {
 function handleMiss(type,inp,ans) {
   document.getElementById('input-display').textContent = '';
 
-  // Record missed shape (WRONG, TIME, SLOW all count as weak shape)
-  if((type === 'WRONG' || type === 'TIME' || type === 'SLOW') && GS.current && GS.current.sig) {
+  // Record missed shape (WRONG, TIME, SLOW all count as weak shape) — skip in brain mode
+  if(!brainMode && (type === 'WRONG' || type === 'TIME' || type === 'SLOW') && GS.current && GS.current.sig) {
     const sig = GS.current.sig;
     const existing = missedShapes.find(m => m.sig === sig);
     if(existing) { existing.miss++; existing.ts = Date.now(); }
