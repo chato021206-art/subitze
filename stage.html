@@ -263,25 +263,6 @@ body {
 }
 .node-num { font-family: var(--font-num); font-style: italic; letter-spacing: -1px; text-shadow: 0 2px 0 rgba(0,0,0,0.2); }
 
-/* Stage path connectors */
-.stage-connector {
-  width: 100%; height: 22px; display: flex; align-items: center; justify-content: center;
-  pointer-events: none; position: relative; z-index: 1;
-}
-.stage-connector-dot {
-  width: 3px; height: 22px;
-  border-left: 3px dashed rgba(0,0,0,0.15);
-}
-.stage-connector.highlight .stage-connector-dot {
-  border-color: #FFD700;
-  filter: drop-shadow(0 0 4px rgba(255,200,0,0.9));
-  animation: connDraw 0.5s ease forwards;
-}
-@keyframes connDraw {
-  from { clip-path: inset(0 0 100% 0); }
-  to   { clip-path: inset(0 0 0% 0); }
-}
-
 /* Next stage pulse after returning from result */
 .stage-node.next-target {
   animation: nextPulse 1s ease-in-out infinite !important;
@@ -2445,17 +2426,6 @@ function renderMap() {
 
     row.appendChild(wrap);
     list.appendChild(row);
-
-    // Insert connector between rows (not after last)
-    if(i < 9) {
-      const conn = document.createElement('div');
-      conn.className = 'stage-connector';
-      conn.dataset.idx = i;
-      const dot = document.createElement('div');
-      dot.className = 'stage-connector-dot';
-      conn.appendChild(dot);
-      list.appendChild(conn);
-    }
   }
 
   updateProg();
@@ -2466,10 +2436,6 @@ function renderMap() {
     const ph = pendingHighlight;
     pendingHighlight = -1;
     setTimeout(() => {
-      // Highlight connector between ph and ph+1
-      const conn = list.querySelector('.stage-connector[data-idx="' + ph + '"]');
-      if(conn) conn.classList.add('highlight');
-
       // Highlight next stage node
       const rows = list.querySelectorAll('.stage-row');
       const nextRow = rows[ph + 1];
