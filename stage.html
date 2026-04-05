@@ -422,6 +422,12 @@ body {
   0% { transform: scale(0) rotate(20deg); opacity: 0; }
   100% { transform: scale(1) rotate(0); opacity: 1; }
 }
+.s-block.brain-block {
+  background: #EFEFEF !important; border-color: #BBBBBB !important;
+  color: #222; font-size: 12px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-num); line-height: 1;
+}
 
 /* Eval popup (Duolingo-style grade) */
 .game-eval {
@@ -925,6 +931,13 @@ body {
             <div class="mode-desc">1ミス即終了。何問生き残れる？</div>
           </div>
         </div>
+        <div class="mode-card" onclick="startBrain()">
+          <div class="mode-icon">🧠</div>
+          <div class="mode-info">
+            <div class="mode-name">脳トレ</div>
+            <div class="mode-desc">数字に惑わされずブロックを数えよう！</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1264,6 +1277,7 @@ const QS = 10;
 const CAP_CH = 36000;
 const CAP_SEC = 0.1;
 const DRILL_CONFIG = { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:6, mh:6, tp:'S' };
+const BRAIN_CONFIG = { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:5, tp:'S' };
 const TA_BAGS = {
   EASY:    [1,2,2,3,3,4,4,5,5,6,7,8,9],
   HARD:    [10,11,12,13,14,15,16,17,18,19,20],
@@ -1292,6 +1306,7 @@ let missedShapes = [];  // [{sig, n, miss, ts}] ミスした形リスト
 let slowShapes = [];    // [{sig, n, slowCount, ts}] 遅い形リスト
 let drillMode = false;
 let drillLives = 3;
+let brainMode = false;
 let drillHadWeakShapes = false;
 let taMode = false;
 let taDiff = 'EASY';
@@ -2160,7 +2175,7 @@ function beginGame() {
     if(GS.rafId) cancelAnimationFrame(GS.rafId);
     gameLoop();
   } else {
-    for(let i=0;i<3;i++) addQ();
+    for(let i=0;i<3;i++) brainMode ? addBrainQ() : addQ();
     GS.current = GS.queue.shift();
     renderBlocks();
     GS.elapsed = 0; GS.lastTick = Date.now();
@@ -2177,7 +2192,7 @@ function gameLoop() {
   GS.elapsed += dt;
   GS.totalTime += dt;
 
-  const s = survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
+  const s = survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx]));
   const tl = getTimeLimit(s);
   if(GS.elapsed > tl) { handleMiss('TIME','-',GS.current.n); return; }
 
@@ -2328,6 +2343,31 @@ function addTAQ() {
   GS.queue.push({n, shape, sig: JSON.stringify(shape)});
 }
 
+function addBrainQ() {
+  if(GS.genCount >= QS) { GS.queue.push({n: null, shape: []}); return; }
+  for(let att = 0; att < 200; att++) {
+    const n = 1 + Math.floor(Math.random() * 9);
+    const shape = genShape(n, BRAIN_CONFIG.cols, BRAIN_CONFIG.mh, 0);
+    const total = shape.reduce((a,b) => a+b, 0);
+    const sig = JSON.stringify(shape);
+    if(GS.lastSig && sig === GS.lastSig) continue;
+    if(GS.lastN === total && GS.consec >= 2) continue;
+    GS.consec = GS.lastN === total ? GS.consec + 1 : 1;
+    GS.lastN = total; GS.lastSig = sig;
+    // 25% chance the displayed number matches the real count
+    let brainNum;
+    if(Math.random() < 0.25) {
+      brainNum = n;
+    } else {
+      const cands = [1,2,3,4,5,6,7,8,9].filter(x => x !== n);
+      brainNum = cands[Math.floor(Math.random() * cands.length)];
+    }
+    GS.queue.push({n: total, shape, sig, brainNum});
+    break;
+  }
+  GS.genCount++;
+}
+
 /* =============== RENDER =============== */
 function renderBlocks() {
   const el = document.getElementById('game-blocks');
@@ -2372,8 +2412,9 @@ function renderBlocks() {
       col.className = 's-column';
       for(let i=0;i<h;i++) {
         const b = document.createElement('div');
-        b.className = 's-block';
-        b.style.background = dc.block;
+        b.className = 's-block' + (brainMode ? ' brain-block' : '');
+        if(brainMode) { b.textContent = GS.current.brainNum; }
+        else { b.style.background = dc.block; }
         b.style.animationDelay = (blockIdx * 0.015) + 's';
         col.appendChild(b);
         blockIdx++;
@@ -2395,7 +2436,7 @@ function renderBlocks() {
       el.appendChild(warn);
     }
     // Dynamic scale based on slot dimensions + stage cols/mh
-    const st = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]));
+    const st = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
     const blockPx = Math.min(window.innerWidth * 0.075, 30);
     const gap = 4;
     // For +MODE (st.plus) or survival/drill/TA, scale to actual shape size for bigger blocks
@@ -2421,7 +2462,7 @@ function renderBlocks() {
 /* =============== INPUT =============== */
 function processInput(val) {
   if(!GS.current||GS.blocked||GS.status!=='PLAYING') return;
-  const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]));
+  const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
   // Drill: use multi-digit input when current number > 9
   const effectiveTp = (drillMode && GS.current && GS.current.n > 9) ? 'H' : s.tp;
   const inputEl = document.getElementById('input-display');
@@ -2482,7 +2523,7 @@ function checkAns(val) {
   }
 
   const dt = GS.elapsed;
-  const s = survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]);
+  const s = survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx]));
   const j = s.j;
   const tl = getTimeLimit(s);
   if(val===GS.current.n) {
@@ -2565,7 +2606,7 @@ function checkAns(val) {
       }
       nextQ();
     } else if(GS.qCount>=QS-1) {
-      if(drillMode) drillEnd('CLEAR'); else gameOver('CLEAR');
+      if(drillMode) drillEnd('CLEAR'); else if(brainMode) brainEnd('CLEAR'); else gameOver('CLEAR');
     } else nextQ();
   } else handleMiss('WRONG',val,GS.current.n);
 }
@@ -2637,6 +2678,7 @@ function spawnParticles(lbl) {
 function nextQ() {
   GS.qCount++;
   if(survivalMode) { if(GS.queue.length<3) addSurvivalQ(); }
+  else if(brainMode) { if(GS.queue.length<3) addBrainQ(); }
   else { if(GS.queue.length<3) addQ(); }
   GS.current = GS.queue.shift();
   renderBlocks();
@@ -3266,6 +3308,81 @@ function showTAResult(isNewCorrect, isNewBlocks) {
   if(taCorrect > 0) launchConfetti(Math.min(80, taCorrect * 2));
 }
 
+/* =============== BRAIN TRAINING MODE =============== */
+function startBrain() {
+  brainMode = true;
+  curDiff = 'EASY'; curIdx = 0;
+  const gv = document.getElementById('game-view');
+  gv.style.display = 'flex';
+  setLandscapeBg(gv, 'EASY');
+  gv.setAttribute('data-diff', 'EASY');
+  gv.classList.remove('boss-mid', 'boss-final');
+  document.getElementById('map-view').style.display = 'none';
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('timer-fill').style.width = '100%';
+
+  document.querySelector('.gk[data-key="0"]').classList.add('disabled');
+  document.querySelector('.gk[data-key="DEL"]').classList.add('disabled');
+  const kb = document.getElementById('game-kb');
+  kb.classList.remove('layout-phone','layout-calc','layout-special');
+  kb.classList.add(KB_LAYOUTS[curKbIdx].layout);
+
+  const labelEl = document.getElementById('enemy-label');
+  labelEl.textContent = '🧠 脳トレ';
+  labelEl.style.background = '#8B5CF6';
+
+  const enemyChar = document.getElementById('enemy-char');
+  enemyChar.innerHTML = ENEMIES['EASY'][0].svg();
+  enemyChar.className = 'enemy-char';
+  document.getElementById('enemy-name').textContent = '脳トレモード';
+
+  document.getElementById('enemy-hp-fill').style.width = '100%';
+  document.getElementById('enemy-hp-fill').className = 'enemy-hp-fill';
+  document.getElementById('enemy-hp-text').textContent = QS + '/' + QS;
+  document.querySelector('.top-hp-wrap').style.display = '';
+
+  startCountdown();
+}
+
+function brainEnd(result) {
+  GS.status = 'GAMEOVER'; GS.blocked = true;
+  if(GS.rafId) cancelAnimationFrame(GS.rafId);
+  document.getElementById('game-blocks').innerHTML = '';
+  document.getElementById('input-display').textContent = '';
+
+  if(result === 'CLEAR') {
+    const prevLevel = getLevel().level;
+    totalXP += GS.xp;
+    save();
+    const newLevel = getLevel().level;
+    if(newLevel > prevLevel) setTimeout(() => showLevelUp(newLevel), 800);
+
+    document.getElementById('r-enemy').innerHTML = '🧠';
+    document.getElementById('r-lbl').textContent = '脳トレ';
+    document.getElementById('r-clear').textContent = 'クリア！';
+    document.getElementById('r-clear').className = 'r-clear-txt cleared';
+    document.getElementById('r-perfect').style.display = 'none';
+
+    const sr = document.getElementById('r-stars');
+    sr.innerHTML = '';
+    const grade = GS.stats.excellent.c >= 8 ? 3 : GS.stats.excellent.c >= 5 ? 2 : 1;
+    for(let i=0;i<3;i++) {
+      const s = document.createElement('span');
+      s.className = 'r-star' + (i < grade ? ' show' : ' dim');
+      s.textContent = '⭐';
+      if(i < grade) s.style.animationDelay = (0.3 + i*0.2) + 's';
+      sr.appendChild(s);
+    }
+
+    document.getElementById('r-xp-val').textContent = GS.xp;
+    document.getElementById('r-xp-bonus').textContent = '';
+    document.getElementById('r-score').textContent = GS.stats.excellent.c;
+    document.getElementById('r-score-label').textContent = 'EXCELLENT';
+    document.getElementById('r-next-btn').style.display = 'none';
+    document.getElementById('result-overlay').classList.add('show');
+  }
+}
+
 /* =============== DRILL MODE =============== */
 function startDrill() {
   document.getElementById('drill-select-modal').classList.add('show');
@@ -3578,6 +3695,7 @@ function retryStage() {
   if(taMode) { startTA(taDiff); return; }
   if(survivalMode) { startSurvival(); return; }
   if(drillMode) { startDrillWithRange(drillBlockMin, drillBlockMax); return; }
+  if(brainMode) { startBrain(); return; }
   startStage(curDiff, curIdx);
 }
 function nextStage() {
@@ -3609,6 +3727,7 @@ function backToMap() {
     document.getElementById('drill-lives-bar').style.display = 'none';
     document.querySelector('.top-hp-wrap').style.display = '';
   }
+  if(brainMode) { brainMode = false; }
   switchTab(curDiff);
   // Restore correct panel without animation
   const targetPanel = curDiff.endsWith('+') ? 2 : 1;
@@ -3652,7 +3771,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', (e) => {
     if(e.repeat) return;
     if(GS.status==='PLAYING') {
-      const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx]));
+      const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
       const effectiveTp = (drillMode && GS.current && GS.current.n > 9) ? 'H' : s.tp;
       if(effectiveTp==='H'||effectiveTp==='E') {
         if(e.key>='0'&&e.key<='9') processInput(e.key);
