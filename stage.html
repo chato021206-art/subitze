@@ -424,6 +424,9 @@ body {
   width: 100%; height: 100%; padding-bottom: 10px; transform-origin: center center;
   position: relative;
 }
+#game-blocks.brain-layout {
+  align-items: center; padding-bottom: 0;
+}
 .game-timer-bar {
   position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
   background: rgba(0,0,0,0.04); border-radius: 0 0 18px 18px; overflow: hidden;
@@ -1070,7 +1073,6 @@ body {
       <button class="drill-range-btn hard"     onclick="startDrillWithDiff('HARD')">HARD<span id="drill-count-HARD"></span></button>
       <button class="drill-range-btn extreme"  onclick="startDrillWithDiff('EXTREME')">EXTREME<span id="drill-count-EXTREME"></span></button>
       <button class="drill-range-btn ultimate" onclick="startDrillWithDiff('ULTIMATE')">ULTIMATE<span id="drill-count-ULTIMATE"></span></button>
-      <button class="drill-range-btn" style="background:#3A0080;border-color:#1A0050;" onclick="startDrillWithDiff('ULTIMATE+')">ULTIMATE+<span id="drill-count-ULTIMATE+"></span></button>
     </div>
   </div>
 </div>
@@ -2838,11 +2840,12 @@ function addBrainQ() {
 function renderBlocks() {
   const el = document.getElementById('game-blocks');
   el.innerHTML = '';
+  el.classList.toggle('brain-layout', !!brainMode);
   if(!GS.current||GS.current.n===null) return;
   const dc = DC[curDiff];
   const n = GS.current.n;
 
-  if(isRandomMode) {
+  if(isRandomMode && !brainMode) {
     // Random scattered layout
     const container = document.createElement('div');
     container.className = 'random-layout';
