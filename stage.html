@@ -2859,11 +2859,15 @@ function showSkillMap() {
   } else {
     // max avg for bar scaling
     const avgs = nums.map(n => numberStats[n].t / numberStats[n].c);
-    const maxAvg = Math.max(...avgs, 3);
+    const baseDiff = curDiff.replace('+', '');
+    const refJ = (STAGES[baseDiff] || STAGES['EASY'])[0].j;
+    const excellentT = refJ.e;
+    const greatT = refJ.g;
+    const maxAvg = Math.max(...avgs, greatT);
     nums.forEach((n, i) => {
       const avg = avgs[i];
       const pct = Math.min(100, (avg / maxAvg) * 100);
-      const color = avg <= 1 ? '#4CAF50' : avg <= 2 ? '#FF9600' : '#FF4B4B';
+      const color = avg <= excellentT ? '#58CC02' : avg <= greatT ? '#FF9600' : '#FF4B4B';
       const row = document.createElement('div');
       row.className = 'skill-num-row';
       row.innerHTML = `
