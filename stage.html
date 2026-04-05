@@ -455,10 +455,10 @@ body {
 }
 .s-block.brain-block {
   background: #EFEFEF !important; border-color: #BBBBBB !important;
-  color: #222; font-size: 66px; font-weight: 900;
+  color: #222; font-size: 55px; font-weight: 900;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-num); line-height: 1;
-  width: min(33vw, 120px) !important; height: min(33vw, 120px) !important;
+  width: min(27vw, 100px) !important; height: min(27vw, 100px) !important;
 }
 
 /* Eval popup (Duolingo-style grade) */
@@ -2903,7 +2903,7 @@ function renderBlocks() {
     // Dynamic scale based on slot dimensions + stage cols/mh
     const st = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
     let blockPx = Math.min(window.innerWidth * 0.075, 30);
-    if(brainMode) blockPx = Math.min(window.innerWidth * 0.33, 120);
+    if(brainMode) blockPx = Math.min(window.innerWidth * 0.27, 100);
     const gap = 4;
     // For +MODE (st.plus) or survival/drill/TA, scale to actual shape size for bigger blocks
     let scaleCols, scaleMh;
