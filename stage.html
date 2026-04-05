@@ -770,9 +770,10 @@ body {
 .drill-range-btns { display:flex;flex-direction:column;gap:10px; }
 .drill-range-btn { width:100%;padding:14px 16px;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform 0.1s; }
 .drill-range-btn:active { transform:scale(0.97); }
-.drill-range-btn.easy  { background:linear-gradient(135deg,#58CC02,#46A302);color:#fff; }
-.drill-range-btn.normal{ background:linear-gradient(135deg,#FF9600,#E08600);color:#fff; }
-.drill-range-btn.hard  { background:linear-gradient(135deg,#FF4B4B,#CC3C3C);color:#fff; }
+.drill-range-btn.easy    { background:linear-gradient(135deg,#58CC02,#46A302);color:#fff; }
+.drill-range-btn.normal  { background:linear-gradient(135deg,#FF9600,#E08600);color:#fff; }
+.drill-range-btn.hard    { background:linear-gradient(135deg,#FF4B4B,#CC3C3C);color:#fff; }
+.drill-range-btn.extreme { background:linear-gradient(135deg,#4B4E6D,#2D2F45);color:#fff; }
 .drill-range-btn span  { font-size:12px;opacity:0.85;font-weight:700; }
 .ta-diff-btns { display:flex;gap:10px;margin-bottom:14px; }
 .ta-diff-btn { flex:1;border:none;border-radius:14px;padding:14px 6px;font-size:14px;font-weight:900;cursor:pointer;color:#fff;line-height:1.5; }
@@ -1025,11 +1026,12 @@ body {
 <div class="drill-select-modal" id="drill-select-modal" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="drill-select-box">
     <div class="drill-select-title">⚔️ 弱点特訓</div>
-    <div class="drill-select-sub">出題するブロック数の範囲を選んでください</div>
+    <div class="drill-select-sub">難易度を選んでください</div>
     <div class="drill-range-btns">
-      <button class="drill-range-btn easy"   onclick="startDrillWithRange(2,4)">かんたん<span>2〜4ブロック</span></button>
-      <button class="drill-range-btn normal" onclick="startDrillWithRange(2,7)">ふつう<span>2〜7ブロック</span></button>
-      <button class="drill-range-btn hard"   onclick="startDrillWithRange(2,10)">むずかしい<span>2〜10ブロック</span></button>
+      <button class="drill-range-btn easy"    onclick="startDrillWithDiff('EASY')">EASY<span id="drill-count-EASY"></span></button>
+      <button class="drill-range-btn normal"  onclick="startDrillWithDiff('NORMAL')">NORMAL<span id="drill-count-NORMAL"></span></button>
+      <button class="drill-range-btn hard"    onclick="startDrillWithDiff('HARD')">HARD<span id="drill-count-HARD"></span></button>
+      <button class="drill-range-btn extreme" onclick="startDrillWithDiff('EXTREME')">EXTREME<span id="drill-count-EXTREME"></span></button>
     </div>
   </div>
 </div>
@@ -1292,7 +1294,13 @@ Object.assign(ENEMIES, ENEMIES_PLUS);
 const QS = 10;
 const CAP_CH = 36000;
 const CAP_SEC = 0.1;
-const DRILL_CONFIG = { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:6, mh:6, tp:'S' };
+const DRILL_CONFIGS = {
+  EASY:    { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:5, mh:5, tp:'S', drillMin:1,  drillMax:9  },
+  NORMAL:  { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:9, mh:9, tp:'S', drillMin:2,  drillMax:12 },
+  HARD:    { t:5.0, j:{e:2.0,g:4.0,gd:5.0}, cols:9, mh:9, tp:'H', drillMin:10, drillMax:25 },
+  EXTREME: { t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:9, tp:'E', drillMin:13, drillMax:45 },
+};
+let DRILL_CONFIG = DRILL_CONFIGS.EASY;
 const BRAIN_CONFIG = { t:3.0, j:{e:1.0,g:2.0,gd:3.0}, cols:5, mh:5, tp:'S', noExt:true };
 const TA_BAGS = {
   EASY:    [1,2,2,3,3,4,4,5,5,6,7,8,9],
@@ -1340,6 +1348,7 @@ let survivalBest = { correct:0, blocks:0 };
 let drillUnlocked = true;
 let drillBlockMin = 2;
 let drillBlockMax = 8;
+let drillDiff = 'EASY';
 let currentPanel = 1; // 0=modes, 1=normal, 2=plus
 let lastNormalDiff = 'EASY';
 let lastPlusDiff = 'EASY+';
@@ -2286,27 +2295,44 @@ function genShape(n, cols, mh, hBias) {
   return a;
 }
 
+function inferDiff(n) {
+  if(n <= 9)  return 'EASY';
+  if(n <= 12) return 'NORMAL';
+  if(n <= 25) return 'HARD';
+  return 'EXTREME';
+}
+
+function getDrillWeakCount(diff) {
+  const match = m => (m.diff || inferDiff(m.n)) === diff;
+  return missedShapes.filter(match).length + slowShapes.filter(match).length;
+}
+
 function addQ() {
   if(GS.genCount>=QS) { GS.queue.push({n:null,shape:[]}); return; }
 
-  // Drill mode: prioritize weak shapes from missedShapes (weight 2) and slowShapes (weight 1)
-  if(drillMode && (missedShapes.length > 0 || slowShapes.length > 0)) {
-    const pool = [];
-    missedShapes.forEach(m => { pool.push(m); pool.push(m); }); // weight 2
-    slowShapes.forEach(m => { pool.push(m); }); // weight 1
-    const cands = pool.filter(m => m.sig !== GS.lastSig);
-    const pickPool = cands.length > 0 ? cands : pool;
-    const pick = pickPool[Math.floor(Math.random() * pickPool.length)];
-    const shape = JSON.parse(pick.sig);
-    GS.lastSig = pick.sig; GS.lastN = pick.n; GS.consec = 1;
-    GS.queue.push({n: pick.n, shape, sig: pick.sig});
-    GS.genCount++;
-    return;
+  // Drill mode: prioritize weak shapes filtered by drillDiff
+  if(drillMode) {
+    const match = m => (m.diff || inferDiff(m.n)) === drillDiff;
+    const weakForDiff = missedShapes.filter(match);
+    const slowForDiff = slowShapes.filter(match);
+    if(weakForDiff.length > 0 || slowForDiff.length > 0) {
+      const pool = [];
+      weakForDiff.forEach(m => { pool.push(m); pool.push(m); }); // weight 2
+      slowForDiff.forEach(m => { pool.push(m); }); // weight 1
+      const cands = pool.filter(m => m.sig !== GS.lastSig);
+      const pickPool = cands.length > 0 ? cands : pool;
+      const pick = pickPool[Math.floor(Math.random() * pickPool.length)];
+      const shape = JSON.parse(pick.sig);
+      GS.lastSig = pick.sig; GS.lastN = pick.n; GS.consec = 1;
+      GS.queue.push({n: pick.n, shape, sig: pick.sig});
+      GS.genCount++;
+      return;
+    }
   }
 
   const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   for(let att=0;att<2000;att++) {
-    const n = drillMode ? (drillBlockMin + Math.floor(Math.random() * (drillBlockMax - drillBlockMin + 1))) : bagNext();
+    const n = drillMode ? (DRILL_CONFIG.drillMin + Math.floor(Math.random() * (DRILL_CONFIG.drillMax - DRILL_CONFIG.drillMin + 1))) : bagNext();
     const shape = genShape(n, s.cols, s.mh, curDiff.endsWith('+') ? 0.3 : 0);
     const total = shape.reduce((a,b)=>a+b,0);
     const sig = JSON.stringify(shape);
@@ -2582,7 +2608,7 @@ function checkAns(val) {
         slowShapes[sidx].slowCount++;
         slowShapes[sidx].ts = Date.now();
       } else {
-        slowShapes.push({sig: GS.current.sig, n: GS.current.n, slowCount: 1, ts: Date.now()});
+        slowShapes.push({sig: GS.current.sig, n: GS.current.n, slowCount: 1, ts: Date.now(), diff: curDiff.replace('+','')});
       }
     }
     // Resolve slow shape on fast correct answer
@@ -2725,7 +2751,7 @@ function handleMiss(type,inp,ans) {
     const sig = GS.current.sig;
     const existing = missedShapes.find(m => m.sig === sig);
     if(existing) { existing.miss++; existing.ts = Date.now(); }
-    else { missedShapes.push({sig, n: GS.current.n, miss:1, ts: Date.now()}); }
+    else { missedShapes.push({sig, n: GS.current.n, miss:1, ts: Date.now(), diff: curDiff.replace('+','')}); }
     if(missedShapes.length > 50) {
       missedShapes.sort((a,b) => b.ts - a.ts);
       missedShapes = missedShapes.slice(0, 50);
@@ -3430,17 +3456,25 @@ function brainEnd(result) {
 
 /* =============== DRILL MODE =============== */
 function startDrill() {
+  ['EASY','NORMAL','HARD','EXTREME'].forEach(d => {
+    const el = document.getElementById('drill-count-' + d);
+    if(!el) return;
+    const cnt = getDrillWeakCount(d);
+    el.textContent = cnt > 0 ? ' 苦手 ' + cnt + '件' : ' データなし';
+  });
   document.getElementById('drill-select-modal').classList.add('show');
 }
 
-function startDrillWithRange(min, max) {
+function startDrillWithDiff(diff) {
   document.getElementById('drill-select-modal').classList.remove('show');
-  drillBlockMin = min;
-  drillBlockMax = max;
+  drillDiff = diff;
+  DRILL_CONFIG = DRILL_CONFIGS[diff] || DRILL_CONFIGS.EASY;
+  drillBlockMin = DRILL_CONFIG.drillMin;
+  drillBlockMax = DRILL_CONFIG.drillMax;
   drillMode = true;
   drillLives = 3;
-  drillHadWeakShapes = (missedShapes.length > 0 || slowShapes.length > 0);
-  curDiff = 'EASY'; curIdx = 0; // dummy for keyboard/enemy fallback
+  drillHadWeakShapes = getDrillWeakCount(diff) > 0;
+  curDiff = diff; curIdx = 0;
 
   const gv = document.getElementById('game-view');
   gv.style.display = 'flex';
@@ -3741,7 +3775,7 @@ function retryStage() {
   document.getElementById('result-overlay').classList.remove('show');
   if(taMode) { startTA(taDiff); return; }
   if(survivalMode) { startSurvival(); return; }
-  if(drillMode) { startDrillWithRange(drillBlockMin, drillBlockMax); return; }
+  if(drillMode) { startDrillWithDiff(drillDiff); return; }
   if(brainMode) { startBrain(); return; }
   startStage(curDiff, curIdx);
 }
