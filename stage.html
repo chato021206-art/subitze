@@ -1976,8 +1976,8 @@ function switchTab(d) {
         const stageTop = listEl2 ? listEl2.offsetTop : 0;
         const stageH   = listEl2 ? listEl2.scrollHeight : totalH;
         const isUlt = scrollEl.getAttribute('data-diff') === 'ULTIMATE' || scrollEl.getAttribute('data-diff') === 'ULTIMATE+';
-        const bgH   = isUlt ? Math.round(stageTop + stageH * 1.4) : (stageTop + stageH);
-        const bgPosY = isUlt ? '-80px' : '0px';
+        const bgH   = isUlt ? Math.round(stageTop + stageH * 1.6) : (stageTop + stageH);
+        const bgPosY = isUlt ? '-180px' : '0px';
         bgEl.style.height           = totalH + 'px';
         bgEl.style.backgroundSize   = '100% ' + bgH + 'px';
         bgEl.style.backgroundPosition = '0 ' + bgPosY;
