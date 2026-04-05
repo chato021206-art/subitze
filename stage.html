@@ -2960,89 +2960,70 @@ function showSkillMap() {
   }
   body.appendChild(numSec);
 
-  // --- Weak shapes list ---
-  const weakSec = document.createElement('div');
-  weakSec.className = 'skill-map-sec';
-  const weakCount = missedShapes.length;
-  weakSec.innerHTML = `<div class="skill-map-sec-title">苦手な形 (${weakCount}件)</div>`;
-
-  if(weakCount === 0) {
-    weakSec.innerHTML += '<div style="font-size:12px;color:#aaa;padding:8px 0">苦手な形はありません 🎉</div>';
-  } else {
-    const grid = document.createElement('div');
-    grid.className = 'skill-weak-grid';
-    // show up to 10, sorted by miss count desc
-    const sorted = [...missedShapes].sort((a,b) => b.miss - a.miss).slice(0, 10);
-    sorted.forEach(m => {
-      const shape = JSON.parse(m.sig);
-      const item = document.createElement('div');
-      item.className = 'skill-weak-item';
-
-      // mini shape preview
-      const miniShape = document.createElement('div');
-      miniShape.className = 'mini-shape';
-      shape.forEach(h => {
-        if(!h) return;
-        const col = document.createElement('div');
-        col.className = 'mini-shape-col';
-        for(let i=0;i<h;i++) {
-          const b = document.createElement('div');
-          b.className = 'mini-shape-block';
-          col.appendChild(b);
-        }
-        miniShape.appendChild(col);
-      });
-
-      const lbl = document.createElement('div');
-      lbl.className = 'skill-weak-label';
-      lbl.textContent = m.n + ' (×' + m.miss + ')';
-
-      item.appendChild(miniShape);
-      item.appendChild(lbl);
-      grid.appendChild(item);
+  // helper: build a mini shape item element
+  function buildShapeItem(m, countKey) {
+    const shape = JSON.parse(m.sig);
+    const item = document.createElement('div');
+    item.className = 'skill-weak-item';
+    const miniShape = document.createElement('div');
+    miniShape.className = 'mini-shape';
+    shape.forEach(h => {
+      if(!h) return;
+      const col = document.createElement('div');
+      col.className = 'mini-shape-col';
+      for(let i=0;i<h;i++) {
+        const b = document.createElement('div');
+        b.className = 'mini-shape-block';
+        col.appendChild(b);
+      }
+      miniShape.appendChild(col);
     });
-    weakSec.appendChild(grid);
+    const lbl = document.createElement('div');
+    lbl.className = 'skill-weak-label';
+    lbl.textContent = m.n + ' (×' + m[countKey] + ')';
+    item.appendChild(miniShape);
+    item.appendChild(lbl);
+    return item;
   }
-  body.appendChild(weakSec);
+
+  // helper: render a shape section grouped by difficulty
+  function buildShapeSec(title, shapes, countKey, emptyMsg) {
+    const shapeGroups = [
+      { diff:'EASY',    label:'EASY',    color:'#58CC02' },
+      { diff:'NORMAL',  label:'NORMAL',  color:'#1CB0F6' },
+      { diff:'HARD',    label:'HARD',    color:'#FF9600' },
+      { diff:'EXTREME', label:'EXTREME', color:'#FF4B4B' },
+      { diff:'ULTIMATE',label:'ULTIMATE',color:'#7C3AED' },
+    ];
+    const sec = document.createElement('div');
+    sec.className = 'skill-map-sec';
+    sec.innerHTML = `<div class="skill-map-sec-title">${title} (${shapes.length}件)</div>`;
+    if(shapes.length === 0) {
+      sec.innerHTML += `<div style="font-size:12px;color:#aaa;padding:8px 0">${emptyMsg}</div>`;
+      return sec;
+    }
+    const sorted = [...shapes].sort((a,b) => b[countKey] - a[countKey]);
+    shapeGroups.forEach(g => {
+      const group = sorted.filter(m => (m.diff || inferDiff(m.n)) === g.diff);
+      if(group.length === 0) return;
+      const header = document.createElement('div');
+      header.className = 'skill-diff-group-header';
+      header.style.cssText = `color:${g.color};background:${g.color}18;border-left:3px solid ${g.color};`;
+      header.textContent = g.label;
+      sec.appendChild(header);
+      const grid = document.createElement('div');
+      grid.className = 'skill-weak-grid';
+      group.forEach(m => grid.appendChild(buildShapeItem(m, countKey)));
+      sec.appendChild(grid);
+    });
+    return sec;
+  }
+
+  // --- Weak shapes list ---
+  body.appendChild(buildShapeSec('苦手な形', missedShapes, 'miss', '苦手な形はありません 🎉'));
 
   // --- Slow shapes list ---
-  const slowSec = document.createElement('div');
-  slowSec.className = 'skill-map-sec';
-  const slowCount = slowShapes.length;
-  slowSec.innerHTML = `<div class="skill-map-sec-title">遅い形 (${slowCount}件)</div>`;
-  if(slowCount === 0) {
-    slowSec.innerHTML += '<div style="font-size:12px;color:#aaa;padding:8px 0">遅い形はありません 🎉</div>';
-  } else {
-    const slowGrid = document.createElement('div');
-    slowGrid.className = 'skill-weak-grid';
-    const sortedSlow = [...slowShapes].sort((a,b) => b.slowCount - a.slowCount).slice(0, 10);
-    sortedSlow.forEach(m => {
-      const shape = JSON.parse(m.sig);
-      const item = document.createElement('div');
-      item.className = 'skill-weak-item';
-      const miniShape = document.createElement('div');
-      miniShape.className = 'mini-shape';
-      shape.forEach(h => {
-        if(!h) return;
-        const col = document.createElement('div');
-        col.className = 'mini-shape-col';
-        for(let i=0;i<h;i++) {
-          const b = document.createElement('div');
-          b.className = 'mini-shape-block';
-          col.appendChild(b);
-        }
-        miniShape.appendChild(col);
-      });
-      const lbl = document.createElement('div');
-      lbl.className = 'skill-weak-label';
-      lbl.textContent = m.n + ' (×' + m.slowCount + ')';
-      item.appendChild(miniShape);
-      item.appendChild(lbl);
-      slowGrid.appendChild(item);
-    });
-    slowSec.appendChild(slowGrid);
-  }
-  body.appendChild(slowSec);
+  body.appendChild(buildShapeSec('遅い形', slowShapes, 'slowCount', '遅い形はありません 🎉'));
 
   document.getElementById('skill-map-modal').classList.add('show');
 }
