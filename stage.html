@@ -168,6 +168,7 @@ body {
   z-index: 0;
 }
 .road-svg { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; z-index: 0; }
+#game-bg { height: 100%; z-index: -1; }
 
 /* Map theme header */
 .stage-list {
@@ -266,26 +267,14 @@ body {
   display: none; width: 100%; height: 100%; max-width: 520px; margin: 0 auto;
   flex-direction: column; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100;
 }
-#game-view[data-diff="EASY"] {
-  background: #E8FFF5;
-  background-image: radial-gradient(circle, #C8F0E0 1.2px, transparent 1.2px);
-  background-size: 20px 20px;
-}
-#game-view[data-diff="NORMAL"] {
-  background: #E4F4FF;
-  background-image: radial-gradient(circle, #C0E0F8 1.2px, transparent 1.2px);
-  background-size: 20px 20px;
-}
-#game-view[data-diff="HARD"] {
-  background: #FFF5E8;
-  background-image: radial-gradient(circle, #F0DCC0 1.2px, transparent 1.2px);
-  background-size: 20px 20px;
-}
-#game-view[data-diff="EXTREME"] {
-  background: #FFF0F0;
-  background-image: radial-gradient(circle, #F0C8C8 1.2px, transparent 1.2px);
-  background-size: 20px 20px;
-}
+#game-view[data-diff="EASY"]    { background: rgb(108,179,58); }
+#game-view[data-diff="NORMAL"]  { background: rgb(90,165,60); }
+#game-view[data-diff="HARD"]    { background: rgb(45,95,35); }
+#game-view[data-diff="EXTREME"] { background: rgb(75,80,65); }
+#game-view[data-diff="EASY+"]   { background: rgb(20,50,35); }
+#game-view[data-diff="NORMAL+"] { background: rgb(18,40,55); }
+#game-view[data-diff="HARD+"]   { background: rgb(12,30,20); }
+#game-view[data-diff="EXTREME+"]{ background: rgb(18,22,38); }
 #game-view.boss-mid { box-shadow: inset 0 0 50px rgba(255,180,0,0.15); }
 #game-view.boss-final { box-shadow: inset 0 0 60px rgba(255,215,0,0.2); animation: bossGlow 2s ease-in-out infinite; }
 @keyframes bossGlow {
@@ -1017,6 +1006,7 @@ body {
 
 <!-- =============== GAME VIEW =============== -->
 <div id="game-view">
+  <div class="map-bg" id="game-bg"></div>
   <!-- Top bar: close + stage label + HP -->
   <div class="game-top-bar">
     <button class="game-close-btn" onclick="backToMap()">✕</button>
