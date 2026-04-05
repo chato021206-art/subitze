@@ -742,6 +742,7 @@ body {
 .skill-map-close { width:32px;height:32px;border-radius:50%;border:none;background:#f0f0f0;font-size:16px;cursor:pointer; }
 .skill-map-sec { margin-bottom:18px; }
 .skill-map-sec-title { font-size:11px;font-weight:900;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px; }
+.skill-diff-group-header { font-size:11px;font-weight:900;padding:4px 8px;border-radius:4px;margin:10px 0 6px;letter-spacing:0.5px; }
 .skill-num-row { display:flex;align-items:center;gap:8px;margin-bottom:5px; }
 .skill-num-label { font-size:13px;font-weight:900;color:#333;min-width:32px;text-align:right; }
 .skill-num-count { font-size:10px;color:#aaa;min-width:30px; }
@@ -2905,7 +2906,7 @@ function showSkillMap() {
   const body = document.getElementById('skill-map-body');
   body.innerHTML = '';
 
-  // --- Number response time bars ---
+  // --- Number response time bars (grouped by difficulty) ---
   const numSec = document.createElement('div');
   numSec.className = 'skill-map-sec';
   numSec.innerHTML = '<div class="skill-map-sec-title">数字別 平均応答時間</div>';
@@ -2914,27 +2915,48 @@ function showSkillMap() {
   if(nums.length === 0) {
     numSec.innerHTML += '<div style="font-size:12px;color:#aaa;padding:8px 0">まだデータがありません</div>';
   } else {
-    // max avg for bar scaling
-    const avgs = nums.map(n => numberStats[n].t / numberStats[n].c);
-    const baseDiff = curDiff.replace('+', '');
-    const refJ = (STAGES[baseDiff] || STAGES['EASY'])[0].j;
-    const excellentT = refJ.e;
-    const greatT = refJ.g;
-    const maxAvg = Math.max(...avgs, greatT);
-    nums.forEach((n, i) => {
-      const avg = avgs[i];
-      const pct = Math.min(100, (avg / maxAvg) * 100);
-      const color = avg <= excellentT ? '#58CC02' : avg <= greatT ? '#FF9600' : '#FF4B4B';
-      const row = document.createElement('div');
-      row.className = 'skill-num-row';
-      row.innerHTML = `
-        <div class="skill-num-label">${n}</div>
-        <div class="skill-num-bar-outer"><div class="skill-num-bar-inner" style="width:${pct}%;background:${color}"></div></div>
-        <div class="skill-num-avg">${avg.toFixed(2)}s</div>
-        <div class="skill-num-count">×${numberStats[n].c}</div>
-      `;
-      numSec.appendChild(row);
+    const diffGroups = [
+      { diff:'EASY',    label:'EASY',    color:'#58CC02', min:1,  max:9  },
+      { diff:'NORMAL',  label:'NORMAL',  color:'#1CB0F6', min:10, max:12 },
+      { diff:'HARD',    label:'HARD',    color:'#FF9600', min:13, max:29 },
+      { diff:'EXTREME', label:'EXTREME', color:'#FF4B4B', min:30, max:45 },
+      { diff:'ULTIMATE',label:'ULTIMATE',color:'#7C3AED', min:46, max:99 },
+    ];
+    let hasAny = false;
+    diffGroups.forEach(g => {
+      const groupNums = nums.filter(n => n >= g.min && n <= g.max);
+      if(groupNums.length === 0) return;
+      hasAny = true;
+      // Group header
+      const header = document.createElement('div');
+      header.className = 'skill-diff-group-header';
+      header.style.cssText = `color:${g.color};background:${g.color}18;border-left:3px solid ${g.color};`;
+      header.textContent = g.label;
+      numSec.appendChild(header);
+      // Bars for this group
+      const refJ = (STAGES[g.diff] || STAGES['EASY'])[0].j;
+      const excellentT = refJ.e;
+      const greatT = refJ.g;
+      const avgs = groupNums.map(n => numberStats[n].t / numberStats[n].c);
+      const maxAvg = Math.max(...avgs, greatT);
+      groupNums.forEach((n, i) => {
+        const avg = avgs[i];
+        const pct = Math.min(100, (avg / maxAvg) * 100);
+        const color = avg <= excellentT ? '#58CC02' : avg <= greatT ? '#FF9600' : '#FF4B4B';
+        const row = document.createElement('div');
+        row.className = 'skill-num-row';
+        row.innerHTML = `
+          <div class="skill-num-label">${n}</div>
+          <div class="skill-num-bar-outer"><div class="skill-num-bar-inner" style="width:${pct}%;background:${color}"></div></div>
+          <div class="skill-num-avg">${avg.toFixed(2)}s</div>
+          <div class="skill-num-count">×${numberStats[n].c}</div>
+        `;
+        numSec.appendChild(row);
+      });
     });
+    if(!hasAny) {
+      numSec.innerHTML += '<div style="font-size:12px;color:#aaa;padding:8px 0">まだデータがありません</div>';
+    }
   }
   body.appendChild(numSec);
 
