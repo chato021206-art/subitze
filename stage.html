@@ -263,6 +263,46 @@ body {
 }
 .node-num { font-family: var(--font-num); font-style: italic; letter-spacing: -1px; text-shadow: 0 2px 0 rgba(0,0,0,0.2); }
 
+/* Stage path connectors */
+.stage-connector {
+  width: 100%; height: 22px; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; position: relative; z-index: 1;
+}
+.stage-connector-dot {
+  width: 3px; height: 22px;
+  border-left: 3px dashed rgba(0,0,0,0.15);
+}
+.stage-connector.highlight .stage-connector-dot {
+  border-color: #FFD700;
+  filter: drop-shadow(0 0 4px rgba(255,200,0,0.9));
+  animation: connDraw 0.5s ease forwards;
+}
+@keyframes connDraw {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0% 0); }
+}
+
+/* Next stage pulse after returning from result */
+.stage-node.next-target {
+  animation: nextPulse 1s ease-in-out infinite !important;
+}
+@keyframes nextPulse {
+  0%,100% { box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 0 0 5px rgba(255,215,0,0.5); transform: scale(1); }
+  50%     { box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 0 0 12px rgba(255,215,0,0.6); transform: scale(1.07); }
+}
+.next-target-label {
+  position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+  background: #FFD700; color: #6B4E00; font-size: 11px; font-weight: 900;
+  padding: 3px 10px; border-radius: 10px; white-space: nowrap;
+  border: 2px solid #E8B400; box-shadow: 0 2px 0 rgba(0,0,0,0.12);
+  pointer-events: none;
+  animation: labelSlide 0.4s ease-out;
+}
+@keyframes labelSlide {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 /* Enemy preview on node */
 .node-enemy-preview {
   position: absolute; top: -10px; right: -12px;
@@ -1392,6 +1432,7 @@ const SURVIVAL_LEVELS = [
 
 /* =============== STATE =============== */
 let curDiff = 'EASY', curIdx = 0;
+let pendingHighlight = -1; // index of just-cleared stage (for map transition)
 let prog = {};
 let numberStats = {};   // {n: {c, t}} 数字別正答統計
 let missedShapes = [];  // [{sig, n, miss, ts}] ミスした形リスト
@@ -2404,14 +2445,61 @@ function renderMap() {
 
     row.appendChild(wrap);
     list.appendChild(row);
+
+    // Insert connector between rows (not after last)
+    if(i < 9) {
+      const conn = document.createElement('div');
+      conn.className = 'stage-connector';
+      conn.dataset.idx = i;
+      const dot = document.createElement('div');
+      dot.className = 'stage-connector-dot';
+      conn.appendChild(dot);
+      list.appendChild(conn);
+    }
   }
 
   updateProg();
   updateDiffTabs();
-  setTimeout(() => {
-    const av = list.querySelector('.available');
-    if(av) av.scrollIntoView({behavior:'smooth',block:'center'});
-  }, 150);
+
+  // Highlight transition from cleared stage to next stage
+  if(pendingHighlight >= 0 && pendingHighlight < 9) {
+    const ph = pendingHighlight;
+    pendingHighlight = -1;
+    setTimeout(() => {
+      // Highlight connector between ph and ph+1
+      const conn = list.querySelector('.stage-connector[data-idx="' + ph + '"]');
+      if(conn) conn.classList.add('highlight');
+
+      // Highlight next stage node
+      const rows = list.querySelectorAll('.stage-row');
+      const nextRow = rows[ph + 1];
+      if(nextRow) {
+        const node = nextRow.querySelector('.stage-node');
+        if(node) {
+          node.classList.add('next-target');
+          const label = document.createElement('div');
+          label.className = 'next-target-label';
+          label.textContent = 'タップしてスタート！';
+          node.style.position = 'relative';
+          node.appendChild(label);
+          // Remove highlight when tapped
+          node.addEventListener('click', () => {
+            node.classList.remove('next-target');
+          }, { once: true });
+        }
+        // Scroll to show cleared stage + next stage
+        setTimeout(() => {
+          const fromRow = rows[ph];
+          if(fromRow) fromRow.scrollIntoView({behavior:'smooth', block:'center'});
+        }, 100);
+      }
+    }, 200);
+  } else {
+    setTimeout(() => {
+      const av = list.querySelector('.available');
+      if(av) av.scrollIntoView({behavior:'smooth',block:'center'});
+    }, 150);
+  }
 }
 
 function updateProg() {
@@ -4165,8 +4253,12 @@ function retryStage() {
 }
 function nextStage() {
   document.getElementById('result-overlay').classList.remove('show');
-  if(curIdx<9) startStage(curDiff, curIdx+1);
-  else backToMap();
+  if(curIdx < 9) {
+    pendingHighlight = curIdx; // highlight path from cleared → next
+    backToMap();
+  } else {
+    backToMap();
+  }
 }
 function backToMap() {
   const wasMode = taMode || survivalMode || drillMode || brainMode;
