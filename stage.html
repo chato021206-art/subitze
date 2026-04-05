@@ -1933,19 +1933,38 @@ function updateRoad() {
   }
   d += ` L${(cw/2).toFixed(1)},${scrollH}`;
 
-  // Per-difficulty road material styles
-  const ROAD_STYLES = {
-    'EASY':    { base:'#A0752A', mid:'#C8994A', edge:'#7A5518', center:'#F0D888', cDash:`${sw*0.6},${sw*0.9}`, cW:0.18 },
-    'NORMAL':  { base:'#606060', mid:'#888', edge:'#404040', center:'#C8C8C8', cDash:`${sw*0.7},${sw*0.5}`, cW:0.22 },
-    'HARD':    { base:'#2A2018', mid:'#3C2E22', edge:'#FF6020', center:'#FF8844', cDash:`${sw*0.5},${sw*0.8}`, cW:0.2 },
-    'EXTREME': { base:'#181018', mid:'#2A1828', edge:'#FF3A00', center:'#FF6600', cDash:`${sw*0.3},${sw*0.4}`, cW:0.25 },
-    'EASY+':   { base:'#283818', mid:'#405828', edge:'#1A2A10', center:'#88CC44', cDash:`${sw*0.5},${sw*0.7}`, cW:0.18 },
-    'NORMAL+': { base:'#1A3850', mid:'#2A5878', edge:'#0A1A30', center:'#88CCEE', cDash:`${sw*0.6},${sw*0.5}`, cW:0.22 },
-    'HARD+':   { base:'#100810', mid:'#1C1020', edge:'#600820', center:'#CC2040', cDash:`${sw*0.4},${sw*0.6}`, cW:0.2 },
-    'EXTREME+':{ base:'#080818', mid:'#120828', edge:'#2808A8', center:'#6040FF', cDash:`${sw*0.3},${sw*0.5}`, cW:0.25 },
-    'ULTIMATE':{ base:'#2A2018', mid:'#3C3028', edge:'#C8A840', center:'#FFD870', cDash:`${sw*0.8},${sw*0.5}`, cW:0.22 },
+  // Road material styles per difficulty environment
+  // Layer structure: [border, base, texture-dash, center-line]
+  // EASY    : 春の野原 → 砂利の土道（温かみのある茶）
+  // NORMAL  : 緑の丘  → 石畳（グレー・長ブロック）
+  // HARD    : 溶岩地帯→ 焦げた岩（黒ベース・赤オレンジ亀裂）
+  // EXTREME : 火山核心→ 溶岩石板（漆黒・灼熱オレンジ）
+  // EASY+   : 深夜の森→ 苔むした石道（ダークグリーン）
+  // NORMAL+ : 夜の海岸→ 濡れた木製桟橋（濃紺・水色反射）
+  // HARD+   : 暗黒洞窟→ 黒曜石（漆黒・深紅）
+  // EXTREME+: 星の虚空→ 虚空エネルギー路（宇宙黒・電気青紫）
+  // ULTIMATE: 古代神殿→ 大理石石板（古石・黄金ルーン）
+  const RS = {
+    // 土道：砂利・草の縁取り・白い踏み跡
+    'EASY':    { e:'#4A2C08', b:'#B07828', t:'#D4A050', tD:`${(sw*0.9).toFixed(1)},${(sw*0.7).toFixed(1)}`, c:'#F5E0A0', cD:`${(sw*0.5).toFixed(1)},${(sw*1.2).toFixed(1)}`, cW:0.14 },
+    // 石畳：濃灰の目地・明るい石面・細白線
+    'NORMAL':  { e:'#2A2A2A', b:'#686868', t:'#909090', tD:`${(sw*1.1).toFixed(1)},${(sw*0.45).toFixed(1)}`, c:'#D0D0D0', cD:`${(sw*0.9).toFixed(1)},${(sw*0.6).toFixed(1)}`, cW:0.18 },
+    // 焦げ岩：黒縁・炭色・赤オレンジ亀裂・橙光線
+    'HARD':    { e:'#0E0A06', b:'#241C10', t:'#3A2810', tD:`${(sw*0.5).toFixed(1)},${(sw*0.8).toFixed(1)}`, c:'#E04010', cD:`${(sw*0.35).toFixed(1)},${(sw*0.55).toFixed(1)}`, cW:0.2 },
+    // 溶岩石板：漆黒・暗赤・頻繁な灼熱橙亀裂・明橙中心
+    'EXTREME': { e:'#080404', b:'#140808', t:'#2A1008', tD:`${(sw*0.3).toFixed(1)},${(sw*0.35).toFixed(1)}`, c:'#FF5500', cD:`${(sw*0.2).toFixed(1)},${(sw*0.3).toFixed(1)}`, cW:0.26 },
+    // 苔石：深森林黒・濃緑・淡い苔スポット・緑光点
+    'EASY+':   { e:'#060E04', b:'#1A2A10', t:'#243A16', tD:`${(sw*0.6).toFixed(1)},${(sw*0.9).toFixed(1)}`, c:'#5A9030', cD:`${(sw*0.4).toFixed(1)},${(sw*0.8).toFixed(1)}`, cW:0.15 },
+    // 濡れ桟橋：深海紺・暗青・水色板目・白波光
+    'NORMAL+': { e:'#04101C', b:'#0E2238', t:'#183456', tD:`${(sw*1.0).toFixed(1)},${(sw*0.4).toFixed(1)}`, c:'#70C8EC', cD:`${(sw*1.2).toFixed(1)},${(sw*0.8).toFixed(1)}`, cW:0.2 },
+    // 黒曜石：完全黒・紫黒・深紅の光沢・血赤線
+    'HARD+':   { e:'#030204', b:'#0A0510', t:'#160A1E', tD:`${(sw*0.45).toFixed(1)},${(sw*0.7).toFixed(1)}`, c:'#8A1028', cD:`${(sw*0.3).toFixed(1)},${(sw*0.65).toFixed(1)}`, cW:0.17 },
+    // 虚空路：宇宙黒・深宇宙紫・電気青粒子・電気紫
+    'EXTREME+':{ e:'#020208', b:'#08061A', t:'#100C28', tD:`${(sw*0.2).toFixed(1)},${(sw*0.45).toFixed(1)}`, c:'#4830E8', cD:`${(sw*0.15).toFixed(1)},${(sw*0.4).toFixed(1)}`, cW:0.24 },
+    // 古代石板：暗古石・苔石灰・石板継ぎ目・黄金ルーン
+    'ULTIMATE':{ e:'#100C06', b:'#2E2418', t:'#484038', tD:`${(sw*1.1).toFixed(1)},${(sw*0.5).toFixed(1)}`, c:'#C8960C', cD:`${(sw*0.9).toFixed(1)},${(sw*0.6).toFixed(1)}`, cW:0.22 },
   };
-  const rs = ROAD_STYLES[curDiff] || ROAD_STYLES['EASY'];
+  const rs = RS[curDiff] || RS['EASY'];
   const a = `fill="none" stroke-linecap="round" stroke-linejoin="round"`;
 
   const NS = 'http://www.w3.org/2000/svg';
@@ -1960,15 +1979,12 @@ function updateRoad() {
   svg.style.height = scrollH + 'px';
   svg.setAttribute('viewBox', `0 0 ${cw} ${scrollH}`);
 
-  // Layer 1: border/shadow
-  // Layer 2: road base
-  // Layer 3: road mid-tone texture (dashed blocks/slabs)
-  // Layer 4: center line glow
+  // L1: border/shadow edge  L2: road surface  L3: texture (dashes)  L4: center marking
   svg.innerHTML =
-    `<path d="${d}" ${a} stroke="${rs.edge}" stroke-width="${(sw*1.15).toFixed(1)}"/>` +
-    `<path d="${d}" ${a} stroke="${rs.base}" stroke-width="${sw.toFixed(1)}"/>` +
-    `<path d="${d}" ${a} stroke="${rs.mid}" stroke-width="${(sw*0.55).toFixed(1)}" stroke-dasharray="${(sw*0.8).toFixed(1)},${(sw*0.55).toFixed(1)}"/>` +
-    `<path d="${d}" ${a} stroke="${rs.center}" stroke-width="${(sw*rs.cW).toFixed(1)}" stroke-dasharray="${rs.cDash}" opacity="0.85"/>`;
+    `<path d="${d}" ${a} stroke="${rs.e}" stroke-width="${(sw*1.18).toFixed(1)}"/>` +
+    `<path d="${d}" ${a} stroke="${rs.b}" stroke-width="${sw.toFixed(1)}"/>` +
+    `<path d="${d}" ${a} stroke="${rs.t}" stroke-width="${(sw*0.52).toFixed(1)}" stroke-dasharray="${rs.tD}" opacity="0.9"/>` +
+    `<path d="${d}" ${a} stroke="${rs.c}" stroke-width="${(sw*rs.cW).toFixed(1)}" stroke-dasharray="${rs.cD}" opacity="0.88"/>`;
 }
 
 /* =============== STAGE LANDMARKS =============== */
