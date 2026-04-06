@@ -418,9 +418,9 @@ HARD = J(
     '<ellipse cx="252" cy="542" rx="6" ry="3" fill="#264E1E" opacity="0.58"/>',
     '</g>',
 
-    # ── GROUND MIST OVERLAY ───────────────────────────────────────────
-    '<rect y="480" width="400" height="120" fill="url(#hMist)" opacity="0.75"/>',
-    '<rect y="550" width="400" height="50" fill="#8ABCB0" opacity="0.10"/>',
+    # ── GROUND MIST OVERLAY (ステージ10オブジェクトを避けてy=570から) ──
+    '<rect y="570" width="400" height="30" fill="url(#hMist)" opacity="0.55"/>',
+    '<rect y="590" width="400" height="10" fill="#8ABCB0" opacity="0.08"/>',
 
     # ── LAYER 6: FOREGROUND GIANT PINES ──────────────────────────────
     # Left giant pine
