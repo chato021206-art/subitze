@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EASY SVG masterpiece - Spring Meadow. No center path. Full-width nature."""
+"""EASY SVG — Gridania-style sacred forest (FF14 inspired). No center path."""
 import re
 
 with open('/Users/hirokazukataoka/subitze/stage.html', 'r', encoding='utf-8') as f:
@@ -9,453 +9,409 @@ def J(*parts):
     return ''.join(parts)
 
 # ═══════════════════════════════════════════════════════════════════════
-#  EASY  春の野原  Golden Spring Meadow  — MASTERPIECE
-#  ・中央の道なし（全幅を自然で覆う）
-#  ・空、雲、太陽光、6層の木々、野草、蝶、兎、鳥
-#  ・Stage5 (y≈235, x=200): 桜の木
-#  ・Stage10 (y≈531, x=200): 花のアーチゲート
+#  EASY  聖なる森  Gridania-style Sacred Forest  — MASTERPIECE
+#  ・The Twelveswood: ancient trees, filtered amber light, elementals
+#  ・Massive canopy overhead, mossy roots, glowing teal spirits
+#  ・Stage5 (y≈235, x=200+52): 精霊の祠 Spirit Shrine + elemental orb
+#  ・Stage10 (y≈531, x=200) ×1.5: グリダニア門 Gridanian Wooden Gate
 # ═══════════════════════════════════════════════════════════════════════
 
 EASY = J(
     '<svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">',
     '<defs>',
 
-    # Sky gradient: cornflower blue → pale → horizon green
+    # Forest atmosphere — warm amber light filtered through dense canopy
     '<linearGradient id="eSky" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0%" stop-color="#5AB0EC"/>',
-    '<stop offset="40%" stop-color="#90CCF4"/>',
-    '<stop offset="72%" stop-color="#C8E8F8"/>',
-    '<stop offset="100%" stop-color="#D8F2C0"/>',
+    '<stop offset="0%" stop-color="#101808"/>',
+    '<stop offset="22%" stop-color="#1C2C0C"/>',
+    '<stop offset="50%" stop-color="#2C4A14"/>',
+    '<stop offset="78%" stop-color="#3A5C1C"/>',
+    '<stop offset="100%" stop-color="#4A6C22"/>',
     '</linearGradient>',
 
-    # Ground gradient: lush green → dark green
+    # Central golden light shaft from canopy opening
+    '<radialGradient id="eShaft" cx="50%" cy="5%" r="65%">',
+    '<stop offset="0%" stop-color="#D8A820" stop-opacity="0.60"/>',
+    '<stop offset="30%" stop-color="#C09018" stop-opacity="0.30"/>',
+    '<stop offset="65%" stop-color="#907010" stop-opacity="0.10"/>',
+    '<stop offset="100%" stop-color="#907010" stop-opacity="0"/>',
+    '</radialGradient>',
+
+    # Warm ambient side glow
+    '<radialGradient id="eAmb" cx="65%" cy="42%" r="48%">',
+    '<stop offset="0%" stop-color="#B89020" stop-opacity="0.18"/>',
+    '<stop offset="100%" stop-color="#B89020" stop-opacity="0"/>',
+    '</radialGradient>',
+
+    # Ground — dark, rich mossy forest floor
     '<linearGradient id="eGnd" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0%" stop-color="#4ACC40"/>',
-    '<stop offset="45%" stop-color="#34A030"/>',
-    '<stop offset="100%" stop-color="#1A5C18"/>',
+    '<stop offset="0%" stop-color="#284E10"/>',
+    '<stop offset="45%" stop-color="#1C3C0C"/>',
+    '<stop offset="100%" stop-color="#0C1E06"/>',
     '</linearGradient>',
 
-    # Sun glow (top-right radial)
-    '<radialGradient id="eSun" cx="82%" cy="5%" r="42%">',
-    '<stop offset="0%" stop-color="#FFF8C0" stop-opacity="0.88"/>',
-    '<stop offset="38%" stop-color="#FFE860" stop-opacity="0.30"/>',
-    '<stop offset="100%" stop-color="#FFF8C0" stop-opacity="0"/>',
-    '</radialGradient>',
-
-    # Ambient ground warmth (center-bottom)
-    '<radialGradient id="eWarm" cx="50%" cy="85%" r="50%">',
-    '<stop offset="0%" stop-color="#D8F060" stop-opacity="0.14"/>',
-    '<stop offset="100%" stop-color="#D8F060" stop-opacity="0"/>',
-    '</radialGradient>',
-
-    # Depth fog (very top — forest shadow)
-    '<linearGradient id="eDpth" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0%" stop-color="#041A04" stop-opacity="0.58"/>',
-    '<stop offset="16%" stop-color="#041A04" stop-opacity="0.04"/>',
-    '<stop offset="100%" stop-color="#041A04" stop-opacity="0"/>',
+    # Ancient tree trunk (dark, textured)
+    '<linearGradient id="eTrunk" x1="0" y1="0" x2="1" y2="0">',
+    '<stop offset="0%" stop-color="#140E04"/>',
+    '<stop offset="25%" stop-color="#382210"/>',
+    '<stop offset="60%" stop-color="#281808"/>',
+    '<stop offset="100%" stop-color="#100804"/>',
     '</linearGradient>',
 
-    # Cherry blossom petal gradient
-    '<radialGradient id="ePetal" cx="40%" cy="35%" r="65%">',
-    '<stop offset="0%" stop-color="#FFE0F0"/>',
-    '<stop offset="100%" stop-color="#FF88BC"/>',
+    # Elemental / spirit glow (teal-cyan)
+    '<radialGradient id="eElem" cx="50%" cy="50%" r="50%">',
+    '<stop offset="0%" stop-color="#90FFE8" stop-opacity="0.95"/>',
+    '<stop offset="38%" stop-color="#40C8A0" stop-opacity="0.75"/>',
+    '<stop offset="100%" stop-color="#18A080" stop-opacity="0"/>',
     '</radialGradient>',
 
-    # Gate wood gradient
-    '<linearGradient id="eGate" x1="0" y1="0" x2="1" y2="0">',
-    '<stop offset="0%" stop-color="#6A4820"/>',
-    '<stop offset="35%" stop-color="#9A7040"/>',
-    '<stop offset="100%" stop-color="#6A4820"/>',
+    # Wooden gate gradient
+    '<linearGradient id="eWood" x1="0" y1="0" x2="1" y2="0">',
+    '<stop offset="0%" stop-color="#221408"/>',
+    '<stop offset="35%" stop-color="#543A18"/>',
+    '<stop offset="75%" stop-color="#3C2810"/>',
+    '<stop offset="100%" stop-color="#1A0E04"/>',
+    '</linearGradient>',
+
+    # Gate top beam
+    '<linearGradient id="eBeam" x1="0" y1="0" x2="0" y2="1">',
+    '<stop offset="0%" stop-color="#644220"/>',
+    '<stop offset="55%" stop-color="#482E10"/>',
+    '<stop offset="100%" stop-color="#301C08"/>',
+    '</linearGradient>',
+
+    # Ground mist
+    '<linearGradient id="eMist" x1="0" y1="0" x2="0" y2="1">',
+    '<stop offset="0%" stop-color="#3A7028" stop-opacity="0"/>',
+    '<stop offset="45%" stop-color="#2E5820" stop-opacity="0.20"/>',
+    '<stop offset="100%" stop-color="#1E3C10" stop-opacity="0.42"/>',
+    '</linearGradient>',
+
+    # Canopy darkness overlay (top)
+    '<linearGradient id="eCanopy" x1="0" y1="0" x2="0" y2="1">',
+    '<stop offset="0%" stop-color="#080F04" stop-opacity="0.92"/>',
+    '<stop offset="38%" stop-color="#0A1406" stop-opacity="0.45"/>',
+    '<stop offset="100%" stop-color="#0A1406" stop-opacity="0"/>',
     '</linearGradient>',
 
     '</defs>',
 
-    # ── SKY & GROUND BASE ────────────────────────────────────────────
+    # ── BASE FILL ─────────────────────────────────────────────
     '<rect width="400" height="600" fill="url(#eSky)"/>',
-    '<rect y="115" width="400" height="485" fill="url(#eGnd)"/>',
+    '<rect width="400" height="600" fill="url(#eShaft)"/>',
+    '<rect width="400" height="600" fill="url(#eAmb)"/>',
+    '<rect x="0" y="375" width="400" height="225" fill="url(#eGnd)"/>',
 
-    # ── CLOUDS ───────────────────────────────────────────────────────
-    # Cloud A (left)
-    '<ellipse cx="82" cy="34" rx="42" ry="15" fill="#FFFFFF" opacity="0.88"/>',
-    '<ellipse cx="56" cy="37" rx="24" ry="12" fill="#FFFFFF" opacity="0.82"/>',
-    '<ellipse cx="108" cy="38" rx="22" ry="11" fill="#FFFFFF" opacity="0.80"/>',
-    '<ellipse cx="82" cy="29" rx="26" ry="10" fill="#FFFFFF" opacity="0.70"/>',
-    # Cloud B (right-center)
-    '<ellipse cx="268" cy="20" rx="48" ry="17" fill="#FFFFFF" opacity="0.84"/>',
-    '<ellipse cx="238" cy="24" rx="26" ry="13" fill="#FFFFFF" opacity="0.78"/>',
-    '<ellipse cx="298" cy="23" rx="28" ry="13" fill="#FFFFFF" opacity="0.78"/>',
-    # Cloud C (small, far)
-    '<ellipse cx="178" cy="12" rx="22" ry="8" fill="#FFFFFF" opacity="0.65"/>',
+    # ── CANOPY — dark overhanging branches & leaves ───────────
+    '<ellipse cx="50"  cy="-28" rx="105" ry="85" fill="#0A1206" opacity="0.93"/>',
+    '<ellipse cx="200" cy="-38" rx="140" ry="78" fill="#0C1608" opacity="0.88"/>',
+    '<ellipse cx="355" cy="-22" rx="115" ry="88" fill="#0A1206" opacity="0.91"/>',
+    '<ellipse cx="-10" cy="24"  rx="88"  ry="66" fill="#081004" opacity="0.84"/>',
+    '<ellipse cx="410" cy="18"  rx="92"  ry="70" fill="#081004" opacity="0.82"/>',
+    '<ellipse cx="115" cy="8"   rx="95"  ry="60" fill="#0E1606" opacity="0.80"/>',
+    '<ellipse cx="288" cy="4"   rx="100" ry="62" fill="#0E1606" opacity="0.78"/>',
+    '<ellipse cx="200" cy="38"  rx="75"  ry="45" fill="#101808" opacity="0.62"/>',
+    # Canopy gradient overlay
+    '<rect width="400" height="210" fill="url(#eCanopy)"/>',
 
-    # ── SUN GLOW OVERLAY ─────────────────────────────────────────────
-    '<rect width="400" height="600" fill="url(#eSun)"/>',
+    # ── VOLUMETRIC LIGHT SHAFTS ───────────────────────────────
+    '<polygon points="172,0 228,0 275,330 125,330" fill="#D0A020" opacity="0.055"/>',
+    '<polygon points="186,0 214,0 246,260 154,260" fill="#E0B828" opacity="0.048"/>',
+    '<polygon points="55,0  95,0  175,400 -15,400" fill="#C09820" opacity="0.038"/>',
+    '<polygon points="305,0 345,0 425,400 225,400" fill="#C09820" opacity="0.038"/>',
+    '<polygon points="135,0 160,0 220,320  95,320" fill="#C8A020" opacity="0.030"/>',
 
-    # ── ROLLING HILLS (horizon backdrop) ─────────────────────────────
-    '<ellipse cx="55" cy="148" rx="115" ry="40" fill="#52CC4C" opacity="0.78"/>',
-    '<ellipse cx="215" cy="142" rx="148" ry="46" fill="#4EC846" opacity="0.72"/>',
-    '<ellipse cx="368" cy="150" rx="120" ry="38" fill="#56CE50" opacity="0.76"/>',
-    '<ellipse cx="150" cy="155" rx="80" ry="30" fill="#58D054" opacity="0.60"/>',
-    '<ellipse cx="310" cy="158" rx="75" ry="28" fill="#4CC848" opacity="0.58"/>',
+    # ── FAR BACKGROUND TREES ─────────────────────────────────
+    '<rect x="15"  y="110" width="24" height="295" fill="#182808" opacity="0.68"/>',
+    '<ellipse cx="27"  cy="98"  rx="40" ry="56" fill="#1C3010" opacity="0.63"/>',
+    '<ellipse cx="27"  cy="66"  rx="28" ry="40" fill="#203412" opacity="0.58"/>',
 
-    # Ground warmth overlay
-    '<rect y="115" width="400" height="485" fill="url(#eWarm)"/>',
-    # Depth fog overlay
-    '<rect width="400" height="600" fill="url(#eDpth)"/>',
+    '<rect x="362" y="108" width="24" height="298" fill="#182808" opacity="0.66"/>',
+    '<ellipse cx="374" cy="96"  rx="40" ry="56" fill="#1C3010" opacity="0.61"/>',
+    '<ellipse cx="374" cy="64"  rx="28" ry="40" fill="#203412" opacity="0.56"/>',
 
-    # ── BIRDS (sky) ───────────────────────────────────────────────────
-    '<path d="M46,30 Q51,25 56,30" stroke="#2A5820" stroke-width="1.4" fill="none"/>',
-    '<path d="M61,24 Q66,19 71,24" stroke="#2A5820" stroke-width="1.2" fill="none"/>',
-    '<path d="M168,12 Q173,7 178,12" stroke="#2A5820" stroke-width="1.1" fill="none"/>',
-    '<path d="M288,16 Q293,11 298,16" stroke="#2A5820" stroke-width="1.2" fill="none"/>',
-    '<path d="M306,28 Q311,23 316,28" stroke="#2A5820" stroke-width="1.4" fill="none"/>',
+    '<rect x="52"  y="148" width="15" height="252" fill="#182808" opacity="0.58"/>',
+    '<ellipse cx="59"  cy="138" rx="26" ry="36" fill="#1E2E0E" opacity="0.54"/>',
 
-    # ── LAYER 1: HORIZON MICRO-TREES (y≈115-122) ─────────────────────
-    '<circle cx="28" cy="118" r="5" fill="#1A5010" opacity="0.76"/>',
-    '<circle cx="42" cy="116" r="4" fill="#1E5814" opacity="0.72"/>',
-    '<circle cx="128" cy="118" r="5.5" fill="#1A5010" opacity="0.74"/>',
-    '<circle cx="200" cy="117" r="4.5" fill="#1C5412" opacity="0.70"/>',
-    '<circle cx="278" cy="118" r="5" fill="#1A5010" opacity="0.74"/>',
-    '<circle cx="362" cy="117" r="5.5" fill="#1E5814" opacity="0.72"/>',
-    '<circle cx="380" cy="119" r="4" fill="#1A5010" opacity="0.70"/>',
+    '<rect x="333" y="145" width="15" height="255" fill="#182808" opacity="0.56"/>',
+    '<ellipse cx="340" cy="135" rx="26" ry="36" fill="#1E2E0E" opacity="0.52"/>',
 
-    # ── LAYER 2: VERY FAR TREES (y≈105-135) ──────────────────────────
-    # Left side
-    '<rect x="16" y="108" width="1.8" height="22" fill="#112606"/>',
-    '<circle cx="16.9" cy="107" r="7.5" fill="#1C5414" opacity="0.92"/>',
-    '<circle cx="16.9" cy="100" r="5.8" fill="#256220" opacity="0.90"/>',
-    '<rect x="36" y="111" width="1.5" height="19" fill="#112606"/>',
-    '<circle cx="36.75" cy="110" r="6.2" fill="#1A5010" opacity="0.90"/>',
-    '<circle cx="36.75" cy="104" r="4.8" fill="#235C1C" opacity="0.88"/>',
-    # Center-left far
-    '<rect x="112" y="109" width="1.8" height="21" fill="#112606"/>',
-    '<circle cx="112.9" cy="108" r="7" fill="#1C5414" opacity="0.90"/>',
-    '<circle cx="112.9" cy="101" r="5.5" fill="#256020" opacity="0.88"/>',
-    # Center far (slightly off-center)
-    '<rect x="188" y="110" width="1.6" height="20" fill="#112606"/>',
-    '<circle cx="188.8" cy="109" r="6.5" fill="#1A5010" opacity="0.88"/>',
-    '<circle cx="188.8" cy="103" r="5" fill="#235C1C" opacity="0.86"/>',
-    # Center-right far
-    '<rect x="268" y="109" width="1.8" height="21" fill="#112606"/>',
-    '<circle cx="268.9" cy="108" r="7" fill="#1C5414" opacity="0.90"/>',
-    '<circle cx="268.9" cy="101" r="5.5" fill="#256020" opacity="0.88"/>',
-    # Right side
-    '<rect x="344" y="108" width="1.8" height="22" fill="#112606"/>',
-    '<circle cx="344.9" cy="107" r="7.5" fill="#1C5414" opacity="0.92"/>',
-    '<circle cx="344.9" cy="100" r="5.8" fill="#256220" opacity="0.90"/>',
-    '<rect x="368" y="111" width="1.5" height="19" fill="#112606"/>',
-    '<circle cx="368.75" cy="110" r="6.2" fill="#1A5010" opacity="0.90"/>',
-    '<circle cx="368.75" cy="104" r="4.8" fill="#235C1C" opacity="0.88"/>',
+    '<rect x="192" y="158" width="12" height="235" fill="#162408" opacity="0.44"/>',
+    '<ellipse cx="198" cy="149" rx="20" ry="28" fill="#1C2C0A" opacity="0.40"/>',
 
-    # ── LAYER 3: FAR TREES (y≈120-160) ───────────────────────────────
-    # Far-left cluster
-    '<rect x="4" y="128" width="2.6" height="32" fill="#162C0A"/>',
-    '<circle cx="5.3" cy="125" r="10.5" fill="#246820" opacity="0.94"/>',
-    '<circle cx="5.3" cy="115" r="8" fill="#2E7828" opacity="0.92"/>',
-    '<circle cx="5.3" cy="108" r="5.5" fill="#388A32" opacity="0.88"/>',
-    '<rect x="24" y="131" width="2.3" height="29" fill="#162C0A"/>',
-    '<circle cx="25.15" cy="128" r="9.5" fill="#226418" opacity="0.92"/>',
-    '<circle cx="25.15" cy="119" r="7" fill="#2C7222" opacity="0.90"/>',
-    # Far center-left
-    '<rect x="86" y="130" width="2.5" height="30" fill="#162C0A"/>',
-    '<circle cx="87.25" cy="127" r="10" fill="#246820" opacity="0.92"/>',
-    '<circle cx="87.25" cy="118" r="7.5" fill="#2E7828" opacity="0.90"/>',
-    # Far center (y≈132, x=175 — offset from stage5 center)
-    '<rect x="172" y="132" width="2.3" height="28" fill="#162C0A"/>',
-    '<circle cx="173.15" cy="129" r="9.5" fill="#226418" opacity="0.90"/>',
-    '<circle cx="173.15" cy="120" r="7" fill="#2C7222" opacity="0.88"/>',
-    # Far center-right
-    '<rect x="252" y="130" width="2.5" height="30" fill="#162C0A"/>',
-    '<circle cx="253.25" cy="127" r="10" fill="#246820" opacity="0.92"/>',
-    '<circle cx="253.25" cy="118" r="7.5" fill="#2E7828" opacity="0.90"/>',
-    # Far-right cluster
-    '<rect x="368" y="128" width="2.6" height="32" fill="#162C0A"/>',
-    '<circle cx="369.3" cy="125" r="10.5" fill="#246820" opacity="0.94"/>',
-    '<circle cx="369.3" cy="115" r="8" fill="#2E7828" opacity="0.92"/>',
-    '<circle cx="369.3" cy="108" r="5.5" fill="#388A32" opacity="0.88"/>',
-    '<rect x="387" y="131" width="2.3" height="29" fill="#162C0A"/>',
-    '<circle cx="388.15" cy="128" r="9.5" fill="#226418" opacity="0.92"/>',
-    '<circle cx="388.15" cy="119" r="7" fill="#2C7222" opacity="0.90"/>',
+    # ── FLOATING GOLDEN SPORES ───────────────────────────────
+    '<circle cx="142" cy="175" r="2.2" fill="#E4C840" opacity="0.72"/>',
+    '<circle cx="262" cy="152" r="1.8" fill="#DCC038" opacity="0.68"/>',
+    '<circle cx="318" cy="204" r="2.4" fill="#ECD048" opacity="0.62"/>',
+    '<circle cx="78"  cy="234" r="1.6" fill="#D4B430" opacity="0.65"/>',
+    '<circle cx="188" cy="128" r="2.0" fill="#E4C840" opacity="0.56"/>',
+    '<circle cx="348" cy="166" r="1.5" fill="#DCB430" opacity="0.60"/>',
+    '<circle cx="108" cy="298" r="1.8" fill="#CCAC28" opacity="0.58"/>',
+    '<circle cx="292" cy="278" r="2.0" fill="#D4B430" opacity="0.54"/>',
+    '<circle cx="228" cy="338" r="1.4" fill="#CCAC28" opacity="0.50"/>',
+    '<circle cx="62"  cy="352" r="1.6" fill="#C8A824" opacity="0.48"/>',
+    '<circle cx="355" cy="342" r="1.4" fill="#C8A824" opacity="0.46"/>',
 
-    # ── LAYER 4: MID-DISTANCE TREES (y≈170-230) ───────────────────────
-    # Left pair
-    '<rect x="6" y="174" width="4.2" height="55" fill="#182C08"/>',
-    '<ellipse cx="8.1" cy="170" rx="16" ry="13" fill="#2C7020" opacity="0.96"/>',
-    '<ellipse cx="8.1" cy="159" rx="11.5" ry="9.5" fill="#369028" opacity="0.94"/>',
-    '<ellipse cx="8.1" cy="151" rx="7.5" ry="6" fill="#44A032" opacity="0.90"/>',
-    '<rect x="36" y="178" width="3.8" height="50" fill="#182C08"/>',
-    '<ellipse cx="37.9" cy="174" rx="14.5" ry="12" fill="#286C1C" opacity="0.94"/>',
-    '<ellipse cx="37.9" cy="164" rx="10.5" ry="8.5" fill="#348A26" opacity="0.92"/>',
-    '<ellipse cx="37.9" cy="157" rx="6.8" ry="5.5" fill="#40A030" opacity="0.88"/>',
-    # Center-left mid (x≈105)
-    '<rect x="103" y="177" width="4" height="52" fill="#182C08"/>',
-    '<ellipse cx="105" cy="173" rx="15.5" ry="12.5" fill="#2A6E1E" opacity="0.94"/>',
-    '<ellipse cx="105" cy="163" rx="11" ry="9" fill="#368C28" opacity="0.92"/>',
-    '<ellipse cx="105" cy="155" rx="7.2" ry="5.8" fill="#44A032" opacity="0.88"/>',
-    # Center-right mid (x≈295 — away from stage5)
-    '<rect x="291" y="177" width="4" height="52" fill="#182C08"/>',
-    '<ellipse cx="293" cy="173" rx="15.5" ry="12.5" fill="#2A6E1E" opacity="0.94"/>',
-    '<ellipse cx="293" cy="163" rx="11" ry="9" fill="#368C28" opacity="0.92"/>',
-    '<ellipse cx="293" cy="155" rx="7.2" ry="5.8" fill="#44A032" opacity="0.88"/>',
-    # Right pair
-    '<rect x="349" y="174" width="4.2" height="55" fill="#182C08"/>',
-    '<ellipse cx="351.1" cy="170" rx="16" ry="13" fill="#2C7020" opacity="0.96"/>',
-    '<ellipse cx="351.1" cy="159" rx="11.5" ry="9.5" fill="#369028" opacity="0.94"/>',
-    '<ellipse cx="351.1" cy="151" rx="7.5" ry="6" fill="#44A032" opacity="0.90"/>',
-    '<rect x="372" y="178" width="3.8" height="50" fill="#182C08"/>',
-    '<ellipse cx="373.9" cy="174" rx="14.5" ry="12" fill="#286C1C" opacity="0.94"/>',
-    '<ellipse cx="373.9" cy="164" rx="10.5" ry="8.5" fill="#348A26" opacity="0.92"/>',
-    '<ellipse cx="373.9" cy="157" rx="6.8" ry="5.5" fill="#40A030" opacity="0.88"/>',
+    # ── TEAL ELEMENTAL SPARKS ─────────────────────────────────
+    '<circle cx="168" cy="208" r="1.6" fill="#68E8C0" opacity="0.78"/>',
+    '<circle cx="244" cy="186" r="1.8" fill="#58D8B0" opacity="0.72"/>',
+    '<circle cx="128" cy="338" r="1.4" fill="#48C8A0" opacity="0.68"/>',
+    '<circle cx="308" cy="318" r="1.6" fill="#58D8B0" opacity="0.62"/>',
+    '<circle cx="202" cy="272" r="1.2" fill="#68E8C0" opacity="0.70"/>',
+    '<circle cx="82"  cy="408" r="1.3" fill="#48C0A0" opacity="0.58"/>',
+    '<circle cx="330" cy="398" r="1.2" fill="#48C0A0" opacity="0.54"/>',
+
+    # ── MID TREES (detailed, with roots & moss) ───────────────
+    # Left mid tree
+    '<rect x="102" y="245" width="22" height="205" fill="url(#eTrunk)"/>',
+    '<path d="M102,420 Q82,398 62,426 Q82,408 102,432" fill="#1A1006" opacity="0.82"/>',
+    '<path d="M124,420 Q148,400 162,424 Q144,410 124,432" fill="#1A1006" opacity="0.76"/>',
+    '<path d="M102,460 Q80,442 64,462 Q84,448 102,468" fill="#161004" opacity="0.68"/>',
+    '<ellipse cx="113" cy="224" rx="46" ry="58" fill="#1E4410" opacity="0.90"/>',
+    '<ellipse cx="113" cy="188" rx="33" ry="42" fill="#26520E" opacity="0.87"/>',
+    '<ellipse cx="113" cy="160" rx="22" ry="28" fill="#2C5C12" opacity="0.83"/>',
+    '<ellipse cx="113" cy="140" rx="14" ry="18" fill="#326414" opacity="0.76"/>',
+    # Moss on trunk
+    '<ellipse cx="108" cy="305" rx="13" ry="5"   fill="#1A4C08" opacity="0.68"/>',
+    '<ellipse cx="118" cy="340" rx="11" ry="4"   fill="#184808" opacity="0.62"/>',
+    '<ellipse cx="106" cy="375" rx="9"  ry="3.5" fill="#184008" opacity="0.56"/>',
+
+    # Right mid tree
+    '<rect x="278" y="243" width="22" height="207" fill="url(#eTrunk)"/>',
+    '<path d="M278,420 Q258,398 238,426 Q258,408 278,432" fill="#1A1006" opacity="0.80"/>',
+    '<path d="M300,420 Q324,400 338,424 Q320,410 300,432" fill="#1A1006" opacity="0.74"/>',
+    '<path d="M278,460 Q256,442 240,462 Q260,448 278,468" fill="#161004" opacity="0.66"/>',
+    '<ellipse cx="289" cy="222" rx="46" ry="58" fill="#1E4410" opacity="0.88"/>',
+    '<ellipse cx="289" cy="186" rx="33" ry="42" fill="#26520E" opacity="0.85"/>',
+    '<ellipse cx="289" cy="158" rx="22" ry="28" fill="#2C5C12" opacity="0.81"/>',
+    '<ellipse cx="289" cy="138" rx="14" ry="18" fill="#326414" opacity="0.74"/>',
+    '<ellipse cx="284" cy="303" rx="13" ry="5"   fill="#1A4C08" opacity="0.66"/>',
+    '<ellipse cx="294" cy="338" rx="11" ry="4"   fill="#184808" opacity="0.60"/>',
+    '<ellipse cx="282" cy="373" rx="9"  ry="3.5" fill="#184008" opacity="0.54"/>',
+
+    # ── GLOWING MOSS GROUND PATCHES ──────────────────────────
+    '<ellipse cx="45"  cy="388" rx="52" ry="16" fill="#224C0E" opacity="0.68"/>',
+    '<ellipse cx="158" cy="398" rx="38" ry="11" fill="#1E4A0C" opacity="0.60"/>',
+    '<ellipse cx="312" cy="394" rx="42" ry="13" fill="#224C0E" opacity="0.64"/>',
+    '<ellipse cx="376" cy="402" rx="36" ry="10" fill="#204A0C" opacity="0.58"/>',
+    '<ellipse cx="220" cy="410" rx="28" ry="8"  fill="#1A4208" opacity="0.50"/>',
+
+    # ── FERNS ────────────────────────────────────────────────
+    # Left cluster
+    '<path d="M28,452 Q8,430 -2,418"  stroke="#284E0E" stroke-width="3.0" fill="none" stroke-linecap="round"/>',
+    '<path d="M28,452 Q14,426 4,410"  stroke="#264C0C" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+    '<path d="M28,452 Q36,428 34,412" stroke="#2A5010" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+    '<path d="M28,452 Q44,432 50,418" stroke="#284E0E" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+    '<ellipse cx="-1"  cy="417" rx="9" ry="5.5" fill="#265010" opacity="0.76" transform="rotate(-22,-1,417)"/>',
+    '<ellipse cx="34"  cy="410" rx="8" ry="5"   fill="#2A5412" opacity="0.72" transform="rotate(10,34,410)"/>',
+    '<ellipse cx="51"  cy="416" rx="8" ry="5"   fill="#265010" opacity="0.70" transform="rotate(26,51,416)"/>',
+
+    # Right cluster
+    '<path d="M372,450 Q392,428 402,416" stroke="#284E0E" stroke-width="3.0" fill="none" stroke-linecap="round"/>',
+    '<path d="M372,450 Q386,424 396,408" stroke="#264C0C" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+    '<path d="M372,450 Q364,426 366,410" stroke="#2A5010" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+    '<path d="M372,450 Q356,430 350,416" stroke="#284E0E" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+    '<ellipse cx="403" cy="414" rx="9" ry="5.5" fill="#265010" opacity="0.74" transform="rotate(22,403,414)"/>',
+    '<ellipse cx="366" cy="408" rx="8" ry="5"   fill="#2A5412" opacity="0.70" transform="rotate(-10,366,408)"/>',
+    '<ellipse cx="348" cy="414" rx="8" ry="5"   fill="#265010" opacity="0.68" transform="rotate(-26,348,414)"/>',
+
+    # Mid ferns
+    '<path d="M176,432 Q160,415 148,404" stroke="#285810" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
+    '<path d="M176,432 Q180,414 178,402" stroke="#2A5A12" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
+    '<path d="M176,432 Q190,416 198,404" stroke="#285810" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
+    '<path d="M242,436 Q228,418 218,406" stroke="#285810" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
+    '<path d="M242,436 Q254,420 262,408" stroke="#2A5A12" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
+
+    # Small mushrooms
+    '<ellipse cx="152" cy="460" rx="5"   ry="2.8" fill="#8A6838" opacity="0.74"/>',
+    '<rect    x="154"  y="452"  width="3" height="9"  fill="#6A5028" opacity="0.70"/>',
+    '<ellipse cx="258" cy="463" rx="4.5" ry="2.5" fill="#8A6838" opacity="0.70"/>',
+    '<rect    x="260"  y="456"  width="3" height="8"  fill="#6A5028" opacity="0.66"/>',
 
     # ══════════════════════════════════════════════════════════════════
-    #  STAGE 5 SPECIAL: 桜の木 Cherry Blossom Tree  (x=200, y≈235)
+    #  STAGE 5 SPECIAL: 精霊の祠 Spirit Shrine  (x=200+52, y≈235)
     # ══════════════════════════════════════════════════════════════════
     '<g transform="translate(52,0)">',
-    # Ground shadow under tree
-    '<ellipse cx="200" cy="298" rx="24" ry="8" fill="#1A5010" opacity="0.35"/>',
-    # Main trunk
-    '<rect x="195" y="248" width="10" height="52" fill="#5A3818" rx="4"/>',
-    # Trunk grain
-    '<path d="M197,255 Q199,263 197,274 Q200,281 198,292" stroke="#7A5030" stroke-width="1.3" fill="none" opacity="0.45"/>',
-    # Primary branches
-    '<path d="M200,262 Q184,248 173,234" stroke="#5A3818" stroke-width="5" fill="none" stroke-linecap="round"/>',
-    '<path d="M200,262 Q216,248 227,234" stroke="#5A3818" stroke-width="5" fill="none" stroke-linecap="round"/>',
-    '<path d="M200,256 Q191,240 185,224" stroke="#5A3818" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
-    # Secondary branches
-    '<path d="M173,234 Q165,226 160,218" stroke="#5A3818" stroke-width="2.8" fill="none" stroke-linecap="round"/>',
-    '<path d="M227,234 Q235,226 240,218" stroke="#5A3818" stroke-width="2.8" fill="none" stroke-linecap="round"/>',
-    '<path d="M185,224 Q179,215 176,206" stroke="#5A3818" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
-    # Blossom clouds — base layer
-    '<ellipse cx="200" cy="220" rx="32" ry="24" fill="#FFAACC" opacity="0.95"/>',
-    '<ellipse cx="174" cy="232" rx="20" ry="16" fill="#FF9EC4" opacity="0.93"/>',
-    '<ellipse cx="226" cy="232" rx="20" ry="16" fill="#FF9EC4" opacity="0.93"/>',
-    '<ellipse cx="200" cy="202" rx="22" ry="17" fill="#FFB8D8" opacity="0.91"/>',
-    # Blossom clouds — mid layer
-    '<ellipse cx="180" cy="216" rx="14" ry="12" fill="#FFBCDC" opacity="0.87"/>',
-    '<ellipse cx="220" cy="216" rx="14" ry="12" fill="#FFBCDC" opacity="0.87"/>',
-    '<ellipse cx="162" cy="224" rx="11" ry="9.5" fill="#FFB0D0" opacity="0.83"/>',
-    '<ellipse cx="238" cy="224" rx="11" ry="9.5" fill="#FFB0D0" opacity="0.83"/>',
-    '<ellipse cx="200" cy="192" rx="14" ry="10.5" fill="#FFCCE4" opacity="0.78"/>',
-    # Blossom clouds — highlight top
-    '<ellipse cx="200" cy="212" rx="16" ry="11" fill="#FFD8EC" opacity="0.48"/>',
-    '<ellipse cx="195" cy="205" rx="9" ry="7" fill="#FFE8F4" opacity="0.42"/>',
-    # Individual blossom detail
-    '<circle cx="200" cy="206" r="4" fill="#FFE8F4" opacity="0.90"/>',
-    '<circle cx="188" cy="220" r="3.5" fill="#FFE4F0" opacity="0.84"/>',
-    '<circle cx="212" cy="220" r="3.5" fill="#FFE4F0" opacity="0.84"/>',
-    '<circle cx="177" cy="228" r="3" fill="#FFE0EC" opacity="0.80"/>',
-    '<circle cx="223" cy="228" r="3" fill="#FFE0EC" opacity="0.80"/>',
-    # Falling petals
-    '<ellipse cx="216" cy="257" rx="3.5" ry="2.5" fill="#FFB8D8" opacity="0.82" transform="rotate(-30,216,257)"/>',
-    '<ellipse cx="186" cy="264" rx="3.5" ry="2.5" fill="#FFB8D8" opacity="0.78" transform="rotate(22,186,264)"/>',
-    '<ellipse cx="232" cy="246" rx="3" ry="2.2" fill="#FFB8D8" opacity="0.72" transform="rotate(-45,232,246)"/>',
-    '<ellipse cx="170" cy="252" rx="3" ry="2.2" fill="#FFB8D8" opacity="0.72" transform="rotate(16,170,252)"/>',
-    '<ellipse cx="224" cy="270" rx="2.8" ry="2" fill="#FFB8D8" opacity="0.66" transform="rotate(-20,224,270)"/>',
-    '<ellipse cx="176" cy="275" rx="2.8" ry="2" fill="#FFB8D8" opacity="0.66" transform="rotate(32,176,275)"/>',
-    '<ellipse cx="240" cy="258" rx="2.5" ry="1.8" fill="#FFB8D8" opacity="0.60" transform="rotate(-55,240,258)"/>',
-    '<ellipse cx="162" cy="265" rx="2.5" ry="1.8" fill="#FFB8D8" opacity="0.58" transform="rotate(10,162,265)"/>',
+    # Stone base platform
+    '<ellipse cx="200" cy="292" rx="26" ry="7"   fill="#40C8A0" opacity="0.18"/>',
+    '<rect    x="182"  y="278"  width="36" height="15" fill="#283C1A" rx="3"/>',
+    '<rect    x="179"  y="287"  width="42" height="6"  fill="#1E2E12" rx="2"/>',
+    # Stone texture
+    '<path d="M184,281 L216,281" stroke="#364C22" stroke-width="0.9" opacity="0.55"/>',
+    '<path d="M182,285 L220,285" stroke="#2E4018" stroke-width="0.9" opacity="0.48"/>',
+    '<rect x="185" y="280" width="10" height="3" fill="#3A5020" opacity="0.30"/>',
+    '<rect x="204" y="283" width="12" height="3" fill="#344818" opacity="0.28"/>',
+    # Wooden totem pole
+    '<rect x="194" y="238" width="12" height="42" fill="url(#eWood)" rx="3"/>',
+    '<rect x="195" y="239" width="4"  height="40" fill="#6A4828" opacity="0.28"/>',
+    # Carved markings
+    '<path d="M196,250 Q200,246 204,250" stroke="#100802" stroke-width="1.4" fill="none" opacity="0.70"/>',
+    '<path d="M196,258 L204,258"         stroke="#100802" stroke-width="1.0" fill="none" opacity="0.60"/>',
+    '<path d="M197,265 Q200,268 203,265" stroke="#100802" stroke-width="1.2" fill="none" opacity="0.55"/>',
+    # Top ornament cap
+    '<ellipse cx="200" cy="237" rx="7"   ry="4.5" fill="#3A2810"/>',
+    '<ellipse cx="200" cy="235" rx="5"   ry="3"   fill="#504030"/>',
+    '<path d="M196,235 L200,228 L204,235" fill="#2E1E0C" opacity="0.80"/>',
+    # Elemental spirit orb (floating, teal glow)
+    '<ellipse cx="200" cy="214" rx="22"  ry="22"  fill="url(#eElem)" opacity="0.52"/>',
+    '<ellipse cx="200" cy="214" rx="13"  ry="13"  fill="url(#eElem)" opacity="0.65"/>',
+    '<circle  cx="200" cy="214" r="8"            fill="#B0FFE8" opacity="0.92"/>',
+    '<circle  cx="200" cy="214" r="5"            fill="#D8FFF4" opacity="0.98"/>',
+    '<circle  cx="197" cy="211" r="2.2"          fill="#FFFFFF" opacity="0.88"/>',
+    # Orbiting sparks
+    '<circle cx="190" cy="224" r="2.2" fill="#68E8C0" opacity="0.75"/>',
+    '<circle cx="210" cy="220" r="2.0" fill="#58D8B0" opacity="0.70"/>',
+    '<circle cx="193" cy="203" r="1.6" fill="#78F0C8" opacity="0.65"/>',
+    '<circle cx="208" cy="207" r="1.4" fill="#68E0B8" opacity="0.60"/>',
+    '<circle cx="186" cy="212" r="1.2" fill="#78F0C8" opacity="0.55"/>',
+    '<circle cx="214" cy="215" r="1.0" fill="#58D8B0" opacity="0.52"/>',
+    # Tether line from orb to totem
+    '<line x1="200" y1="222" x2="200" y2="237" stroke="#58E0B8" stroke-width="1.4" opacity="0.42"/>',
+    # Offering crystals flanking base
+    '<polygon points="180,284 183,275 186,284" fill="#48D0A8" opacity="0.72"/>',
+    '<polygon points="214,283 217,274 220,283" fill="#48D0A8" opacity="0.68"/>',
+    '<circle  cx="183" cy="273" r="2.0" fill="#90FFE0" opacity="0.80"/>',
+    '<circle  cx="217" cy="272" r="2.0" fill="#90FFE0" opacity="0.76"/>',
+    '<ellipse cx="183" cy="278" rx="4"  ry="2.5" fill="url(#eElem)" opacity="0.35"/>',
+    '<ellipse cx="217" cy="278" rx="4"  ry="2.5" fill="url(#eElem)" opacity="0.32"/>',
     '</g>',
 
-    # ── LAYER 5: NEAR-MID TREES (y≈285-380) ─────────────────────────
-    # Far-left cluster (large)
-    '<rect x="10" y="292" width="7.5" height="90" fill="#22300A"/>',
-    '<ellipse cx="13.75" cy="283" rx="28" ry="23" fill="#27691D" opacity="0.97"/>',
-    '<ellipse cx="13.75" cy="264" rx="20" ry="16" fill="#348A28" opacity="0.95"/>',
-    '<ellipse cx="13.75" cy="251" rx="13" ry="10" fill="#42A030" opacity="0.92"/>',
-    '<rect x="50" y="298" width="6.5" height="84" fill="#142408"/>',
-    '<ellipse cx="53.25" cy="290" rx="24" ry="20" fill="#256518" opacity="0.95"/>',
-    '<ellipse cx="53.25" cy="273" rx="16.5" ry="14" fill="#338226" opacity="0.93"/>',
-    '<ellipse cx="53.25" cy="261" rx="11" ry="8.5" fill="#3E9C2E" opacity="0.90"/>',
-    # Left-center near-mid (x≈130)
-    '<rect x="128" y="300" width="6" height="80" fill="#142408"/>',
-    '<ellipse cx="131" cy="292" rx="22" ry="18" fill="#256A1C" opacity="0.95"/>',
-    '<ellipse cx="131" cy="276" rx="15.5" ry="12.5" fill="#32861E" opacity="0.93"/>',
-    '<ellipse cx="131" cy="265" rx="10.5" ry="8" fill="#3EA028" opacity="0.90"/>',
-    # Right-center near-mid (x≈270 — not blocking stage10 at x=200,y=531)
-    '<rect x="266" y="300" width="6" height="80" fill="#142408"/>',
-    '<ellipse cx="269" cy="292" rx="22" ry="18" fill="#256A1C" opacity="0.95"/>',
-    '<ellipse cx="269" cy="276" rx="15.5" ry="12.5" fill="#32861E" opacity="0.93"/>',
-    '<ellipse cx="269" cy="265" rx="10.5" ry="8" fill="#3EA028" opacity="0.90"/>',
-    # Far-right cluster (large)
-    '<rect x="337" y="292" width="7.5" height="90" fill="#22300A"/>',
-    '<ellipse cx="340.75" cy="283" rx="28" ry="23" fill="#27691D" opacity="0.97"/>',
-    '<ellipse cx="340.75" cy="264" rx="20" ry="16" fill="#348A28" opacity="0.95"/>',
-    '<ellipse cx="340.75" cy="251" rx="13" ry="10" fill="#42A030" opacity="0.92"/>',
-    '<rect x="368" y="298" width="6.5" height="84" fill="#142408"/>',
-    '<ellipse cx="371.25" cy="290" rx="24" ry="20" fill="#256518" opacity="0.95"/>',
-    '<ellipse cx="371.25" cy="273" rx="16.5" ry="14" fill="#338226" opacity="0.93"/>',
-    '<ellipse cx="371.25" cy="261" rx="11" ry="8.5" fill="#3E9C2E" opacity="0.90"/>',
-
-    # ── WILDFLOWER FIELD (mid-zone) ───────────────────────────────────
-    # Yellow dandelions
-    '<circle cx="82" cy="398" r="5" fill="#FFE030"/>',
-    '<circle cx="79" cy="392" r="3.8" fill="#FFD020"/>',
-    '<circle cx="85" cy="391" r="3.8" fill="#FFE030"/>',
-    '<rect x="83" y="398" width="1.2" height="14" fill="#3A7A20"/>',
-    '<circle cx="162" cy="418" r="4.5" fill="#FFE030"/>',
-    '<rect x="163" y="418" width="1.2" height="13" fill="#3A7A20"/>',
-    '<circle cx="328" cy="404" r="4.8" fill="#FFD820"/>',
-    '<rect x="329" y="404" width="1.2" height="13" fill="#3A7A20"/>',
-    # Pink daisies
-    '<circle cx="118" cy="378" r="6" fill="#FF8AB4"/>',
-    '<circle cx="118" cy="378" r="2.6" fill="#FFE870"/>',
-    '<rect x="119" y="384" width="1.2" height="14" fill="#3A7820"/>',
-    '<circle cx="258" cy="388" r="5.5" fill="#FF8AB4"/>',
-    '<circle cx="258" cy="388" r="2.4" fill="#FFE870"/>',
-    '<circle cx="308" cy="374" r="6" fill="#FF9AC0"/>',
-    '<circle cx="308" cy="374" r="2.6" fill="#FFE870"/>',
-    # Purple lavender clusters
-    '<ellipse cx="64" cy="448" rx="5.5" ry="3.2" fill="#B870E0" opacity="0.90"/>',
-    '<ellipse cx="64" cy="443" rx="5" ry="3" fill="#A860CC" opacity="0.86"/>',
-    '<rect x="63.5" y="448" width="1.2" height="16" fill="#3A6A20"/>',
-    '<ellipse cx="338" cy="438" rx="5.5" ry="3.2" fill="#B870E0" opacity="0.90"/>',
-    '<ellipse cx="338" cy="433" rx="5" ry="3" fill="#A860CC" opacity="0.86"/>',
-    '<rect x="337.5" y="438" width="1.2" height="16" fill="#3A6A20"/>',
-    # Red poppies
-    '<circle cx="210" cy="358" r="6" fill="#E83028"/>',
-    '<circle cx="210" cy="358" r="2.2" fill="#220808"/>',
-    '<rect x="211" y="364" width="1.2" height="15" fill="#3A7820"/>',
-    '<circle cx="148" cy="370" r="5.5" fill="#E82820"/>',
-    '<circle cx="148" cy="370" r="2" fill="#220808"/>',
-    # White daisies
-    '<circle cx="174" cy="438" r="5.5" fill="#FFFFFF" opacity="0.94"/>',
-    '<circle cx="174" cy="438" r="2.4" fill="#FFE860"/>',
-    '<circle cx="238" cy="428" r="5" fill="#FFFFFF" opacity="0.92"/>',
-    '<circle cx="238" cy="428" r="2.2" fill="#FFE860"/>',
-    # Orange flowers
-    '<circle cx="188" cy="410" r="5" fill="#FF8830"/>',
-    '<circle cx="188" cy="410" r="2" fill="#FFE060"/>',
-
-    # ── BUTTERFLY (upper-right of stage 5) ───────────────────────────
-    # Upper wings
-    '<path d="M250,226 Q263,214 272,224 Q263,234 250,226" fill="#FF8AC8" opacity="0.90"/>',
-    '<path d="M250,226 Q237,214 228,224 Q237,234 250,226" fill="#FF6CB0" opacity="0.90"/>',
-    # Lower wings
-    '<path d="M250,231 Q263,243 270,235 Q263,227 250,231" fill="#FFA4D0" opacity="0.76"/>',
-    '<path d="M250,231 Q237,243 230,235 Q237,227 250,231" fill="#FFA4D0" opacity="0.76"/>',
-    # Wing pattern
-    '<circle cx="258" cy="222" r="3.5" fill="#FFD8EC" opacity="0.60"/>',
-    '<circle cx="242" cy="222" r="3.5" fill="#FFD8EC" opacity="0.60"/>',
-    # Body & antennae
-    '<circle cx="250" cy="228" r="2" fill="#5A2010"/>',
-    '<line x1="246.5" y1="226" x2="241" y2="219" stroke="#5A2010" stroke-width="0.9"/>',
-    '<line x1="253.5" y1="226" x2="259" y2="219" stroke="#5A2010" stroke-width="0.9"/>',
-    '<circle cx="240.5" cy="218.5" r="1.2" fill="#5A2010"/>',
-    '<circle cx="259.5" cy="218.5" r="1.2" fill="#5A2010"/>',
-
-    # ── RABBIT (right side) ───────────────────────────────────────────
-    '<ellipse cx="302" cy="550" rx="10" ry="8" fill="#EAE2D2"/>',
-    '<ellipse cx="304" cy="540" rx="6.5" ry="5" fill="#E2DAC8"/>',
-    # Ears
-    '<ellipse cx="301" cy="532" rx="2.5" ry="7" fill="#E2DAC8"/>',
-    '<ellipse cx="307" cy="533" rx="2.5" ry="7" fill="#E2DAC8"/>',
-    '<ellipse cx="301" cy="532" rx="1.2" ry="5" fill="#FFB8C4" opacity="0.65"/>',
-    '<ellipse cx="307" cy="533" rx="1.2" ry="5" fill="#FFB8C4" opacity="0.65"/>',
-    # Face
-    '<circle cx="305" cy="541" r="1" fill="#FF8898"/>',
-    '<circle cx="303" cy="540.5" r="1.4" fill="#1A0808" opacity="0.88"/>',
-    '<circle cx="303.6" cy="540" r="0.5" fill="#FFFFFF"/>',
-    # Feet
-    '<ellipse cx="296" cy="557" rx="5.5" ry="2.8" fill="#EAE2D2"/>',
-    '<ellipse cx="308" cy="557" rx="5.5" ry="2.8" fill="#EAE2D2"/>',
+    # ── NEAR-MID TREES ────────────────────────────────────────
+    # Left
+    '<rect x="54"  y="308" width="16" height="202" fill="#251508"/>',
+    '<ellipse cx="62"  cy="293" rx="34" ry="46" fill="#1C3E0E" opacity="0.92"/>',
+    '<ellipse cx="62"  cy="262" rx="24" ry="32" fill="#224A12" opacity="0.88"/>',
+    '<ellipse cx="62"  cy="242" rx="15" ry="20" fill="#285614" opacity="0.84"/>',
+    '<ellipse cx="58"  cy="354" rx="10" ry="4"  fill="#1A4A08" opacity="0.66"/>',
+    # Right
+    '<rect x="333" y="306" width="16" height="204" fill="#251508"/>',
+    '<ellipse cx="341" cy="291" rx="34" ry="46" fill="#1C3E0E" opacity="0.90"/>',
+    '<ellipse cx="341" cy="260" rx="24" ry="32" fill="#224A12" opacity="0.86"/>',
+    '<ellipse cx="341" cy="240" rx="15" ry="20" fill="#285614" opacity="0.82"/>',
+    '<ellipse cx="337" cy="352" rx="10" ry="4"  fill="#1A4A08" opacity="0.64"/>',
 
     # ══════════════════════════════════════════════════════════════════
-    #  STAGE 10 SPECIAL: 花のアーチゲート Flower Gate  (x=200, y≈531)
+    #  STAGE 10 SPECIAL: グリダニア門 Gridanian Gate  (x=200, y≈531) ×1.5
     # ══════════════════════════════════════════════════════════════════
     '<g transform="translate(200,531) scale(1.5) translate(-200,-531)">',
     # Ground shadow
-    '<ellipse cx="200" cy="564" rx="40" ry="7" fill="#1A5010" opacity="0.32"/>',
-    # Left post
-    '<rect x="166" y="510" width="13" height="57" fill="url(#eGate)" rx="4"/>',
-    '<rect x="168" y="510" width="5" height="57" fill="#B09060" rx="2" opacity="0.38"/>',
-    # Right post
-    '<rect x="221" y="510" width="13" height="57" fill="url(#eGate)" rx="4"/>',
-    '<rect x="223" y="510" width="5" height="57" fill="#B09060" rx="2" opacity="0.38"/>',
-    # Main arch
-    '<path d="M166,523 Q200,493 234,523" stroke="#6A4820" stroke-width="10" fill="none" stroke-linecap="round"/>',
-    '<path d="M167,524 Q200,495 233,524" stroke="#9A7848" stroke-width="4.5" fill="none" stroke-linecap="round" opacity="0.42"/>',
-    # Cross-bar accent
-    '<rect x="163" y="530" width="74" height="5" fill="#6A4820" rx="2" opacity="0.30"/>',
-    # Hanging vines
-    '<path d="M182,507 Q179,518 182,527" stroke="#3A8820" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    '<path d="M200,497 Q200,511 200,520" stroke="#3A8820" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    '<path d="M218,507 Q221,518 218,527" stroke="#3A8820" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    # Leaf clusters
-    '<ellipse cx="182" cy="515" rx="6" ry="4" fill="#3A8820" transform="rotate(-18,182,515)"/>',
-    '<ellipse cx="200" cy="508" rx="6" ry="4" fill="#3A8820"/>',
-    '<ellipse cx="218" cy="515" rx="6" ry="4" fill="#3A8820" transform="rotate(18,218,515)"/>',
-    # Extra leaf detail
-    '<ellipse cx="192" cy="503" rx="4.5" ry="3" fill="#46A02A" transform="rotate(-10,192,503)"/>',
-    '<ellipse cx="208" cy="503" rx="4.5" ry="3" fill="#46A02A" transform="rotate(10,208,503)"/>',
-    # Arch flowers — primary
-    '<circle cx="166" cy="523" r="9" fill="#FF587A"/>',
-    '<circle cx="166" cy="523" r="4" fill="#FFE870"/>',
-    '<circle cx="181" cy="506" r="8" fill="#FFD700"/>',
-    '<circle cx="181" cy="506" r="3.5" fill="#FF8820"/>',
-    '<circle cx="200" cy="494" r="10" fill="#FF78A8"/>',
-    '<circle cx="200" cy="494" r="4.5" fill="#FFE870"/>',
-    '<circle cx="219" cy="506" r="8" fill="#FFD700"/>',
-    '<circle cx="219" cy="506" r="3.5" fill="#FF8820"/>',
-    '<circle cx="234" cy="523" r="9" fill="#FF587A"/>',
-    '<circle cx="234" cy="523" r="4" fill="#FFE870"/>',
-    # Flower petals detail (left main)
-    '<circle cx="172" cy="523" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    '<circle cx="160" cy="523" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    '<circle cx="166" cy="517" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    '<circle cx="166" cy="529" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    # Flower petals detail (right main)
-    '<circle cx="240" cy="523" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    '<circle cx="228" cy="523" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    '<circle cx="234" cy="517" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    '<circle cx="234" cy="529" r="3.2" fill="#FF9DC8" opacity="0.72"/>',
-    # Post-climbing flowers
-    '<circle cx="172" cy="548" r="5.5" fill="#FF8AB4"/>',
-    '<circle cx="172" cy="548" r="2.2" fill="#FFE870"/>',
-    '<circle cx="228" cy="548" r="5.5" fill="#FF8AB4"/>',
-    '<circle cx="228" cy="548" r="2.2" fill="#FFE870"/>',
-    # Fallen petals below gate
-    '<ellipse cx="188" cy="568" rx="3" ry="2" fill="#FFB8D4" opacity="0.68" transform="rotate(-15,188,568)"/>',
-    '<ellipse cx="212" cy="570" rx="3" ry="2" fill="#FFB8D4" opacity="0.65" transform="rotate(20,212,570)"/>',
+    '<ellipse cx="200" cy="576" rx="56" ry="11" fill="#0C1A06" opacity="0.58"/>',
+    '<ellipse cx="200" cy="570" rx="40" ry="7"  fill="#284E10" opacity="0.28"/>',
+
+    # LEFT POST — ancient carved wood
+    '<rect x="155" y="502" width="20" height="72" fill="url(#eWood)" rx="4"/>',
+    '<rect x="156" y="503" width="6"  height="70" fill="#6A4828" opacity="0.22"/>',
+    # Carved spirals (Gridanian motif)
+    '<path d="M157,516 Q163,512 173,516" stroke="#0E0602" stroke-width="1.3" fill="none" opacity="0.60"/>',
+    '<path d="M157,528 Q163,524 173,528" stroke="#0E0602" stroke-width="1.3" fill="none" opacity="0.55"/>',
+    '<path d="M157,540 Q163,536 173,540" stroke="#0E0602" stroke-width="1.3" fill="none" opacity="0.50"/>',
+    '<path d="M157,552 Q163,548 173,552" stroke="#0E0602" stroke-width="1.1" fill="none" opacity="0.42"/>',
+    # Post cap
+    '<rect    x="150" y="498" width="28" height="7"   fill="#382010" rx="2"/>',
+    '<ellipse cx="164" cy="498" rx="14"  ry="3.8" fill="#483018" opacity="0.62"/>',
+
+    # RIGHT POST
+    '<rect x="225" y="502" width="20" height="72" fill="url(#eWood)" rx="4"/>',
+    '<rect x="226" y="503" width="6"  height="70" fill="#6A4828" opacity="0.22"/>',
+    '<path d="M227,516 Q233,512 243,516" stroke="#0E0602" stroke-width="1.3" fill="none" opacity="0.60"/>',
+    '<path d="M227,528 Q233,524 243,528" stroke="#0E0602" stroke-width="1.3" fill="none" opacity="0.55"/>',
+    '<path d="M227,540 Q233,536 243,540" stroke="#0E0602" stroke-width="1.3" fill="none" opacity="0.50"/>',
+    '<path d="M227,552 Q233,548 243,552" stroke="#0E0602" stroke-width="1.1" fill="none" opacity="0.42"/>',
+    '<rect    x="222" y="498" width="28" height="7"   fill="#382010" rx="2"/>',
+    '<ellipse cx="236" cy="498" rx="14"  ry="3.8" fill="#483018" opacity="0.62"/>',
+
+    # CURVED TOP BEAM (Gridanian arch style)
+    '<path d="M148,502 Q200,470 252,502" stroke="#1C0E04" stroke-width="15" fill="none" stroke-linecap="round"/>',
+    '<path d="M148,502 Q200,470 252,502" stroke="url(#eBeam)" stroke-width="12" fill="none" stroke-linecap="round"/>',
+    '<path d="M150,503 Q200,472 250,503" stroke="#7A5230" stroke-width="4.5" fill="none" stroke-linecap="round" opacity="0.30"/>',
+    '<path d="M151,502 Q200,473 249,502" stroke="#1A0C04" stroke-width="1.5" fill="none" opacity="0.22"/>',
+    # Second horizontal crossbar
+    '<rect x="150" y="516" width="100" height="8" fill="#3A2010" rx="2"/>',
+    '<rect x="152" y="517" width="40"  height="3" fill="#5A3820" opacity="0.38"/>',
+
+    # VINES — left post
+    '<path d="M155,555 Q146,540 148,525 Q143,512 150,502" stroke="#245010" stroke-width="2.8" fill="none" stroke-linecap="round"/>',
+    '<ellipse cx="145" cy="538" rx="7"   ry="5"   fill="#2C5A12" transform="rotate(-24,145,538)"/>',
+    '<ellipse cx="148" cy="522" rx="6.5" ry="4.5" fill="#326018" transform="rotate(-10,148,522)"/>',
+    '<ellipse cx="149" cy="504" rx="5.5" ry="4"   fill="#2C5A12" transform="rotate(8,149,504)"/>',
+    '<circle  cx="145" cy="540" r="2.8"            fill="#9AD828" opacity="0.82"/>',
+    '<circle  cx="149" cy="523" r="2.4"            fill="#88C830" opacity="0.76"/>',
+
+    # VINES — right post
+    '<path d="M245,555 Q254,540 252,525 Q257,512 250,502" stroke="#245010" stroke-width="2.8" fill="none" stroke-linecap="round"/>',
+    '<ellipse cx="255" cy="538" rx="7"   ry="5"   fill="#2C5A12" transform="rotate(24,255,538)"/>',
+    '<ellipse cx="252" cy="522" rx="6.5" ry="4.5" fill="#326018" transform="rotate(10,252,522)"/>',
+    '<ellipse cx="251" cy="504" rx="5.5" ry="4"   fill="#2C5A12" transform="rotate(-8,251,504)"/>',
+    '<circle  cx="255" cy="540" r="2.8"            fill="#9AD828" opacity="0.80"/>',
+    '<circle  cx="252" cy="523" r="2.4"            fill="#88C830" opacity="0.74"/>',
+
+    # HANGING ARCH VINES
+    '<ellipse cx="174" cy="482" rx="6.5" ry="4.5" fill="#285A10" transform="rotate(-38,174,482)"/>',
+    '<ellipse cx="200" cy="473" rx="7.5" ry="5"   fill="#306018"/>',
+    '<ellipse cx="226" cy="482" rx="6.5" ry="4.5" fill="#285A10" transform="rotate(38,226,482)"/>',
+    '<circle  cx="174" cy="482" r="3.2"            fill="#96D030" opacity="0.84"/>',
+    '<circle  cx="200" cy="472" r="3.8"            fill="#A4DC38" opacity="0.88"/>',
+    '<circle  cx="226" cy="482" r="3.2"            fill="#96D030" opacity="0.82"/>',
+
+    # GLOWING ELEMENTAL CRYSTALS on gate posts
+    '<polygon points="161,492 164,482 167,492" fill="#48D0A8" opacity="0.82"/>',
+    '<circle  cx="164" cy="480" r="2.8"         fill="#90FFE0" opacity="0.88"/>',
+    '<ellipse cx="164" cy="486" rx="5.5" ry="3.2" fill="url(#eElem)" opacity="0.40"/>',
+
+    '<polygon points="233,492 236,482 239,492" fill="#48D0A8" opacity="0.80"/>',
+    '<circle  cx="236" cy="480" r="2.8"         fill="#90FFE0" opacity="0.85"/>',
+    '<ellipse cx="236" cy="486" rx="5.5" ry="3.2" fill="url(#eElem)" opacity="0.38"/>',
+
+    # CENTER AETHERYTE SHARD (top of arch)
+    '<polygon points="196,490 200,479 204,490" fill="#68E0B8" opacity="0.75"/>',
+    '<circle  cx="200" cy="477" r="3.5"         fill="#B0FFE8" opacity="0.90"/>',
+    '<ellipse cx="200" cy="485" rx="7" ry="4"   fill="url(#eElem)" opacity="0.32"/>',
+
     '</g>',
 
-    # ── GRASS TUFTS & GROUND DETAIL ───────────────────────────────────
-    '<path d="M28,478 Q30,465 32,457 Q34,465 36,478" fill="#2A7018" opacity="0.82"/>',
-    '<path d="M142,462 Q144,450 146,442 Q148,450 150,462" fill="#2A7018" opacity="0.82"/>',
-    '<path d="M282,468 Q284,456 286,448 Q288,456 290,468" fill="#2A7018" opacity="0.82"/>',
-    '<path d="M378,473 Q380,461 382,453 Q384,461 386,473" fill="#2A7018" opacity="0.82"/>',
-    # Scattered base flowers
-    '<circle cx="44" cy="552" r="4.5" fill="#FFE030"/>',
-    '<circle cx="100" cy="546" r="4.5" fill="#FF8AB4"/>',
-    '<circle cx="155" cy="556" r="4" fill="#FF8AB4"/>',
-    '<circle cx="230" cy="556" r="4.5" fill="#FFFFFF" opacity="0.93"/>',
-    '<circle cx="230" cy="556" r="2" fill="#FFE860"/>',
-    '<circle cx="285" cy="548" r="4.5" fill="#FFE030"/>',
-    '<circle cx="356" cy="552" r="4" fill="#FF8AB4"/>',
+    # ── FOREGROUND GIANT TREES ────────────────────────────────
+    # Left — massive ancient tree with visible root system
+    '<rect x="-10" y="415" width="34" height="185" fill="url(#eTrunk)"/>',
+    '<path d="M-10,498 Q-32,472 -44,496 Q-24,476 -10,502" fill="#160E04" opacity="0.88"/>',
+    '<path d="M24,498  Q50,472  64,494  Q44,476  24,502"  fill="#160E04" opacity="0.82"/>',
+    '<path d="M0,545   Q-24,524 -36,548 Q-16,528  0,552"  fill="#120C04" opacity="0.75"/>',
+    '<path d="M14,548  Q38,528  50,550  Q30,532  14,555"  fill="#120C04" opacity="0.72"/>',
+    # Canopy
+    '<ellipse cx="7"   cy="392" rx="70" ry="55" fill="#183808" opacity="0.98"/>',
+    '<ellipse cx="7"   cy="358" rx="52" ry="40" fill="#1C4410" opacity="0.96"/>',
+    '<ellipse cx="7"   cy="330" rx="38" ry="28" fill="#224C12" opacity="0.93"/>',
+    '<ellipse cx="7"   cy="308" rx="25" ry="18" fill="#285414" opacity="0.88"/>',
+    '<ellipse cx="7"   cy="292" rx="15" ry="10" fill="#2E5C16" opacity="0.82"/>',
+    # Moss on trunk
+    '<ellipse cx="2"   cy="452" rx="16" ry="6"  fill="#184808" opacity="0.72"/>',
+    '<ellipse cx="12"  cy="478" rx="13" ry="5"  fill="#163C08" opacity="0.66"/>',
+    # Lower canopy skirt (covers trunk edges)
+    '<ellipse cx="-2"  cy="485" rx="65" ry="26" fill="#142C08"/>',
+    '<ellipse cx="-10" cy="528" rx="60" ry="23" fill="#122A06"/>',
+    '<ellipse cx="-2"  cy="570" rx="57" ry="21" fill="#142C08"/>',
+    '<ellipse cx="-10" cy="608" rx="54" ry="19" fill="#163008"/>',
 
-    # ── LAYER 6: FOREGROUND LARGE TREES ──────────────────────────────
-    # Left — trunk only visible between lower canopy layers
-    '<rect x="0" y="455" width="18" height="145" fill="#3A2210"/>',
-    # Canopy — top to bottom layers
-    '<ellipse cx="9" cy="430" rx="54" ry="42" fill="#23671B" opacity="0.99"/>',
-    '<ellipse cx="9" cy="403" rx="38" ry="30" fill="#30842A" opacity="0.97"/>',
-    '<ellipse cx="9" cy="380" rx="25" ry="18" fill="#3CA030" opacity="0.95"/>',
-    '<ellipse cx="9" cy="363" rx="16" ry="11" fill="#48B034" opacity="0.90"/>',
-    # Lower canopy skirt — fully covers trunk below canopy
-    '<ellipse cx="9" cy="480" rx="58" ry="28" fill="#25701F"/>',
-    '<ellipse cx="9" cy="528" rx="55" ry="22" fill="#236A1C"/>',
-    '<ellipse cx="9" cy="572" rx="52" ry="20" fill="#226418"/>',
-    '<ellipse cx="9" cy="600" rx="50" ry="16" fill="#2A7020"/>',
-    # Right — trunk only visible between lower canopy layers
-    '<rect x="382" y="457" width="18" height="143" fill="#3A2210"/>',
-    # Canopy — top to bottom layers
-    '<ellipse cx="391" cy="430" rx="54" ry="42" fill="#23671B" opacity="0.99"/>',
-    '<ellipse cx="391" cy="403" rx="38" ry="30" fill="#30842A" opacity="0.97"/>',
-    '<ellipse cx="391" cy="380" rx="25" ry="18" fill="#3CA030" opacity="0.95"/>',
-    '<ellipse cx="391" cy="363" rx="16" ry="11" fill="#48B034" opacity="0.90"/>',
-    # Lower canopy skirt — fully covers trunk below canopy
-    '<ellipse cx="391" cy="480" rx="58" ry="28" fill="#25701F"/>',
-    '<ellipse cx="391" cy="528" rx="55" ry="22" fill="#236A1C"/>',
-    '<ellipse cx="391" cy="572" rx="52" ry="20" fill="#226418"/>',
-    '<ellipse cx="391" cy="600" rx="50" ry="16" fill="#2A7020"/>',
+    # Right — massive ancient tree
+    '<rect x="376" y="415" width="34" height="185" fill="url(#eTrunk)"/>',
+    '<path d="M410,498 Q432,472 444,496 Q424,476 410,502" fill="#160E04" opacity="0.86"/>',
+    '<path d="M376,498 Q350,472 336,494 Q356,476 376,502" fill="#160E04" opacity="0.80"/>',
+    '<path d="M400,545 Q424,524 436,548 Q416,528 400,552" fill="#120C04" opacity="0.73"/>',
+    '<path d="M386,548 Q362,528 350,550 Q370,532 386,555" fill="#120C04" opacity="0.70"/>',
+    '<ellipse cx="393" cy="392" rx="70" ry="55" fill="#183808" opacity="0.96"/>',
+    '<ellipse cx="393" cy="358" rx="52" ry="40" fill="#1C4410" opacity="0.94"/>',
+    '<ellipse cx="393" cy="330" rx="38" ry="28" fill="#224C12" opacity="0.91"/>',
+    '<ellipse cx="393" cy="308" rx="25" ry="18" fill="#285414" opacity="0.86"/>',
+    '<ellipse cx="393" cy="292" rx="15" ry="10" fill="#2E5C16" opacity="0.80"/>',
+    '<ellipse cx="388" cy="452" rx="16" ry="6"  fill="#184808" opacity="0.70"/>',
+    '<ellipse cx="398" cy="478" rx="13" ry="5"  fill="#163C08" opacity="0.64"/>',
+    '<ellipse cx="402" cy="485" rx="65" ry="26" fill="#142C08"/>',
+    '<ellipse cx="410" cy="528" rx="60" ry="23" fill="#122A06"/>',
+    '<ellipse cx="402" cy="570" rx="57" ry="21" fill="#142C08"/>',
+    '<ellipse cx="410" cy="608" rx="54" ry="19" fill="#163008"/>',
+
+    # ── GROUND MIST ───────────────────────────────────────────
+    '<rect y="558" width="400" height="42" fill="url(#eMist)" opacity="0.78"/>',
+    '<rect y="582" width="400" height="18" fill="#1E3C0C" opacity="0.14"/>',
 
     '</svg>',
 )
