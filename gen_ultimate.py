@@ -110,16 +110,17 @@ A('<linearGradient id="cTowerV" x1="0" y1="0" x2="0" y2="1">'
 
 # Stone buildings (warm grey, lit by crystal tower glow)
 A('<linearGradient id="cStone" x1="0" y1="0" x2="1" y2="1">'
-  '<stop offset="0%"   stop-color="#6A6878"/>'
-  '<stop offset="35%"  stop-color="#585668"/>'
-  '<stop offset="70%"  stop-color="#484658"/>'
-  '<stop offset="100%" stop-color="#383648"/>'
+  '<stop offset="0%"   stop-color="#C8B890"/>'   # warm sandstone (Crystarium primary material)
+  '<stop offset="35%"  stop-color="#B0A07A"/>'
+  '<stop offset="70%"  stop-color="#908060"/>'
+  '<stop offset="100%" stop-color="#706048"/>'
   '</linearGradient>')
 
+# Stone lit by crystal tower blue glow (slightly cooler/blue-tinted face)
 A('<linearGradient id="cStoneLit" x1="0" y1="0" x2="1" y2="0">'
-  '<stop offset="0%"   stop-color="#7888A8"/>'   # blue-lit face
-  '<stop offset="45%"  stop-color="#686888"/>'
-  '<stop offset="100%" stop-color="#484858"/>'
+  '<stop offset="0%"   stop-color="#A8B8C8"/>'   # crystal-blue lit face
+  '<stop offset="30%"  stop-color="#B8AA88"/>'   # transitions to sandstone
+  '<stop offset="100%" stop-color="#A09070"/>'
   '</linearGradient>')
 
 # Ground / city platform (dark stone, crystal-glow lit)
@@ -153,11 +154,25 @@ A('<radialGradient id="cFountain" cx="50%" cy="30%" r="60%">'
   '<stop offset="100%" stop-color="#3080C0" stop-opacity="0.70"/>'
   '</radialGradient>')
 
-# Gate arch fill
+# Gate / dark iron framework (black iron is prominent in Crystarium — Rotunda material)
 A('<linearGradient id="cGate" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#7888A0"/>'
-  '<stop offset="50%"  stop-color="#606070"/>'
-  '<stop offset="100%" stop-color="#484858"/>'
+  '<stop offset="0%"   stop-color="#3A3A48"/>'   # matte black iron
+  '<stop offset="50%"  stop-color="#2A2A38"/>'
+  '<stop offset="100%" stop-color="#1E1E2C"/>'
+  '</linearGradient>')
+
+# Iron with sandstone base (mixed material — most Crystarium structural elements)
+A('<linearGradient id="cIronSand" x1="0" y1="0" x2="0" y2="1">'
+  '<stop offset="0%"   stop-color="#B0A080"/>'   # sandstone top
+  '<stop offset="40%"  stop-color="#888070"/>'   # mid blend
+  '<stop offset="100%" stop-color="#303040"/>'   # iron base
+  '</linearGradient>')
+
+# Purple forest horizon (Lakeland surroundings — deep purple vegetation)
+A('<linearGradient id="cForest" x1="0" y1="0" x2="0" y2="1">'
+  '<stop offset="0%"   stop-color="#3A1860" stop-opacity="0.60"/>'
+  '<stop offset="55%"  stop-color="#2A1050" stop-opacity="0.80"/>'
+  '<stop offset="100%" stop-color="#1A0838" stop-opacity="0.90"/>'
   '</linearGradient>')
 
 # Vignette
@@ -283,19 +298,46 @@ for scx, scy, sw, sh, sang, scol, sop in shards:
       f'fill="#A0CCFF" opacity="{sop*0.15:.2f}"/>')
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  5. CITY PLATFORM / DISTANT BUILDINGS (background, lit by tower glow)
+#  5. LAKELAND PURPLE FORESTS (surrounding landscape — deep violet vegetation)
+#     Lakeland approaches have vibrant purple forest even under the tower glow
 # ─────────────────────────────────────────────────────────────────────────────
-# Background city skyline (distant, atmospheric)
-A('<path d="M0,248 L0,265 L30,265 L30,248 L40,248 L40,260 L55,260 L55,242 '
-  'L68,242 L68,255 L80,255 L80,248 L95,248 L95,258 L108,258 L108,245 '
-  'L120,245 L120,260 L128,260 L128,248 '
-  'M272,248 L272,260 L280,260 L280,248 L292,248 L292,256 L305,256 '
-  'L305,244 L318,244 L318,258 L330,258 L330,248 L345,248 '
-  'L345,260 L360,260 L360,248 L375,248 L375,255 L390,255 L390,248 L400,248 L400,265 L0,265" '
-  'fill="url(#cStone)" opacity="0.78"/>')
-# Crystal accents on distant buildings (tiny glowing windows)
-for bwx, bwy in [(38,252),(62,247),(90,252),(104,249),(292,252),(318,248),(340,252),(362,252)]:
-    A(f'<rect x="{bwx}" y="{bwy}" width="5" height="4" fill="#80C8FF" rx="1" opacity="0.70"/>')
+# Left purple forest hills
+A('<path d="M0,268 Q18,240 40,255 Q58,228 78,248 Q95,222 115,240 Q130,230 148,250 L148,278 L0,278 Z" '
+  'fill="#3A1860" opacity="0.72"/>')
+A('<path d="M0,274 Q22,252 48,262 Q68,240 90,256 Q108,244 128,260 L128,280 L0,280 Z" '
+  'fill="#2A1050" opacity="0.55"/>')
+# Tree bumps (purple canopy)
+for tx2, ty2, tr in [(18,254,10),(40,244,12),(62,238,11),(85,240,13),(108,232,11),(130,242,10)]:
+    A(f'<ellipse cx="{tx2}" cy="{ty2}" rx="{tr}" ry="{tr*0.75:.0f}" fill="#4A2080" opacity="0.82"/>')
+    A(f'<ellipse cx="{tx2}" cy="{ty2}" rx="{tr*0.65:.0f}" ry="{tr*0.55:.0f}" fill="#5A2898" opacity="0.65"/>')
+
+# Right purple forest hills
+A('<path d="M252,278 L252,250 Q270,230 292,248 Q310,222 330,240 Q348,228 368,250 Q385,240 400,255 L400,278 Z" '
+  'fill="#3A1860" opacity="0.72"/>')
+A('<path d="M272,280 L272,260 Q290,244 312,258 Q330,244 352,262 Q370,252 400,268 L400,280 Z" '
+  'fill="#2A1050" opacity="0.55"/>')
+for tx2, ty2, tr in [(270,250,10),(292,240,12),(315,232,11),(338,240,13),(360,238,11),(382,248,10)]:
+    A(f'<ellipse cx="{tx2}" cy="{ty2}" rx="{tr}" ry="{tr*0.75:.0f}" fill="#4A2080" opacity="0.82"/>')
+    A(f'<ellipse cx="{tx2}" cy="{ty2}" rx="{tr*0.65:.0f}" ry="{tr*0.55:.0f}" fill="#5A2898" opacity="0.65"/>')
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  6. CITY PLATFORM / DISTANT BUILDINGS (background, lit by tower glow)
+# ─────────────────────────────────────────────────────────────────────────────
+# Background city skyline (sandstone buildings — warm beige/tan primary color)
+A('<path d="M0,258 L0,275 L30,275 L30,258 L40,258 L40,270 L55,270 L55,252 '
+  'L68,252 L68,265 L80,265 L80,258 L95,258 L95,268 L108,268 L108,255 '
+  'L120,255 L120,270 L128,270 L128,258 '
+  'M272,258 L272,270 L280,270 L280,258 L292,258 L292,266 L305,266 '
+  'L305,254 L318,254 L318,268 L330,268 L330,258 L345,258 '
+  'L345,270 L360,270 L360,258 L375,258 L375,265 L390,265 L390,258 L400,258 L400,275 L0,275" '
+  'fill="url(#cStone)" opacity="0.82"/>')
+# Black iron trim on rooflines
+A('<path d="M0,258 L128,258 M272,258 L400,258" '
+  'fill="none" stroke="#202030" stroke-width="2.5" opacity="0.80"/>')
+# Crystal glow windows (small)
+for bwx, bwy in [(38,262),(62,257),(90,262),(104,259),(292,262),(318,258),(340,262),(362,262)]:
+    A(f'<rect x="{bwx}" y="{bwy}" width="5" height="4" fill="#80C8FF" rx="1" opacity="0.72"/>')
+    A(f'<ellipse cx="{bwx+2}" cy="{bwy+2}" rx="5" ry="4" fill="#60A8F0" opacity="0.18"/>')
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  6. LEFT AND RIGHT MAIN BUILDINGS (Crystarium architecture)
@@ -339,6 +381,73 @@ A(crystarium_building(bx=-6,  by=215, bw=66, bh=175, side='left',  n_windows=2))
 # Right wing
 A(crystarium_building(bx=318, by=168, bw=92, bh=232, side='right', n_windows=3))
 A(crystarium_building(bx=340, by=218, bw=66, bh=175, side='right', n_windows=2))
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  6b. THE ROTUNDA — iconic domed entrance hall
+#      "Elegant black iron and sheets of shimmering crystal" (Sightseeing Log)
+#      This is the first structure visitors encounter — domed, grand, central
+# ─────────────────────────────────────────────────────────────────────────────
+rot_cx = 200; rot_base = 362
+
+# Rotunda base platform (sandstone steps)
+A(f'<rect x="{rot_cx-70}" y="{rot_base-12}" width="140" height="14" fill="url(#cStone)" rx="2" opacity="0.90"/>')
+A(f'<rect x="{rot_cx-60}" y="{rot_base-20}" width="120" height="10" fill="url(#cStone)" rx="2" opacity="0.88"/>')
+A(f'<rect x="{rot_cx-50}" y="{rot_base-26}" width="100" height="8" fill="url(#cStone)" rx="1" opacity="0.85"/>')
+# Black iron base rings
+for step_y in [rot_base-12, rot_base-20, rot_base-26]:
+    A(f'<rect x="{rot_cx-72}" y="{step_y}" width="144" height="2" fill="#181820" opacity="0.70"/>')
+
+# Rotunda drum (cylindrical body — sandstone with black iron pilaster strips)
+drum_h = 52; drum_r = 48
+A(f'<rect x="{rot_cx-drum_r}" y="{rot_base-26-drum_h}" width="{drum_r*2}" height="{drum_h}" '
+  f'fill="url(#cStone)" rx="3" opacity="0.92"/>')
+# Crystal windows in drum (8 around circumference — shown as 5 facing front)
+for wi in range(5):
+    wx2 = rot_cx - 34 + wi * 17
+    wy2 = rot_base - 26 - drum_h + drum_h*0.28
+    A(f'<rect x="{wx2:.0f}" y="{wy2:.0f}" width="8" height="{drum_h*0.45:.0f}" '
+      f'fill="#1A2840" rx="3" opacity="0.88"/>')
+    A(f'<rect x="{wx2+1:.0f}" y="{wy2+1:.0f}" width="6" height="{drum_h*0.43:.0f}" '
+      f'fill="#70C0FF" rx="3" opacity="0.60"/>')
+    A(f'<ellipse cx="{wx2+4:.0f}" cy="{wy2+drum_h*0.2:.0f}" rx="5" ry="{drum_h*0.18:.0f}" '
+      f'fill="#A0D8FF" opacity="0.20"/>')
+# Black iron pilaster strips
+for pi in range(6):
+    px2 = rot_cx - drum_r + pi * (drum_r*2/5)
+    A(f'<rect x="{px2:.0f}" y="{rot_base-26-drum_h}" width="4" height="{drum_h}" '
+      f'fill="#1C1C28" rx="1" opacity="0.72"/>')
+# Iron entablature band (top of drum)
+A(f'<rect x="{rot_cx-drum_r-2}" y="{rot_base-26-drum_h-6}" width="{drum_r*2+4}" height="8" '
+  f'fill="#1E1E2C" rx="1" opacity="0.85"/>')
+A(f'<rect x="{rot_cx-drum_r-2}" y="{rot_base-26-drum_h-8}" width="{drum_r*2+4}" height="3" '
+  f'fill="url(#cCrystal)" opacity="0.55"/>')
+
+# Dome (black iron ribs + crystal panels — the signature Rotunda look)
+dome_cx = rot_cx; dome_cy = rot_base - 26 - drum_h - 6
+dome_rx = drum_r + 4; dome_ry = 36
+# Dome base ellipse (iron)
+A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="#1A1A28" opacity="0.88"/>')
+# Crystal panel fill (shimmering — the crystal sheets)
+A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="#1E3850" opacity="0.60"/>')
+A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="url(#cTowerGlow)" opacity="0.45"/>')
+# Dome highlight (blue-white shimmer of crystal sheets catching tower glow)
+A(f'<ellipse cx="{dome_cx-12}" cy="{dome_cy-12}" rx="{dome_rx*0.40:.0f}" ry="{dome_ry*0.30:.0f}" '
+  f'fill="#80C8FF" opacity="0.28"/>')
+# Iron ribs (8 structural ribs radiating from top)
+for ri in range(8):
+    ang = math.radians(ri*22.5 - 90)
+    rx2 = dome_cx + math.cos(ang)*dome_rx; ry2 = dome_cy + math.sin(ang)*dome_ry
+    A(f'<line x1="{dome_cx}" y1="{dome_cy-dome_ry}" x2="{rx2:.0f}" y2="{ry2:.0f}" '
+      f'stroke="#181820" stroke-width="2.5" opacity="0.80"/>')
+# Dome lantern (crystal finial at apex)
+A(f'<circle cx="{dome_cx}" cy="{dome_cy-dome_ry-2}" r="7" fill="#1C2835" opacity="0.90"/>')
+A(f'<polygon points="{dome_cx},{dome_cy-dome_ry-18} {dome_cx+5},{dome_cy-dome_ry-4} {dome_cx-5},{dome_cy-dome_ry-4}" '
+  f'fill="url(#cCrystal)" opacity="0.90"/>')
+A(f'<circle cx="{dome_cx}" cy="{dome_cy-dome_ry-10}" r="4" fill="#80D8FF" opacity="0.70"/>')
+A(f'<ellipse cx="{dome_cx}" cy="{dome_cy-dome_ry-10}" rx="12" ry="12" fill="#50A8F0" opacity="0.14"/>')
+# Glow from Rotunda (crystal tower light reflecting off dome)
+A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx+20}" ry="{dome_ry+15}" '
+  f'fill="#4080C0" opacity="0.06"/>')
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  7. GROUND PLATFORM (dark stone, central plaza)
