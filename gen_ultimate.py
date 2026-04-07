@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
-"""gen_ultimate.py — ULTIMATE: The Crystarium (FF14 Shadowbringers) — complete rebuild
-Quality-first, accurate to in-game visuals.
+"""gen_ultimate.py — ULTIMATE: The Crystarium (FF14 Shadowbringers) — v5 precision rebuild
 
-Key references:
-  Sky   : near-black indigo zenith → dense stars (restored night, The First)
-  Tower : "gleaming spear of crystal" — luminous pale blue-white, faceted,
-          reflective, ring-banded, dominates entire composition
-  Arch. : sandstone/tan stone + wrought black iron + crystal panel inlays
-          ecletic melting-pot (Lominsan/Ul'dahn/Ishgardian refugee styles)
-  Rotunda: "elegant black iron and sheets of shimmering crystal" — domed,
-            iron-ribbed, first landmark visitors encounter
-  Forest : Lakeland's vibrant purple forest on all horizons
-  Lights : warm amber lanterns (added when night first returned in 100 yrs)
-  Stage 5 : The Exedra — grand crystal fountain, iconic gathering plaza
-  Stage 10: Main Crystarium gate — iron+stone twin towers, tower behind arch
+Exact stage node SVG coordinates (scrollW=520, scrollH=1370, viewBox 0 0 400 600):
+  Stage 5  center: SVG (200, 166)  — node 84×84 DOM → ≈ 65×37 SVG units
+  Stage 10 center: SVG (200, 336)  — node 96×96 DOM → ≈ 74×42 SVG units
+
+Composition layout:
+  y   0-275 : Night sky, dense stars, Crystal Tower (tip y≈5 → base skirt y≈278)
+  y 145-195 : [STAGE 5] Exedra Fountain — centered at (200,166)
+  y 150-275 : Left/right sandstone+iron buildings
+  y 258-278 : Lakeland purple forest horizon
+  y 275-600 : Dark stone plaza (tiles, crystal vein channels, lanterns, pillars)
+  y 310-365 : [STAGE 10] Crystarium Main Gate — arch framing node at (200,336)
+  y 245-340 : The Rotunda (dome structure, stage-right of path)
+  Floating crystal shards: y 40-200
 """
-import re as _re, math
-import random as _rand
-_rnd = _rand.Random(137)
+import re as _re, math, random as _rnd
+_r = _rnd.Random(42)
 
 with open('/Users/hirokazukataoka/subitze/stage.html', 'r', encoding='utf-8') as f:
     html = f.read()
@@ -25,965 +24,785 @@ with open('/Users/hirokazukataoka/subitze/stage.html', 'r', encoding='utf-8') as
 parts = []
 def A(s): parts.append(s)
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  HELPER FUNCTIONS
-# ═════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
+#  HELPERS
+# ═══════════════════════════════════════════════════════════════════════════
+def star4(sx, sy, r, op, col='#FFFFFF', gc='#B0D0FF'):
+    s  = f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{r:.1f}" fill="{col}" opacity="{op:.2f}"/>'
+    if r > 1.5:
+        s += f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{r*2.8:.1f}" fill="{gc}" opacity="{op*0.12:.2f}"/>'
+        for a in (0, 90, 180, 270):
+            rad = math.radians(a)
+            ex = sx + math.cos(rad)*r*4.5; ey = sy + math.sin(rad)*r*4.5
+            s += (f'<line x1="{sx:.1f}" y1="{sy:.1f}" x2="{ex:.1f}" y2="{ey:.1f}" '
+                  f'stroke="{col}" stroke-width="0.5" opacity="{op*0.42:.2f}"/>')
+    return s
 
-def sparkle(sx, sy, r=1.2, op=0.90, col='#FFFFFF', glow_col='#B0D0FF'):
-    """Star with optional 4-point sparkle cross."""
-    out = f'<circle cx="{sx}" cy="{sy}" r="{r}" fill="{col}" opacity="{op}"/>'
-    if r > 1.6:
-        out += (f'<circle cx="{sx}" cy="{sy}" r="{r*2.5:.1f}" fill="{glow_col}" opacity="{op*0.15:.2f}"/>')
-        for ang in [0, 90, 180, 270]:
-            rad = math.radians(ang)
-            ex = sx + math.cos(rad)*r*4; ey = sy + math.sin(rad)*r*4
-            out += (f'<line x1="{sx}" y1="{sy}" x2="{ex:.1f}" y2="{ey:.1f}" '
-                    f'stroke="{col}" stroke-width="0.6" opacity="{op*0.45:.2f}"/>')
-    return out
+def shard(cx, cy, w, h, ang=0, col='#B8DCFF', op=0.76):
+    hw=w/2; hh=h/2
+    pts=(f'{cx:.1f},{cy-hh:.1f} {cx+hw:.1f},{cy-hh*0.22:.1f} '
+         f'{cx+hw*0.62:.1f},{cy+hh:.1f} {cx-hw*0.62:.1f},{cy+hh:.1f} '
+         f'{cx-hw:.1f},{cy-hh*0.22:.1f}')
+    r  = f'<polygon points="{pts}" fill="{col}" opacity="{op}" transform="rotate({ang},{cx:.1f},{cy:.1f})"/>'
+    # highlight
+    ar = math.radians(ang-90)
+    hx1=cx+math.cos(ar-0.35)*hw*0.28; hy1=cy+math.sin(ar-0.35)*hh*0.80
+    hx2=cx+math.cos(ar)*hw*0.10;      hy2=cy+math.sin(ar)*hh*0.32
+    r += (f'<line x1="{hx1:.1f}" y1="{hy1:.1f}" x2="{hx2:.1f}" y2="{hy2:.1f}" '
+          f'stroke="#FFFFFF" stroke-width="1.8" opacity="{op*0.55:.2f}" '
+          f'transform="rotate({ang},{cx:.1f},{cy:.1f})"/>')
+    r += f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{w:.0f}" ry="{h*0.48:.0f}" fill="{col}" opacity="{op*0.10:.2f}"/>'
+    return r
 
-def crystal_shard(cx, cy, w, h, angle=0, col='#B8DCFF', op=0.78):
-    """Floating crystal shard — elongated hexagonal."""
-    hw = w/2; hh = h/2
-    pts = (f'{cx:.1f},{cy-hh:.1f} {cx+hw:.1f},{cy-hh*0.25:.1f} '
-           f'{cx+hw*0.65:.1f},{cy+hh:.1f} {cx-hw*0.65:.1f},{cy+hh:.1f} '
-           f'{cx-hw:.1f},{cy-hh*0.25:.1f}')
-    out  = (f'<polygon points="{pts}" fill="{col}" opacity="{op}" '
-            f'transform="rotate({angle},{cx:.1f},{cy:.1f})"/>')
-    # Inner highlight streak
-    ang_r = math.radians(angle - 90)
-    hx1 = cx + math.cos(ang_r - 0.3)*hw*0.25; hy1 = cy + math.sin(ang_r - 0.3)*hh*0.75
-    hx2 = cx + math.cos(ang_r)*hw*0.10;       hy2 = cy + math.sin(ang_r)*hh*0.35
-    out += (f'<line x1="{hx1:.1f}" y1="{hy1:.1f}" x2="{hx2:.1f}" y2="{hy2:.1f}" '
-            f'stroke="#FFFFFF" stroke-width="1.8" opacity="{op*0.60:.2f}" '
-            f'transform="rotate({angle},{cx:.1f},{cy:.1f})"/>')
-    # Soft glow
-    out += (f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{w:.0f}" ry="{h*0.5:.0f}" '
-            f'fill="{col}" opacity="{op*0.12:.2f}"/>')
-    return out
-
-def lantern_post(lx, ly, h=30, lamp_w=9, lamp_h=12):
-    """Warm amber lantern on iron post."""
-    out = []
-    # Post (black iron)
-    out.append(f'<line x1="{lx}" y1="{ly}" x2="{lx}" y2="{ly-h}" '
-               f'stroke="#1C1A28" stroke-width="3"/>')
-    # Arm bracket
-    out.append(f'<line x1="{lx}" y1="{ly-h+8}" x2="{lx+6}" y2="{ly-h+2}" '
-               f'stroke="#1C1A28" stroke-width="2"/>')
-    # Lantern cage (black iron)
-    lox = lx - lamp_w//2; loy = ly - h - lamp_h
-    out.append(f'<rect x="{lox}" y="{loy}" width="{lamp_w}" height="{lamp_h}" '
-               f'fill="#18181E" rx="1" opacity="0.95"/>')
-    # Glass panels (warm amber)
-    out.append(f'<rect x="{lox+1}" y="{loy+1}" width="{lamp_w-2}" height="{lamp_h-3}" '
-               f'fill="#FFC030" rx="1" opacity="0.88"/>')
-    out.append(f'<rect x="{lox+2}" y="{loy+2}" width="{lamp_w//2}" height="{lamp_h//2}" '
-               f'fill="#FFE080" opacity="0.55"/>')
-    # Glow halos
-    gcx = lx; gcy = ly - h - lamp_h//2
-    out.append(f'<ellipse cx="{gcx}" cy="{gcy}" rx="{lamp_w*1.8:.0f}" ry="{lamp_h*1.4:.0f}" '
-               f'fill="#FFB020" opacity="0.22"/>')
-    out.append(f'<ellipse cx="{gcx}" cy="{gcy}" rx="{lamp_w*3.5:.0f}" ry="{lamp_h*2.8:.0f}" '
-               f'fill="#FF8800" opacity="0.08"/>')
-    # Cap
-    out.append(f'<rect x="{lox-2}" y="{loy-3}" width="{lamp_w+4}" height="4" '
-               f'fill="#18181E" rx="1"/>')
-    # Base finial
-    out.append(f'<circle cx="{lx}" cy="{ly-h}" r="3" fill="#18181E"/>')
+def lamp(lx, ly, h=30):
+    lx=int(lx); ly=int(ly)
+    out=[]
+    out.append(f'<line x1="{lx}" y1="{ly}" x2="{lx}" y2="{ly-h}" stroke="#181820" stroke-width="2.8"/>')
+    # bracket arm
+    out.append(f'<line x1="{lx}" y1="{ly-h+7}" x2="{lx+5}" y2="{ly-h+1}" stroke="#181820" stroke-width="1.8"/>')
+    # finial ball
+    out.append(f'<circle cx="{lx}" cy="{ly-h}" r="2.5" fill="#181820"/>')
+    # cage
+    bx=lx-4; by=ly-h-11
+    out.append(f'<rect x="{bx}" y="{by}" width="8" height="11" fill="#141418" rx="1"/>')
+    # glass warm amber
+    out.append(f'<rect x="{bx+1}" y="{by+1}" width="6" height="9" fill="#FFC030" rx="1" opacity="0.90"/>')
+    out.append(f'<rect x="{bx+2}" y="{by+1}" width="3" height="4" fill="#FFE888" opacity="0.55"/>')
+    # cap
+    out.append(f'<rect x="{bx-1}" y="{by-3}" width="10" height="4" fill="#181820" rx="1"/>')
+    # glow halos
+    gcx=lx; gcy=ly-h-6
+    out.append(f'<ellipse cx="{gcx}" cy="{gcy}" rx="14" ry="12" fill="#FFB020" opacity="0.20"/>')
+    out.append(f'<ellipse cx="{gcx}" cy="{gcy}" rx="28" ry="24" fill="#FF8800" opacity="0.07"/>')
     return ''.join(out)
 
-def iron_window(wx, wy, ww, wh, glow_op=0.65):
-    """Black iron window frame with crystal-blue glow inside."""
-    out = []
-    # Dark recess
-    out.append(f'<rect x="{wx:.0f}" y="{wy:.0f}" width="{ww:.0f}" height="{wh:.0f}" '
-               f'fill="#0C1020" rx="{ww*0.42:.0f}" opacity="0.92"/>')
-    # Crystal blue fill
-    out.append(f'<rect x="{wx+1.5:.0f}" y="{wy+1.5:.0f}" width="{ww-3:.0f}" height="{wh-3:.0f}" '
-               f'fill="#5AB0F0" rx="{ww*0.38:.0f}" opacity="{glow_op:.2f}"/>')
-    # Inner bright highlight
-    out.append(f'<ellipse cx="{wx+ww*0.38:.0f}" cy="{wy+wh*0.30:.0f}" '
-               f'rx="{ww*0.25:.0f}" ry="{wh*0.22:.0f}" fill="#A0D8FF" opacity="0.45"/>')
-    # Iron frame
-    out.append(f'<rect x="{wx:.0f}" y="{wy:.0f}" width="{ww:.0f}" height="{wh:.0f}" '
-               f'fill="none" stroke="#18181E" stroke-width="2.0" rx="{ww*0.42:.0f}" opacity="0.88"/>')
-    # Glow halo outside
-    out.append(f'<ellipse cx="{wx+ww/2:.0f}" cy="{wy+wh/2:.0f}" '
-               f'rx="{ww*0.80:.0f}" ry="{wh*0.80:.0f}" fill="#3880D0" opacity="0.12"/>')
-    return ''.join(out)
+def iron_win(wx, wy, ww, wh, op=0.65):
+    wx=int(wx); wy=int(wy); ww=int(ww); wh=int(wh)
+    rr=int(ww*0.44)
+    out=(f'<rect x="{wx}" y="{wy}" width="{ww}" height="{wh}" fill="#0A0F1E" rx="{rr}" opacity="0.93"/>'
+         f'<rect x="{wx+2}" y="{wy+2}" width="{ww-4}" height="{wh-4}" fill="#58AFF0" rx="{rr}" opacity="{op:.2f}"/>'
+         f'<ellipse cx="{wx+int(ww*0.38)}" cy="{wy+int(wh*0.28)}" '
+         f'rx="{int(ww*0.25)}" ry="{int(wh*0.22)}" fill="#A8D8FF" opacity="0.42"/>'
+         f'<rect x="{wx}" y="{wy}" width="{ww}" height="{wh}" fill="none" '
+         f'stroke="#181820" stroke-width="2" rx="{rr}" opacity="0.85"/>'
+         f'<ellipse cx="{wx+ww//2}" cy="{wy+wh//2}" rx="{int(ww*0.75)}" ry="{int(wh*0.75)}" '
+         f'fill="#3880D0" opacity="0.10"/>')
+    return out
 
-def iron_divider(x1, y1, x2, y2, sw=2.5, op=0.82):
-    """Black iron structural divider / trim."""
-    return (f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" '
-            f'stroke="#18181E" stroke-width="{sw}" opacity="{op}"/>')
-
-# ═════════════════════════════════════════════════════════════════════════════
-#  GRADIENTS & DEFS
-# ═════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
+#  GRADIENTS
+# ═══════════════════════════════════════════════════════════════════════════
 A('<svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs>')
 
-# ── Sky ──────────────────────────────────────────────────────────────────────
+# Sky — near-black indigo (restored night of The First)
 A('<linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#03010F"/>'   # near-black zenith
-  '<stop offset="14%"  stop-color="#070420"/>'   # deep indigo
-  '<stop offset="30%"  stop-color="#0C0830"/>'   # rich purple-blue
-  '<stop offset="52%"  stop-color="#130E48"/>'   # indigo
-  '<stop offset="72%"  stop-color="#1A1558"/>'   # purple-indigo horizon
-  '<stop offset="88%"  stop-color="#201B6A"/>'   # near-horizon slight blue
-  '<stop offset="100%" stop-color="#251E78"/>'   # brightest horizon
+  '<stop offset="0%"   stop-color="#020110"/>'
+  '<stop offset="16%"  stop-color="#06031C"/>'
+  '<stop offset="34%"  stop-color="#0B0728"/>'
+  '<stop offset="55%"  stop-color="#110C3A"/>'
+  '<stop offset="75%"  stop-color="#171150"/>'
+  '<stop offset="90%"  stop-color="#1C1660"/>'
+  '<stop offset="100%" stop-color="#201A6E"/>'
   '</linearGradient>')
 
-# ── Crystal Tower ────────────────────────────────────────────────────────────
-# Main tower glow (massive radial, blue-white, spreads across whole scene)
-A('<radialGradient id="gTowerGlow" cx="50%" cy="28%" r="68%">'
-  '<stop offset="0%"   stop-color="#D8F0FF" stop-opacity="0.92"/>'
-  '<stop offset="10%"  stop-color="#A8D8FF" stop-opacity="0.68"/>'
-  '<stop offset="26%"  stop-color="#70B0FF" stop-opacity="0.38"/>'
-  '<stop offset="48%"  stop-color="#4080E0" stop-opacity="0.14"/>'
-  '<stop offset="70%"  stop-color="#2050A0" stop-opacity="0.04"/>'
-  '<stop offset="100%" stop-color="#102060" stop-opacity="0"/>'
+# Crystal Tower — glow spread (illuminates entire scene)
+A('<radialGradient id="gTGlow" cx="50%" cy="22%" r="72%">'
+  '<stop offset="0%"   stop-color="#D0ECFF" stop-opacity="0.95"/>'
+  '<stop offset="10%"  stop-color="#A0D0FF" stop-opacity="0.70"/>'
+  '<stop offset="25%"  stop-color="#68B0FF" stop-opacity="0.38"/>'
+  '<stop offset="48%"  stop-color="#3868E0" stop-opacity="0.13"/>'
+  '<stop offset="72%"  stop-color="#1A3890" stop-opacity="0.04"/>'
+  '<stop offset="100%" stop-color="#0C1840" stop-opacity="0"/>'
   '</radialGradient>')
 
-# Tower body — lit face (ice-white with blue depth)
-A('<linearGradient id="gTowerFace" x1="0" y1="0" x2="1" y2="0">'
-  '<stop offset="0%"   stop-color="#90C8F8"/>'
-  '<stop offset="20%"  stop-color="#C8E8FF"/>'
-  '<stop offset="42%"  stop-color="#F8FDFF"/>'
-  '<stop offset="62%"  stop-color="#E0F2FF"/>'
-  '<stop offset="82%"  stop-color="#B0D8F8"/>'
+# Tower base horizon glow
+A('<radialGradient id="gTBase" cx="50%" cy="80%" r="55%">'
+  '<stop offset="0%"   stop-color="#88C0FF" stop-opacity="0.52"/>'
+  '<stop offset="38%"  stop-color="#5090E8" stop-opacity="0.18"/>'
+  '<stop offset="70%"  stop-color="#2050A0" stop-opacity="0.05"/>'
+  '<stop offset="100%" stop-color="#0C1840" stop-opacity="0"/>'
+  '</radialGradient>')
+
+# Tower body (face — ice white)
+A('<linearGradient id="gTFace" x1="0" y1="0" x2="1" y2="0">'
+  '<stop offset="0%"   stop-color="#88C4F8"/>'
+  '<stop offset="20%"  stop-color="#C4E6FF"/>'
+  '<stop offset="44%"  stop-color="#F8FDFF"/>'
+  '<stop offset="68%"  stop-color="#DCF0FF"/>'
+  '<stop offset="88%"  stop-color="#A8D4F8"/>'
   '<stop offset="100%" stop-color="#78B0E8"/>'
   '</linearGradient>')
 
-# Tower vertical gradient (bright tip → deeper base)
-A('<linearGradient id="gTowerVert" x1="0" y1="0" x2="0" y2="1">'
+# Tower vertical (bright tip → deeper base)
+A('<linearGradient id="gTVert" x1="0" y1="0" x2="0" y2="1">'
   '<stop offset="0%"   stop-color="#FFFFFF"/>'
-  '<stop offset="18%"  stop-color="#ECF8FF"/>'
-  '<stop offset="42%"  stop-color="#C8E4FF"/>'
-  '<stop offset="68%"  stop-color="#90C0F0"/>'
-  '<stop offset="88%"  stop-color="#6098D8"/>'
-  '<stop offset="100%" stop-color="#4878C0"/>'
+  '<stop offset="15%"  stop-color="#EEF8FF"/>'
+  '<stop offset="38%"  stop-color="#C0E0FF"/>'
+  '<stop offset="62%"  stop-color="#88C0F0"/>'
+  '<stop offset="82%"  stop-color="#58A0D8"/>'
+  '<stop offset="100%" stop-color="#3878C0"/>'
   '</linearGradient>')
 
-# Crystal ring bands on tower
+# Ring bands on tower
 A('<linearGradient id="gRing" x1="0" y1="0" x2="0" y2="1">'
   '<stop offset="0%"   stop-color="#FFFFFF"/>'
-  '<stop offset="30%"  stop-color="#C0E8FF"/>'
-  '<stop offset="70%"  stop-color="#80C0F8"/>'
-  '<stop offset="100%" stop-color="#50A0E8"/>'
+  '<stop offset="28%"  stop-color="#C8EAFF"/>'
+  '<stop offset="62%"  stop-color="#80C0F8"/>'
+  '<stop offset="100%" stop-color="#4898E8"/>'
   '</linearGradient>')
 
-# Tower base horizon glow
-A('<radialGradient id="gBaseGlow" cx="50%" cy="78%" r="52%">'
-  '<stop offset="0%"   stop-color="#90C8FF" stop-opacity="0.55"/>'
-  '<stop offset="35%"  stop-color="#5898E8" stop-opacity="0.22"/>'
-  '<stop offset="68%"  stop-color="#2858A8" stop-opacity="0.06"/>'
-  '<stop offset="100%" stop-color="#102040" stop-opacity="0"/>'
-  '</radialGradient>')
+# Crystal panel (Rotunda dome, windows)
+A('<linearGradient id="gCPanel" x1="0" y1="0" x2="1" y2="1">'
+  '<stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.92"/>'
+  '<stop offset="22%"  stop-color="#C8EAFF" stop-opacity="0.80"/>'
+  '<stop offset="55%"  stop-color="#78B8F0" stop-opacity="0.62"/>'
+  '<stop offset="100%" stop-color="#3888D0" stop-opacity="0.45"/>'
+  '</linearGradient>')
 
-# ── Architecture ─────────────────────────────────────────────────────────────
-# Sandstone — lit side (warm tan-beige, The First crystal tower tinges blue)
-A('<linearGradient id="gSandLit" x1="0" y1="0" x2="1" y2="1">'
-  '<stop offset="0%"   stop-color="#C8B888"/>'
-  '<stop offset="32%"  stop-color="#B8A878"/>'
-  '<stop offset="65%"  stop-color="#A09060"/>'
+# Sandstone lit (main building material)
+A('<linearGradient id="gSandL" x1="0" y1="0" x2="1" y2="1">'
+  '<stop offset="0%"   stop-color="#CCB888"/>'
+  '<stop offset="35%"  stop-color="#BAA878"/>'
+  '<stop offset="68%"  stop-color="#A09060"/>'
   '<stop offset="100%" stop-color="#887848"/>'
   '</linearGradient>')
 
-# Sandstone — shadow side (slightly cooler from tower glow)
-A('<linearGradient id="gSandSh" x1="0" y1="0" x2="1" y2="1">'
-  '<stop offset="0%"   stop-color="#A8A898"/>'
-  '<stop offset="40%"  stop-color="#989080"/>'
+# Sandstone shadow
+A('<linearGradient id="gSandS" x1="0" y1="0" x2="1" y2="1">'
+  '<stop offset="0%"   stop-color="#AAAA98"/>'
+  '<stop offset="42%"  stop-color="#989080"/>'
   '<stop offset="100%" stop-color="#807868"/>'
   '</linearGradient>')
 
-# Black iron (structural framing, Rotunda skeleton, window frames, trim)
+# Black iron (structural framing)
 A('<linearGradient id="gIron" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#2E2C3C"/>'
-  '<stop offset="50%"  stop-color="#1E1C2A"/>'
-  '<stop offset="100%" stop-color="#141220"/>'
+  '<stop offset="0%"   stop-color="#2C2A3A"/>'
+  '<stop offset="50%"  stop-color="#1C1A28"/>'
+  '<stop offset="100%" stop-color="#12101E"/>'
   '</linearGradient>')
 
-# Crystal panel (Rotunda dome panels, windows — shimmering with tower glow)
-A('<linearGradient id="gCrystalPanel" x1="0" y1="0" x2="1" y2="1">'
-  '<stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.90"/>'
-  '<stop offset="22%"  stop-color="#C8EAFF" stop-opacity="0.80"/>'
-  '<stop offset="55%"  stop-color="#78B8F0" stop-opacity="0.65"/>'
-  '<stop offset="100%" stop-color="#4088D0" stop-opacity="0.50"/>'
+# Ground — dark stone plaza
+A('<linearGradient id="gGnd" x1="0" y1="0" x2="0" y2="1">'
+  '<stop offset="0%"   stop-color="#222538"/>'
+  '<stop offset="32%"  stop-color="#1C1E30"/>'
+  '<stop offset="65%"  stop-color="#141628"/>'
+  '<stop offset="100%" stop-color="#0C0E1E"/>'
   '</linearGradient>')
 
-# Ground — dark stone plaza (blue-tinted from tower glow)
-A('<linearGradient id="gGround" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#252838"/>'
-  '<stop offset="30%"  stop-color="#1E2030"/>'
-  '<stop offset="65%"  stop-color="#161828"/>'
-  '<stop offset="100%" stop-color="#0E1020"/>'
-  '</linearGradient>')
-
-# Lakeland purple forest (Lakeland's vibrant purple vegetation)
+# Purple forest (Lakeland)
 A('<linearGradient id="gForest" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#4A2090" stop-opacity="0.55"/>'
-  '<stop offset="45%"  stop-color="#351860" stop-opacity="0.78"/>'
-  '<stop offset="100%" stop-color="#200C40" stop-opacity="0.90"/>'
+  '<stop offset="0%"   stop-color="#481890" stop-opacity="0.55"/>'
+  '<stop offset="50%"  stop-color="#321060" stop-opacity="0.80"/>'
+  '<stop offset="100%" stop-color="#1E0840" stop-opacity="0.92"/>'
   '</linearGradient>')
 
-# Fountain water (crystal blue-teal)
-A('<radialGradient id="gFountain" cx="50%" cy="35%" r="60%">'
-  '<stop offset="0%"   stop-color="#B0E0FF" stop-opacity="0.95"/>'
-  '<stop offset="40%"  stop-color="#60B8F0" stop-opacity="0.82"/>'
-  '<stop offset="100%" stop-color="#2878C0" stop-opacity="0.72"/>'
+# Fountain water
+A('<radialGradient id="gWater" cx="50%" cy="32%" r="62%">'
+  '<stop offset="0%"   stop-color="#B4E2FF" stop-opacity="0.96"/>'
+  '<stop offset="42%"  stop-color="#62B8F0" stop-opacity="0.82"/>'
+  '<stop offset="100%" stop-color="#2878C0" stop-opacity="0.70"/>'
   '</radialGradient>')
 
-# Creation orb (fountain crystal centerpiece glow)
-A('<radialGradient id="gCrystalOrb" cx="38%" cy="28%" r="65%">'
-  '<stop offset="0%"   stop-color="#FFFFFF" stop-opacity="1.00"/>'
-  '<stop offset="22%"  stop-color="#D0EEFF" stop-opacity="0.95"/>'
-  '<stop offset="50%"  stop-color="#80C8FF" stop-opacity="0.88"/>'
-  '<stop offset="80%"  stop-color="#3888E0" stop-opacity="0.90"/>'
-  '<stop offset="100%" stop-color="#1858B0" stop-opacity="0.95"/>'
-  '</radialGradient>')
-
-# Gate aether shimmer (Crystal Tower energy visible through arch)
-A('<linearGradient id="gGateShimmer" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#80C8FF" stop-opacity="0.08"/>'
-  '<stop offset="28%"  stop-color="#60B0FF" stop-opacity="0.32"/>'
-  '<stop offset="52%"  stop-color="#50A8FF" stop-opacity="0.45"/>'
-  '<stop offset="76%"  stop-color="#60B0FF" stop-opacity="0.28"/>'
-  '<stop offset="100%" stop-color="#80C8FF" stop-opacity="0.06"/>'
+# Gate energy shimmer (Crystal Tower through arch)
+A('<linearGradient id="gShimmer" x1="0" y1="0" x2="0" y2="1">'
+  '<stop offset="0%"   stop-color="#80C8FF" stop-opacity="0.06"/>'
+  '<stop offset="28%"  stop-color="#58B0FF" stop-opacity="0.30"/>'
+  '<stop offset="52%"  stop-color="#48A8FF" stop-opacity="0.44"/>'
+  '<stop offset="76%"  stop-color="#58B0FF" stop-opacity="0.26"/>'
+  '<stop offset="100%" stop-color="#80C8FF" stop-opacity="0.05"/>'
   '</linearGradient>')
 
-# Bottom depth haze
+# Bottom haze
 A('<linearGradient id="gHaze" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#0E1020" stop-opacity="0"/>'
-  '<stop offset="48%"  stop-color="#0A0C18" stop-opacity="0.32"/>'
-  '<stop offset="100%" stop-color="#060810" stop-opacity="0.75"/>'
+  '<stop offset="0%"   stop-color="#0C0E1E" stop-opacity="0"/>'
+  '<stop offset="50%"  stop-color="#080A16" stop-opacity="0.35"/>'
+  '<stop offset="100%" stop-color="#040610" stop-opacity="0.80"/>'
   '</linearGradient>')
 
 # Edge vignette
-A('<radialGradient id="gVig" cx="50%" cy="15%" r="92%">'
+A('<radialGradient id="gVig" cx="50%" cy="12%" r="94%">'
   '<stop offset="50%"  stop-color="#000000" stop-opacity="0"/>'
-  '<stop offset="100%" stop-color="#020108" stop-opacity="0.72"/>'
+  '<stop offset="100%" stop-color="#010108" stop-opacity="0.74"/>'
   '</radialGradient>')
 
-# Crystal pillar
+# Pillar shaft
 A('<linearGradient id="gPillar" x1="0" y1="0" x2="1" y2="0">'
-  '<stop offset="0%"   stop-color="#2A2838"/>'
-  '<stop offset="35%"  stop-color="#353448"/>'
-  '<stop offset="65%"  stop-color="#2A2838"/>'
-  '<stop offset="100%" stop-color="#1E1C28"/>'
+  '<stop offset="0%"   stop-color="#28263A"/>'
+  '<stop offset="38%"  stop-color="#343248"/>'
+  '<stop offset="62%"  stop-color="#2A2838"/>'
+  '<stop offset="100%" stop-color="#1C1A28"/>'
   '</linearGradient>')
 
 A('</defs>')
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  1. NIGHT SKY
-# ═════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
+#  1. SKY
+# ═══════════════════════════════════════════════════════════════════════════
 A('<rect width="400" height="600" fill="url(#gSky)"/>')
+A('<rect width="400" height="600" fill="url(#gTGlow)"/>')
+A('<rect width="400" height="600" fill="url(#gTBase)"/>')
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  2. STARS — dense field (restored for first time in 100 years)
-# ═════════════════════════════════════════════════════════════════════════════
-# Background micro-stars (tiny, dense)
-for _ in range(260):
-    sx = _rnd.uniform(0, 400); sy = _rnd.uniform(0, 280)
-    sr = _rnd.uniform(0.45, 1.35); sop = _rnd.uniform(0.40, 0.88)
-    # slight color variation: pure white, cool blue-white, warm white
-    sc = _rnd.choice(['#FFFFFF','#FFFFFF','#E8F0FF','#F0F8FF','#FFF8F0'])
+# ═══════════════════════════════════════════════════════════════════════════
+#  2. STARS
+# ═══════════════════════════════════════════════════════════════════════════
+for _ in range(240):
+    sx=_r.uniform(0,400); sy=_r.uniform(0,268)
+    sr=_r.uniform(0.45,1.30); sop=_r.uniform(0.38,0.88)
+    sc=_r.choice(['#FFFFFF','#FFFFFF','#EEF4FF','#F4F8FF','#FFF8F0'])
     A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr:.1f}" fill="{sc}" opacity="{sop:.2f}"/>')
-
-# Mid-size stars with halos
-for _ in range(55):
-    sx = _rnd.uniform(0, 400); sy = _rnd.uniform(0, 270)
-    sr = _rnd.uniform(1.3, 2.0); sop = _rnd.uniform(0.65, 0.92)
+for _ in range(48):
+    sx=_r.uniform(0,400); sy=_r.uniform(0,260)
+    sr=_r.uniform(1.25,1.95); sop=_r.uniform(0.62,0.92)
     A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr:.1f}" fill="#FFFFFF" opacity="{sop:.2f}"/>')
     A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr*2.8:.1f}" fill="#B8D0FF" opacity="{sop*0.10:.2f}"/>')
+for bsx,bsy,bsr,bsop in [(25,20,2.2,0.98),(352,15,2.4,0.97),(78,42,1.9,0.94),
+    (186,12,2.5,0.99),(292,36,2.1,0.96),(132,25,1.8,0.92),
+    (318,52,2.0,0.95),(55,65,1.7,0.90),(248,20,2.3,0.97),
+    (388,40,1.8,0.92),(162,55,1.9,0.91),(308,16,2.0,0.95)]:
+    A(star4(bsx, bsy, bsr, bsop))
 
-# Bright sparkle stars with cross-flare
-bright = [(28,22,2.2,0.98),(355,18,2.4,0.97),(82,45,1.9,0.94),
-          (185,14,2.6,0.99),(295,38,2.1,0.96),(138,28,1.8,0.92),
-          (322,55,2.0,0.95),(52,68,1.7,0.90),(248,24,2.3,0.97),
-          (390,42,1.8,0.92),(168,58,1.9,0.91),(310,18,2.0,0.95)]
-for bsx, bsy, bsr, bsop in bright:
-    A(sparkle(bsx, bsy, bsr, bsop, '#FFFFFF', '#B0D0FF'))
-
-# ═════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
 #  3. CRYSTAL TOWER — "a gleaming spear of crystal pointed at the heavens"
-#     Luminous pale blue-white, faceted, reflective, completely dominant
-# ═════════════════════════════════════════════════════════════════════════════
-# Massive glow radiating across scene
-A('<rect width="400" height="600" fill="url(#gTowerGlow)"/>')
-A('<rect width="400" height="600" fill="url(#gBaseGlow)"/>')
+#     Tip at (200,4), base skirt at y≈278. Stage 5 at y=166 is tower midpoint.
+# ═══════════════════════════════════════════════════════════════════════════
+T = 200  # center x
 
-T = 200  # tower center x
-# Tower geometry: tip→base widths at various y-levels
-# y=0 → tip (single point)
-# y=28 → 18px wide
-# y=80 → 44px wide
-# y=160 → 62px wide
-# y=245 → 76px wide
-# y=280 → 90px (base skirt flare)
+# Width function: tower half-width at SVG y
+def tw(y):
+    return max(2, 3 + y * 0.275)   # 2px at tip → ~80px half at base
 
-# Far secondary spires (background, behind main tower — multi-spired look)
-for sp_off, sp_w, sp_h in [(-28, 8, 210), (28, 8, 200), (-50, 6, 160), (50, 6, 150)]:
-    sp_cx = T + sp_off
-    A(f'<polygon points="{sp_cx},{8:.0f} {sp_cx+sp_w},{8+sp_h*0.3:.0f} '
-      f'{sp_cx+sp_w*0.7},{8+sp_h:.0f} {sp_cx-sp_w*0.7},{8+sp_h:.0f} {sp_cx-sp_w},{8+sp_h*0.3:.0f}" '
-      f'fill="url(#gTowerFace)" opacity="0.38"/>')
-
-# Main tower shaft (main polygon, full height)
-A(f'<polygon points="{T},1 {T+20},30 {T+30},80 {T+36},160 {T+40},245 '
-  f'{T+46},282 {T},288 {T-46},282 {T-40},245 {T-36},160 {T-30},80 {T-20},30" '
-  f'fill="url(#gTowerVert)" opacity="0.92"/>')
-
-# Left face panel (slightly darker — side lighting)
-A(f'<polygon points="{T-20},30 {T-36},160 {T-40},245 {T-46},282 {T},288 {T},30" '
-  f'fill="#80B8E8" opacity="0.28"/>')
-# Right face panel
-A(f'<polygon points="{T+20},30 {T+36},160 {T+40},245 {T+46},282 {T},288 {T},30" '
-  f'fill="#C8E8FF" opacity="0.18"/>')
-
-# Vertical highlight streaks (faceted crystal surface)
-for vx_off, vw, vop in [
-    (0, 5, 0.88),(-7, 2.5, 0.62),(9, 2.5, 0.58),(-18, 1.5, 0.32),(20, 1.5, 0.30)
+# Background secondary spires (multi-spired Crystal Tower look)
+for sp_off, sp_w, sp_h, sp_op in [
+    (-32, 7, 215, 0.35), (32, 7, 205, 0.35),
+    (-55, 5, 165, 0.25), (55, 5, 155, 0.25),
+    (-72, 3, 120, 0.18), (72, 3, 112, 0.18),
 ]:
-    A(f'<rect x="{T+vx_off-vw/2:.1f}" y="1" width="{vw}" height="288" '
-      f'fill="#FFFFFF" opacity="{vop}" rx="1"/>')
+    scx = T + sp_off
+    A(f'<polygon points="{scx},{10-sp_w//3:.0f} '
+      f'{scx+sp_w},{10+sp_h*0.28:.0f} '
+      f'{scx+sp_w*0.7},{10+sp_h:.0f} '
+      f'{scx-sp_w*0.7},{10+sp_h:.0f} '
+      f'{scx-sp_w},{10+sp_h*0.28:.0f}" '
+      f'fill="url(#gTVert)" opacity="{sp_op}"/>')
 
-# Tower tip — brilliant white needle
-A(f'<polygon points="{T},1 {T+12},32 {T-12},32" fill="#FFFFFF" opacity="0.98"/>')
-A(f'<polygon points="{T},1 {T+7},22 {T-7},22" fill="#FFFFFF" opacity="0.80"/>')
+# Main tower shaft
+pts_r = ' '.join(f'{T+tw(y):.0f},{y}' for y in range(278, -1, -22))
+pts_l = ' '.join(f'{T-tw(y):.0f},{y}' for y in range(0, 279, 22))
+A(f'<polygon points="{T},3 {pts_r} {pts_l}" fill="url(#gTVert)" opacity="0.92"/>')
+
+# Face shading (left/right panels)
+A(f'<polygon points="{T},3 '
+  f'{T+tw(60):.0f},60 {T+tw(130):.0f},130 {T+tw(200):.0f},200 {T+tw(278):.0f},278 '
+  f'{T},278" fill="#B8D8F8" opacity="0.20"/>')
+A(f'<polygon points="{T},3 '
+  f'{T-tw(60):.0f},60 {T-tw(130):.0f},130 {T-tw(200):.0f},200 {T-tw(278):.0f},278 '
+  f'{T},278" fill="#183060" opacity="0.14"/>')
+
+# Vertical highlight streaks (crystal facets)
+for vx_off, vw, vop in [(0,5,0.88),(-8,2.5,0.62),(10,2.5,0.56),(-20,1.5,0.30),(22,1.5,0.28)]:
+    A(f'<rect x="{T+vx_off-vw/2:.1f}" y="3" width="{vw}" height="276" fill="#FFFFFF" opacity="{vop}" rx="1"/>')
+
+# Needle tip
+A(f'<polygon points="{T},3 {T+14},34 {T-14},34" fill="#FFFFFF" opacity="0.98"/>')
+A(f'<polygon points="{T},3 {T+8},22 {T-8},22" fill="#FFFFFF" opacity="0.82"/>')
 # Tip glow burst
-A(f'<circle cx="{T}" cy="5" r="10" fill="#FFFFFF" opacity="0.40"/>')
-A(f'<circle cx="{T}" cy="5" r="22" fill="#C0E8FF" opacity="0.18"/>')
-A(f'<circle cx="{T}" cy="5" r="40" fill="#90C8FF" opacity="0.07"/>')
+A(f'<circle cx="{T}" cy="6" r="12" fill="#FFFFFF" opacity="0.38"/>')
+A(f'<circle cx="{T}" cy="6" r="26" fill="#C0E8FF" opacity="0.16"/>')
+A(f'<circle cx="{T}" cy="6" r="48" fill="#90C8FF" opacity="0.06"/>')
 
-# Crystal ring bands (horizontal, at regular intervals — iconic Crystal Tower look)
-rings = [(40,  7,  0.88), (90,  6,  0.80), (145, 5.5,0.74),
-         (198, 5,  0.68), (245, 4.5,0.62), (278, 4,  0.55)]
-for ry, rh, rop in rings:
-    # Width at that y-level (linear interpolation)
-    frac = ry / 288
-    rw = 18 + frac * 28   # half-width
-    A(f'<rect x="{T-rw-4:.0f}" y="{ry}" width="{(rw+4)*2:.0f}" height="{rh}" '
-      f'fill="url(#gRing)" rx="2" opacity="{rop:.2f}"/>')
-    # Ring edge glow
-    A(f'<ellipse cx="{T}" cy="{ry+rh/2:.1f}" rx="{rw+18:.0f}" ry="{rh+4:.0f}" '
-      f'fill="#78B8FF" opacity="{rop*0.22:.2f}"/>')
+# Crystal ring bands (prominent horizontal bands — iconic Crystal Tower feature)
+# Positions tuned to NOT overlap stage 5 object (y=166) and look natural
+for ry, rh, rop in [(35,7,0.88),(80,6,0.82),(128,5.5,0.75),(210,5,0.65),(258,4.5,0.56)]:
+    hw = tw(ry) + 5
+    A(f'<rect x="{T-hw:.0f}" y="{ry}" width="{hw*2:.0f}" height="{rh}" fill="url(#gRing)" rx="2" opacity="{rop}"/>')
+    A(f'<ellipse cx="{T}" cy="{ry+rh/2:.1f}" rx="{hw+18:.0f}" ry="{rh+4:.0f}" fill="#78B8FF" opacity="{rop*0.20:.2f}"/>')
 
-# Tower base — flared crystal skirt merging into city platform
-A(f'<polygon points="{T-46},282 {T-90},302 {T-92},312 {T},318 '
-  f'{T+92},312 {T+90},302 {T+46},282" '
-  f'fill="url(#gTowerVert)" opacity="0.65"/>')
-# Base glow
-A(f'<ellipse cx="{T}" cy="308" rx="95" ry="22" fill="#B8E0FF" opacity="0.55"/>')
-A(f'<ellipse cx="{T}" cy="308" rx="72" ry="14" fill="#D8F0FF" opacity="0.72"/>')
-A(f'<ellipse cx="{T}" cy="308" rx="44" ry="8" fill="#FFFFFF" opacity="0.85"/>')
+# Tower base skirt + glow
+bw = tw(278)
+A(f'<polygon points="{T-bw:.0f},278 {T-bw-44},298 {T-bw-46},308 '
+  f'{T},315 {T+bw+46},308 {T+bw+44},298 {T+bw:.0f},278" '
+  f'fill="url(#gTVert)" opacity="0.60"/>')
+A(f'<ellipse cx="{T}" cy="308" rx="98" ry="22" fill="#B8E0FF" opacity="0.52"/>')
+A(f'<ellipse cx="{T}" cy="308" rx="72" ry="14" fill="#D8F0FF" opacity="0.70"/>')
+A(f'<ellipse cx="{T}" cy="308" rx="42" ry="8" fill="#FFFFFF" opacity="0.82"/>')
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  4. FLOATING CRYSTAL SHARDS (drifting around the tower in the night air)
-# ═════════════════════════════════════════════════════════════════════════════
-shards = [
-    # cx, cy, w, h, angle, col, op
-    (52,  110, 14, 36, -22, '#A8D0FF', 0.78),
-    (75,  145, 9,  22, 18,  '#C8E8FF', 0.70),
-    (42,  80,  7,  18, -38, '#D0EEFF', 0.65),
-    (62,  178, 6,  16, 28,  '#B8DCFF', 0.60),
-    (88,  132, 11, 26, -12, '#C0E4FF', 0.72),
-    (340, 118, 15, 38, 24,  '#A0CCFF', 0.76),
-    (362, 90,  9,  24, -18, '#C8E8FF', 0.68),
-    (320, 152, 8,  20, 35,  '#B8DCFF', 0.62),
-    (348, 180, 6,  15, -28, '#D0EEFF', 0.58),
-    (310, 96,  12, 28, 15,  '#B0D8FF', 0.70),
-    (138, 58,  10, 25, -8,  '#C0E0FF', 0.65),
-    (258, 64,  11, 28, 20,  '#B8DCFF', 0.67),
-    (112, 88,  7,  16, 44,  '#D8EEFF', 0.55),
-    (288, 82,  8,  18, -30, '#C8E4FF', 0.60),
-    (158, 44,  9,  20, -5,  '#A8D4FF', 0.62),
-    (240, 48,  8,  19, 14,  '#C0E0FF', 0.60),
-    (105, 168, 6,  14, -20, '#D0ECFF', 0.52),
-    (295, 170, 7,  16, 25,  '#C8E4FF', 0.54),
+# ═══════════════════════════════════════════════════════════════════════════
+#  4. FLOATING CRYSTAL SHARDS (sky, y 40-205, avoid stage 5 area y 148-185)
+# ═══════════════════════════════════════════════════════════════════════════
+shards_data = [
+    (52,  108, 14, 36, -22, '#A8D0FF', 0.78),
+    (75,  142, 9,  22, 18,  '#C8E8FF', 0.70),
+    (42,  78,  7,  18, -38, '#D0EEFF', 0.65),
+    (88,  128, 12, 28, -12, '#C0E4FF', 0.72),
+    (62,  195, 6,  14, 28,  '#B8DCFF', 0.58),
+    (345, 115, 15, 38, 24,  '#A0CCFF', 0.76),
+    (362, 88,  9,  24, -18, '#C8E8FF', 0.68),
+    (322, 148, 8,  20, 35,  '#B8DCFF', 0.62),
+    (348, 188, 6,  15, -28, '#D0EEFF', 0.56),
+    (308, 94,  12, 28, 15,  '#B0D8FF', 0.70),
+    (136, 55,  10, 24, -8,  '#C0E0FF', 0.64),
+    (258, 62,  11, 27, 20,  '#B8DCFF', 0.66),
+    (112, 85,  7,  16, 44,  '#D8EEFF', 0.54),
+    (285, 80,  8,  18, -30, '#C8E4FF', 0.60),
+    (158, 42,  9,  20, -5,  '#A8D4FF', 0.62),
+    (240, 46,  8,  18, 14,  '#C0E0FF', 0.58),
+    (105, 200, 6,  13, -18, '#D0ECFF', 0.50),
+    (292, 198, 7,  15, 25,  '#C8E4FF', 0.52),
 ]
-for scx,scy,sw,sh,sang,scol,sop in shards:
-    A(crystal_shard(scx, scy, sw, sh, sang, scol, sop))
+for d in shards_data:
+    A(shard(*d))
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  5. LAKELAND PURPLE FORESTS (vibrant purple vegetation on all horizons)
-# ═════════════════════════════════════════════════════════════════════════════
-# Left forest — undulating canopy silhouette
-A('<path d="M0,275 Q10,252 24,262 Q36,242 52,258 Q66,236 84,254 '
-  'Q98,230 116,248 Q130,235 148,252 L148,290 L0,290 Z" '
-  'fill="#3C1870" opacity="0.80"/>')
-A('<path d="M0,280 Q14,260 30,270 Q48,250 68,265 Q84,246 102,260 '
-  'Q118,250 136,264 L136,290 L0,290 Z" '
-  'fill="#2A1050" opacity="0.60"/>')
-# Left canopy bumps (detailed tree crowns)
-lt = [(16,258,11),(36,248,13),(58,244,12),(78,248,14),(100,240,12),(120,246,11),(140,252,10)]
-for tx,ty,tr in lt:
-    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.72)}" fill="#4A2090" opacity="0.88"/>')
-    A(f'<ellipse cx="{tx-2}" cy="{ty-3}" rx="{int(tr*0.55)}" ry="{int(tr*0.42)}" fill="#5C28A8" opacity="0.65"/>')
-# Tiny distant trees (lighter, higher up — atmospheric)
-for tx,ty,tr in [(8,272,6),(28,270,7),(50,268,6),(72,265,7),(95,262,6),(115,264,7),(138,266,5)]:
-    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.60)}" fill="#5030A0" opacity="0.48"/>')
-
+# ═══════════════════════════════════════════════════════════════════════════
+#  5. LAKELAND PURPLE FOREST (y 255-278)
+# ═══════════════════════════════════════════════════════════════════════════
+# Left forest
+A('<path d="M0,272 Q12,252 28,262 Q44,240 62,257 Q78,234 98,252 '
+  'Q114,232 132,248 Q146,236 154,252 L154,282 L0,282 Z" fill="#3E1872" opacity="0.82"/>')
+A('<path d="M0,278 Q18,260 36,270 Q54,250 74,264 Q90,248 108,262 '
+  'Q124,252 140,265 L140,282 L0,282 Z" fill="#280E50" opacity="0.62"/>')
+for tx,ty,tr in [(14,256,11),(34,246,13),(56,242,12),(76,246,14),(98,240,12),(118,244,11),(140,250,10)]:
+    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.72)}" fill="#4C2298" opacity="0.90"/>')
+    A(f'<ellipse cx="{tx-2}" cy="{ty-4}" rx="{int(tr*0.56)}" ry="{int(tr*0.44)}" fill="#5E2AAA" opacity="0.65"/>')
 # Right forest
-A('<path d="M252,290 L252,252 Q268,235 286,250 Q300,232 320,248 '
-  'Q336,234 354,252 Q368,240 386,256 Q396,250 400,258 L400,290 Z" '
-  'fill="#3C1870" opacity="0.80"/>')
-A('<path d="M264,290 L264,264 Q280,248 298,262 Q316,248 336,264 '
-  'Q354,252 374,268 L400,268 L400,290 Z" '
-  'fill="#2A1050" opacity="0.60"/>')
-rt = [(262,252,11),(282,244,13),(304,238,12),(324,244,14),(346,240,12),(366,248,11),(386,254,10)]
-for tx,ty,tr in rt:
-    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.72)}" fill="#4A2090" opacity="0.88"/>')
-    A(f'<ellipse cx="{tx+2}" cy="{ty-3}" rx="{int(tr*0.55)}" ry="{int(tr*0.42)}" fill="#5C28A8" opacity="0.65"/>')
-for tx,ty,tr in [(270,270,6),(290,266,7),(312,262,6),(334,264,7),(356,262,6),(378,268,6),(396,270,5)]:
-    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.60)}" fill="#5030A0" opacity="0.48"/>')
+A('<path d="M246,282 L246,252 Q264,234 284,250 Q300,232 320,248 '
+  'Q336,232 356,250 Q370,240 388,256 Q396,250 400,256 L400,282 Z" fill="#3E1872" opacity="0.82"/>')
+A('<path d="M260,282 L260,264 Q278,248 298,262 Q316,246 336,262 '
+  'Q354,252 374,268 L400,272 L400,282 Z" fill="#280E50" opacity="0.62"/>')
+for tx,ty,tr in [(262,250,11),(284,242,13),(306,236,12),(326,242,14),(348,238,12),(368,246,11),(388,252,10)]:
+    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.72)}" fill="#4C2298" opacity="0.90"/>')
+    A(f'<ellipse cx="{tx+2}" cy="{ty-4}" rx="{int(tr*0.56)}" ry="{int(tr*0.44)}" fill="#5E2AAA" opacity="0.65"/>')
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  6. DISTANT CITY SKYLINE (sandstone buildings behind left/right towers)
-# ═════════════════════════════════════════════════════════════════════════════
-# Skyline — sandstone silhouette
-A('<path d="M0,258 L0,278 L18,278 L18,262 L28,262 L28,272 L40,272 '
-  'L40,255 L52,255 L52,268 L62,268 L62,258 L72,258 L72,265 '
-  'L80,265 L80,255 L92,255 L92,265 L102,265 L102,258 L112,258 '
-  'L112,268 L122,268 L122,258" '
-  'fill="url(#gSandSh)" opacity="0.72"/>')
-A('<path d="M278,258 L278,268 L288,268 L288,258 L298,258 L298,265 '
-  'L308,265 L308,255 L318,255 L318,265 L328,265 L328,255 L340,255 '
-  'L340,268 L350,268 L350,258 L362,258 L362,272 L372,272 '
-  'L372,262 L382,262 L382,278 L400,278 L400,258" '
-  'fill="url(#gSandSh)" opacity="0.72"/>')
-# Amber-lit windows on distant buildings
-for wx,wy in [(24,263),(48,260),(68,262),(86,259),(98,262),
-              (290,260),(312,259),(330,260),(352,263),(370,265)]:
-    A(f'<rect x="{wx}" y="{wy}" width="5" height="4" fill="#FFC030" rx="1" opacity="0.65"/>')
-    A(f'<ellipse cx="{wx+2}" cy="{wy+2}" rx="5" ry="4" fill="#FF9010" opacity="0.10"/>')
-# Black iron roofline trims
-A('<line x1="0" y1="258" x2="122" y2="258" stroke="#18181E" stroke-width="2" opacity="0.75"/>')
-A('<line x1="278" y1="258" x2="400" y2="258" stroke="#18181E" stroke-width="2" opacity="0.75"/>')
-
-# ═════════════════════════════════════════════════════════════════════════════
-#  7. LEFT & RIGHT CRYSTARIUM BUILDING COMPLEXES
-#     Sandstone body, black iron framing, crystal windows, eclectic styles
-# ═════════════════════════════════════════════════════════════════════════════
-def crystarium_wing(bx, by, bw, bh, side='L', sub_w=60, sub_h=170, sub_dx=0):
-    """Full Crystarium building wing: main block + secondary + iron trim."""
-    out = []
-    grad = 'gSandLit' if side == 'L' else 'gSandSh'
-    sg   = 'gSandSh'  if side == 'L' else 'gSandLit'
-
-    # Secondary building (behind/beside)
-    sbx = bx + sub_dx
-    out.append(f'<rect x="{sbx}" y="{by+bh-sub_h}" width="{sub_w}" height="{sub_h}" '
-               f'fill="url(#{sg})" rx="2" opacity="0.88"/>')
-    # Sub-building black iron roofline
-    out.append(iron_divider(sbx-1, by+bh-sub_h, sbx+sub_w+1, by+bh-sub_h, 3.0, 0.80))
-
-    # Main building body
-    out.append(f'<rect x="{bx}" y="{by}" width="{bw}" height="{bh}" '
-               f'fill="url(#{grad})" rx="2" opacity="0.95"/>')
-
-    # Black iron heavy vertical pilaster strips (Ishgardian Gothic influence)
-    pilw = 5
-    n_pil = max(2, int(bw // 22))
-    for pi in range(n_pil + 1):
-        px2 = bx + pi * (bw / n_pil)
-        out.append(f'<rect x="{px2-pilw/2:.0f}" y="{by}" width="{pilw}" height="{bh}" '
-                   f'fill="url(#gIron)" rx="1" opacity="0.72"/>')
-
-    # Black iron horizontal band courses
-    for band_frac in [0.0, 0.22, 0.44, 0.66, 0.88]:
-        band_y = by + bh * band_frac
-        out.append(f'<rect x="{bx-2}" y="{band_y:.0f}" width="{bw+4}" height="4.5" '
-                   f'fill="url(#gIron)" rx="1" opacity="0.68"/>')
-
+# ═══════════════════════════════════════════════════════════════════════════
+#  6. LEFT & RIGHT BUILDING WINGS (sandstone + black iron, y 145-278)
+# ═══════════════════════════════════════════════════════════════════════════
+def wing(bx, by, bw, bh, side='L'):
+    G = 'gSandL' if side=='L' else 'gSandS'
+    Gs= 'gSandS' if side=='L' else 'gSandL'
+    out=[]
+    # Sub-building behind
+    sbx = bx+4 if side=='L' else bx-4
+    sbw = int(bw*0.68); sbh = int(bh*0.75)
+    out.append(f'<rect x="{sbx}" y="{by+bh-sbh}" width="{sbw}" height="{sbh}" fill="url(#{Gs})" rx="2" opacity="0.85"/>')
+    out.append(f'<line x1="{sbx-1}" y1="{by+bh-sbh}" x2="{sbx+sbw+1}" y2="{by+bh-sbh}" stroke="#181820" stroke-width="3" opacity="0.78"/>')
+    # Main body
+    out.append(f'<rect x="{bx}" y="{by}" width="{bw}" height="{bh}" fill="url(#{G})" rx="2" opacity="0.95"/>')
+    # Iron pilasters (vertical strips)
+    n_pil = max(3, bw//22)
+    for pi in range(n_pil+1):
+        px2 = bx + pi*(bw/n_pil)
+        out.append(f'<rect x="{px2-2.5:.0f}" y="{by}" width="5" height="{bh}" fill="url(#gIron)" rx="1" opacity="0.70"/>')
+    # Iron horizontal band courses
+    for frac in [0.0, 0.20, 0.42, 0.64, 0.84]:
+        by2 = by + bh*frac
+        out.append(f'<rect x="{bx-2}" y="{by2:.0f}" width="{bw+4}" height="4" fill="url(#gIron)" rx="1" opacity="0.68"/>')
     # Crystal-glow windows (3 rows)
-    ww = bw * 0.26; wh = bh * 0.12
+    ww=int(bw*0.28); wh=int(bh*0.11)
     for row in range(3):
-        wy2 = by + bh * (0.16 + row * 0.26)
-        wx2 = bx + (bw - ww) * 0.50
-        out.append(iron_window(wx2, wy2, ww, wh, 0.65))
-
-    # Crenellated parapet (Ishgardian gothic roofline)
-    merlon_w = 6; merlon_h = 10; gap = 4
-    mx = bx + 4
-    while mx < bx + bw - merlon_w:
-        out.append(f'<rect x="{mx:.0f}" y="{by-merlon_h}" width="{merlon_w}" '
-                   f'height="{merlon_h+2}" fill="url(#gIron)" rx="1" opacity="0.82"/>')
-        mx += merlon_w + gap
-
-    # Small crystal spire turrets at corners
-    for tx2 in [bx + 8, bx + bw - 8]:
-        out.append(f'<polygon points="{tx2},{by-merlon_h-16} {tx2+5},{by-merlon_h} {tx2-5},{by-merlon_h}" '
-                   f'fill="url(#gRing)" opacity="0.80"/>')
-        out.append(f'<ellipse cx="{tx2}" cy="{by-merlon_h-10}" rx="6" ry="6" '
-                   f'fill="#50A8F0" opacity="0.15"/>')
-
+        wy2=int(by + bh*(0.15+row*0.26))
+        wx2=int(bx + (bw-ww)*0.50)
+        out.append(iron_win(wx2, wy2, ww, wh, 0.62))
+    # Crenellated parapet
+    mx=bx+3
+    while mx < bx+bw-6:
+        out.append(f'<rect x="{mx:.0f}" y="{by-9}" width="6" height="11" fill="url(#gIron)" rx="1" opacity="0.82"/>')
+        mx += 10
+    out.append(f'<line x1="{bx-2}" y1="{by-9}" x2="{bx+bw+2}" y2="{by-9}" stroke="url(#gRing)" stroke-width="2" opacity="0.45"/>')
+    # Corner crystal turrets
+    for tx2 in [bx+7, bx+bw-7]:
+        out.append(f'<polygon points="{tx2},{by-9-16} {tx2+5},{by-9} {tx2-5},{by-9}" fill="url(#gRing)" opacity="0.82"/>')
+        out.append(f'<ellipse cx="{tx2}" cy="{by-9-10}" rx="6" ry="6" fill="#50A8F0" opacity="0.14"/>')
     return ''.join(out)
 
-# Left complex
-A(crystarium_wing(bx=-12, by=165, bw=102, bh=235, side='L', sub_w=68, sub_h=180, sub_dx=8))
-# Right complex (mirrored)
-A(crystarium_wing(bx=310, by=165, bw=102, bh=235, side='R', sub_w=68, sub_h=180, sub_dx=22))
+A(wing(bx=-14, by=148, bw=105, bh=132, side='L'))
+A(wing(bx=309, by=148, bw=105, bh=132, side='R'))
 
-# Amber lanterns on building walls
-for lx2, ly2 in [(22,240),(22,300),(22,360),(378,240),(378,300),(378,360)]:
-    A(lantern_post(lx2, ly2, h=20, lamp_w=8, lamp_h=10))
+# Building wall lanterns
+for lx2,ly2 in [(18,200),(18,248),(382,200),(382,248)]:
+    A(lamp(lx2, ly2, h=18))
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  8. THE ROTUNDA — "elegant black iron and sheets of shimmering crystal"
-#     The first landmark visitors see. Domed, grand, iron-ribbed crystal dome.
-#     Located centrally where the Crystal Tower base meets the city.
-# ═════════════════════════════════════════════════════════════════════════════
-rot_cx = 200; rot_base = 368
+# ═══════════════════════════════════════════════════════════════════════════
+#  7. DISTANT CITY SKYLINE (behind buildings, y 248-278)
+# ═══════════════════════════════════════════════════════════════════════════
+A('<path d="M0,252 L0,272 L16,272 L16,256 L26,256 L26,268 L38,268 '
+  'L38,250 L50,250 L50,264 L60,264 L60,254 L70,254 L70,262 '
+  'L78,262 L78,252 L90,252 L90,262 L100,262 L100,254" '
+  'fill="url(#gSandS)" opacity="0.65"/>')
+A('<path d="M300,254 L300,262 L310,262 L310,252 L320,252 L320,262 '
+  'L330,262 L330,252 L342,252 L342,264 L352,264 L352,254 '
+  'L362,254 L362,268 L374,268 L374,256 L384,256 L384,272 L400,272 L400,252" '
+  'fill="url(#gSandS)" opacity="0.65"/>')
+# Tiny amber windows on distant buildings
+for wx2,wy2 in [(22,257),(46,254),(66,258),(84,256),
+                (312,256),(334,256),(356,258),(376,260)]:
+    A(f'<rect x="{wx2}" y="{wy2}" width="5" height="4" fill="#FFC030" rx="1" opacity="0.60"/>')
+# Iron roofline
+A('<line x1="0" y1="252" x2="100" y2="252" stroke="#181820" stroke-width="2" opacity="0.72"/>')
+A('<line x1="300" y1="252" x2="400" y2="252" stroke="#181820" stroke-width="2" opacity="0.72"/>')
 
-# Grand sandstone staircase leading up to Rotunda (3 wide steps)
-for step_i, (sw2, sh2) in enumerate([(130,10),(108,8),(86,7)]):
-    sy2 = rot_base - step_i * 8
-    A(f'<rect x="{rot_cx-sw2//2}" y="{sy2-sh2}" width="{sw2}" height="{sh2}" '
-      f'fill="url(#gSandLit)" rx="2" opacity="0.88"/>')
-    A(iron_divider(rot_cx-sw2//2-1, sy2-sh2, rot_cx+sw2//2+1, sy2-sh2, 2.5, 0.72))
+# ═══════════════════════════════════════════════════════════════════════════
+#  8. GROUND PLAZA (dark stone, y 278-600)
+# ═══════════════════════════════════════════════════════════════════════════
+A('<rect y="278" width="400" height="322" fill="url(#gGnd)"/>')
+# Crystal-lit platform edge
+A('<rect y="276" width="400" height="4" fill="url(#gRing)" opacity="0.35"/>')
+A('<ellipse cx="200" cy="278" rx="200" ry="7" fill="#5898E0" opacity="0.16"/>')
+# Tile grid
+for ty2 in range(285, 600, 26):
+    A(f'<line x1="0" y1="{ty2}" x2="400" y2="{ty2}" stroke="#1A1C2C" stroke-width="1.2" opacity="0.46"/>')
+for tx2 in range(0, 401, 28):
+    A(f'<line x1="{tx2}" y1="278" x2="{tx2}" y2="600" stroke="#1A1C2C" stroke-width="0.9" opacity="0.36"/>')
+# Crystal aether veins in floor
+for vpath, vop in [
+    ("M200,278 Q193,310 186,360 L180,430 L177,520 L175,600", 0.38),
+    ("M200,278 Q207,310 214,360 L220,430 L223,520 L225,600", 0.38),
+    ("M200,278 Q182,305 165,330 L142,370 L115,420",          0.24),
+    ("M200,278 Q218,305 235,330 L258,370 L285,420",          0.24),
+]:
+    A(f'<path d="{vpath}" fill="none" stroke="#3878C8" stroke-width="2.5" opacity="{vop*0.40:.2f}"/>')
+    A(f'<path d="{vpath}" fill="none" stroke="#88C8FF" stroke-width="0.7" opacity="{vop:.2f}"/>')
 
-# Drum platform base (sandstone with iron banding)
-drum_base_y = rot_base - 30; drum_h = 58; drum_r = 52
-A(f'<rect x="{rot_cx-drum_r}" y="{drum_base_y-drum_h}" width="{drum_r*2}" height="{drum_h}" '
-  f'fill="url(#gSandLit)" rx="3" opacity="0.94"/>')
-# Iron pilaster strips on drum (6 facing)
-for pi in range(7):
-    px2 = rot_cx - drum_r + pi * (drum_r * 2 / 6)
-    A(f'<rect x="{px2-3:.0f}" y="{drum_base_y-drum_h}" width="6" height="{drum_h}" '
-      f'fill="url(#gIron)" rx="1" opacity="0.78"/>')
-# Iron entablature (bold horizontal divide)
-A(f'<rect x="{rot_cx-drum_r-3}" y="{drum_base_y-drum_h-8}" width="{drum_r*2+6}" height="10" '
-  f'fill="url(#gIron)" rx="1" opacity="0.88"/>')
-# Crystal frieze inlay on entablature
-A(f'<rect x="{rot_cx-drum_r+4}" y="{drum_base_y-drum_h-6}" width="{(drum_r-4)*2}" height="6" '
-  f'fill="url(#gCrystalPanel)" rx="1" opacity="0.45"/>')
-# Crystal windows in drum (5 visible arched windows)
-for wi in range(5):
-    wx2 = rot_cx - 36 + wi * 18
-    wy2 = drum_base_y - drum_h + drum_h * 0.22
-    A(iron_window(wx2, wy2, 10, drum_h * 0.52, 0.60))
-
-# Dome base ring (iron ring joining drum to dome)
-dome_base_y = drum_base_y - drum_h - 8
-A(f'<rect x="{rot_cx-drum_r-4}" y="{dome_base_y-4}" width="{(drum_r+4)*2}" height="6" '
-  f'fill="url(#gIron)" rx="1" opacity="0.90"/>')
-A(f'<rect x="{rot_cx-drum_r-4}" y="{dome_base_y-6}" width="{(drum_r+4)*2}" height="3" '
-  f'fill="url(#gRing)" rx="1" opacity="0.50"/>')
-
-# THE DOME — hemispherical, black iron skeleton, crystal panels between ribs
-dome_cx = rot_cx; dome_cy = dome_base_y
-dome_rx = drum_r + 4; dome_ry = 42
-
-# Crystal panel fill (the shimmering crystal sheets — reflected tower glow)
-A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" '
-  f'fill="#0E1C30" opacity="0.88"/>')
-A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" '
-  f'fill="url(#gTowerGlow)" opacity="0.55"/>')
-# Panel shimmer (blue-crystal gleam)
-A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" '
-  f'fill="url(#gCrystalPanel)" opacity="0.30"/>')
-# Dome highlight (specular reflection of Crystal Tower)
-A(f'<ellipse cx="{dome_cx-14}" cy="{dome_cy-18}" rx="{dome_rx*0.38:.0f}" ry="{dome_ry*0.28:.0f}" '
-  f'fill="#A8D8FF" opacity="0.32"/>')
-A(f'<ellipse cx="{dome_cx-8}" cy="{dome_cy-24}" rx="{dome_rx*0.18:.0f}" ry="{dome_ry*0.15:.0f}" '
-  f'fill="#FFFFFF" opacity="0.22"/>')
-
-# Iron ribs (8 structural ribs — most visible in lower half)
-n_ribs = 8
-for ri in range(n_ribs):
-    ang = math.radians(ri * 180 / n_ribs)
-    tip_x = dome_cx; tip_y = dome_cy - dome_ry
-    rim_x = dome_cx + math.cos(ang + math.pi/2) * dome_rx
-    rim_y = dome_cy + math.sin(ang + math.pi/2) * dome_ry * 0.85
-    A(f'<line x1="{tip_x}" y1="{tip_y}" x2="{rim_x:.0f}" y2="{rim_y:.0f}" '
-      f'stroke="#18181E" stroke-width="3.0" opacity="0.85"/>')
-    # Mirror rib
-    rim_xm = dome_cx - math.cos(ang + math.pi/2) * dome_rx
-    A(f'<line x1="{tip_x}" y1="{tip_y}" x2="{rim_xm:.0f}" y2="{rim_y:.0f}" '
-      f'stroke="#18181E" stroke-width="3.0" opacity="0.85"/>')
-# Oculus ring at dome apex
-A(f'<circle cx="{dome_cx}" cy="{dome_cy-dome_ry}" r="8" fill="url(#gIron)" opacity="0.90"/>')
-A(f'<circle cx="{dome_cx}" cy="{dome_cy-dome_ry}" r="5" fill="url(#gRing)" opacity="0.80"/>')
-A(f'<circle cx="{dome_cx}" cy="{dome_cy-dome_ry}" r="2.5" fill="#FFFFFF" opacity="0.90"/>')
-
-# Crystal finial spire (atop the oculus)
-fin_base = dome_cy - dome_ry - 8
-A(f'<polygon points="{dome_cx},{fin_base-22} {dome_cx+7},{fin_base} {dome_cx-7},{fin_base}" '
-  f'fill="url(#gRing)" opacity="0.92"/>')
-A(f'<polygon points="{dome_cx},{fin_base-22} {dome_cx+4},{fin_base-10} {dome_cx-4},{fin_base-10}" '
-  f'fill="#FFFFFF" opacity="0.80"/>')
-# Finial glow
-A(f'<circle cx="{dome_cx}" cy="{fin_base-14}" r="8" fill="#80C8FF" opacity="0.22"/>')
-A(f'<circle cx="{dome_cx}" cy="{fin_base-14}" r="16" fill="#50A0E8" opacity="0.08"/>')
-
-# Iron base collar band
-A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx+2}" ry="8" '
-  f'fill="url(#gIron)" opacity="0.88"/>')
-A(f'<ellipse cx="{dome_cx}" cy="{dome_cy}" rx="{dome_rx+2}" ry="8" '
-  f'fill="none" stroke="url(#gRing)" stroke-width="2" opacity="0.45"/>')
-
-# Rotunda glow on ground
-A(f'<ellipse cx="{dome_cx}" cy="{rot_base}" rx="80" ry="18" fill="#4888D8" opacity="0.10"/>')
-
-# ═════════════════════════════════════════════════════════════════════════════
-#  9. GROUND PLAZA — dark stone tiles, crystal vein channels
-# ═════════════════════════════════════════════════════════════════════════════
-A('<rect y="365" width="400" height="235" fill="url(#gGround)"/>')
-# Platform top edge (crystal-lit ledge)
-A('<rect y="363" width="400" height="4" fill="url(#gRing)" opacity="0.38"/>')
-A('<ellipse cx="200" cy="365" rx="200" ry="6" fill="#5898E0" opacity="0.18"/>')
-
-# Stone tile grid
-for ty2 in range(372, 600, 24):
-    A(f'<line x1="0" y1="{ty2}" x2="400" y2="{ty2}" stroke="#1C1E2E" stroke-width="1.2" opacity="0.48"/>')
-for tx2 in range(0, 401, 26):
-    A(f'<line x1="{tx2}" y1="365" x2="{tx2}" y2="600" stroke="#1C1E2E" stroke-width="1.0" opacity="0.38"/>')
-
-# Crystal aether vein channels (glowing lines in the plaza floor)
-vein_data = [
-    ("M200,365 Q192,400 185,450 L178,530 L175,600", "#4888C8", 2.5, 0.38),
-    ("M200,365 Q208,400 215,450 L222,530 L225,600", "#4888C8", 2.5, 0.38),
-    ("M200,365 Q185,390 165,418 L138,460 L110,510", "#3878B8", 2.0, 0.28),
-    ("M200,365 Q215,390 235,418 L262,460 L290,510", "#3878B8", 2.0, 0.28),
-    ("M200,365 Q175,382 148,400 L108,428 L72,460",  "#2860A0", 1.5, 0.20),
-    ("M200,365 Q225,382 252,400 L292,428 L328,460", "#2860A0", 1.5, 0.20),
-]
-for vpath, vcol, vsw, vop in vein_data:
-    A(f'<path d="{vpath}" fill="none" stroke="{vcol}" stroke-width="{vsw*1.5}" opacity="{vop*0.45:.2f}"/>')
-    A(f'<path d="{vpath}" fill="none" stroke="#90C8FF" stroke-width="{vsw*0.4:.1f}" opacity="{vop:.2f}"/>')
-
-# ═════════════════════════════════════════════════════════════════════════════
-#  10. CRYSTAL PILLARS — flanking the central path
-# ═════════════════════════════════════════════════════════════════════════════
-def xtal_pillar(px, py, h=80, w=13):
-    out = []
-    # Stone base
-    out.append(f'<rect x="{px-w//2-4}" y="{py-10}" width="{w+8}" height="12" '
-               f'fill="url(#gSandSh)" rx="2" opacity="0.90"/>')
-    # Iron banding on base
-    out.append(iron_divider(px-w//2-5, py-10, px+w//2+5, py-10, 2.5, 0.72))
-    # Shaft (iron-cased stone)
-    out.append(f'<rect x="{px-w//2}" y="{py-10-h}" width="{w}" height="{h}" '
-               f'fill="url(#gPillar)" rx="2" opacity="0.92"/>')
-    # Iron vertical strips on shaft
-    out.append(f'<rect x="{px-w//2}" y="{py-10-h}" width="3" height="{h}" '
-               f'fill="url(#gIron)" opacity="0.60"/>')
-    out.append(f'<rect x="{px+w//2-3}" y="{py-10-h}" width="3" height="{h}" '
-               f'fill="url(#gIron)" opacity="0.60"/>')
-    # Crystal shard cap (glowing blue tip)
-    pts = f'{px},{py-10-h-18} {px+w//2+3},{py-10-h} {px-w//2-3},{py-10-h}'
-    out.append(f'<polygon points="{pts}" fill="url(#gRing)" opacity="0.88"/>')
-    out.append(f'<polygon points="{pts}" fill="url(#gCrystalPanel)" opacity="0.45"/>')
-    # Glow
-    out.append(f'<ellipse cx="{px}" cy="{py-10-h-8}" rx="{w+4:.0f}" ry="14" '
-               f'fill="#60B0F0" opacity="0.25"/>')
-    out.append(f'<ellipse cx="{px}" cy="{py-10-h-8}" rx="{w*2:.0f}" ry="26" '
-               f'fill="#4090D8" opacity="0.09"/>')
-    # Highlight streak
-    out.append(f'<line x1="{px-2}" y1="{py-10-h-15}" x2="{px-2}" y2="{py-12}" '
-               f'stroke="#FFFFFF" stroke-width="1.2" opacity="0.22"/>')
-    # Iron capital ring
-    out.append(f'<rect x="{px-w//2-5}" y="{py-10-h-3}" width="{w+10}" height="5" '
-               f'fill="url(#gIron)" rx="1" opacity="0.80"/>')
+# ═══════════════════════════════════════════════════════════════════════════
+#  9. CRYSTAL PILLARS (flanking path, y 285-380)
+# ═══════════════════════════════════════════════════════════════════════════
+def xpillar(px, py, h=75, w=12):
+    out=[]
+    # stone base plinth
+    out.append(f'<rect x="{px-w//2-4}" y="{py-10}" width="{w+8}" height="12" fill="url(#gSandS)" rx="2" opacity="0.88"/>')
+    out.append(f'<line x1="{px-w//2-5}" y1="{py-10}" x2="{px+w//2+5}" y2="{py-10}" stroke="#181820" stroke-width="2.5" opacity="0.72"/>')
+    # shaft
+    out.append(f'<rect x="{px-w//2}" y="{py-10-h}" width="{w}" height="{h}" fill="url(#gPillar)" rx="2" opacity="0.92"/>')
+    out.append(f'<rect x="{px-w//2}" y="{py-10-h}" width="3" height="{h}" fill="url(#gIron)" opacity="0.55"/>')
+    out.append(f'<rect x="{px+w//2-3}" y="{py-10-h}" width="3" height="{h}" fill="url(#gIron)" opacity="0.55"/>')
+    # iron capital ring
+    out.append(f'<rect x="{px-w//2-5}" y="{py-10-h-4}" width="{w+10}" height="5" fill="url(#gIron)" rx="1" opacity="0.80"/>')
+    # crystal shard cap
+    A_pts=f'{px},{py-10-h-20} {px+w//2+4},{py-10-h-2} {px-w//2-4},{py-10-h-2}'
+    out.append(f'<polygon points="{A_pts}" fill="url(#gRing)" opacity="0.88"/>')
+    out.append(f'<polygon points="{A_pts}" fill="url(#gCPanel)" opacity="0.40"/>')
+    # highlight
+    out.append(f'<line x1="{px-2}" y1="{py-10-h-18}" x2="{px-2}" y2="{py-12}" stroke="#FFFFFF" stroke-width="1.2" opacity="0.20"/>')
+    # glow
+    out.append(f'<ellipse cx="{px}" cy="{py-10-h-10}" rx="{w+5:.0f}" ry="15" fill="#60B0F0" opacity="0.22"/>')
+    out.append(f'<ellipse cx="{px}" cy="{py-10-h-10}" rx="{w*2:.0f}" ry="28" fill="#4090D8" opacity="0.08"/>')
     return ''.join(out)
 
-# Left pillars
-A(xtal_pillar(82,  415, h=72, w=14))
-A(xtal_pillar(112, 402, h=62, w=12))
-A(xtal_pillar(140, 392, h=54, w=11))
-# Right pillars
-A(xtal_pillar(318, 415, h=72, w=14))
-A(xtal_pillar(288, 402, h=62, w=12))
-A(xtal_pillar(260, 392, h=54, w=11))
+A(xpillar(80,  418, h=70, w=14))
+A(xpillar(108, 404, h=60, w=12))
+A(xpillar(136, 392, h=52, w=11))
+A(xpillar(320, 418, h=70, w=14))
+A(xpillar(292, 404, h=60, w=12))
+A(xpillar(264, 392, h=52, w=11))
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  11. STREET LANTERNS — warm amber, added when night first returned
-# ═════════════════════════════════════════════════════════════════════════════
-lantern_locs = [
-    (50,432,32),(88,420,28),(126,432,30),
-    (350,432,32),(312,420,28),(274,432,30),
-    (35,505,28),(70,515,26),(108,505,28),
-    (365,505,28),(330,515,26),(292,505,28),
-]
-for lx2, ly2, lh in lantern_locs:
-    A(lantern_post(lx2, ly2, h=lh, lamp_w=9, lamp_h=12))
+# ═══════════════════════════════════════════════════════════════════════════
+#  10. THE ROTUNDA — left of path (y 248-340)
+#      "Elegant black iron and sheets of shimmering crystal" — domed hall
+# ═══════════════════════════════════════════════════════════════════════════
+rx0=88;  rot_base=340
+drum_h=50; drum_r=40
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  12. CENTRAL STONE PATH (worn stone, faintly crystal-lit)
-# ═════════════════════════════════════════════════════════════════════════════
-A('<path d="M170,600 L174,540 L178,480 L181,430 L184,390 L186,368" '
-  'fill="none" stroke="#2A2C3C" stroke-width="26" stroke-linecap="round" opacity="0.82"/>')
-A('<path d="M170,600 L174,540 L178,480 L181,430 L184,390 L186,368" '
-  'fill="none" stroke="#3A3C50" stroke-width="20" stroke-linecap="round" opacity="0.60"/>')
-# Flagstone joints
-for pjy in [374, 398, 424, 452, 480, 510, 545]:
-    A(f'<line x1="168" y1="{pjy}" x2="192" y2="{pjy}" stroke="#1A1C2C" stroke-width="1.5" opacity="0.50"/>')
-# Crystal vein along path centerline
-A('<path d="M180,600 L182,540 L183,480 L184,430 L185,390 L186,368" '
-  'fill="none" stroke="#5898D8" stroke-width="1.2" opacity="0.32"/>')
+# Steps
+for si,(sw2,sh2) in enumerate([(96,8),(78,7),(62,6)]):
+    sy2=rot_base-si*7
+    A(f'<rect x="{rx0-sw2//2}" y="{sy2-sh2}" width="{sw2}" height="{sh2}" fill="url(#gSandL)" rx="2" opacity="0.86"/>')
+    A(f'<line x1="{rx0-sw2//2-1}" y1="{sy2-sh2}" x2="{rx0+sw2//2+1}" y2="{sy2-sh2}" stroke="#181820" stroke-width="2" opacity="0.70"/>')
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  13. STAGE 5 — THE EXEDRA FOUNTAIN
-#      Circular grand plaza fountain, crystal centerpiece, iconic gathering spot
-#      (design at x=148 — renders at 200 after stage5 +52px transform)
-# ═════════════════════════════════════════════════════════════════════════════
-fc = 148; fb = 240   # fountain center x, base y
+# Drum
+drum_y = rot_base - 22
+A(f'<rect x="{rx0-drum_r}" y="{drum_y-drum_h}" width="{drum_r*2}" height="{drum_h}" fill="url(#gSandL)" rx="3" opacity="0.93"/>')
+# Pilasters
+for pi in range(5):
+    px2=rx0-drum_r+pi*(drum_r*2/4)
+    A(f'<rect x="{px2-2.5:.0f}" y="{drum_y-drum_h}" width="5" height="{drum_h}" fill="url(#gIron)" rx="1" opacity="0.72"/>')
+# Entablature
+A(f'<rect x="{rx0-drum_r-3}" y="{drum_y-drum_h-7}" width="{drum_r*2+6}" height="9" fill="url(#gIron)" rx="1" opacity="0.88"/>')
+A(f'<rect x="{rx0-drum_r+3}" y="{drum_y-drum_h-5}" width="{(drum_r-3)*2}" height="5" fill="url(#gCPanel)" rx="1" opacity="0.40"/>')
+# Windows
+for wi in range(3):
+    wx2=rx0-22+wi*22; wy2=drum_y-drum_h+drum_h*0.20
+    A(iron_win(int(wx2), int(wy2), 12, int(drum_h*0.50), 0.58))
 
-# Outer basin rim (wide circular pool)
-A(f'<ellipse cx="{fc}" cy="{fb}" rx="52" ry="14" fill="#0C1020" opacity="0.88"/>')
-A(f'<ellipse cx="{fc}" cy="{fb}" rx="52" ry="14" fill="url(#gFountain)" opacity="0.58"/>')
-# Water surface reflections of tower
-A(f'<ellipse cx="{fc-10}" cy="{fb-3}" rx="18" ry="5" fill="#C0E8FF" opacity="0.28"/>')
-# Water ring lines
-for rr in [0.55, 0.75, 0.90]:
-    A(f'<ellipse cx="{fc}" cy="{fb}" rx="{52*rr:.0f}" ry="{14*rr:.0f}" '
-      f'fill="none" stroke="#70C0FF" stroke-width="1.2" opacity="0.35"/>')
-# Basin wall (sandstone + iron trim)
-A(f'<rect x="{fc-54}" y="{fb-13}" width="108" height="13" fill="url(#gSandLit)" rx="3" opacity="0.90"/>')
-A(f'<ellipse cx="{fc}" cy="{fb-13}" rx="54" ry="9" fill="url(#gSandLit)" opacity="0.90"/>')
-A(iron_divider(fc-55, fb-13, fc+55, fb-13, 2.5, 0.75))
-# Crystal band inlay on basin rim
-A(f'<ellipse cx="{fc}" cy="{fb-13}" rx="54" ry="9" fill="none" '
-  f'stroke="url(#gRing)" stroke-width="2.5" opacity="0.50"/>')
-# Basin detail: iron brackets
+# Dome base ring
+dome_cy=drum_y-drum_h-7; dome_rx=drum_r+4; dome_ry=36
+A(f'<rect x="{rx0-dome_rx-2}" y="{dome_cy-4}" width="{(dome_rx+2)*2}" height="6" fill="url(#gIron)" rx="1" opacity="0.90"/>')
+A(f'<rect x="{rx0-dome_rx-2}" y="{dome_cy-6}" width="{(dome_rx+2)*2}" height="3" fill="url(#gRing)" rx="1" opacity="0.45"/>')
+
+# Dome body
+A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="#0C1828" opacity="0.88"/>')
+A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="url(#gTGlow)" opacity="0.52"/>')
+A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="url(#gCPanel)" opacity="0.28"/>')
+# Highlight
+A(f'<ellipse cx="{rx0-12}" cy="{dome_cy-16}" rx="{int(dome_rx*0.38)}" ry="{int(dome_ry*0.28)}" fill="#A8D8FF" opacity="0.30"/>')
+# Iron ribs
+for ri in range(8):
+    ang=math.radians(ri*22.5)
+    ex=rx0+math.cos(ang)*dome_rx; ey=dome_cy+math.sin(ang)*dome_ry
+    A(f'<line x1="{rx0}" y1="{dome_cy-dome_ry}" x2="{ex:.0f}" y2="{ey:.0f}" stroke="#181820" stroke-width="2.8" opacity="0.85"/>')
+# Oculus + finial
+A(f'<circle cx="{rx0}" cy="{dome_cy-dome_ry}" r="7" fill="url(#gIron)" opacity="0.90"/>')
+A(f'<circle cx="{rx0}" cy="{dome_cy-dome_ry}" r="4" fill="url(#gRing)" opacity="0.82"/>')
+fin_y=dome_cy-dome_ry-8
+A(f'<polygon points="{rx0},{fin_y-20} {rx0+7},{fin_y} {rx0-7},{fin_y}" fill="url(#gRing)" opacity="0.90"/>')
+A(f'<polygon points="{rx0},{fin_y-20} {rx0+4},{fin_y-10} {rx0-4},{fin_y-10}" fill="#FFFFFF" opacity="0.75"/>')
+A(f'<circle cx="{rx0}" cy="{fin_y-12}" r="7" fill="#80C8FF" opacity="0.20"/>')
+# Base collar
+A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx+2}" ry="7" fill="url(#gIron)" opacity="0.88"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  STAGE 5 OBJECT — THE EXEDRA FOUNTAIN  (centered at SVG 200, 166)
+#  Crystal fountain basin + pedestal + glowing crystal obelisk
+# ═══════════════════════════════════════════════════════════════════════════
+# Target: node center at (200, 166). Object spans y ≈ 120-188.
+
+FC = 200   # fountain center x
+FB = 182   # fountain base (lower basin bottom)
+
+# ── lower basin (wide circular pool) ──
+A(f'<ellipse cx="{FC}" cy="{FB}" rx="52" ry="13" fill="#080E1C" opacity="0.88"/>')
+A(f'<ellipse cx="{FC}" cy="{FB}" rx="52" ry="13" fill="url(#gWater)" opacity="0.58"/>')
+# Water reflections
+A(f'<ellipse cx="{FC-12}" cy="{FB-3}" rx="18" ry="5" fill="#C0E8FF" opacity="0.25"/>')
+for rr in (0.55, 0.75, 0.92):
+    A(f'<ellipse cx="{FC}" cy="{FB}" rx="{52*rr:.0f}" ry="{13*rr:.0f}" fill="none" stroke="#68C0FF" stroke-width="1.2" opacity="0.32"/>')
+# Basin wall (sandstone + iron)
+A(f'<rect x="{FC-54}" y="{FB-12}" width="108" height="12" fill="url(#gSandL)" rx="2" opacity="0.90"/>')
+A(f'<ellipse cx="{FC}" cy="{FB-12}" rx="54" ry="8" fill="url(#gSandL)" opacity="0.90"/>')
+A(f'<line x1="{FC-55}" y1="{FB-12}" x2="{FC+55}" y2="{FB-12}" stroke="#181820" stroke-width="2.5" opacity="0.75"/>')
+A(f'<ellipse cx="{FC}" cy="{FB-12}" rx="54" ry="8" fill="none" stroke="url(#gRing)" stroke-width="2" opacity="0.45"/>')
+# Iron bracket pins around basin
 for bi in range(6):
-    bang = math.radians(bi * 60)
-    bx2 = fc + math.cos(bang)*50; by2 = fb + math.sin(bang)*13 - 13
-    A(f'<circle cx="{bx2:.0f}" cy="{by2:.0f}" r="3" fill="url(#gIron)" opacity="0.80"/>')
+    bang=math.radians(bi*60)
+    bx2=FC+math.cos(bang)*50; by2=FB+math.sin(bang)*13-12
+    A(f'<circle cx="{bx2:.0f}" cy="{by2:.0f}" r="2.8" fill="url(#gIron)" opacity="0.80"/>')
 
-# Central column / pedestal
-A(f'<rect x="{fc-7}" y="{fb-72}" width="14" height="59" fill="url(#gSandLit)" rx="3" opacity="0.92"/>')
-A(iron_divider(fc-8, fb-72, fc+8, fb-72, 2.5, 0.75))
-A(iron_divider(fc-8, fb-14, fc+8, fb-14, 2.5, 0.75))
-# Column iron fluting
-for fl_off in [-3, 0, 3]:
-    A(f'<line x1="{fc+fl_off}" y1="{fb-72}" x2="{fc+fl_off}" y2="{fb-15}" '
-      f'stroke="#18181E" stroke-width="1.2" opacity="0.40"/>')
+# ── pedestal column ──
+A(f'<rect x="{FC-7}" y="{FB-68}" width="14" height="56" fill="url(#gSandL)" rx="3" opacity="0.92"/>')
+A(f'<line x1="{FC-8}" y1="{FB-68}" x2="{FC+8}" y2="{FB-68}" stroke="#181820" stroke-width="2.5" opacity="0.72"/>')
+A(f'<line x1="{FC-8}" y1="{FB-13}" x2="{FC+8}" y2="{FB-13}" stroke="#181820" stroke-width="2.5" opacity="0.72"/>')
+# Iron fluting on column
+for fl in (-3, 0, 3):
+    A(f'<line x1="{FC+fl}" y1="{FB-68}" x2="{FC+fl}" y2="{FB-14}" stroke="#181820" stroke-width="1.2" opacity="0.38"/>')
 
-# Upper basin (elevated, smaller)
-A(f'<ellipse cx="{fc}" cy="{fb-74}" rx="26" ry="7" fill="#0C1020" opacity="0.88"/>')
-A(f'<ellipse cx="{fc}" cy="{fb-74}" rx="26" ry="7" fill="url(#gFountain)" opacity="0.55"/>')
-A(f'<rect x="{fc-28}" y="{fb-82}" width="56" height="8" fill="url(#gSandLit)" rx="2" opacity="0.90"/>')
-A(f'<ellipse cx="{fc}" cy="{fb-82}" rx="28" ry="7" fill="url(#gSandLit)" opacity="0.90"/>')
-A(iron_divider(fc-29, fb-82, fc+29, fb-82, 2.0, 0.72))
-A(f'<ellipse cx="{fc}" cy="{fb-82}" rx="28" ry="7" fill="none" '
-  f'stroke="url(#gRing)" stroke-width="1.8" opacity="0.48"/>')
+# ── upper basin (elevated) ──
+A(f'<ellipse cx="{FC}" cy="{FB-70}" rx="26" ry="7" fill="#080E1C" opacity="0.88"/>')
+A(f'<ellipse cx="{FC}" cy="{FB-70}" rx="26" ry="7" fill="url(#gWater)" opacity="0.52"/>')
+A(f'<rect x="{FC-28}" y="{FB-78}" width="56" height="8" fill="url(#gSandL)" rx="2" opacity="0.90"/>')
+A(f'<ellipse cx="{FC}" cy="{FB-78}" rx="28" ry="7" fill="url(#gSandL)" opacity="0.90"/>')
+A(f'<line x1="{FC-29}" y1="{FB-78}" x2="{FC+29}" y2="{FB-78}" stroke="#181820" stroke-width="2" opacity="0.70"/>')
+A(f'<ellipse cx="{FC}" cy="{FB-78}" rx="28" ry="7" fill="none" stroke="url(#gRing)" stroke-width="1.8" opacity="0.45"/>')
 
-# Crystal centerpiece spire (THE iconic glowing crystal obelisk)
-A(f'<polygon points="{fc},{fb-118} {fc+12},{fb-82} {fc-12},{fb-82}" '
-  f'fill="url(#gTowerVert)" opacity="0.92"/>')
-A(f'<polygon points="{fc},{fb-118} {fc+7},{fb-95} {fc-7},{fb-95}" '
-  f'fill="#FFFFFF" opacity="0.70"/>')
+# ── crystal obelisk (the glowing centerpiece) ──
+# Node center at y=166. Obelisk tip at y=124, body to y=170.
+# The node (y=166) is right at the widest part of the obelisk.
+A(f'<polygon points="{FC},{FB-116} {FC+13},{FB-78} {FC-13},{FB-78}" fill="url(#gTVert)" opacity="0.92"/>')
+A(f'<polygon points="{FC},{FB-116} {FC+8},{FB-96} {FC-8},{FB-96}" fill="#FFFFFF" opacity="0.72"/>')
 # Facet highlight
-A(f'<line x1="{fc+2}" y1="{fb-116}" x2="{fc+2}" y2="{fb-84}" '
-  f'stroke="#FFFFFF" stroke-width="1.5" opacity="0.55"/>')
-# Crystal glow (multi-layer)
-A(f'<ellipse cx="{fc}" cy="{fb-102}" rx="24" ry="24" fill="#60B0FF" opacity="0.15"/>')
-A(f'<ellipse cx="{fc}" cy="{fb-100}" rx="16" ry="18" fill="#90D0FF" opacity="0.22"/>')
-A(f'<ellipse cx="{fc}" cy="{fb-104}" rx="8" ry="10" fill="#C0EAFF" opacity="0.40"/>')
-A(f'<circle cx="{fc}" cy="{fb-116}" r="5" fill="#FFFFFF" opacity="0.92"/>')
-# Orbiting crystal facets (smaller shards around main spire)
+A(f'<line x1="{FC+2}" y1="{FB-114}" x2="{FC+2}" y2="{FB-80}" stroke="#FFFFFF" stroke-width="1.5" opacity="0.52"/>')
+# Crystal ring bands on obelisk (smaller mirror of tower)
+for oby, obh in [(FB-106, 2.5), (FB-92, 2.5), (FB-88, 2)]:
+    A(f'<rect x="{FC-10}" y="{oby}" width="20" height="{obh}" fill="url(#gRing)" opacity="0.72"/>')
+# Multi-layer glow
+A(f'<ellipse cx="{FC}" cy="{FB-98}" rx="28" ry="28" fill="#58B0FF" opacity="0.13"/>')
+A(f'<ellipse cx="{FC}" cy="{FB-98}" rx="18" ry="20" fill="#88D0FF" opacity="0.20"/>')
+A(f'<ellipse cx="{FC}" cy="{FB-102}" rx="9" ry="12" fill="#C0EAFF" opacity="0.38"/>')
+A(f'<circle cx="{FC}" cy="{FB-114}" r="5" fill="#FFFFFF" opacity="0.92"/>')
+# Orbiting crystal facets
 for si in range(4):
-    sang = si * 90
-    srad = math.radians(sang)
-    sox = fc + math.cos(srad) * 20; soy = fb - 98 + math.sin(srad) * 8
-    A(f'<polygon points="{sox:.0f},{soy-8:.0f} {sox+5:.0f},{soy:.0f} {sox-5:.0f},{soy:.0f}" '
-      f'fill="url(#gRing)" opacity="0.72"/>')
-    A(f'<circle cx="{sox:.0f}" cy="{soy-4:.0f}" r="3" fill="#90D0FF" opacity="0.30"/>')
+    srad=math.radians(si*90)
+    sox=FC+math.cos(srad)*22; soy=FB-98+math.sin(srad)*9
+    A(f'<polygon points="{sox:.0f},{soy-8:.0f} {sox+5:.0f},{soy:.0f} {sox-5:.0f},{soy:.0f}" fill="url(#gRing)" opacity="0.70"/>')
+    A(f'<circle cx="{sox:.0f}" cy="{soy-4:.0f}" r="3" fill="#90D0FF" opacity="0.28"/>')
+# Water jets
+for jang in (-50, -22, 0, 22, 50):
+    jrad=math.radians(jang-90)
+    jex=FC+math.cos(jrad)*36; jey=FB-78+math.sin(jrad)*28
+    A(f'<path d="M{FC},{FB-78} Q{FC+math.cos(jrad)*18:.0f},{FB-78+math.sin(jrad)*12:.0f} {jex:.0f},{jey:.0f}" '
+      f'fill="none" stroke="#88D0FF" stroke-width="2.0" opacity="0.48" stroke-linecap="round"/>')
+    A(f'<circle cx="{jex:.0f}" cy="{jey:.0f}" r="2" fill="#A8E0FF" opacity="0.48"/>')
 
-# Water jets (arcing from upper basin outward)
-for jang in [-55, -25, 0, 25, 55]:
-    jrad = math.radians(jang - 90)
-    jex = fc + math.cos(jrad)*36; jey = fb - 82 + math.sin(jrad)*28
-    A(f'<path d="M{fc},{fb-82} Q{fc+math.cos(jrad)*18:.0f},{fb-82+math.sin(jrad)*12:.0f} {jex:.0f},{jey:.0f}" '
-      f'fill="none" stroke="#90D0FF" stroke-width="2.0" opacity="0.50" stroke-linecap="round"/>')
-    # Splash droplets
-    A(f'<circle cx="{jex:.0f}" cy="{jey:.0f}" r="2" fill="#B0E0FF" opacity="0.50"/>')
+# ═══════════════════════════════════════════════════════════════════════════
+#  STAGE 10 OBJECT — MAIN CRYSTARIUM GATE  (centered at SVG 200, 336)
+#  Twin iron-stone towers + arch + Crystal Tower visible through gate opening
+# ═══════════════════════════════════════════════════════════════════════════
+# Target: node center at (200, 336). Gate spans y ≈ 278-368.
+# Arch opening: peak y≈296, base y≈344. Node (200,336) is inside arch.
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  14. STAGE 10 — MAIN CRYSTARIUM GATE
-#      Twin iron-stone towers flanking a grand arch. Crystal Tower visible
-#      through arch opening. Scale 1.5× at (200,531).
-# ═════════════════════════════════════════════════════════════════════════════
-gx = 200; gb = 578   # gate center, base y
+GX = 200; GB = 362   # gate base y (threshold/platform)
 
-# Gate threshold platform (sandstone + iron trim)
-A(f'<rect x="{gx-80}" y="{gb-8}" width="160" height="14" fill="url(#gSandLit)" rx="2" opacity="0.92"/>')
-A(iron_divider(gx-81, gb-8, gx+81, gb-8, 3.0, 0.80))
-# Crystal inlay in threshold
-A(f'<rect x="{gx-70}" y="{gb-5}" width="140" height="4" fill="url(#gRing)" rx="1" opacity="0.35"/>')
-# Threshold rune pattern (iron brackets)
+# ── threshold platform ──
+A(f'<rect x="{GX-82}" y="{GB-8}" width="164" height="12" fill="url(#gSandL)" rx="2" opacity="0.92"/>')
+A(f'<line x1="{GX-83}" y1="{GB-8}" x2="{GX+83}" y2="{GB-8}" stroke="#181820" stroke-width="3" opacity="0.80"/>')
+# Crystal inlay
+A(f'<rect x="{GX-72}" y="{GB-5}" width="144" height="3.5" fill="url(#gRing)" rx="1" opacity="0.32"/>')
+# Iron bracket pins
 for ti in range(8):
-    A(f'<rect x="{gx-64+ti*18}" y="{gb-7}" width="10" height="4" '
-      f'fill="url(#gIron)" rx="1" opacity="0.55"/>')
+    A(f'<rect x="{GX-66+ti*18}" y="{GB-7}" width="10" height="4" fill="url(#gIron)" rx="1" opacity="0.52"/>')
 
-# Left tower
-col_w = 28; col_h = 125
-A(f'<rect x="{gx-84}" y="{gb-8-col_h}" width="{col_w}" height="{col_h}" '
-  f'fill="url(#gSandLit)" rx="2" opacity="0.95"/>')
-# Iron pilasters on left tower
+# ── left column tower ──
+CW=28; CH=128
+A(f'<rect x="{GX-86}" y="{GB-8-CH}" width="{CW}" height="{CH}" fill="url(#gSandL)" rx="2" opacity="0.95"/>')
+# Pilasters
 for pi in range(3):
-    px2 = gx - 84 + pi * col_w / 2
-    A(f'<rect x="{px2:.0f}" y="{gb-8-col_h}" width="5" height="{col_h}" '
-      f'fill="url(#gIron)" rx="1" opacity="0.65"/>')
-# Iron band courses
-for bfrac in [0.18, 0.40, 0.62, 0.82]:
-    by2 = gb - 8 - col_h + col_h * bfrac
-    A(f'<rect x="{gx-86}" y="{by2:.0f}" width="{col_w+4}" height="5" '
-      f'fill="url(#gIron)" rx="1" opacity="0.70"/>')
-# Crystal window in left tower
-A(iron_window(gx-78, gb-8-col_h+col_h*0.30, 14, 20, 0.70))
-# Left tower capital (iron crenellation)
-A(f'<rect x="{gx-88}" y="{gb-8-col_h-10}" width="{col_w+8}" height="12" '
-  f'fill="url(#gIron)" rx="1" opacity="0.90"/>')
-A(f'<rect x="{gx-88}" y="{gb-8-col_h-13}" width="{col_w+8}" height="4" '
-  f'fill="url(#gRing)" rx="1" opacity="0.55"/>')
-# Left tower crystal spire
-A(f'<polygon points="{gx-70},{gb-8-col_h-32} {gx-62},{gb-8-col_h-10} {gx-78},{gb-8-col_h-10}" '
-  f'fill="url(#gRing)" opacity="0.88"/>')
-A(f'<polygon points="{gx-70},{gb-8-col_h-32} {gx-66},{gb-8-col_h-18} {gx-74},{gb-8-col_h-18}" '
-  f'fill="#FFFFFF" opacity="0.65"/>')
-A(f'<ellipse cx="{gx-70}" cy="{gb-8-col_h-22}" rx="9" ry="9" fill="#50A8F0" opacity="0.18"/>')
-# Left tower lanterns
-A(lantern_post(gx-72, gb-12, h=18, lamp_w=7, lamp_h=9))
-A(lantern_post(gx-96, gb-8, h=22, lamp_w=8, lamp_h=10))
+    px2=GX-86+pi*CW/2
+    A(f'<rect x="{px2:.0f}" y="{GB-8-CH}" width="5" height="{CH}" fill="url(#gIron)" rx="1" opacity="0.62"/>')
+# Band courses
+for frac in (0.16, 0.38, 0.60, 0.82):
+    by2=GB-8-CH+CH*frac
+    A(f'<rect x="{GX-88}" y="{by2:.0f}" width="{CW+4}" height="5" fill="url(#gIron)" rx="1" opacity="0.68"/>')
+# Crystal window
+A(iron_win(GX-80, int(GB-8-CH+CH*0.32), 16, 22, 0.72))
+# Capital (crenellation)
+A(f'<rect x="{GX-90}" y="{GB-8-CH-10}" width="{CW+8}" height="12" fill="url(#gIron)" rx="1" opacity="0.90"/>')
+A(f'<rect x="{GX-90}" y="{GB-8-CH-13}" width="{CW+8}" height="4" fill="url(#gRing)" rx="1" opacity="0.52"/>')
+# Crystal spire
+A(f'<polygon points="{GX-72},{GB-8-CH-34} {GX-64},{GB-8-CH-10} {GX-80},{GB-8-CH-10}" fill="url(#gRing)" opacity="0.88"/>')
+A(f'<polygon points="{GX-72},{GB-8-CH-34} {GX-68},{GB-8-CH-20} {GX-76},{GB-8-CH-20}" fill="#FFFFFF" opacity="0.68"/>')
+A(f'<ellipse cx="{GX-72}" cy="{GB-8-CH-22}" rx="9" ry="9" fill="#50A8F0" opacity="0.16"/>')
+# Lanterns
+A(lamp(GX-78, GB-10, h=20))
+A(lamp(GX-100, GB-8, h=24))
 
-# Right tower (mirror)
-A(f'<rect x="{gx+56}" y="{gb-8-col_h}" width="{col_w}" height="{col_h}" '
-  f'fill="url(#gSandSh)" rx="2" opacity="0.95"/>')
+# ── right column tower ──
+A(f'<rect x="{GX+58}" y="{GB-8-CH}" width="{CW}" height="{CH}" fill="url(#gSandS)" rx="2" opacity="0.95"/>')
 for pi in range(3):
-    px2 = gx + 56 + pi * col_w / 2
-    A(f'<rect x="{px2:.0f}" y="{gb-8-col_h}" width="5" height="{col_h}" '
-      f'fill="url(#gIron)" rx="1" opacity="0.65"/>')
-for bfrac in [0.18, 0.40, 0.62, 0.82]:
-    by2 = gb - 8 - col_h + col_h * bfrac
-    A(f'<rect x="{gx+54}" y="{by2:.0f}" width="{col_w+4}" height="5" '
-      f'fill="url(#gIron)" rx="1" opacity="0.70"/>')
-A(iron_window(gx+64, gb-8-col_h+col_h*0.30, 14, 20, 0.70))
-A(f'<rect x="{gx+52}" y="{gb-8-col_h-10}" width="{col_w+8}" height="12" '
-  f'fill="url(#gIron)" rx="1" opacity="0.90"/>')
-A(f'<rect x="{gx+52}" y="{gb-8-col_h-13}" width="{col_w+8}" height="4" '
-  f'fill="url(#gRing)" rx="1" opacity="0.55"/>')
-A(f'<polygon points="{gx+70},{gb-8-col_h-32} {gx+78},{gb-8-col_h-10} {gx+62},{gb-8-col_h-10}" '
-  f'fill="url(#gRing)" opacity="0.88"/>')
-A(f'<polygon points="{gx+70},{gb-8-col_h-32} {gx+74},{gb-8-col_h-18} {gx+66},{gb-8-col_h-18}" '
-  f'fill="#FFFFFF" opacity="0.65"/>')
-A(f'<ellipse cx="{gx+70}" cy="{gb-8-col_h-22}" rx="9" ry="9" fill="#50A8F0" opacity="0.18"/>')
-A(lantern_post(gx+72, gb-12, h=18, lamp_w=7, lamp_h=9))
-A(lantern_post(gx+96, gb-8, h=22, lamp_w=8, lamp_h=10))
+    px2=GX+58+pi*CW/2
+    A(f'<rect x="{px2:.0f}" y="{GB-8-CH}" width="5" height="{CH}" fill="url(#gIron)" rx="1" opacity="0.62"/>')
+for frac in (0.16, 0.38, 0.60, 0.82):
+    by2=GB-8-CH+CH*frac
+    A(f'<rect x="{GX+56}" y="{by2:.0f}" width="{CW+4}" height="5" fill="url(#gIron)" rx="1" opacity="0.68"/>')
+A(iron_win(GX+64, int(GB-8-CH+CH*0.32), 16, 22, 0.72))
+A(f'<rect x="{GX+54}" y="{GB-8-CH-10}" width="{CW+8}" height="12" fill="url(#gIron)" rx="1" opacity="0.90"/>')
+A(f'<rect x="{GX+54}" y="{GB-8-CH-13}" width="{CW+8}" height="4" fill="url(#gRing)" rx="1" opacity="0.52"/>')
+A(f'<polygon points="{GX+72},{GB-8-CH-34} {GX+80},{GB-8-CH-10} {GX+64},{GB-8-CH-10}" fill="url(#gRing)" opacity="0.88"/>')
+A(f'<polygon points="{GX+72},{GB-8-CH-34} {GX+76},{GB-8-CH-20} {GX+68},{GB-8-CH-20}" fill="#FFFFFF" opacity="0.68"/>')
+A(f'<ellipse cx="{GX+72}" cy="{GB-8-CH-22}" rx="9" ry="9" fill="#50A8F0" opacity="0.16"/>')
+A(lamp(GX+78, GB-10, h=20))
+A(lamp(GX+100, GB-8, h=24))
 
-# Arch geometry
-arch_base_y = gb - 8 - col_h + 20
-arch_peak_y = arch_base_y - 52
-arch_lx = gx - 56; arch_rx = gx + 56
+# ── arch ──
+# Arch spans from x=GX-58 to GX+58 (inside columns), peak at y=296
+arch_lx=GX-58; arch_rx=GX+58
+arch_bY=GB-8-CH+28    # where arch starts on column sides
+arch_pY=arch_bY-52    # arch peak y
 
-# Crystal Tower glimpse through arch (night sky + tower silhouette)
-A(f'<path d="M{arch_lx+10},{arch_base_y} '
-  f'C{arch_lx+10},{arch_peak_y+10} {arch_rx-10},{arch_peak_y+10} {arch_rx-10},{arch_base_y} Z" '
-  f'fill="#04020E" opacity="0.88"/>')
-# Stars visible through arch
-for _ in range(18):
-    asx = _rnd.uniform(arch_lx+12, arch_rx-12)
-    asy = _rnd.uniform(arch_peak_y+12, arch_base_y-5)
-    A(f'<circle cx="{asx:.0f}" cy="{asy:.0f}" r="{_rnd.uniform(0.5,1.2):.1f}" '
-      f'fill="#FFFFFF" opacity="{_rnd.uniform(0.4,0.85):.2f}"/>')
-# Mini Crystal Tower visible through arch
-mt_cx = gx; mt_tip_y = arch_peak_y + 12
-A(f'<polygon points="{mt_cx},{mt_tip_y} {mt_cx+20},{arch_base_y-4} {mt_cx-20},{arch_base_y-4}" '
-  f'fill="url(#gTowerVert)" opacity="0.62"/>')
-A(f'<polygon points="{mt_cx},{mt_tip_y} {mt_cx+10},{mt_tip_y+24} {mt_cx-10},{mt_tip_y+24}" '
-  f'fill="#E8F8FF" opacity="0.78"/>')
-A(f'<ellipse cx="{mt_cx}" cy="{mt_tip_y+10}" rx="22" ry="5" fill="#80C8FF" opacity="0.40"/>')
-# Aether shimmer from tower through arch
-A(f'<path d="M{arch_lx+10},{arch_base_y} '
-  f'C{arch_lx+10},{arch_peak_y+10} {arch_rx-10},{arch_peak_y+10} {arch_rx-10},{arch_base_y} Z" '
-  f'fill="url(#gGateShimmer)" opacity="0.90"/>')
-# Shimmer lines (vertical aether columns)
+# Night sky inside arch
+A(f'<path d="M{arch_lx+10},{arch_bY} C{arch_lx+10},{arch_pY+10} {arch_rx-10},{arch_pY+10} {arch_rx-10},{arch_bY} Z" '
+  f'fill="#030110" opacity="0.90"/>')
+# Stars through arch
+for _ in range(20):
+    asx=_r.uniform(arch_lx+14, arch_rx-14)
+    asy=_r.uniform(arch_pY+14, arch_bY-4)
+    A(f'<circle cx="{asx:.0f}" cy="{asy:.0f}" r="{_r.uniform(0.5,1.3):.1f}" fill="#FFFFFF" opacity="{_r.uniform(0.38,0.82):.2f}"/>')
+# Mini Crystal Tower silhouette through arch
+mt_tip=arch_pY+10
+A(f'<polygon points="{GX},{mt_tip} {GX+22},{arch_bY-5} {GX-22},{arch_bY-5}" fill="url(#gTVert)" opacity="0.60"/>')
+A(f'<polygon points="{GX},{mt_tip} {GX+10},{mt_tip+22} {GX-10},{mt_tip+22}" fill="#EEF8FF" opacity="0.76"/>')
+A(f'<ellipse cx="{GX}" cy="{mt_tip+12}" rx="24" ry="5" fill="#80C8FF" opacity="0.38"/>')
+# Aether shimmer overlay
+A(f'<path d="M{arch_lx+10},{arch_bY} C{arch_lx+10},{arch_pY+10} {arch_rx-10},{arch_pY+10} {arch_rx-10},{arch_bY} Z" '
+  f'fill="url(#gShimmer)" opacity="0.88"/>')
 for vi in range(5):
-    vx2 = arch_lx + 14 + vi * 18
-    A(f'<line x1="{vx2}" y1="{arch_peak_y+12}" x2="{vx2}" y2="{arch_base_y}" '
-      f'stroke="#80C8FF" stroke-width="1.0" opacity="0.20"/>')
+    vx2=arch_lx+12+vi*19
+    A(f'<line x1="{vx2}" y1="{arch_pY+12}" x2="{vx2}" y2="{arch_bY}" stroke="#80C8FF" stroke-width="1.0" opacity="0.18"/>')
 
-# Arch stone body (iron + sandstone)
-A(f'<path d="M{arch_lx},{arch_base_y} C{arch_lx},{arch_peak_y} {arch_rx},{arch_peak_y} {arch_rx},{arch_base_y}" '
-  f'fill="none" stroke="url(#gSandLit)" stroke-width="22" stroke-linecap="butt" opacity="0.95"/>')
-# Iron outer trim ring
-A(f'<path d="M{arch_lx-5},{arch_base_y} C{arch_lx-5},{arch_peak_y-7} {arch_rx+5},{arch_peak_y-7} {arch_rx+5},{arch_base_y}" '
-  f'fill="none" stroke="url(#gIron)" stroke-width="5" stroke-linecap="butt" opacity="0.85"/>')
-# Crystal inner trim
-A(f'<path d="M{arch_lx+10},{arch_base_y} C{arch_lx+10},{arch_peak_y+10} {arch_rx-10},{arch_peak_y+10} {arch_rx-10},{arch_base_y}" '
-  f'fill="none" stroke="url(#gRing)" stroke-width="2" stroke-linecap="butt" opacity="0.55"/>')
-# Iron keystone block
-ks_cy = arch_peak_y - 2
-A(f'<ellipse cx="{gx}" cy="{ks_cy}" rx="15" ry="11" fill="url(#gIron)" opacity="0.92"/>')
-# Crystal keystone gem
-A(f'<polygon points="{gx},{ks_cy-14} {gx+8},{ks_cy} {gx-8},{ks_cy}" '
-  f'fill="url(#gRing)" opacity="0.90"/>')
-A(f'<polygon points="{gx},{ks_cy-14} {gx+5},{ks_cy-7} {gx-5},{ks_cy-7}" '
-  f'fill="#FFFFFF" opacity="0.70"/>')
-A(f'<ellipse cx="{gx}" cy="{ks_cy-7}" rx="7" ry="7" fill="#60B0FF" opacity="0.22"/>')
-# Voussoir joints (7 joints in arch)
+# Arch stone body
+A(f'<path d="M{arch_lx},{arch_bY} C{arch_lx},{arch_pY} {arch_rx},{arch_pY} {arch_rx},{arch_bY}" '
+  f'fill="none" stroke="url(#gSandL)" stroke-width="22" stroke-linecap="butt" opacity="0.95"/>')
+A(f'<path d="M{arch_lx-5},{arch_bY} C{arch_lx-5},{arch_pY-7} {arch_rx+5},{arch_pY-7} {arch_rx+5},{arch_bY}" '
+  f'fill="none" stroke="url(#gIron)" stroke-width="5" stroke-linecap="butt" opacity="0.84"/>')
+A(f'<path d="M{arch_lx+10},{arch_bY} C{arch_lx+10},{arch_pY+10} {arch_rx-10},{arch_pY+10} {arch_rx-10},{arch_bY}" '
+  f'fill="none" stroke="url(#gRing)" stroke-width="2" stroke-linecap="butt" opacity="0.50"/>')
+# Voussoir joints
 for ji in range(7):
-    t = (ji+1) / 8.0
-    bx2 = (1-t)**2*arch_lx + 2*(1-t)*t*gx + t**2*arch_rx
-    by2 = (1-t)**2*arch_base_y + 2*(1-t)*t*arch_peak_y + t**2*arch_base_y
-    tdx = 2*(1-t)*(gx-arch_lx) + 2*t*(arch_rx-gx)
-    tdy = 2*(1-t)*(arch_peak_y-arch_base_y) + 2*t*(arch_base_y-arch_peak_y)
-    tlen = math.hypot(tdx,tdy) or 1
-    nx = -tdy/tlen*13; ny = tdx/tlen*13
+    t=(ji+1)/8.0
+    bx2=(1-t)**2*arch_lx+2*(1-t)*t*GX+t**2*arch_rx
+    by2=(1-t)**2*arch_bY +2*(1-t)*t*arch_pY+t**2*arch_bY
+    tdx=2*(1-t)*(GX-arch_lx)+2*t*(arch_rx-GX)
+    tdy=2*(1-t)*(arch_pY-arch_bY)+2*t*(arch_bY-arch_pY)
+    tlen=math.hypot(tdx,tdy) or 1
+    nx=-tdy/tlen*13; ny=tdx/tlen*13
     A(f'<line x1="{bx2-nx*0.3:.1f}" y1="{by2-ny*0.3:.1f}" x2="{bx2+nx:.1f}" y2="{by2+ny:.1f}" '
-      f'stroke="#18181E" stroke-width="1.5" opacity="0.50"/>')
+      f'stroke="#181820" stroke-width="1.5" opacity="0.50"/>')
+# Keystone
+ks_cy=arch_pY-2
+A(f'<ellipse cx="{GX}" cy="{ks_cy}" rx="15" ry="11" fill="url(#gIron)" opacity="0.92"/>')
+A(f'<polygon points="{GX},{ks_cy-15} {GX+8},{ks_cy+1} {GX-8},{ks_cy+1}" fill="url(#gRing)" opacity="0.90"/>')
+A(f'<polygon points="{GX},{ks_cy-15} {GX+5},{ks_cy-7} {GX-5},{ks_cy-7}" fill="#FFFFFF" opacity="0.70"/>')
+A(f'<ellipse cx="{GX}" cy="{ks_cy-6}" rx="8" ry="8" fill="#60B0FF" opacity="0.20"/>')
+# Crystal accents at gate base
+for gfx,gfs in [(GX-96,-1),(GX+96,1)]:
+    A(f'<polygon points="{gfx},{GB-30} {gfx+gfs*7},{GB-6} {gfx-gfs*7},{GB-6}" fill="url(#gRing)" opacity="0.70"/>')
+    A(f'<ellipse cx="{gfx}" cy="{GB-22}" rx="8" ry="12" fill="#60A8F0" opacity="0.15"/>')
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  15. ATMOSPHERE
-# ═════════════════════════════════════════════════════════════════════════════
-# Ground depth haze
-A('<rect y="510" width="400" height="90" fill="url(#gHaze)" opacity="0.72"/>')
+# ═══════════════════════════════════════════════════════════════════════════
+#  11. STREET LANTERNS (plaza)
+# ═══════════════════════════════════════════════════════════════════════════
+for lx2,ly2,lh in [
+    (48,438,32),(86,424,28),(124,438,30),(158,448,26),
+    (352,438,32),(314,424,28),(276,438,30),(242,448,26),
+    (32,518,28),(68,528,26),(106,518,28),(148,530,24),
+    (368,518,28),(332,528,26),(294,518,28),(252,530,24),
+]:
+    A(lamp(lx2, ly2, lh))
 
-# Crystal Tower light shafts (very faint blue rays radiating from tower base)
-for lang in [-58, -38, -20, -6, 0, 6, 20, 38, 58]:
-    lrad = math.radians(lang - 90)
-    llx = T + math.cos(lrad)*480; lly = 300 + math.sin(lrad)*480
-    lop = max(0.006, 0.055 - abs(lang)*0.0005)
-    lsw = max(0.4, 2.2 - abs(lang)*0.030)
+# ═══════════════════════════════════════════════════════════════════════════
+#  12. CENTRAL PATH
+# ═══════════════════════════════════════════════════════════════════════════
+A('<path d="M172,600 L176,540 L179,480 L182,425 L184,385 L186,355 L187,320 L188,282" '
+  'fill="none" stroke="#20223A" stroke-width="28" stroke-linecap="round" opacity="0.82"/>')
+A('<path d="M172,600 L176,540 L179,480 L182,425 L184,385 L186,355 L187,320 L188,282" '
+  'fill="none" stroke="#303248" stroke-width="22" stroke-linecap="round" opacity="0.60"/>')
+# Flagstone lines
+for pjy in (292,318,348,378,408,438,468,500,538):
+    A(f'<line x1="170" y1="{pjy}" x2="194" y2="{pjy}" stroke="#181828" stroke-width="1.5" opacity="0.52"/>')
+# Crystal vein along path
+A('<path d="M180,600 L183,540 L185,480 L186,425 L187,385 L188,355 L189,320 L189,282" '
+  'fill="none" stroke="#5898D8" stroke-width="1.2" opacity="0.30"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  13. ATMOSPHERE
+# ═══════════════════════════════════════════════════════════════════════════
+# Ground haze
+A('<rect y="515" width="400" height="85" fill="url(#gHaze)" opacity="0.70"/>')
+
+# Crystal Tower light shafts (faint blue rays from base)
+for lang in (-60,-38,-20,-7,0,7,20,38,60):
+    lrad=math.radians(lang-90)
+    llx=T+math.cos(lrad)*500; lly=300+math.sin(lrad)*500
+    lop=max(0.006, 0.052-abs(lang)*0.0004)
+    lsw=max(0.4, 2.2-abs(lang)*0.028)
     A(f'<line x1="{T}" y1="300" x2="{llx:.0f}" y2="{lly:.0f}" '
       f'stroke="#78B8FF" stroke-width="{lsw:.1f}" opacity="{lop:.3f}"/>')
 
-# Floating crystal dust motes
-motes = [
-    (50,185,2.0,1.2,'#90C8FF',0.65),(92,172,1.6,1.0,'#C0E0FF',0.58),
-    (148,160,1.8,1.1,'#80B8F0',0.60),(180,180,1.5,0.9,'#A0D0FF',0.52),
-    (228,168,1.7,1.0,'#C0E0FF',0.58),(268,158,1.8,1.1,'#80C0FF',0.60),
-    (318,175,1.6,1.0,'#90C8FF',0.56),(355,163,1.8,1.1,'#A0D0FF',0.60),
-    (38,238,1.5,0.9,'#80B8F0',0.48),(125,228,1.7,1.0,'#C0E0FF',0.52),
-    (280,232,1.6,1.0,'#90C8FF',0.52),(362,225,1.5,0.9,'#80C0FF',0.48),
-]
-for mx,my,mrx,mry,mc,mop in motes:
-    A(f'<ellipse cx="{mx}" cy="{my}" rx="{mrx}" ry="{mry}" fill="{mc}" opacity="{mop}"/>')
-    A(f'<ellipse cx="{mx}" cy="{my}" rx="{mrx*3.5:.1f}" ry="{mry*3.5:.1f}" fill="{mc}" opacity="{mop*0.08:.2f}"/>')
+# Crystal dust motes
+for mx,my,mc,mop in [
+    (50,182,'#90C8FF',0.62),(95,168,'#C0E0FF',0.55),
+    (148,152,'#80B8F0',0.58),(182,175,'#A0D0FF',0.50),
+    (222,160,'#C0E0FF',0.55),(268,148,'#80C0FF',0.58),
+    (315,168,'#90C8FF',0.54),(352,155,'#A0D0FF',0.58),
+    (40,238,'#80B8F0',0.46),(125,228,'#C0E0FF',0.50),
+    (282,232,'#90C8FF',0.50),(360,222,'#80C0FF',0.46),
+]:
+    A(f'<ellipse cx="{mx}" cy="{my}" rx="1.8" ry="1.1" fill="{mc}" opacity="{mop}"/>')
+    A(f'<ellipse cx="{mx}" cy="{my}" rx="5.5" ry="3.5" fill="{mc}" opacity="{mop*0.08:.2f}"/>')
 
-# Vignette (subtle edge darkening)
+# Vignette
 A('<rect width="400" height="600" fill="url(#gVig)"/>')
-
 A('</svg>')
 
-# ═════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
 #  VALIDATE + INJECT
-# ═════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
 svg = ''.join(parts)
 print(f'ULTIMATE SVG: {len(svg):,} chars')
 
-ro = len(_re.findall(r'<radialGradient', svg))
-rc = len(_re.findall(r'</radialGradient', svg))
-lo = len(_re.findall(r'<linearGradient', svg))
-lc = len(_re.findall(r'</linearGradient', svg))
+ro=len(_re.findall(r'<radialGradient', svg)); rc=len(_re.findall(r'</radialGradient', svg))
+lo=len(_re.findall(r'<linearGradient', svg)); lc=len(_re.findall(r'</linearGradient', svg))
 print(f'  radialGradient: {ro}/{rc}  linearGradient: {lo}/{lc}')
-if ro != rc: raise RuntimeError(f'radialGradient mismatch: {ro} vs {rc}')
-if lo != lc: raise RuntimeError(f'linearGradient mismatch: {lo} vs {lc}')
+if ro!=rc: raise RuntimeError(f'radialGradient mismatch: {ro}/{rc}')
+if lo!=lc: raise RuntimeError(f'linearGradient mismatch: {lo}/{lc}')
 
-if svg.count('`'): raise RuntimeError('Backtick found in SVG!')
-if svg.count("'"): raise RuntimeError('Single quote found in SVG!')
+if svg.count('`'): raise RuntimeError('Backtick in SVG!')
+if svg.count("'"): raise RuntimeError("Single quote in SVG!")
 
 import xml.etree.ElementTree as ET
 try:
@@ -992,24 +811,21 @@ try:
 except ET.ParseError as e:
     raise RuntimeError(f'XML parse error: {e}')
 
-# CSS fallback
 html2 = html
 for old, new in [
-    ('#game-view[data-diff="ULTIMATE"] { background: rgb(10,5,32); }',
-     '#game-view[data-diff="ULTIMATE"] { background: rgb(3,1,15); }'),
-    ('.map-scroll[data-diff="ULTIMATE"] { background: #0A0520; }',
-     '.map-scroll[data-diff="ULTIMATE"] { background: #03010F; }'),
+    ('#game-view[data-diff="ULTIMATE"] { background: rgb(3,1,15); }',
+     '#game-view[data-diff="ULTIMATE"] { background: rgb(2,1,10); }'),
+    ('.map-scroll[data-diff="ULTIMATE"] { background: #03010F; }',
+     '.map-scroll[data-diff="ULTIMATE"] { background: #020108; }'),
 ]:
     if old in html2:
-        html2 = html2.replace(old, new)
-        print(f'  CSS updated: {old[:55]}')
+        html2=html2.replace(old,new); print(f'  CSS: {old[:55]}')
 
 pattern = r"(if\(diff===.ULTIMATE.\) return \`)(.*?)(\`;)"
-repl = lambda m: m.group(1) + svg + m.group(3)
+repl    = lambda m: m.group(1) + svg + m.group(3)
 new_html, n = _re.subn(pattern, repl, html2, flags=_re.DOTALL)
-if n == 0:
-    raise RuntimeError("ULTIMATE pattern not found in stage.html")
+if n==0: raise RuntimeError("ULTIMATE pattern not found!")
 
-with open('/Users/hirokazukataoka/subitze/stage.html', 'w', encoding='utf-8') as f:
+with open('/Users/hirokazukataoka/subitze/stage.html','w',encoding='utf-8') as f:
     f.write(new_html)
 print(f'stage.html written. ({n} replacement)')
