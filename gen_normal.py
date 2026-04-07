@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NORMAL SVG masterpiece - Summer Countryside. No center path. Full-width nature."""
+"""NORMAL SVG — Limsa Lominsa-style coastal city (FF14 inspired). No center path."""
 import re
 
 with open('/Users/hirokazukataoka/subitze/stage.html', 'r', encoding='utf-8') as f:
@@ -9,540 +9,469 @@ def J(*parts):
     return ''.join(parts)
 
 # ═══════════════════════════════════════════════════════════════════════
-#  NORMAL  夏の田舎  Summer Countryside  — MASTERPIECE
-#  ・道なし（全幅を夏の田園で覆う）
-#  ・空、積乱雲、木漏れ日、広大な緑、ひまわり、麦畑、木柵、遠くの農家
-#  ・Stage5 (y≈235, x=200): 石の井戸
-#  ・Stage10 (y≈531, x=200): 石のアーチ門（ツタ付き）
+#  NORMAL  海賊都市  Limsa Lominsa — MASTERPIECE
+#  ・La Noscea: sea cliffs, azure ocean, warm sandstone, sails
+#  ・Towering limestone bluffs, stone arches, distant galleons
+#  ・Stage5 (y≈235, x=200+52): 錨と舵 Ship Wheel + Anchor
+#  ・Stage10 (y≈531, x=200) ×1.5: リムサ門 Limsan Stone Gate
 # ═══════════════════════════════════════════════════════════════════════
 
 NORMAL = J(
     '<svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">',
     '<defs>',
 
-    # Sky: deep summer blue
+    # Sky — La Noscea's brilliant azure
     '<linearGradient id="nSky" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0%" stop-color="#2E7ED4"/>',
-    '<stop offset="42%" stop-color="#5EA8E8"/>',
-    '<stop offset="76%" stop-color="#9CCEF4"/>',
-    '<stop offset="100%" stop-color="#C8E8C0"/>',
+    '<stop offset="0%"   stop-color="#1868C8"/>',
+    '<stop offset="28%"  stop-color="#2E82DC"/>',
+    '<stop offset="60%"  stop-color="#5AAAE8"/>',
+    '<stop offset="88%"  stop-color="#88C8F0"/>',
+    '<stop offset="100%" stop-color="#B0DCF8"/>',
     '</linearGradient>',
 
-    # Ground: rich midsummer green
+    # Ocean — deep teal blue
+    '<linearGradient id="nSea" x1="0" y1="0" x2="0" y2="1">',
+    '<stop offset="0%"   stop-color="#1A6CA0"/>',
+    '<stop offset="40%"  stop-color="#135880"/>',
+    '<stop offset="100%" stop-color="#0A3A58"/>',
+    '</linearGradient>',
+
+    # Ocean shimmer (radial highlight)
+    '<radialGradient id="nSeaShim" cx="50%" cy="15%" r="55%">',
+    '<stop offset="0%"   stop-color="#60C0E8" stop-opacity="0.35"/>',
+    '<stop offset="100%" stop-color="#60C0E8" stop-opacity="0"/>',
+    '</radialGradient>',
+
+    # Limestone cliff
+    '<linearGradient id="nCliff" x1="0" y1="0" x2="0" y2="1">',
+    '<stop offset="0%"   stop-color="#C8A870"/>',
+    '<stop offset="40%"  stop-color="#B89458"/>',
+    '<stop offset="100%" stop-color="#906830"/>',
+    '</linearGradient>',
+
+    # Cliff shadow side
+    '<linearGradient id="nCliffS" x1="0" y1="0" x2="1" y2="0">',
+    '<stop offset="0%"   stop-color="#5A3C14"/>',
+    '<stop offset="40%"  stop-color="#7A5428"/>',
+    '<stop offset="100%" stop-color="#604020"/>',
+    '</linearGradient>',
+
+    # Sandstone wall
+    '<linearGradient id="nWall" x1="0" y1="0" x2="0" y2="1">',
+    '<stop offset="0%"   stop-color="#D4B078"/>',
+    '<stop offset="50%"  stop-color="#C09858"/>',
+    '<stop offset="100%" stop-color="#A07840"/>',
+    '</linearGradient>',
+
+    # Gate stone
+    '<linearGradient id="nGate" x1="0" y1="0" x2="0" y2="1">',
+    '<stop offset="0%"   stop-color="#B89860"/>',
+    '<stop offset="55%"  stop-color="#A07840"/>',
+    '<stop offset="100%" stop-color="#7A5A28"/>',
+    '</linearGradient>',
+
+    # Gate left side lit
+    '<linearGradient id="nGateL" x1="0" y1="0" x2="1" y2="0">',
+    '<stop offset="0%"   stop-color="#C8A868"/>',
+    '<stop offset="60%"  stop-color="#A88040"/>',
+    '<stop offset="100%" stop-color="#806028"/>',
+    '</linearGradient>',
+
+    # White sail
+    '<linearGradient id="nSail" x1="0" y1="0" x2="1" y2="1">',
+    '<stop offset="0%"   stop-color="#F0ECD8"/>',
+    '<stop offset="100%" stop-color="#C8C0A0"/>',
+    '</linearGradient>',
+
+    # Sun glare on horizon
+    '<radialGradient id="nSun" cx="75%" cy="38%" r="35%">',
+    '<stop offset="0%"   stop-color="#FFFCE0" stop-opacity="0.68"/>',
+    '<stop offset="40%"  stop-color="#FFE880" stop-opacity="0.28"/>',
+    '<stop offset="100%" stop-color="#FFD040" stop-opacity="0"/>',
+    '</radialGradient>',
+
+    # Ground — stone plaza / dock
     '<linearGradient id="nGnd" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0%" stop-color="#3CAC34"/>',
-    '<stop offset="50%" stop-color="#248A20"/>',
-    '<stop offset="100%" stop-color="#14521A"/>',
+    '<stop offset="0%"   stop-color="#9A7A48"/>',
+    '<stop offset="45%"  stop-color="#7A5C30"/>',
+    '<stop offset="100%" stop-color="#503C18"/>',
     '</linearGradient>',
 
-    # Sun radial (upper-left this time)
-    '<radialGradient id="nSun" cx="22%" cy="7%" r="38%">',
-    '<stop offset="0%" stop-color="#FFF4A0" stop-opacity="0.84"/>',
-    '<stop offset="40%" stop-color="#FFE850" stop-opacity="0.26"/>',
-    '<stop offset="100%" stop-color="#FFF4A0" stop-opacity="0"/>',
-    '</radialGradient>',
-
-    # Wheat field gradient
-    '<linearGradient id="nWheat" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0%" stop-color="#D4A830"/>',
-    '<stop offset="100%" stop-color="#A87820"/>',
-    '</linearGradient>',
-
-    # Stone gradient for well/gate
-    '<linearGradient id="nStone" x1="0" y1="0" x2="1" y2="1">',
-    '<stop offset="0%" stop-color="#B0A898"/>',
-    '<stop offset="50%" stop-color="#888078"/>',
-    '<stop offset="100%" stop-color="#706860"/>',
-    '</linearGradient>',
-
-    # Depth fog
-    '<linearGradient id="nDpth" x1="0" y1="0" x2="0" y2="1">',
-    '<stop offset="0%" stop-color="#041A04" stop-opacity="0.62"/>',
-    '<stop offset="17%" stop-color="#041A04" stop-opacity="0.04"/>',
-    '<stop offset="100%" stop-color="#041A04" stop-opacity="0"/>',
-    '</linearGradient>',
-
-    # Ground warmth
-    '<radialGradient id="nWarm" cx="50%" cy="75%" r="52%">',
-    '<stop offset="0%" stop-color="#C8E440" stop-opacity="0.13"/>',
-    '<stop offset="100%" stop-color="#C8E440" stop-opacity="0"/>',
-    '</radialGradient>',
+    # Water glow filter
+    '<filter id="nWaterF" x="-20%" y="-20%" width="140%" height="140%">',
+    '<feGaussianBlur stdDeviation="2.5" result="b"/>',
+    '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>',
+    '</filter>',
 
     '</defs>',
 
-    # ── SKY & GROUND ─────────────────────────────────────────────────
+    # ── SKY ──────────────────────────────────────────────────
     '<rect width="400" height="600" fill="url(#nSky)"/>',
-    '<rect y="118" width="400" height="482" fill="url(#nGnd)"/>',
-
-    # ── CUMULUS CLOUDS ────────────────────────────────────────────────
-    # Cloud A (right, large — summer cumulus)
-    '<ellipse cx="310" cy="30" rx="52" ry="20" fill="#FFFFFF" opacity="0.92"/>',
-    '<ellipse cx="280" cy="34" rx="28" ry="15" fill="#FFFFFF" opacity="0.88"/>',
-    '<ellipse cx="342" cy="33" rx="30" ry="16" fill="#FFFFFF" opacity="0.86"/>',
-    '<ellipse cx="310" cy="22" rx="34" ry="14" fill="#FFFFFF" opacity="0.78"/>',
-    # Cloud shadow (bottom tint)
-    '<ellipse cx="310" cy="40" rx="52" ry="10" fill="#C8D8E8" opacity="0.30"/>',
-    # Cloud B (left, medium)
-    '<ellipse cx="70" cy="24" rx="38" ry="14" fill="#FFFFFF" opacity="0.88"/>',
-    '<ellipse cx="48" cy="27" rx="20" ry="11" fill="#FFFFFF" opacity="0.82"/>',
-    '<ellipse cx="94" cy="26" rx="22" ry="12" fill="#FFFFFF" opacity="0.82"/>',
-    # Cloud C (far center)
-    '<ellipse cx="190" cy="14" rx="24" ry="9" fill="#FFFFFF" opacity="0.70"/>',
-
-    # ── SUN & OVERLAYS ───────────────────────────────────────────────
     '<rect width="400" height="600" fill="url(#nSun)"/>',
-    '<rect y="118" width="400" height="482" fill="url(#nWarm)"/>',
-    '<rect width="400" height="600" fill="url(#nDpth)"/>',
 
-    # ── ROLLING HILLS ────────────────────────────────────────────────
-    '<ellipse cx="60" cy="152" rx="125" ry="44" fill="#40B038" opacity="0.76"/>',
-    '<ellipse cx="220" cy="145" rx="155" ry="50" fill="#3CA832" opacity="0.70"/>',
-    '<ellipse cx="374" cy="154" rx="130" ry="42" fill="#44B43C" opacity="0.74"/>',
-    '<ellipse cx="155" cy="158" rx="90" ry="34" fill="#48BC40" opacity="0.58"/>',
-    '<ellipse cx="310" cy="160" rx="80" ry="30" fill="#3EA836" opacity="0.56"/>',
+    # ── CLOUDS ───────────────────────────────────────────────
+    # Large cumulus left
+    '<ellipse cx="62"  cy="48"  rx="52" ry="22" fill="#FFF" opacity="0.88"/>',
+    '<ellipse cx="44"  cy="56"  rx="32" ry="16" fill="#FFF" opacity="0.82"/>',
+    '<ellipse cx="84"  cy="56"  rx="34" ry="14" fill="#FFF" opacity="0.80"/>',
+    '<ellipse cx="62"  cy="64"  rx="46" ry="10" fill="#F0EDE4" opacity="0.72"/>',
+    # Smaller right
+    '<ellipse cx="310" cy="36"  rx="44" ry="18" fill="#FFF" opacity="0.84"/>',
+    '<ellipse cx="290" cy="44"  rx="28" ry="13" fill="#FFF" opacity="0.78"/>',
+    '<ellipse cx="332" cy="44"  rx="30" ry="12" fill="#FFF" opacity="0.76"/>',
+    # Wispy mid
+    '<ellipse cx="172" cy="28"  rx="36" ry="10" fill="#FFF" opacity="0.62"/>',
+    '<ellipse cx="210" cy="22"  rx="26" ry="8"  fill="#FFF" opacity="0.54"/>',
 
-    # ── BIRDS ────────────────────────────────────────────────────────
-    '<path d="M32,22 Q37,17 42,22" stroke="#1A4A30" stroke-width="1.4" fill="none"/>',
-    '<path d="M52,15 Q57,10 62,15" stroke="#1A4A30" stroke-width="1.2" fill="none"/>',
-    '<path d="M148,10 Q153,5 158,10" stroke="#1A4A30" stroke-width="1.1" fill="none"/>',
-    '<path d="M350,14 Q355,9 360,14" stroke="#1A4A30" stroke-width="1.2" fill="none"/>',
-    '<path d="M370,26 Q375,21 380,26" stroke="#1A4A30" stroke-width="1.3" fill="none"/>',
+    # ── SEAGULLS ─────────────────────────────────────────────
+    '<path d="M58,88 Q64,82 70,88"  stroke="#8898B0" stroke-width="1.8" fill="none"/>',
+    '<path d="M72,78 Q79,71 86,78"  stroke="#8898B0" stroke-width="1.8" fill="none"/>',
+    '<path d="M238,64 Q244,58 250,64" stroke="#8898B0" stroke-width="1.6" fill="none"/>',
+    '<path d="M256,74 Q261,68 266,74" stroke="#9AAABE" stroke-width="1.5" fill="none"/>',
+    '<path d="M148,104 Q154,98 160,104" stroke="#9AAABE" stroke-width="1.5" fill="none"/>',
+    '<path d="M342,58 Q348,52 354,58" stroke="#8898B0" stroke-width="1.5" fill="none"/>',
 
-    # ── DISTANT FARMHOUSE SILHOUETTE (y≈120-145, right side x≈295) ──
-    # House body
-    '<rect x="290" y="132" width="26" height="18" fill="#7A6858" opacity="0.82"/>',
-    # Roof
-    '<polygon points="288,132 303,120 320,132" fill="#5A3820" opacity="0.82"/>',
-    # Chimney
-    '<rect x="310" y="124" width="4" height="8" fill="#5A3820" opacity="0.78"/>',
-    # Windows (lit)
-    '<rect x="294" y="137" width="5" height="5" fill="#FFE0A0" opacity="0.70"/>',
-    '<rect x="303" y="137" width="5" height="5" fill="#FFE0A0" opacity="0.68"/>',
-    # Door
-    '<rect x="298" y="143" width="5" height="7" fill="#4A3020" opacity="0.72"/>',
-    # Barn (left of house)
-    '<rect x="268" y="136" width="18" height="14" fill="#6A4828" opacity="0.76"/>',
-    '<polygon points="266,136 277,126 288,136" fill="#4A2C12" opacity="0.76"/>',
-    # Silo
-    '<rect x="254" y="133" width="8" height="17" fill="#887060" opacity="0.70"/>',
-    '<ellipse cx="258" cy="133" rx="4" ry="2" fill="#706050" opacity="0.72"/>',
+    # ── DISTANT OCEAN ─────────────────────────────────────────
+    '<rect y="138" width="400" height="188" fill="url(#nSea)"/>',
+    '<rect y="138" width="400" height="188" fill="url(#nSeaShim)"/>',
+    # Horizon line shimmer
+    '<rect y="136" width="400" height="5" fill="#C8E8F8" opacity="0.38"/>',
+    # Wave streaks
+    '<path d="M0,162 Q40,157 80,162 Q120,167 160,162 Q200,157 240,162 Q280,167 320,162 Q360,157 400,162" stroke="#3898C8" stroke-width="1.4" fill="none" opacity="0.48"/>',
+    '<path d="M0,185 Q50,180 100,185 Q150,190 200,185 Q250,180 300,185 Q350,190 400,185" stroke="#3088B8" stroke-width="1.2" fill="none" opacity="0.40"/>',
+    '<path d="M0,210 Q60,205 120,210 Q180,215 240,210 Q300,205 360,210 Q380,213 400,210" stroke="#2878A8" stroke-width="1.1" fill="none" opacity="0.35"/>',
+    '<path d="M0,238 Q80,233 160,238 Q240,243 320,238 Q360,235 400,238" stroke="#206898" stroke-width="1.0" fill="none" opacity="0.30"/>',
+    # Water sparkles
+    '<circle cx="88"  cy="170" r="1.8" fill="#A8E0F8" opacity="0.62"/>',
+    '<circle cx="192" cy="158" r="2.2" fill="#B8E8FF" opacity="0.58"/>',
+    '<circle cx="288" cy="178" r="1.6" fill="#A0D8F0" opacity="0.55"/>',
+    '<circle cx="52"  cy="202" r="1.4" fill="#A8E0F8" opacity="0.50"/>',
+    '<circle cx="348" cy="192" r="1.8" fill="#B0E4F8" opacity="0.52"/>',
+    '<circle cx="148" cy="222" r="1.6" fill="#98D8F0" opacity="0.46"/>',
+    '<circle cx="330" cy="218" r="1.4" fill="#A0DCF4" opacity="0.44"/>',
 
-    # ── LAYER 2: HORIZON MICRO-TREES (y≈118-124) ─────────────────────
-    '<circle cx="20" cy="120" r="5.5" fill="#185A18" opacity="0.78"/>',
-    '<circle cx="35" cy="118" r="4.5" fill="#1C6020" opacity="0.74"/>',
-    '<circle cx="108" cy="120" r="5" fill="#185A18" opacity="0.74"/>',
-    '<circle cx="200" cy="118" r="4" fill="#1A5A1C" opacity="0.70"/>',
-    '<circle cx="248" cy="119" r="5" fill="#185A18" opacity="0.72"/>',
-    '<circle cx="352" cy="118" r="5.5" fill="#1C6020" opacity="0.74"/>',
-    '<circle cx="372" cy="120" r="4" fill="#185A18" opacity="0.72"/>',
+    # ── DISTANT GALLEONS ─────────────────────────────────────
+    # Ship 1 (left, far)
+    '<rect x="28"  y="146" width="52" height="10" fill="#4A3018" rx="2" opacity="0.72"/>',
+    '<rect x="44"  y="122" width="4"  height="26" fill="#382010" opacity="0.70"/>',
+    '<polygon points="44,124 58,144 44,144" fill="url(#nSail)" opacity="0.76"/>',
+    '<polygon points="48,128 66,144 48,144" fill="url(#nSail)" opacity="0.68"/>',
+    '<rect x="60"  y="130" width="3"  height="18" fill="#382010" opacity="0.68"/>',
+    '<polygon points="60,132 72,144 60,144" fill="#E8E4D0" opacity="0.65"/>',
+    # Ship 2 (right, farther)
+    '<rect x="318" y="150" width="58" height="9"  fill="#4A3018" rx="2" opacity="0.65"/>',
+    '<rect x="336" y="128" width="4"  height="24" fill="#382010" opacity="0.63"/>',
+    '<polygon points="336,130 350,150 336,150" fill="url(#nSail)" opacity="0.68"/>',
+    '<polygon points="340,134 358,150 340,150" fill="#E0DCC8" opacity="0.60"/>',
+    '<rect x="352" y="134" width="3"  height="18" fill="#382010" opacity="0.62"/>',
+    '<polygon points="352,136 364,150 352,150" fill="#E8E4D0" opacity="0.58"/>',
 
-    # ── LAYER 2: VERY FAR TREES ───────────────────────────────────────
-    '<rect x="14" y="110" width="1.8" height="22" fill="#112A08"/>',
-    '<circle cx="14.9" cy="109" r="7.5" fill="#1C5C18" opacity="0.92"/>',
-    '<circle cx="14.9" cy="102" r="5.8" fill="#246422" opacity="0.90"/>',
-    '<rect x="34" y="112" width="1.5" height="18" fill="#112A08"/>',
-    '<circle cx="34.75" cy="111" r="6" fill="#1A5818" opacity="0.90"/>',
-    '<circle cx="34.75" cy="105" r="4.5" fill="#226020" opacity="0.88"/>',
-    # Center-left
-    '<rect x="98" y="111" width="1.8" height="21" fill="#112A08"/>',
-    '<circle cx="98.9" cy="110" r="7" fill="#1C5C18" opacity="0.90"/>',
-    '<circle cx="98.9" cy="103" r="5.5" fill="#246422" opacity="0.88"/>',
-    # Center-right
-    '<rect x="244" y="112" width="1.8" height="20" fill="#112A08"/>',
-    '<circle cx="244.9" cy="111" r="7" fill="#1C5C18" opacity="0.90"/>',
-    '<circle cx="244.9" cy="104" r="5.5" fill="#246422" opacity="0.88"/>',
-    # Right
-    '<rect x="356" y="110" width="1.8" height="22" fill="#112A08"/>',
-    '<circle cx="356.9" cy="109" r="7.5" fill="#1C5C18" opacity="0.92"/>',
-    '<circle cx="356.9" cy="102" r="5.8" fill="#246422" opacity="0.90"/>',
-    '<rect x="378" y="112" width="1.5" height="18" fill="#112A08"/>',
-    '<circle cx="378.75" cy="111" r="6" fill="#1A5818" opacity="0.90"/>',
-    '<circle cx="378.75" cy="105" r="4.5" fill="#226020" opacity="0.88"/>',
+    # ── LIMESTONE CLIFFS & CITY SILHOUETTE ────────────────────
+    # Far cliff (center-back city silhouette)
+    '<polygon points="88,138 180,68 260,60 340,72 380,138" fill="#B89060" opacity="0.52"/>',
+    '<polygon points="88,138 120,108 160,88 200,76 240,80 280,92 320,104 356,118 380,138" fill="#C8A070" opacity="0.44"/>',
+    # Tower tops (city on the cliff)
+    '<rect x="128" y="72" width="10" height="30" fill="#A07838" opacity="0.56"/>',
+    '<rect x="125" y="70" width="16" height="5"  fill="#8A6028" opacity="0.54"/>',
+    '<rect x="180" y="60" width="14" height="28" fill="#A87E3E" opacity="0.60"/>',
+    '<rect x="177" y="58" width="20" height="5"  fill="#8A6028" opacity="0.58"/>',
+    '<rect x="226" y="64" width="12" height="26" fill="#A07838" opacity="0.56"/>',
+    '<rect x="223" y="62" width="18" height="5"  fill="#886228" opacity="0.54"/>',
+    '<rect x="272" y="72" width="11" height="28" fill="#9C7434" opacity="0.52"/>',
+    '<rect x="269" y="70" width="17" height="5"  fill="#846024" opacity="0.50"/>',
+    # City wall parapet
+    '<rect x="108" y="94" width="200" height="8" fill="#B08848" opacity="0.46"/>',
+    '<rect x="116" y="90" width="8"   height="6" fill="#B08848" opacity="0.42"/>',
+    '<rect x="136" y="90" width="8"   height="6" fill="#B08848" opacity="0.40"/>',
+    '<rect x="156" y="90" width="8"   height="6" fill="#B08848" opacity="0.42"/>',
+    '<rect x="176" y="90" width="8"   height="6" fill="#B08848" opacity="0.40"/>',
+    '<rect x="206" y="90" width="8"   height="6" fill="#B08848" opacity="0.40"/>',
+    '<rect x="226" y="90" width="8"   height="6" fill="#B08848" opacity="0.38"/>',
+    '<rect x="246" y="90" width="8"   height="6" fill="#B08848" opacity="0.40"/>',
+    '<rect x="276" y="90" width="8"   height="6" fill="#B08848" opacity="0.38"/>',
 
-    # ── LAYER 3: FAR TREES (oak silhouettes, wider crowns) ────────────
-    # Left cluster
-    '<rect x="4" y="130" width="2.6" height="32" fill="#162C0A"/>',
-    '<ellipse cx="5.3" cy="126" rx="12" ry="10" fill="#246820" opacity="0.94"/>',
-    '<ellipse cx="5.3" cy="118" rx="9" ry="7.5" fill="#2E7828" opacity="0.92"/>',
-    '<rect x="24" y="133" width="2.3" height="28" fill="#162C0A"/>',
-    '<ellipse cx="25.15" cy="129" rx="11" ry="9" fill="#226418" opacity="0.92"/>',
-    '<ellipse cx="25.15" cy="122" rx="8" ry="6.5" fill="#2C7222" opacity="0.90"/>',
-    # Center-left
-    '<rect x="80" y="131" width="2.5" height="30" fill="#162C0A"/>',
-    '<ellipse cx="81.25" cy="127" rx="12" ry="10" fill="#246820" opacity="0.92"/>',
-    '<ellipse cx="81.25" cy="119" rx="9" ry="7" fill="#2E7828" opacity="0.90"/>',
-    # Center (poplar - tall & thin)
-    '<rect x="174" y="120" width="2" height="42" fill="#162C0A"/>',
-    '<ellipse cx="175" cy="117" rx="5.5" ry="12" fill="#1E6418" opacity="0.92"/>',
-    '<ellipse cx="175" cy="107" rx="4" ry="9" fill="#267020" opacity="0.90"/>',
-    # Center-right
-    '<rect x="268" y="131" width="2.5" height="30" fill="#162C0A"/>',
-    '<ellipse cx="269.25" cy="127" rx="12" ry="10" fill="#246820" opacity="0.92"/>',
-    '<ellipse cx="269.25" cy="119" rx="9" ry="7" fill="#2E7828" opacity="0.90"/>',
-    # Right cluster
-    '<rect x="362" y="130" width="2.6" height="32" fill="#162C0A"/>',
-    '<ellipse cx="363.3" cy="126" rx="12" ry="10" fill="#246820" opacity="0.94"/>',
-    '<ellipse cx="363.3" cy="118" rx="9" ry="7.5" fill="#2E7828" opacity="0.92"/>',
-    '<rect x="382" y="133" width="2.3" height="28" fill="#162C0A"/>',
-    '<ellipse cx="383.15" cy="129" rx="11" ry="9" fill="#226418" opacity="0.92"/>',
-    '<ellipse cx="383.15" cy="122" rx="8" ry="6.5" fill="#2C7222" opacity="0.90"/>',
+    # Main foreground cliff face (left)
+    '<polygon points="0,326 0,600 148,600 148,280 80,200 0,200" fill="url(#nCliff)"/>',
+    '<polygon points="0,200 0,600 40,600 40,240 0,200" fill="url(#nCliffS)" opacity="0.55"/>',
+    # Cliff texture lines
+    '<path d="M8,240 Q28,232 52,238 Q72,244 90,236 Q110,228 130,234" stroke="#906A30" stroke-width="1.8" fill="none" opacity="0.40"/>',
+    '<path d="M4,278 Q30,270 58,276 Q84,282 110,272 Q134,264 148,270" stroke="#806020" stroke-width="1.6" fill="none" opacity="0.38"/>',
+    '<path d="M0,318 Q32,310 64,316 Q96,322 128,312 Q144,308 148,310" stroke="#704C18" stroke-width="1.5" fill="none" opacity="0.35"/>',
+    # Cliff moss/lichen patches
+    '<ellipse cx="22"  cy="248" rx="16" ry="6"  fill="#4A6818" opacity="0.44"/>',
+    '<ellipse cx="78"  cy="262" rx="20" ry="7"  fill="#486218" opacity="0.40"/>',
+    '<ellipse cx="122" cy="296" rx="14" ry="5"  fill="#4A6018" opacity="0.38"/>',
+    '<ellipse cx="48"  cy="308" rx="12" ry="4.5" fill="#486018" opacity="0.36"/>',
 
-    # ── WHEAT FIELD PATCH (y≈165-195, center-left, x≈55-145) ────────
-    # Field base
-    '<rect x="55" y="168" width="90" height="30" fill="url(#nWheat)" opacity="0.78" rx="2"/>',
-    # Wheat stalks (dense fine lines)
-    '<line x1="62" y1="195" x2="62" y2="170" stroke="#C09820" stroke-width="1.0" opacity="0.70"/>',
-    '<line x1="68" y1="195" x2="68" y2="168" stroke="#C8A020" stroke-width="1.0" opacity="0.70"/>',
-    '<line x1="74" y1="195" x2="74" y2="170" stroke="#C09820" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="80" y1="195" x2="80" y2="168" stroke="#C8A020" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="86" y1="195" x2="86" y2="170" stroke="#C09820" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="92" y1="195" x2="92" y2="168" stroke="#C8A020" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="98" y1="195" x2="98" y2="170" stroke="#C09820" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="104" y1="195" x2="104" y2="168" stroke="#C8A020" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="110" y1="195" x2="110" y2="170" stroke="#C09820" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="116" y1="195" x2="116" y2="168" stroke="#C8A020" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="122" y1="195" x2="122" y2="170" stroke="#C09820" stroke-width="1.0" opacity="0.68"/>',
-    '<line x1="128" y1="195" x2="128" y2="168" stroke="#C8A020" stroke-width="1.0" opacity="0.70"/>',
-    '<line x1="134" y1="195" x2="134" y2="170" stroke="#C09820" stroke-width="1.0" opacity="0.70"/>',
-    '<line x1="140" y1="195" x2="140" y2="168" stroke="#C8A020" stroke-width="1.0" opacity="0.70"/>',
-    # Wheat heads
-    '<ellipse cx="62" cy="170" rx="2.5" ry="4.5" fill="#E8C030" opacity="0.85"/>',
-    '<ellipse cx="68" cy="168" rx="2.5" ry="4.5" fill="#D8B028" opacity="0.85"/>',
-    '<ellipse cx="74" cy="170" rx="2.5" ry="4.5" fill="#E8C030" opacity="0.82"/>',
-    '<ellipse cx="80" cy="168" rx="2.5" ry="4.5" fill="#D8B028" opacity="0.82"/>',
-    '<ellipse cx="86" cy="170" rx="2.5" ry="4.5" fill="#E8C030" opacity="0.82"/>',
-    '<ellipse cx="92" cy="168" rx="2.5" ry="4.5" fill="#D8B028" opacity="0.82"/>',
-    '<ellipse cx="98" cy="170" rx="2.5" ry="4.5" fill="#E8C030" opacity="0.82"/>',
-    '<ellipse cx="104" cy="168" rx="2.5" ry="4.5" fill="#D8B028" opacity="0.82"/>',
-    '<ellipse cx="110" cy="170" rx="2.5" ry="4.5" fill="#E8C030" opacity="0.82"/>',
-    '<ellipse cx="116" cy="168" rx="2.5" ry="4.5" fill="#D8B028" opacity="0.82"/>',
-    '<ellipse cx="122" cy="170" rx="2.5" ry="4.5" fill="#E8C030" opacity="0.82"/>',
-    '<ellipse cx="128" cy="168" rx="2.5" ry="4.5" fill="#D8B028" opacity="0.85"/>',
-    '<ellipse cx="134" cy="170" rx="2.5" ry="4.5" fill="#E8C030" opacity="0.85"/>',
-    '<ellipse cx="140" cy="168" rx="2.5" ry="4.5" fill="#D8B028" opacity="0.85"/>',
+    # Main foreground cliff face (right)
+    '<polygon points="400,310 400,600 252,600 252,268 320,186 400,186" fill="url(#nCliff)"/>',
+    '<polygon points="400,186 400,600 360,600 360,224 400,186" fill="url(#nCliffS)" opacity="0.48"/>',
+    # Cliff texture lines
+    '<path d="M268,224 Q292,216 316,222 Q338,228 358,220 Q376,214 400,218" stroke="#906A30" stroke-width="1.8" fill="none" opacity="0.40"/>',
+    '<path d="M256,268 Q280,260 304,266 Q328,272 352,262 Q376,254 400,258" stroke="#806020" stroke-width="1.6" fill="none" opacity="0.38"/>',
+    '<path d="M252,310 Q276,302 302,308 Q326,314 352,304 Q376,296 400,300" stroke="#704C18" stroke-width="1.5" fill="none" opacity="0.35"/>',
+    '<ellipse cx="278" cy="242" rx="16" ry="6"  fill="#4A6818" opacity="0.44"/>',
+    '<ellipse cx="322" cy="256" rx="18" ry="6"  fill="#486218" opacity="0.40"/>',
+    '<ellipse cx="368" cy="282" rx="14" ry="5"  fill="#4A6018" opacity="0.38"/>',
+    '<ellipse cx="340" cy="308" rx="12" ry="4.5" fill="#486018" opacity="0.36"/>',
 
-    # ── LAYER 4: MID-DISTANCE OAKS ────────────────────────────────────
-    # Left (wide oak crowns)
-    '<rect x="6" y="176" width="4.5" height="54" fill="#182E08"/>',
-    '<ellipse cx="8.25" cy="171" rx="20" ry="14" fill="#2E7020" opacity="0.96"/>',
-    '<ellipse cx="8.25" cy="161" rx="14" ry="10" fill="#389028" opacity="0.94"/>',
-    '<ellipse cx="-2" cy="174" rx="12" ry="9" fill="#2A6C1C" opacity="0.88"/>',
-    '<ellipse cx="18" cy="175" rx="12" ry="9" fill="#2A6C1C" opacity="0.88"/>',
-    '<rect x="40" y="180" width="4" height="50" fill="#182E08"/>',
-    '<ellipse cx="42" cy="175" rx="17" ry="12" fill="#2A6A1C" opacity="0.94"/>',
-    '<ellipse cx="42" cy="166" rx="12" ry="8.5" fill="#348826" opacity="0.92"/>',
-    # Left-center poplar (tall)
-    '<rect x="118" y="162" width="3" height="68" fill="#182E08"/>',
-    '<ellipse cx="119.5" cy="158" rx="7" ry="16" fill="#226A1E" opacity="0.94"/>',
-    '<ellipse cx="119.5" cy="145" rx="5.5" ry="12" fill="#2C8024" opacity="0.92"/>',
-    # Right-center oak
-    '<rect x="280" y="178" width="4.2" height="52" fill="#182E08"/>',
-    '<ellipse cx="282.1" cy="173" rx="19" ry="13" fill="#2E7020" opacity="0.94"/>',
-    '<ellipse cx="282.1" cy="163" rx="13" ry="9.5" fill="#389028" opacity="0.92"/>',
-    '<ellipse cx="272" cy="177" rx="11" ry="8" fill="#2A6A1C" opacity="0.86"/>',
-    '<ellipse cx="292" cy="177" rx="11" ry="8" fill="#2A6A1C" opacity="0.86"/>',
-    # Right poplar
-    '<rect x="338" y="163" width="3" height="66" fill="#182E08"/>',
-    '<ellipse cx="339.5" cy="159" rx="7" ry="16" fill="#226A1E" opacity="0.94"/>',
-    '<ellipse cx="339.5" cy="146" rx="5.5" ry="12" fill="#2C8024" opacity="0.92"/>',
-    # Right oak pair
-    '<rect x="348" y="176" width="4.5" height="54" fill="#182E08"/>',
-    '<ellipse cx="350.25" cy="171" rx="20" ry="14" fill="#2E7020" opacity="0.96"/>',
-    '<ellipse cx="350.25" cy="161" rx="14" ry="10" fill="#389028" opacity="0.94"/>',
-    '<rect x="376" y="180" width="4" height="50" fill="#182E08"/>',
-    '<ellipse cx="378" cy="175" rx="17" ry="12" fill="#2A6A1C" opacity="0.94"/>',
-    '<ellipse cx="378" cy="166" rx="12" ry="8.5" fill="#348826" opacity="0.92"/>',
+    # ── STONE PLAZA / DOCK FLOOR ─────────────────────────────
+    '<rect y="326" width="400" height="274" fill="url(#nGnd)"/>',
+    # Stone tile grid
+    '<g stroke="#604020" stroke-width="0.7" opacity="0.25">',
+    '<line x1="0" y1="348" x2="400" y2="348"/>',
+    '<line x1="0" y1="374" x2="400" y2="374"/>',
+    '<line x1="0" y1="400" x2="400" y2="400"/>',
+    '<line x1="0" y1="428" x2="400" y2="428"/>',
+    '<line x1="0" y1="458" x2="400" y2="458"/>',
+    '<line x1="66" y1="326" x2="66" y2="600"/>',
+    '<line x1="133" y1="326" x2="133" y2="600"/>',
+    '<line x1="200" y1="326" x2="200" y2="600"/>',
+    '<line x1="267" y1="326" x2="267" y2="600"/>',
+    '<line x1="334" y1="326" x2="334" y2="600"/>',
+    '</g>',
+    # Worn stone marks
+    '<ellipse cx="68"  cy="362" rx="12" ry="4"  fill="#503018" opacity="0.22"/>',
+    '<ellipse cx="192" cy="410" rx="10" ry="3.5" fill="#503018" opacity="0.18"/>',
+    '<ellipse cx="338" cy="368" rx="11" ry="4"  fill="#503018" opacity="0.20"/>',
 
-    # ── WOODEN FENCE (horizontal, y≈200) ─────────────────────────────
-    # Posts (every 38px across width, receding)
-    '<rect x="0"   y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="38"  y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="76"  y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="114" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="152" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="190" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="228" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="266" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="304" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="342" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    '<rect x="380" y="196" width="5" height="22" fill="#7A5028" rx="1"/>',
-    # Horizontal rails
-    '<rect x="0" y="200" width="400" height="3.5" fill="#8A6030" opacity="0.88" rx="1"/>',
-    '<rect x="0" y="210" width="400" height="3.5" fill="#8A6030" opacity="0.84" rx="1"/>',
-    # Rail highlights
-    '<rect x="0" y="200" width="400" height="1.2" fill="#B08040" opacity="0.38"/>',
-    '<rect x="0" y="210" width="400" height="1.2" fill="#B08040" opacity="0.35"/>',
+    # ── STONE ARCH / WALL STRUCTURES LEFT ────────────────────
+    # Left tower base
+    '<rect x="0"   y="264" width="56" height="336" fill="url(#nWall)"/>',
+    '<rect x="0"   y="264" width="12" height="336" fill="#7A5428" opacity="0.35"/>',
+    # Stone block texture
+    '<rect x="0"   y="272" width="56" height="9"  fill="#A07030" opacity="0.30"/>',
+    '<rect x="0"   y="294" width="56" height="9"  fill="#A07030" opacity="0.28"/>',
+    '<rect x="0"   y="316" width="56" height="9"  fill="#A07030" opacity="0.28"/>',
+    '<rect x="0"   y="338" width="56" height="9"  fill="#A07030" opacity="0.26"/>',
+    '<rect x="0"   y="362" width="56" height="9"  fill="#A07030" opacity="0.24"/>',
+    '<rect x="0"   y="388" width="56" height="9"  fill="#A07030" opacity="0.24"/>',
+    # Window
+    '<rect x="12"  y="298" width="20" height="28" fill="#2040A0" rx="9" opacity="0.70"/>',
+    '<rect x="14"  y="300" width="8"  height="24" fill="#4060C0" rx="4" opacity="0.48"/>',
+    '<rect x="22"  y="300" width="8"  height="24" fill="#3858B8" rx="4" opacity="0.38"/>',
+    # Parapet top
+    '<rect x="0"   y="252" width="56" height="14" fill="#9A7240" rx="1"/>',
+    '<rect x="4"   y="244" width="10" height="10" fill="#9A7240" rx="1"/>',
+    '<rect x="20"  y="244" width="10" height="10" fill="#9A7240" rx="1"/>',
+    '<rect x="36"  y="244" width="10" height="10" fill="#9A7240" rx="1"/>',
+
+    # ── STONE ARCH / WALL STRUCTURES RIGHT ───────────────────
+    '<rect x="344" y="252" width="56" height="348" fill="url(#nWall)"/>',
+    '<rect x="388" y="252" width="12" height="348" fill="#7A5428" opacity="0.30"/>',
+    '<rect x="344" y="260" width="56" height="9"  fill="#A07030" opacity="0.30"/>',
+    '<rect x="344" y="282" width="56" height="9"  fill="#A07030" opacity="0.28"/>',
+    '<rect x="344" y="304" width="56" height="9"  fill="#A07030" opacity="0.28"/>',
+    '<rect x="344" y="326" width="56" height="9"  fill="#A07030" opacity="0.26"/>',
+    '<rect x="344" y="350" width="56" height="9"  fill="#A07030" opacity="0.24"/>',
+    '<rect x="344" y="376" width="56" height="9"  fill="#A07030" opacity="0.24"/>',
+    '<rect x="368" y="286" width="20" height="28" fill="#2040A0" rx="9" opacity="0.70"/>',
+    '<rect x="370" y="288" width="8"  height="24" fill="#4060C0" rx="4" opacity="0.48"/>',
+    '<rect x="378" y="288" width="8"  height="24" fill="#3858B8" rx="4" opacity="0.38"/>',
+    '<rect x="344" y="240" width="56" height="14" fill="#9A7240" rx="1"/>',
+    '<rect x="346" y="232" width="10" height="10" fill="#9A7240" rx="1"/>',
+    '<rect x="362" y="232" width="10" height="10" fill="#9A7240" rx="1"/>',
+    '<rect x="378" y="232" width="10" height="10" fill="#9A7240" rx="1"/>',
+
+    # Rope + barrels on dock
+    '<path d="M64,442 Q100,438 136,442" stroke="#7A5028" stroke-width="3.0" fill="none" stroke-linecap="round"/>',
+    '<path d="M64,444 Q100,440 136,444" stroke="#5A3818" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.50"/>',
+    '<ellipse cx="86"  cy="458" rx="13" ry="10" fill="#6A4018"/>',
+    '<ellipse cx="86"  cy="448" rx="13" ry="4"  fill="#7A5020"/>',
+    '<ellipse cx="86"  cy="468" rx="13" ry="4"  fill="#7A5020"/>',
+    '<rect    x="74"   y="448"  width="4" height="20" fill="#905E28" opacity="0.55"/>',
+    '<ellipse cx="108" cy="462" rx="11" ry="9"  fill="#6A4018"/>',
+    '<ellipse cx="108" cy="453" rx="11" ry="3.5" fill="#7A5020"/>',
+    '<ellipse cx="108" cy="471" rx="11" ry="3.5" fill="#7A5020"/>',
+    '<rect    x="97"   y="453"  width="4" height="18" fill="#905E28" opacity="0.52"/>',
+
+    # Rope coil right side
+    '<path d="M270,448 Q300,444 330,448" stroke="#7A5028" stroke-width="2.8" fill="none" stroke-linecap="round"/>',
+    '<ellipse cx="288" cy="462" rx="12" ry="9"  fill="#6A4018"/>',
+    '<ellipse cx="288" cy="453" rx="12" ry="3.5" fill="#7A5020"/>',
+    '<ellipse cx="288" cy="471" rx="12" ry="3.5" fill="#7A5020"/>',
+    '<rect    x="277"  y="453"  width="4" height="18" fill="#905E28" opacity="0.50"/>',
 
     # ══════════════════════════════════════════════════════════════════
-    #  STAGE 5 SPECIAL: 石の井戸  Stone Well  (x=200, y≈235)
+    #  STAGE 5 SPECIAL: 錨と舵輪  Anchor + Ship Wheel  (x=200+52, y≈235)
     # ══════════════════════════════════════════════════════════════════
     '<g transform="translate(52,0)">',
-    # Ground shadow
-    '<ellipse cx="200" cy="290" rx="22" ry="7" fill="#145A14" opacity="0.38"/>',
-    # Well base (stone cylinder, front face)
-    '<ellipse cx="200" cy="278" rx="18" ry="7" fill="url(#nStone)"/>',
-    '<rect x="182" y="249" width="36" height="30" fill="#888078"/>',
-    '<ellipse cx="200" cy="249" rx="18" ry="7" fill="#A09888"/>',
-    # Stone texture on well body
-    '<rect x="182" y="254" width="36" height="2" fill="#706860" opacity="0.35"/>',
-    '<rect x="182" y="261" width="36" height="2" fill="#706860" opacity="0.35"/>',
-    '<rect x="182" y="268" width="36" height="2" fill="#706860" opacity="0.35"/>',
-    '<rect x="182" y="256" width="12" height="4" fill="#808070" opacity="0.30"/>',
-    '<rect x="198" y="258" width="14" height="4" fill="#808070" opacity="0.28"/>',
-    '<rect x="184" y="263" width="16" height="4" fill="#808070" opacity="0.28"/>',
-    '<rect x="204" y="265" width="12" height="4" fill="#808070" opacity="0.28"/>',
-    '<rect x="184" y="270" width="10" height="4" fill="#808070" opacity="0.28"/>',
-    '<rect x="200" y="272" width="14" height="4" fill="#808070" opacity="0.28"/>',
-    # Well frame — left post
-    '<rect x="188" y="224" width="5" height="28" fill="#5A3818" rx="2"/>',
-    # Well frame — right post
-    '<rect x="207" y="224" width="5" height="28" fill="#5A3818" rx="2"/>',
-    # Well frame — top beam
-    '<rect x="186" y="222" width="28" height="5" fill="#6A4820" rx="2"/>',
-    '<rect x="187" y="222" width="10" height="2" fill="#8A6030" opacity="0.40"/>',
-    # Axle
-    '<rect x="195" y="221" width="10" height="4" fill="#4A2810" rx="1"/>',
-    # Rope
-    '<line x1="200" y1="225" x2="200" y2="248" stroke="#8A7050" stroke-width="1.8"/>',
-    '<line x1="200" y1="225" x2="202" y2="248" stroke="#A08860" stroke-width="0.8" opacity="0.50"/>',
-    # Bucket
-    '<rect x="193" y="248" width="14" height="11" fill="#6A5030" rx="2"/>',
-    '<ellipse cx="200" cy="248" rx="7" ry="2.5" fill="#7A6040"/>',
-    '<ellipse cx="200" cy="259" rx="7" ry="2.5" fill="#5A4020"/>',
-    # Bucket handle
-    '<path d="M193,250 Q186,245 193,240" stroke="#4A3010" stroke-width="1.5" fill="none" stroke-linecap="round"/>',
-    # Water shimmer inside bucket top
-    '<ellipse cx="200" cy="249" rx="5.5" ry="1.8" fill="#80C8F0" opacity="0.55"/>',
-    # Moss on well
-    '<ellipse cx="184" cy="272" rx="4" ry="2.5" fill="#3A8020" opacity="0.62"/>',
-    '<ellipse cx="216" cy="268" rx="3.5" ry="2" fill="#3A8020" opacity="0.58"/>',
-    # Flowers near well base
-    '<circle cx="178" cy="282" r="4" fill="#FF8AB4"/>',
-    '<circle cx="178" cy="282" r="1.8" fill="#FFE870"/>',
-    '<circle cx="222" cy="280" r="3.5" fill="#FFD700"/>',
+    # Stone pedestal base
+    '<rect    x="184" y="280" width="32" height="12" fill="#8A6838" rx="3"/>',
+    '<ellipse cx="200" cy="280" rx="16"  ry="4.5"   fill="#9A7848"/>',
+    # Anchor chain loop on floor
+    '<ellipse cx="200" cy="294" rx="18"  ry="5"     fill="none" stroke="#604820" stroke-width="3.5" opacity="0.60"/>',
+    '<ellipse cx="200" cy="294" rx="18"  ry="5"     fill="none" stroke="#806038" stroke-width="1.5" opacity="0.38"/>',
+    # Anchor shaft
+    '<rect    x="197" y="222" width="6"  height="60" fill="#4A4848" rx="2"/>',
+    '<rect    x="198" y="223" width="2"  height="58" fill="#706868" opacity="0.45"/>',
+    # Anchor ring (top)
+    '<circle  cx="200" cy="218" r="9"    fill="none" stroke="#4A4848" stroke-width="5.5"/>',
+    '<circle  cx="200" cy="218" r="9"    fill="none" stroke="#686868" stroke-width="2.5" opacity="0.50"/>',
+    # Anchor crossbar
+    '<rect    x="183" y="232" width="34" height="5.5" fill="#4A4848" rx="2"/>',
+    '<rect    x="184" y="232" width="12" height="2"  fill="#686868" opacity="0.48"/>',
+    # Anchor flukes (bottom)
+    '<path d="M197,280 Q182,275 178,268 Q178,260 186,258" stroke="#4A4848" stroke-width="5" fill="none" stroke-linecap="round"/>',
+    '<path d="M203,280 Q218,275 222,268 Q222,260 214,258" stroke="#4A4848" stroke-width="5" fill="none" stroke-linecap="round"/>',
+    '<path d="M178,268 Q174,262 172,265" stroke="#4A4848" stroke-width="5" fill="none" stroke-linecap="round"/>',
+    '<path d="M222,268 Q226,262 228,265" stroke="#4A4848" stroke-width="5" fill="none" stroke-linecap="round"/>',
+    '<path d="M178,268 Q174,262 172,265" stroke="#686868" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.48"/>',
+    '<path d="M222,268 Q226,262 228,265" stroke="#686868" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.48"/>',
+    # Ship's wheel (overlapping anchor)
+    '<circle  cx="200" cy="240" r="28"   fill="none" stroke="#7A5028" stroke-width="5.5"/>',
+    '<circle  cx="200" cy="240" r="28"   fill="none" stroke="#B08040" stroke-width="2.5" opacity="0.60"/>',
+    '<circle  cx="200" cy="240" r="14"   fill="#6A4018"/>',
+    '<circle  cx="200" cy="240" r="14"   fill="none" stroke="#A07030" stroke-width="2.5" opacity="0.70"/>',
+    '<circle  cx="200" cy="240" r="7"    fill="#8A5820"/>',
+    # Spokes (8)
+    '<g stroke="#7A5028" stroke-width="3.5" stroke-linecap="round">',
+    '<line x1="200" y1="212" x2="200" y2="226"/>',
+    '<line x1="200" y1="254" x2="200" y2="268"/>',
+    '<line x1="172" y1="240" x2="186" y2="240"/>',
+    '<line x1="214" y1="240" x2="228" y2="240"/>',
+    '<line x1="180" y1="220" x2="190" y2="230"/>',
+    '<line x1="210" y1="250" x2="220" y2="260"/>',
+    '<line x1="220" y1="220" x2="210" y2="230"/>',
+    '<line x1="180" y1="250" x2="190" y2="260"/>',
+    '</g>',
+    # Spoke highlight
+    '<g stroke="#B08040" stroke-width="1.5" stroke-linecap="round" opacity="0.48">',
+    '<line x1="200" y1="212" x2="200" y2="226"/>',
+    '<line x1="200" y1="254" x2="200" y2="268"/>',
+    '<line x1="172" y1="240" x2="186" y2="240"/>',
+    '<line x1="214" y1="240" x2="228" y2="240"/>',
+    '</g>',
+    # Wheel handle pegs (8)
+    '<g fill="#6A4018">',
+    '<circle cx="200" cy="210" r="4.5"/>',
+    '<circle cx="200" cy="270" r="4.5"/>',
+    '<circle cx="170" cy="240" r="4.5"/>',
+    '<circle cx="230" cy="240" r="4.5"/>',
+    '<circle cx="179" cy="219" r="4.0"/>',
+    '<circle cx="221" cy="261" r="4.0"/>',
+    '<circle cx="221" cy="219" r="4.0"/>',
+    '<circle cx="179" cy="261" r="4.0"/>',
+    '</g>',
     '</g>',
 
-    # ── LAYER 5: NEAR-MID OAKS ────────────────────────────────────────
-    # Left large oak
-    '<rect x="10" y="290" width="7.5" height="88" fill="#1A2E08"/>',
-    '<ellipse cx="13.75" cy="280" rx="32" ry="24" fill="#287020" opacity="0.97"/>',
-    '<ellipse cx="13.75" cy="262" rx="22" ry="17" fill="#349030" opacity="0.95"/>',
-    '<ellipse cx="13.75" cy="249" rx="14" ry="11" fill="#42A838" opacity="0.92"/>',
-    '<ellipse cx="-2" cy="288" rx="18" ry="14" fill="#246A1C" opacity="0.90"/>',
-    '<ellipse cx="30" cy="284" rx="18" ry="13" fill="#246A1C" opacity="0.90"/>',
-    # Left mid-oak
-    '<rect x="52" y="296" width="6" height="82" fill="#1A2E08"/>',
-    '<ellipse cx="55" cy="287" rx="26" ry="20" fill="#267018" opacity="0.95"/>',
-    '<ellipse cx="55" cy="271" rx="18" ry="14" fill="#328A26" opacity="0.93"/>',
-    '<ellipse cx="55" cy="260" rx="12" ry="9" fill="#3EA032" opacity="0.90"/>',
-    # Center-left oak (x≈130)
-    '<rect x="127" y="298" width="5.5" height="78" fill="#1A2E08"/>',
-    '<ellipse cx="129.75" cy="289" rx="24" ry="19" fill="#267018" opacity="0.95"/>',
-    '<ellipse cx="129.75" cy="273" rx="17" ry="13" fill="#32882A" opacity="0.93"/>',
-    '<ellipse cx="129.75" cy="262" rx="11" ry="8.5" fill="#3EA030" opacity="0.90"/>',
-    # Right-center oak (x≈268)
-    '<rect x="266" y="298" width="5.5" height="78" fill="#1A2E08"/>',
-    '<ellipse cx="268.75" cy="289" rx="24" ry="19" fill="#267018" opacity="0.95"/>',
-    '<ellipse cx="268.75" cy="273" rx="17" ry="13" fill="#32882A" opacity="0.93"/>',
-    '<ellipse cx="268.75" cy="262" rx="11" ry="8.5" fill="#3EA030" opacity="0.90"/>',
-    # Right mid-oak
-    '<rect x="340" y="296" width="6" height="82" fill="#1A2E08"/>',
-    '<ellipse cx="343" cy="287" rx="26" ry="20" fill="#267018" opacity="0.95"/>',
-    '<ellipse cx="343" cy="271" rx="18" ry="14" fill="#328A26" opacity="0.93"/>',
-    '<ellipse cx="343" cy="260" rx="12" ry="9" fill="#3EA032" opacity="0.90"/>',
-    # Right large oak
-    '<rect x="376" y="290" width="7.5" height="88" fill="#1A2E08"/>',
-    '<ellipse cx="379.75" cy="280" rx="32" ry="24" fill="#287020" opacity="0.97"/>',
-    '<ellipse cx="379.75" cy="262" rx="22" ry="17" fill="#349030" opacity="0.95"/>',
-    '<ellipse cx="379.75" cy="249" rx="14" ry="11" fill="#42A838" opacity="0.92"/>',
-    '<ellipse cx="366" cy="288" rx="18" ry="14" fill="#246A1C" opacity="0.90"/>',
-    '<ellipse cx="395" cy="284" rx="18" ry="13" fill="#246A1C" opacity="0.90"/>',
-
-    # ── SUNFLOWER CLUSTERS ────────────────────────────────────────────
-    # Sunflower function: center x, base y
-    # Left cluster (x≈75, y≈395)
-    '<rect x="73.5" y="378" width="3" height="42" fill="#3A7020"/>',
-    '<circle cx="75" cy="374" r="9" fill="#FFD700"/>',
-    '<circle cx="75" cy="374" r="4.5" fill="#6A3010"/>',
-    '<rect x="55.5" y="388" width="2.5" height="32" fill="#3A7020"/>',
-    '<circle cx="56.8" cy="384" r="7.5" fill="#FFD700"/>',
-    '<circle cx="56.8" cy="384" r="3.8" fill="#6A3010"/>',
-    '<rect x="90.5" y="390" width="2.5" height="30" fill="#3A7020"/>',
-    '<circle cx="91.8" cy="386" r="7" fill="#FFD700"/>',
-    '<circle cx="91.8" cy="386" r="3.5" fill="#6A3010"/>',
-    # Sunflower petal rings (left cluster)
-    '<circle cx="75" cy="364" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="75" cy="384" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="65" cy="374" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="85" cy="374" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="68" cy="367" r="3" fill="#FFB830" opacity="0.78"/>',
-    '<circle cx="82" cy="367" r="3" fill="#FFB830" opacity="0.78"/>',
-    '<circle cx="68" cy="381" r="3" fill="#FFB830" opacity="0.78"/>',
-    '<circle cx="82" cy="381" r="3" fill="#FFB830" opacity="0.78"/>',
-    # Sunflower leaves
-    '<ellipse cx="68" cy="400" rx="8" ry="4" fill="#3A8020" transform="rotate(-25,68,400)"/>',
-    '<ellipse cx="82" cy="405" rx="8" ry="4" fill="#3A8020" transform="rotate(25,82,405)"/>',
-
-    # Right sunflower cluster (x≈325, y≈390)
-    '<rect x="323.5" y="382" width="3" height="38" fill="#3A7020"/>',
-    '<circle cx="325" cy="378" r="9" fill="#FFD700"/>',
-    '<circle cx="325" cy="378" r="4.5" fill="#6A3010"/>',
-    '<rect x="308.5" y="392" width="2.5" height="28" fill="#3A7020"/>',
-    '<circle cx="309.8" cy="388" r="7.5" fill="#FFD700"/>',
-    '<circle cx="309.8" cy="388" r="3.8" fill="#6A3010"/>',
-    '<rect x="339.5" y="390" width="2.5" height="30" fill="#3A7020"/>',
-    '<circle cx="340.8" cy="386" r="7" fill="#FFD700"/>',
-    '<circle cx="340.8" cy="386" r="3.5" fill="#6A3010"/>',
-    # Petals right cluster
-    '<circle cx="325" cy="368" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="325" cy="388" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="315" cy="378" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="335" cy="378" r="3.5" fill="#FFA820" opacity="0.82"/>',
-    '<circle cx="318" cy="371" r="3" fill="#FFB830" opacity="0.78"/>',
-    '<circle cx="332" cy="371" r="3" fill="#FFB830" opacity="0.78"/>',
-    '<circle cx="318" cy="385" r="3" fill="#FFB830" opacity="0.78"/>',
-    '<circle cx="332" cy="385" r="3" fill="#FFB830" opacity="0.78"/>',
-
-    # ── SCATTERED FIELD FLOWERS ───────────────────────────────────────
-    '<circle cx="154" cy="350" r="4.5" fill="#FF8AB4"/>',
-    '<circle cx="154" cy="350" r="2" fill="#FFE870"/>',
-    '<circle cx="240" cy="360" r="4.5" fill="#FFFFFF" opacity="0.92"/>',
-    '<circle cx="240" cy="360" r="2" fill="#FFE860"/>',
-    '<circle cx="180" cy="445" r="4" fill="#FFD700"/>',
-    '<circle cx="225" cy="452" r="4" fill="#FF8AB4"/>',
-    '<circle cx="105" cy="472" r="4.5" fill="#FFD700"/>',
-    '<circle cx="355" cy="465" r="4" fill="#FF8AB4"/>',
-    '<circle cx="290" cy="470" r="4.5" fill="#FFFFFF" opacity="0.90"/>',
-    '<circle cx="290" cy="470" r="2" fill="#FFE860"/>',
-    # Clover patches
-    '<circle cx="160" cy="510" r="3.5" fill="#50C038" opacity="0.80"/>',
-    '<circle cx="165" cy="506" r="3" fill="#48B830" opacity="0.78"/>',
-    '<circle cx="155" cy="506" r="3" fill="#48B830" opacity="0.78"/>',
-    '<circle cx="310" cy="515" r="3.5" fill="#50C038" opacity="0.80"/>',
-    '<circle cx="315" cy="511" r="3" fill="#48B830" opacity="0.78"/>',
-    '<circle cx="305" cy="511" r="3" fill="#48B830" opacity="0.78"/>',
-
-    # ── GRASS TUFTS ───────────────────────────────────────────────────
-    '<path d="M26,476 Q28,463 30,455 Q32,463 34,476" fill="#267018" opacity="0.82"/>',
-    '<path d="M148,462 Q150,450 152,443 Q154,450 156,462" fill="#267018" opacity="0.82"/>',
-    '<path d="M280,468 Q282,456 284,448 Q286,456 288,468" fill="#267018" opacity="0.82"/>',
-    '<path d="M376,473 Q378,461 380,453 Q382,461 384,473" fill="#267018" opacity="0.82"/>',
-
-    # ── COW SILHOUETTE (y≈430, x≈220) ────────────────────────────────
-    # Body
-    '<ellipse cx="228" cy="430" rx="20" ry="12" fill="#E8E0D0"/>',
-    # Head
-    '<ellipse cx="248" cy="426" rx="9" ry="7" fill="#E0D8C8"/>',
-    # Snout
-    '<ellipse cx="256" cy="428" rx="4.5" ry="3.5" fill="#D0C8B8"/>',
-    # Nostrils
-    '<circle cx="254" cy="428" r="1" fill="#B0A898"/>',
-    '<circle cx="258" cy="428" r="1" fill="#B0A898"/>',
-    # Eye
-    '<circle cx="250" cy="424" r="1.2" fill="#2A1808"/>',
-    # Ear
-    '<ellipse cx="247" cy="419" rx="3" ry="2" fill="#D8C8B0"/>',
-    # Legs
-    '<rect x="214" y="440" width="4" height="12" fill="#D0C8B8" rx="1"/>',
-    '<rect x="222" y="440" width="4" height="12" fill="#D0C8B8" rx="1"/>',
-    '<rect x="232" y="440" width="4" height="12" fill="#D0C8B8" rx="1"/>',
-    '<rect x="240" y="440" width="4" height="12" fill="#D0C8B8" rx="1"/>',
-    # Tail
-    '<path d="M209,430 Q203,425 204,420" stroke="#C8C0B0" stroke-width="2" fill="none" stroke-linecap="round"/>',
-    # Spots
-    '<ellipse cx="220" cy="426" rx="6" ry="5" fill="#2A2010" opacity="0.38"/>',
-    '<ellipse cx="232" cy="432" rx="5" ry="4" fill="#2A2010" opacity="0.32"/>',
-    # Udder
-    '<ellipse cx="228" cy="441" rx="8" ry="3.5" fill="#F0A8A0" opacity="0.72"/>',
+    # ── DOCK ACCENT DETAILS ───────────────────────────────────
+    # Iron cleat / mooring
+    '<rect x="64"  y="338" width="22" height="6" fill="#5A5050" rx="2"/>',
+    '<rect x="60"  y="336" width="6"  height="10" fill="#4A4040" rx="1"/>',
+    '<rect x="80"  y="336" width="6"  height="10" fill="#4A4040" rx="1"/>',
+    '<rect x="316" y="338" width="22" height="6" fill="#5A5050" rx="2"/>',
+    '<rect x="312" y="336" width="6"  height="10" fill="#4A4040" rx="1"/>',
+    '<rect x="332" y="336" width="6"  height="10" fill="#4A4040" rx="1"/>',
 
     # ══════════════════════════════════════════════════════════════════
-    #  STAGE 10 SPECIAL: 石のアーチ門 Stone Gate  (x=200, y≈531)
+    #  STAGE 10: リムサ正門 Limsan Main Gate  (x=200, y≈531) ×1.5
     # ══════════════════════════════════════════════════════════════════
     '<g transform="translate(200,531) scale(1.5) translate(-200,-531)">',
     # Ground shadow
-    '<ellipse cx="200" cy="565" rx="45" ry="8" fill="#145A14" opacity="0.35"/>',
+    '<ellipse cx="200" cy="578" rx="60" ry="12" fill="#3C2808" opacity="0.52"/>',
 
-    # Left stone pillar
-    '<rect x="163" y="504" width="20" height="62" fill="#888078" rx="3"/>',
-    # Left pillar stones
-    '<rect x="163" y="508" width="20" height="7" fill="#989080" opacity="0.55"/>',
-    '<rect x="163" y="518" width="20" height="7" fill="#7A7068" opacity="0.45"/>',
-    '<rect x="163" y="528" width="20" height="7" fill="#989080" opacity="0.50"/>',
-    '<rect x="163" y="538" width="20" height="7" fill="#7A7068" opacity="0.45"/>',
-    '<rect x="163" y="548" width="20" height="7" fill="#989080" opacity="0.50"/>',
-    # Left pillar cap
-    '<rect x="160" y="501" width="26" height="6" fill="#707068" rx="2"/>',
-    '<ellipse cx="173" cy="501" rx="13" ry="3" fill="#888080" opacity="0.60"/>',
-    # Left pillar highlight
-    '<rect x="165" y="504" width="5" height="62" fill="#A09888" opacity="0.28"/>',
+    # LEFT PILLAR
+    '<rect x="150" y="490" width="30" height="82" fill="url(#nGateL)" rx="2"/>',
+    # Stone courses
+    '<rect x="150" y="497" width="30" height="7"  fill="#886030" opacity="0.40"/>',
+    '<rect x="150" y="511" width="30" height="7"  fill="#704E1E" opacity="0.35"/>',
+    '<rect x="150" y="525" width="30" height="7"  fill="#886030" opacity="0.38"/>',
+    '<rect x="150" y="539" width="30" height="7"  fill="#704E1E" opacity="0.35"/>',
+    '<rect x="150" y="553" width="30" height="7"  fill="#886030" opacity="0.36"/>',
+    '<rect x="150" y="567" width="30" height="7"  fill="#704E1E" opacity="0.33"/>',
+    # Pillar highlight
+    '<rect x="152" y="490" width="7"  height="82" fill="#C8A060" opacity="0.20"/>',
+    # Pillar cap
+    '<rect x="146" y="484" width="38" height="8"  fill="#7A5828" rx="2"/>',
+    '<rect x="143" y="480" width="44" height="6"  fill="#8A6830" rx="2"/>',
+    # Flame brazier on cap
+    '<rect x="160" y="466" width="8"  height="16" fill="#5A3C18" rx="2"/>',
+    '<ellipse cx="164" cy="465" rx="7" ry="4.5"   fill="#4A3010"/>',
+    '<ellipse cx="164" cy="460" rx="5.5" ry="7.5" fill="#FF8820" opacity="0.88"/>',
+    '<ellipse cx="164" cy="456" rx="3.5" ry="5"   fill="#FFB840" opacity="0.82"/>',
+    '<ellipse cx="163" cy="453" rx="2.5" ry="3.5" fill="#FFE060" opacity="0.78"/>',
 
-    # Right stone pillar
-    '<rect x="217" y="504" width="20" height="62" fill="#888078" rx="3"/>',
-    # Right pillar stones
-    '<rect x="217" y="508" width="20" height="7" fill="#989080" opacity="0.55"/>',
-    '<rect x="217" y="518" width="20" height="7" fill="#7A7068" opacity="0.45"/>',
-    '<rect x="217" y="528" width="20" height="7" fill="#989080" opacity="0.50"/>',
-    '<rect x="217" y="538" width="20" height="7" fill="#7A7068" opacity="0.45"/>',
-    '<rect x="217" y="548" width="20" height="7" fill="#989080" opacity="0.50"/>',
-    # Right pillar cap
-    '<rect x="214" y="501" width="26" height="6" fill="#707068" rx="2"/>',
-    '<ellipse cx="227" cy="501" rx="13" ry="3" fill="#888080" opacity="0.60"/>',
-    # Right pillar highlight
-    '<rect x="219" y="504" width="5" height="62" fill="#A09888" opacity="0.28"/>',
+    # RIGHT PILLAR
+    '<rect x="220" y="490" width="30" height="82" fill="url(#nGate)" rx="2"/>',
+    '<rect x="220" y="497" width="30" height="7"  fill="#886030" opacity="0.40"/>',
+    '<rect x="220" y="511" width="30" height="7"  fill="#704E1E" opacity="0.35"/>',
+    '<rect x="220" y="525" width="30" height="7"  fill="#886030" opacity="0.38"/>',
+    '<rect x="220" y="539" width="30" height="7"  fill="#704E1E" opacity="0.35"/>',
+    '<rect x="220" y="553" width="30" height="7"  fill="#886030" opacity="0.36"/>',
+    '<rect x="220" y="567" width="30" height="7"  fill="#704E1E" opacity="0.33"/>',
+    '<rect x="222" y="490" width="7"  height="82" fill="#C8A060" opacity="0.16"/>',
+    '<rect x="214" y="484" width="38" height="8"  fill="#7A5828" rx="2"/>',
+    '<rect x="213" y="480" width="44" height="6"  fill="#8A6830" rx="2"/>',
+    '<rect x="232" y="466" width="8"  height="16" fill="#5A3C18" rx="2"/>',
+    '<ellipse cx="236" cy="465" rx="7"   ry="4.5" fill="#4A3010"/>',
+    '<ellipse cx="236" cy="460" rx="5.5" ry="7.5" fill="#FF8820" opacity="0.85"/>',
+    '<ellipse cx="236" cy="456" rx="3.5" ry="5"   fill="#FFB840" opacity="0.80"/>',
+    '<ellipse cx="235" cy="453" rx="2.5" ry="3.5" fill="#FFE060" opacity="0.75"/>',
 
-    # Stone arch (keystones)
-    '<path d="M163,510 Q200,478 237,510" stroke="#707068" stroke-width="12" fill="none" stroke-linecap="butt"/>',
-    '<path d="M163,510 Q200,478 237,510" stroke="#888078" stroke-width="9" fill="none" stroke-linecap="butt"/>',
-    # Arch highlight
-    '<path d="M164,511 Q200,480 236,511" stroke="#A09888" stroke-width="3.5" fill="none" stroke-linecap="butt" opacity="0.40"/>',
-    # Keystone (center top of arch)
-    '<path d="M196,479 Q200,474 204,479 L202,488 L198,488 Z" fill="#706860"/>',
+    # ARCH (semicircular, Limsan style)
+    '<path d="M148,498 Q200,458 252,498" stroke="#5A3C10" stroke-width="20" fill="none" stroke-linecap="butt"/>',
+    '<path d="M148,498 Q200,458 252,498" stroke="url(#nGate)" stroke-width="16" fill="none" stroke-linecap="butt"/>',
+    '<path d="M150,498 Q200,460 250,498" stroke="#C8A060" stroke-width="4"  fill="none" stroke-linecap="butt" opacity="0.30"/>',
+    # Arch stone joints
+    '<path d="M170,486 Q174,478 180,474" stroke="#5A3C10" stroke-width="1.5" fill="none" opacity="0.48"/>',
+    '<path d="M192,462 Q196,460 200,459" stroke="#5A3C10" stroke-width="1.5" fill="none" opacity="0.45"/>',
+    '<path d="M220,486 Q216,478 210,474" stroke="#5A3C10" stroke-width="1.5" fill="none" opacity="0.48"/>',
+    # Keystone
+    '<polygon points="194,460 200,452 206,460 204,468 196,468" fill="#8A6830"/>',
+    '<polygon points="195,461 200,454 205,461 203,467 197,467" fill="#A08040" opacity="0.55"/>',
+    # Maelstrom emblem (simplified anchor silhouette on keystone)
+    '<circle  cx="200" cy="462" r="3.5" fill="#5A3C10" opacity="0.75"/>',
+    '<line x1="200" y1="458" x2="200" y2="466" stroke="#3A2408" stroke-width="1.5" opacity="0.70"/>',
 
-    # Ivy on left pillar
-    '<path d="M163,540 Q158,530 161,520 Q156,510 160,502" stroke="#2E7020" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    '<ellipse cx="158" cy="528" rx="5.5" ry="4" fill="#3A8028" transform="rotate(-20,158,528)"/>',
-    '<ellipse cx="161" cy="515" rx="5" ry="3.5" fill="#428A30" transform="rotate(-10,161,515)"/>',
-    '<ellipse cx="160" cy="504" rx="4.5" ry="3" fill="#3A8028" transform="rotate(5,160,504)"/>',
+    # Secondary arch / portcullis frame
+    '<rect x="152" y="496" width="96" height="6"  fill="#6A4C20" opacity="0.60"/>',
+    '<rect x="154" y="497" width="30" height="2"  fill="#A07830" opacity="0.35"/>',
 
-    # Ivy on right pillar
-    '<path d="M237,540 Q242,530 239,520 Q244,510 240,502" stroke="#2E7020" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    '<ellipse cx="242" cy="528" rx="5.5" ry="4" fill="#3A8028" transform="rotate(20,242,528)"/>',
-    '<ellipse cx="239" cy="515" rx="5" ry="3.5" fill="#428A30" transform="rotate(10,239,515)"/>',
-    '<ellipse cx="240" cy="504" rx="4.5" ry="3" fill="#3A8028" transform="rotate(-5,240,504)"/>',
-
-    # Ivy on arch
-    '<ellipse cx="182" cy="490" rx="5" ry="3.5" fill="#3A8028" transform="rotate(-35,182,490)"/>',
-    '<ellipse cx="200" cy="480" rx="5.5" ry="3.8" fill="#428A30"/>',
-    '<ellipse cx="218" cy="490" rx="5" ry="3.5" fill="#3A8028" transform="rotate(35,218,490)"/>',
-    # Small flowers on ivy
-    '<circle cx="160" cy="507" r="2.5" fill="#FFE870"/>',
-    '<circle cx="200" cy="479" r="2.8" fill="#FFFFFF" opacity="0.88"/>',
-    '<circle cx="240" cy="507" r="2.5" fill="#FFE870"/>',
+    # Portcullis bars (iron gate)
+    '<g stroke="#303030" stroke-width="2.8" opacity="0.50">',
+    '<line x1="164" y1="502" x2="164" y2="572"/>',
+    '<line x1="178" y1="502" x2="178" y2="572"/>',
+    '<line x1="192" y1="502" x2="192" y2="572"/>',
+    '<line x1="206" y1="502" x2="206" y2="572"/>',
+    '<line x1="220" y1="502" x2="220" y2="572"/>',
+    '<line x1="234" y1="502" x2="234" y2="572"/>',
+    '</g>',
+    '<g stroke="#303030" stroke-width="2" opacity="0.38">',
+    '<line x1="152" y1="522" x2="248" y2="522"/>',
+    '<line x1="152" y1="542" x2="248" y2="542"/>',
+    '<line x1="152" y1="562" x2="248" y2="562"/>',
+    '</g>',
+    # Portcullis spikes
+    '<g fill="#282828" opacity="0.52">',
+    '<polygon points="162,572 164,580 166,572"/>',
+    '<polygon points="176,572 178,580 180,572"/>',
+    '<polygon points="190,572 192,580 194,572"/>',
+    '<polygon points="204,572 206,580 208,572"/>',
+    '<polygon points="218,572 220,580 222,572"/>',
+    '<polygon points="232,572 234,580 236,572"/>',
     '</g>',
 
-    # ── LAYER 6: FOREGROUND LARGE OAKS ───────────────────────────────
-    # Left oak
-    '<rect x="0" y="458" width="18" height="142" fill="#3A2210"/>',
-    # Canopy layers
-    '<ellipse cx="9" cy="440" rx="56" ry="42" fill="#236A1E" opacity="0.99"/>',
-    '<ellipse cx="9" cy="414" rx="40" ry="30" fill="#2E8828" opacity="0.97"/>',
-    '<ellipse cx="9" cy="392" rx="27" ry="19" fill="#3AA030" opacity="0.95"/>',
-    '<ellipse cx="9" cy="374" rx="18" ry="12" fill="#48B034" opacity="0.90"/>',
-    # Wide lower skirt (oak canopy drops low)
-    '<ellipse cx="9" cy="488" rx="60" ry="26" fill="#226018"/>',
-    '<ellipse cx="9" cy="534" rx="56" ry="22" fill="#205C16"/>',
-    '<ellipse cx="9" cy="576" rx="54" ry="20" fill="#235E18"/>',
-    '<ellipse cx="9" cy="604" rx="52" ry="18" fill="#266420"/>',
-    # Right oak
-    '<rect x="382" y="458" width="18" height="142" fill="#3A2210"/>',
-    '<ellipse cx="391" cy="440" rx="56" ry="42" fill="#236A1E" opacity="0.99"/>',
-    '<ellipse cx="391" cy="414" rx="40" ry="30" fill="#2E8828" opacity="0.97"/>',
-    '<ellipse cx="391" cy="392" rx="27" ry="19" fill="#3AA030" opacity="0.95"/>',
-    '<ellipse cx="391" cy="374" rx="18" ry="12" fill="#48B034" opacity="0.90"/>',
-    '<ellipse cx="391" cy="488" rx="60" ry="26" fill="#226018"/>',
-    '<ellipse cx="391" cy="534" rx="56" ry="22" fill="#205C16"/>',
-    '<ellipse cx="391" cy="576" rx="54" ry="20" fill="#235E18"/>',
-    '<ellipse cx="391" cy="604" rx="52" ry="18" fill="#266420"/>',
+    # Maelstrom banner (left)
+    '<rect x="134" y="490" width="12" height="22" fill="#A01820" rx="1" opacity="0.82"/>',
+    '<polygon points="134,512 140,518 146,512" fill="#A01820" opacity="0.82"/>',
+    '<line x1="134" y1="504" x2="146" y2="504" stroke="#D04030" stroke-width="1.2" opacity="0.60"/>',
+    # Maelstrom banner (right)
+    '<rect x="254" y="490" width="12" height="22" fill="#A01820" rx="1" opacity="0.82"/>',
+    '<polygon points="254,512 260,518 266,512" fill="#A01820" opacity="0.82"/>',
+    '<line x1="254" y1="504" x2="266" y2="504" stroke="#D04030" stroke-width="1.2" opacity="0.60"/>',
+
+    '</g>',
+
+    # ── CLIFF-TOP VEGETATION ─────────────────────────────────
+    # Low scrub on left cliff
+    '<ellipse cx="22"  cy="264" rx="24" ry="10" fill="#3A6018" opacity="0.68"/>',
+    '<ellipse cx="44"  cy="256" rx="18" ry="8"  fill="#426820" opacity="0.64"/>',
+    '<ellipse cx="10"  cy="256" rx="14" ry="6"  fill="#3A5E18" opacity="0.60"/>',
+    # Right cliff scrub
+    '<ellipse cx="378" cy="252" rx="24" ry="10" fill="#3A6018" opacity="0.66"/>',
+    '<ellipse cx="356" cy="244" rx="18" ry="8"  fill="#426820" opacity="0.62"/>',
+    '<ellipse cx="390" cy="244" rx="14" ry="6"  fill="#3A5E18" opacity="0.58"/>',
 
     '</svg>',
 )
