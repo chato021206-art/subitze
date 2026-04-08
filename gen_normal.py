@@ -739,7 +739,7 @@ elem_count = NORMAL.count('<') - NORMAL.count('</') - 1  # -1 for <svg>
 print(f"NORMAL SVG element count: ~{elem_count}")
 
 # ── Inject into stage.html ─────────────────────────────────────────────
-pattern = r"(if\(diff==='NORMAL'\) return ')(.*?)(';)"
+pattern = r"(if\(diff==='EASY'\) return ')(.*?)(';)"
 replacement = r"\g<1>" + NORMAL.replace('\\', '\\\\') + r"\g<3>"
 new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
 

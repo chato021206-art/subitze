@@ -618,7 +618,7 @@ A('</svg>')
 EASY = ''.join(P)
 
 # ── Inject into stage.html ───────────────────────────────────────────────
-pattern = r"(if\(diff==='EASY'\) return ')(.*?)(';)"
+pattern = r"(if\(diff==='NORMAL'\) return ')(.*?)(';)"
 replacement = r"\g<1>" + EASY.replace('\\', '\\\\') + r"\g<3>"
 new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
 
