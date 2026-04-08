@@ -738,12 +738,26 @@ body {
 .boss-intro-label {
   font-size: 14px; font-weight: 900; color: #FF4B4B; letter-spacing: 3px; margin-bottom: 4px;
 }
+.boss-intro.is-boss .boss-intro-label {
+  font-size: 28px; letter-spacing: 5px; margin-bottom: 10px;
+  text-shadow: 0 2px 8px rgba(255,75,75,0.3);
+}
+.boss-intro.is-mid .boss-intro-label {
+  font-size: 22px; letter-spacing: 4px; margin-bottom: 8px;
+  text-shadow: 0 2px 6px rgba(255,150,0,0.3);
+}
 .boss-intro-name {
   font-size: 28px; font-weight: 900; color: #555;
 }
 @keyframes bossIn {
   0%{transform:scale(3);opacity:0} 30%{transform:scale(0.9);opacity:1}
   50%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1}
+}
+@keyframes bossIntroShake {
+  0%,100%{transform:translate(0,0)}
+  10%{transform:translate(-6px,3px)} 20%{transform:translate(6px,-3px)}
+  30%{transform:translate(-4px,-2px)} 40%{transform:translate(4px,2px)}
+  50%{transform:translate(-2px,1px)} 60%{transform:translate(2px,-1px)}
 }
 .boss-shake { animation: shake 0.5s ease-out; }
 @keyframes shake {
@@ -2226,15 +2240,7 @@ function startStage(d, idx) {
 
   const bossType = s.boss || null;
   showEnemyIntro(bossType, () => {
-    startCountdown(() => {
-      if(bossType) {
-        const gv = document.getElementById('game-view');
-        gv.classList.add('boss-shake');
-        setTimeout(() => { gv.classList.remove('boss-shake'); beginGame(); }, 600);
-      } else {
-        beginGame();
-      }
-    });
+    startCountdown(() => beginGame());
   });
 }
 
@@ -2249,7 +2255,7 @@ function showEnemyIntro(type, cb) {
   const duration = isBoss ? 1800 : isMid ? 1500 : 900;
 
   const ov = document.createElement('div');
-  ov.className = 'boss-intro';
+  ov.className = 'boss-intro' + (isBoss ? ' is-boss' : isMid ? ' is-mid' : '');
   if (!isBoss && !isMid) ov.style.background = 'rgba(255,248,232,0.82)';
   const content = document.createElement('div');
   content.className = 'boss-intro-content';
@@ -2260,6 +2266,20 @@ function showEnemyIntro(type, cb) {
     '<div class="boss-intro-name">'+enemy.name+'</div>';
   ov.appendChild(content);
   document.body.appendChild(ov);
+
+  // Boss/mid-boss: shake the game view during intro
+  if(isBoss || isMid) {
+    const gv = document.getElementById('game-view');
+    const triggerShake = () => {
+      gv.style.animation = 'none';
+      void gv.offsetWidth;
+      gv.style.animation = 'bossIntroShake 0.5s ease-out';
+    };
+    triggerShake();
+    if(isBoss) setTimeout(triggerShake, 700);
+    setTimeout(() => { gv.style.animation = ''; }, duration);
+  }
+
   setTimeout(() => {
     ov.remove();
     cb();
