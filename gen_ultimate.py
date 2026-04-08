@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""gen_ultimate.py — ULTIMATE: The Crystarium (FF14 Shadowbringers) — v5 precision rebuild
+"""gen_ultimate.py — ULTIMATE: The Crystarium / Crystal Tower (bird's-eye view at night)
 
-Exact stage node SVG coordinates (scrollW=520, scrollH=1370, viewBox 0 0 400 600):
-  Stage 5  center: SVG (200, 166)  — node 84×84 DOM → ≈ 65×37 SVG units
-  Stage 10 center: SVG (200, 336)  — node 96×96 DOM → ≈ 74×42 SVG units
+Top-down perspective of The Crystarium, the last bastion of civilization
+in The First (FF14 Shadowbringers). The Crystal Tower rises from the city
+center, radiating light across the night landscape. Everything is drawn
+as seen from directly above — rooftops, plazas, streets, and the tower
+as a glowing octagonal shape.
 
-Composition layout:
-  y   0-275 : Night sky, dense stars, Crystal Tower (tip y≈5 → base skirt y≈278)
-  y 145-195 : [STAGE 5] Exedra Fountain — centered at (200,166)
-  y 150-275 : Left/right sandstone+iron buildings
-  y 258-278 : Lakeland purple forest horizon
-  y 275-600 : Dark stone plaza (tiles, crystal vein channels, lanterns, pillars)
-  y 310-365 : [STAGE 10] Crystarium Main Gate — arch framing node at (200,336)
-  y 245-340 : The Rotunda (dome structure, stage-right of path)
-  Floating crystal shards: y 40-200
+viewBox: 0 0 400 600
+Target: 250+ SVG elements, graphic-recording / hand-drawn sketch style
 """
 import re as _re, math, random as _rnd
+
 _r = _rnd.Random(42)
 
 with open('/Users/hirokazukataoka/subitze/stage.html', 'r', encoding='utf-8') as f:
@@ -27,766 +23,1153 @@ def A(s): parts.append(s)
 # ═══════════════════════════════════════════════════════════════════════════
 #  HELPERS
 # ═══════════════════════════════════════════════════════════════════════════
-def star4(sx, sy, r, op, col='#FFFFFF', gc='#B0D0FF'):
-    s  = f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{r:.1f}" fill="{col}" opacity="{op:.2f}"/>'
-    if r > 1.5:
-        s += f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{r*2.8:.1f}" fill="{gc}" opacity="{op*0.12:.2f}"/>'
-        for a in (0, 90, 180, 270):
-            rad = math.radians(a)
-            ex = sx + math.cos(rad)*r*4.5; ey = sy + math.sin(rad)*r*4.5
-            s += (f'<line x1="{sx:.1f}" y1="{sy:.1f}" x2="{ex:.1f}" y2="{ey:.1f}" '
-                  f'stroke="{col}" stroke-width="0.5" opacity="{op*0.42:.2f}"/>')
-    return s
 
-def shard(cx, cy, w, h, ang=0, col='#B8DCFF', op=0.76):
-    hw=w/2; hh=h/2
-    pts=(f'{cx:.1f},{cy-hh:.1f} {cx+hw:.1f},{cy-hh*0.22:.1f} '
-         f'{cx+hw*0.62:.1f},{cy+hh:.1f} {cx-hw*0.62:.1f},{cy+hh:.1f} '
-         f'{cx-hw:.1f},{cy-hh*0.22:.1f}')
-    r  = f'<polygon points="{pts}" fill="{col}" opacity="{op}" transform="rotate({ang},{cx:.1f},{cy:.1f})"/>'
-    # highlight
-    ar = math.radians(ang-90)
-    hx1=cx+math.cos(ar-0.35)*hw*0.28; hy1=cy+math.sin(ar-0.35)*hh*0.80
-    hx2=cx+math.cos(ar)*hw*0.10;      hy2=cy+math.sin(ar)*hh*0.32
-    r += (f'<line x1="{hx1:.1f}" y1="{hy1:.1f}" x2="{hx2:.1f}" y2="{hy2:.1f}" '
-          f'stroke="#FFFFFF" stroke-width="1.8" opacity="{op*0.55:.2f}" '
-          f'transform="rotate({ang},{cx:.1f},{cy:.1f})"/>')
-    r += f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{w:.0f}" ry="{h*0.48:.0f}" fill="{col}" opacity="{op*0.10:.2f}"/>'
-    return r
+def wobble_path(points, closed=False, jitter=1.2):
+    """Convert list of (x,y) tuples into a slightly wobbly SVG path string."""
+    if len(points) < 2:
+        return ''
+    segs = [f'M{points[0][0]:.1f},{points[0][1]:.1f}']
+    for i in range(1, len(points)):
+        x0, y0 = points[i-1]
+        x1, y1 = points[i]
+        mx = (x0 + x1) / 2 + _r.uniform(-jitter, jitter)
+        my = (y0 + y1) / 2 + _r.uniform(-jitter, jitter)
+        segs.append(f'Q{mx:.1f},{my:.1f} {x1:.1f},{y1:.1f}')
+    if closed:
+        x0, y0 = points[-1]
+        x1, y1 = points[0]
+        mx = (x0 + x1) / 2 + _r.uniform(-jitter, jitter)
+        my = (y0 + y1) / 2 + _r.uniform(-jitter, jitter)
+        segs.append(f'Q{mx:.1f},{my:.1f} {x1:.1f},{y1:.1f}')
+        segs.append('Z')
+    return ' '.join(segs)
 
-def lamp(lx, ly, h=30):
-    lx=int(lx); ly=int(ly)
-    out=[]
-    out.append(f'<line x1="{lx}" y1="{ly}" x2="{lx}" y2="{ly-h}" stroke="#181820" stroke-width="2.8"/>')
-    # bracket arm
-    out.append(f'<line x1="{lx}" y1="{ly-h+7}" x2="{lx+5}" y2="{ly-h+1}" stroke="#181820" stroke-width="1.8"/>')
-    # finial ball
-    out.append(f'<circle cx="{lx}" cy="{ly-h}" r="2.5" fill="#181820"/>')
-    # cage
-    bx=lx-4; by=ly-h-11
-    out.append(f'<rect x="{bx}" y="{by}" width="8" height="11" fill="#141418" rx="1"/>')
-    # glass warm amber
-    out.append(f'<rect x="{bx+1}" y="{by+1}" width="6" height="9" fill="#FFC030" rx="1" opacity="0.90"/>')
-    out.append(f'<rect x="{bx+2}" y="{by+1}" width="3" height="4" fill="#FFE888" opacity="0.55"/>')
-    # cap
-    out.append(f'<rect x="{bx-1}" y="{by-3}" width="10" height="4" fill="#181820" rx="1"/>')
-    # glow halos
-    gcx=lx; gcy=ly-h-6
-    out.append(f'<ellipse cx="{gcx}" cy="{gcy}" rx="14" ry="12" fill="#FFB020" opacity="0.20"/>')
-    out.append(f'<ellipse cx="{gcx}" cy="{gcy}" rx="28" ry="24" fill="#FF8800" opacity="0.07"/>')
-    return ''.join(out)
+def wobble_rect(x, y, w, h, jitter=1.0):
+    """Wobbly rectangle (hand-drawn feel)."""
+    return wobble_path([
+        (x, y), (x+w, y), (x+w, y+h), (x, y+h)
+    ], closed=True, jitter=jitter)
 
-def iron_win(wx, wy, ww, wh, op=0.65):
-    wx=int(wx); wy=int(wy); ww=int(ww); wh=int(wh)
-    rr=int(ww*0.44)
-    out=(f'<rect x="{wx}" y="{wy}" width="{ww}" height="{wh}" fill="#0A0F1E" rx="{rr}" opacity="0.93"/>'
-         f'<rect x="{wx+2}" y="{wy+2}" width="{ww-4}" height="{wh-4}" fill="#58AFF0" rx="{rr}" opacity="{op:.2f}"/>'
-         f'<ellipse cx="{wx+int(ww*0.38)}" cy="{wy+int(wh*0.28)}" '
-         f'rx="{int(ww*0.25)}" ry="{int(wh*0.22)}" fill="#A8D8FF" opacity="0.42"/>'
-         f'<rect x="{wx}" y="{wy}" width="{ww}" height="{wh}" fill="none" '
-         f'stroke="#181820" stroke-width="2" rx="{rr}" opacity="0.85"/>'
-         f'<ellipse cx="{wx+ww//2}" cy="{wy+wh//2}" rx="{int(ww*0.75)}" ry="{int(wh*0.75)}" '
-         f'fill="#3880D0" opacity="0.10"/>')
-    return out
+def wobble_ellipse(cx, cy, rx, ry, n=16, jitter=0.8):
+    """Wobbly ellipse approximation."""
+    pts = []
+    for i in range(n):
+        ang = 2 * math.pi * i / n
+        rf = 1.0 + _r.uniform(-0.06, 0.06)
+        pts.append((cx + rx * rf * math.cos(ang), cy + ry * rf * math.sin(ang)))
+    return wobble_path(pts, closed=True, jitter=jitter)
+
+def wobble_line(x1, y1, x2, y2, jitter=0.8):
+    """Wobbly line between two points."""
+    return wobble_path([(x1, y1), (x2, y2)], jitter=jitter)
+
+def wobble_polygon(pts, jitter=1.0):
+    """Wobbly polygon from list of (x,y) tuples."""
+    return wobble_path(pts, closed=True, jitter=jitter)
+
+def octagon(cx, cy, r, rotation=0):
+    """Return list of 8 points forming an octagon."""
+    pts = []
+    for i in range(8):
+        ang = math.radians(rotation + i * 45)
+        pts.append((cx + r * math.cos(ang), cy + r * math.sin(ang)))
+    return pts
+
+def hexagon(cx, cy, r, rotation=0):
+    """Return list of 6 points forming a hexagon."""
+    pts = []
+    for i in range(6):
+        ang = math.radians(rotation + i * 60)
+        pts.append((cx + r * math.cos(ang), cy + r * math.sin(ang)))
+    return pts
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  GRADIENTS
+#  SVG OPEN + DEFS (gradients & filters)
 # ═══════════════════════════════════════════════════════════════════════════
 A('<svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs>')
 
-# Sky — near-black indigo (restored night of The First)
-A('<linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#020110"/>'
-  '<stop offset="16%"  stop-color="#06031C"/>'
-  '<stop offset="34%"  stop-color="#0B0728"/>'
-  '<stop offset="55%"  stop-color="#110C3A"/>'
-  '<stop offset="75%"  stop-color="#171150"/>'
-  '<stop offset="90%"  stop-color="#1C1660"/>'
-  '<stop offset="100%" stop-color="#201A6E"/>'
-  '</linearGradient>')
+# --- Sky gradient (deep indigo night) ---
+A('<radialGradient id="uSky" cx="50%" cy="42%" r="68%">'
+  '<stop offset="0%"   stop-color="#0A0828" stop-opacity="1"/>'
+  '<stop offset="45%"  stop-color="#06031C" stop-opacity="1"/>'
+  '<stop offset="100%" stop-color="#020110" stop-opacity="1"/>'
+  '</radialGradient>')
 
-# Crystal Tower — glow spread (illuminates entire scene)
-A('<radialGradient id="gTGlow" cx="50%" cy="22%" r="72%">'
-  '<stop offset="0%"   stop-color="#D0ECFF" stop-opacity="0.95"/>'
-  '<stop offset="10%"  stop-color="#A0D0FF" stop-opacity="0.70"/>'
-  '<stop offset="25%"  stop-color="#68B0FF" stop-opacity="0.38"/>'
-  '<stop offset="48%"  stop-color="#3868E0" stop-opacity="0.13"/>'
-  '<stop offset="72%"  stop-color="#1A3890" stop-opacity="0.04"/>'
+# --- Crystal Tower central glow (top-down: bright center fading outward) ---
+A('<radialGradient id="uTowerGlow" cx="50%" cy="42%" r="30%">'
+  '<stop offset="0%"   stop-color="#B8DCFF" stop-opacity="0.95"/>'
+  '<stop offset="18%"  stop-color="#88B8FF" stop-opacity="0.72"/>'
+  '<stop offset="38%"  stop-color="#60A0FF" stop-opacity="0.42"/>'
+  '<stop offset="60%"  stop-color="#3868C0" stop-opacity="0.18"/>'
+  '<stop offset="80%"  stop-color="#1A3080" stop-opacity="0.06"/>'
   '<stop offset="100%" stop-color="#0C1840" stop-opacity="0"/>'
   '</radialGradient>')
 
-# Tower base horizon glow
-A('<radialGradient id="gTBase" cx="50%" cy="80%" r="55%">'
-  '<stop offset="0%"   stop-color="#88C0FF" stop-opacity="0.52"/>'
-  '<stop offset="38%"  stop-color="#5090E8" stop-opacity="0.18"/>'
-  '<stop offset="70%"  stop-color="#2050A0" stop-opacity="0.05"/>'
-  '<stop offset="100%" stop-color="#0C1840" stop-opacity="0"/>'
+# --- Tower inner glow (intense white-blue core) ---
+A('<radialGradient id="uTowerCore" cx="50%" cy="42%" r="12%">'
+  '<stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.98"/>'
+  '<stop offset="30%"  stop-color="#D8F0FF" stop-opacity="0.85"/>'
+  '<stop offset="60%"  stop-color="#88C0FF" stop-opacity="0.55"/>'
+  '<stop offset="100%" stop-color="#4878D0" stop-opacity="0.20"/>'
   '</radialGradient>')
 
-# Tower body (face — ice white)
-A('<linearGradient id="gTFace" x1="0" y1="0" x2="1" y2="0">'
-  '<stop offset="0%"   stop-color="#88C4F8"/>'
-  '<stop offset="20%"  stop-color="#C4E6FF"/>'
-  '<stop offset="44%"  stop-color="#F8FDFF"/>'
-  '<stop offset="68%"  stop-color="#DCF0FF"/>'
-  '<stop offset="88%"  stop-color="#A8D4F8"/>'
-  '<stop offset="100%" stop-color="#78B0E8"/>'
-  '</linearGradient>')
-
-# Tower vertical (bright tip → deeper base)
-A('<linearGradient id="gTVert" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#FFFFFF"/>'
-  '<stop offset="15%"  stop-color="#EEF8FF"/>'
-  '<stop offset="38%"  stop-color="#C0E0FF"/>'
-  '<stop offset="62%"  stop-color="#88C0F0"/>'
-  '<stop offset="82%"  stop-color="#58A0D8"/>'
-  '<stop offset="100%" stop-color="#3878C0"/>'
-  '</linearGradient>')
-
-# Ring bands on tower
-A('<linearGradient id="gRing" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#FFFFFF"/>'
-  '<stop offset="28%"  stop-color="#C8EAFF"/>'
-  '<stop offset="62%"  stop-color="#80C0F8"/>'
-  '<stop offset="100%" stop-color="#4898E8"/>'
-  '</linearGradient>')
-
-# Crystal panel (Rotunda dome, windows)
-A('<linearGradient id="gCPanel" x1="0" y1="0" x2="1" y2="1">'
-  '<stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.92"/>'
-  '<stop offset="22%"  stop-color="#C8EAFF" stop-opacity="0.80"/>'
-  '<stop offset="55%"  stop-color="#78B8F0" stop-opacity="0.62"/>'
-  '<stop offset="100%" stop-color="#3888D0" stop-opacity="0.45"/>'
-  '</linearGradient>')
-
-# Sandstone lit (main building material)
-A('<linearGradient id="gSandL" x1="0" y1="0" x2="1" y2="1">'
-  '<stop offset="0%"   stop-color="#CCB888"/>'
-  '<stop offset="35%"  stop-color="#BAA878"/>'
-  '<stop offset="68%"  stop-color="#A09060"/>'
-  '<stop offset="100%" stop-color="#887848"/>'
-  '</linearGradient>')
-
-# Sandstone shadow
-A('<linearGradient id="gSandS" x1="0" y1="0" x2="1" y2="1">'
-  '<stop offset="0%"   stop-color="#AAAA98"/>'
-  '<stop offset="42%"  stop-color="#989080"/>'
-  '<stop offset="100%" stop-color="#807868"/>'
-  '</linearGradient>')
-
-# Black iron (structural framing)
-A('<linearGradient id="gIron" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#2C2A3A"/>'
-  '<stop offset="50%"  stop-color="#1C1A28"/>'
-  '<stop offset="100%" stop-color="#12101E"/>'
-  '</linearGradient>')
-
-# Ground — dark stone plaza
-A('<linearGradient id="gGnd" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#222538"/>'
-  '<stop offset="32%"  stop-color="#1C1E30"/>'
-  '<stop offset="65%"  stop-color="#141628"/>'
-  '<stop offset="100%" stop-color="#0C0E1E"/>'
-  '</linearGradient>')
-
-# Purple forest (Lakeland)
-A('<linearGradient id="gForest" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#481890" stop-opacity="0.55"/>'
-  '<stop offset="50%"  stop-color="#321060" stop-opacity="0.80"/>'
-  '<stop offset="100%" stop-color="#1E0840" stop-opacity="0.92"/>'
-  '</linearGradient>')
-
-# Fountain water
-A('<radialGradient id="gWater" cx="50%" cy="32%" r="62%">'
-  '<stop offset="0%"   stop-color="#B4E2FF" stop-opacity="0.96"/>'
-  '<stop offset="42%"  stop-color="#62B8F0" stop-opacity="0.82"/>'
-  '<stop offset="100%" stop-color="#2878C0" stop-opacity="0.70"/>'
+# --- Energy ring gradient ---
+A('<radialGradient id="uRingGrad" cx="50%" cy="42%" r="45%">'
+  '<stop offset="0%"   stop-color="#A060FF" stop-opacity="0"/>'
+  '<stop offset="70%"  stop-color="#A060FF" stop-opacity="0.15"/>'
+  '<stop offset="85%"  stop-color="#8040E0" stop-opacity="0.30"/>'
+  '<stop offset="100%" stop-color="#6030B0" stop-opacity="0"/>'
   '</radialGradient>')
 
-# Gate energy shimmer (Crystal Tower through arch)
-A('<linearGradient id="gShimmer" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#80C8FF" stop-opacity="0.06"/>'
-  '<stop offset="28%"  stop-color="#58B0FF" stop-opacity="0.30"/>'
-  '<stop offset="52%"  stop-color="#48A8FF" stop-opacity="0.44"/>'
-  '<stop offset="76%"  stop-color="#58B0FF" stop-opacity="0.26"/>'
-  '<stop offset="100%" stop-color="#80C8FF" stop-opacity="0.05"/>'
-  '</linearGradient>')
-
-# Bottom haze
-A('<linearGradient id="gHaze" x1="0" y1="0" x2="0" y2="1">'
-  '<stop offset="0%"   stop-color="#0C0E1E" stop-opacity="0"/>'
-  '<stop offset="50%"  stop-color="#080A16" stop-opacity="0.35"/>'
-  '<stop offset="100%" stop-color="#040610" stop-opacity="0.80"/>'
-  '</linearGradient>')
-
-# Edge vignette
-A('<radialGradient id="gVig" cx="50%" cy="12%" r="94%">'
-  '<stop offset="50%"  stop-color="#000000" stop-opacity="0"/>'
-  '<stop offset="100%" stop-color="#010108" stop-opacity="0.74"/>'
+# --- Crystal shard glow ---
+A('<radialGradient id="uCrystalGlow" cx="50%" cy="50%" r="50%">'
+  '<stop offset="0%"   stop-color="#B8DCFF" stop-opacity="0.80"/>'
+  '<stop offset="50%"  stop-color="#60A0FF" stop-opacity="0.35"/>'
+  '<stop offset="100%" stop-color="#3060C0" stop-opacity="0"/>'
   '</radialGradient>')
 
-# Pillar shaft
-A('<linearGradient id="gPillar" x1="0" y1="0" x2="1" y2="0">'
-  '<stop offset="0%"   stop-color="#28263A"/>'
-  '<stop offset="38%"  stop-color="#343248"/>'
-  '<stop offset="62%"  stop-color="#2A2838"/>'
-  '<stop offset="100%" stop-color="#1C1A28"/>'
+# --- Sandstone building fill ---
+A('<linearGradient id="uSand" x1="0" y1="0" x2="1" y2="1">'
+  '<stop offset="0%"   stop-color="#C8A870"/>'
+  '<stop offset="50%"  stop-color="#B09858"/>'
+  '<stop offset="100%" stop-color="#A08848"/>'
   '</linearGradient>')
+
+# --- Sandstone shadow variant ---
+A('<linearGradient id="uSandS" x1="0" y1="0" x2="1" y2="1">'
+  '<stop offset="0%"   stop-color="#9A8050"/>'
+  '<stop offset="100%" stop-color="#7A6840"/>'
+  '</linearGradient>')
+
+# --- Iron framing ---
+A('<linearGradient id="uIron" x1="0" y1="0" x2="1" y2="1">'
+  '<stop offset="0%"   stop-color="#181820"/>'
+  '<stop offset="100%" stop-color="#0A0F1E"/>'
+  '</linearGradient>')
+
+# --- Plaza stone ---
+A('<linearGradient id="uPlaza" x1="0" y1="0" x2="0" y2="1">'
+  '<stop offset="0%"   stop-color="#1A1828"/>'
+  '<stop offset="100%" stop-color="#252038"/>'
+  '</linearGradient>')
+
+# --- Lantern glow ---
+A('<radialGradient id="uLantern" cx="50%" cy="50%" r="50%">'
+  '<stop offset="0%"   stop-color="#FFE888" stop-opacity="0.90"/>'
+  '<stop offset="30%"  stop-color="#FFC030" stop-opacity="0.55"/>'
+  '<stop offset="70%"  stop-color="#FFB020" stop-opacity="0.18"/>'
+  '<stop offset="100%" stop-color="#FF8800" stop-opacity="0"/>'
+  '</radialGradient>')
+
+# --- Forest gradient ---
+A('<radialGradient id="uForest" cx="50%" cy="50%" r="50%">'
+  '<stop offset="0%"   stop-color="#3A1848" stop-opacity="0.90"/>'
+  '<stop offset="100%" stop-color="#2A1040" stop-opacity="0.95"/>'
+  '</radialGradient>')
+
+# --- Nebula wash 1 ---
+A('<radialGradient id="uNeb1" cx="25%" cy="20%" r="35%">'
+  '<stop offset="0%"   stop-color="#3A1868" stop-opacity="0.22"/>'
+  '<stop offset="100%" stop-color="#1A0838" stop-opacity="0"/>'
+  '</radialGradient>')
+
+# --- Nebula wash 2 ---
+A('<radialGradient id="uNeb2" cx="75%" cy="30%" r="30%">'
+  '<stop offset="0%"   stop-color="#182858" stop-opacity="0.18"/>'
+  '<stop offset="100%" stop-color="#0A1030" stop-opacity="0"/>'
+  '</radialGradient>')
+
+# --- Nebula wash 3 ---
+A('<radialGradient id="uNeb3" cx="60%" cy="65%" r="40%">'
+  '<stop offset="0%"   stop-color="#281050" stop-opacity="0.15"/>'
+  '<stop offset="100%" stop-color="#100828" stop-opacity="0"/>'
+  '</radialGradient>')
+
+# --- Water ripple gradient ---
+A('<radialGradient id="uWater" cx="50%" cy="50%" r="50%">'
+  '<stop offset="0%"   stop-color="#60A0FF" stop-opacity="0.50"/>'
+  '<stop offset="50%"  stop-color="#4080D0" stop-opacity="0.30"/>'
+  '<stop offset="100%" stop-color="#2060A0" stop-opacity="0.10"/>'
+  '</radialGradient>')
+
+# --- Vignette ---
+A('<radialGradient id="uVig" cx="50%" cy="42%" r="72%">'
+  '<stop offset="55%"  stop-color="#000000" stop-opacity="0"/>'
+  '<stop offset="100%" stop-color="#010108" stop-opacity="0.82"/>'
+  '</radialGradient>')
+
+# --- Crystal vein glow ---
+A('<linearGradient id="uVein" x1="0" y1="0" x2="1" y2="0">'
+  '<stop offset="0%"   stop-color="#A060FF" stop-opacity="0"/>'
+  '<stop offset="50%"  stop-color="#A060FF" stop-opacity="0.60"/>'
+  '<stop offset="100%" stop-color="#A060FF" stop-opacity="0"/>'
+  '</linearGradient>')
+
+# --- Light beam gradient (radial from tower center) ---
+A('<linearGradient id="uBeam" x1="0" y1="0" x2="0" y2="1">'
+  '<stop offset="0%"   stop-color="#88B8FF" stop-opacity="0.35"/>'
+  '<stop offset="100%" stop-color="#88B8FF" stop-opacity="0"/>'
+  '</linearGradient>')
+
+# --- Glow filter for crystal effects ---
+A('<filter id="uGlowF" x="-50%" y="-50%" width="200%" height="200%">'
+  '<feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>'
+  '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>'
+  '</filter>')
+
+# --- Soft glow filter ---
+A('<filter id="uSoftGlow" x="-50%" y="-50%" width="200%" height="200%">'
+  '<feGaussianBlur in="SourceGraphic" stdDeviation="6"/>'
+  '</filter>')
 
 A('</defs>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  1. SKY
+#  LAYER 1 — BASE SKY (deep indigo night)
 # ═══════════════════════════════════════════════════════════════════════════
-A('<rect width="400" height="600" fill="url(#gSky)"/>')
-A('<rect width="400" height="600" fill="url(#gTGlow)"/>')
-A('<rect width="400" height="600" fill="url(#gTBase)"/>')
 
-# ═══════════════════════════════════════════════════════════════════════════
-#  2. STARS
-# ═══════════════════════════════════════════════════════════════════════════
-for _ in range(240):
-    sx=_r.uniform(0,400); sy=_r.uniform(0,268)
-    sr=_r.uniform(0.45,1.30); sop=_r.uniform(0.38,0.88)
-    sc=_r.choice(['#FFFFFF','#FFFFFF','#EEF4FF','#F4F8FF','#FFF8F0'])
-    A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr:.1f}" fill="{sc}" opacity="{sop:.2f}"/>')
-for _ in range(48):
-    sx=_r.uniform(0,400); sy=_r.uniform(0,260)
-    sr=_r.uniform(1.25,1.95); sop=_r.uniform(0.62,0.92)
-    A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr:.1f}" fill="#FFFFFF" opacity="{sop:.2f}"/>')
-    A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr*2.8:.1f}" fill="#B8D0FF" opacity="{sop*0.10:.2f}"/>')
-for bsx,bsy,bsr,bsop in [(25,20,2.2,0.98),(352,15,2.4,0.97),(78,42,1.9,0.94),
-    (186,12,2.5,0.99),(292,36,2.1,0.96),(132,25,1.8,0.92),
-    (318,52,2.0,0.95),(55,65,1.7,0.90),(248,20,2.3,0.97),
-    (388,40,1.8,0.92),(162,55,1.9,0.91),(308,16,2.0,0.95)]:
-    A(star4(bsx, bsy, bsr, bsop))
+# Base fill
+A('<rect width="400" height="600" fill="#020110"/>')
+A('<rect width="400" height="600" fill="url(#uSky)"/>')
 
-# ═══════════════════════════════════════════════════════════════════════════
-#  3. CRYSTAL TOWER — "a gleaming spear of crystal pointed at the heavens"
-#     Tip at (200,4), base skirt at y≈278. Stage 5 at y=166 is tower midpoint.
-# ═══════════════════════════════════════════════════════════════════════════
-T = 200  # center x
+# Nebula wash areas (semi-transparent purple/blue patches)
+A('<rect width="400" height="600" fill="url(#uNeb1)"/>')
+A('<rect width="400" height="600" fill="url(#uNeb2)"/>')
+A('<rect width="400" height="600" fill="url(#uNeb3)"/>')
 
-# Width function: tower half-width at SVG y
-def tw(y):
-    return max(2, 3 + y * 0.275)   # 2px at tip → ~80px half at base
-
-# Background secondary spires (multi-spired Crystal Tower look)
-for sp_off, sp_w, sp_h, sp_op in [
-    (-32, 7, 215, 0.35), (32, 7, 205, 0.35),
-    (-55, 5, 165, 0.25), (55, 5, 155, 0.25),
-    (-72, 3, 120, 0.18), (72, 3, 112, 0.18),
-]:
-    scx = T + sp_off
-    A(f'<polygon points="{scx},{10-sp_w//3:.0f} '
-      f'{scx+sp_w},{10+sp_h*0.28:.0f} '
-      f'{scx+sp_w*0.7},{10+sp_h:.0f} '
-      f'{scx-sp_w*0.7},{10+sp_h:.0f} '
-      f'{scx-sp_w},{10+sp_h*0.28:.0f}" '
-      f'fill="url(#gTVert)" opacity="{sp_op}"/>')
-
-# Main tower shaft
-pts_r = ' '.join(f'{T+tw(y):.0f},{y}' for y in range(278, -1, -22))
-pts_l = ' '.join(f'{T-tw(y):.0f},{y}' for y in range(0, 279, 22))
-A(f'<polygon points="{T},3 {pts_r} {pts_l}" fill="url(#gTVert)" opacity="0.92"/>')
-
-# Face shading (left/right panels)
-A(f'<polygon points="{T},3 '
-  f'{T+tw(60):.0f},60 {T+tw(130):.0f},130 {T+tw(200):.0f},200 {T+tw(278):.0f},278 '
-  f'{T},278" fill="#B8D8F8" opacity="0.20"/>')
-A(f'<polygon points="{T},3 '
-  f'{T-tw(60):.0f},60 {T-tw(130):.0f},130 {T-tw(200):.0f},200 {T-tw(278):.0f},278 '
-  f'{T},278" fill="#183060" opacity="0.14"/>')
-
-# Vertical highlight streaks (crystal facets)
-for vx_off, vw, vop in [(0,5,0.88),(-8,2.5,0.62),(10,2.5,0.56),(-20,1.5,0.30),(22,1.5,0.28)]:
-    A(f'<rect x="{T+vx_off-vw/2:.1f}" y="3" width="{vw}" height="276" fill="#FFFFFF" opacity="{vop}" rx="1"/>')
-
-# Needle tip
-A(f'<polygon points="{T},3 {T+14},34 {T-14},34" fill="#FFFFFF" opacity="0.98"/>')
-A(f'<polygon points="{T},3 {T+8},22 {T-8},22" fill="#FFFFFF" opacity="0.82"/>')
-# Tip glow burst
-A(f'<circle cx="{T}" cy="6" r="12" fill="#FFFFFF" opacity="0.38"/>')
-A(f'<circle cx="{T}" cy="6" r="26" fill="#C0E8FF" opacity="0.16"/>')
-A(f'<circle cx="{T}" cy="6" r="48" fill="#90C8FF" opacity="0.06"/>')
-
-# Crystal ring bands (prominent horizontal bands — iconic Crystal Tower feature)
-# Positions tuned to NOT overlap stage 5 object (y=166) and look natural
-for ry, rh, rop in [(35,7,0.88),(80,6,0.82),(128,5.5,0.75),(210,5,0.65),(258,4.5,0.56)]:
-    hw = tw(ry) + 5
-    A(f'<rect x="{T-hw:.0f}" y="{ry}" width="{hw*2:.0f}" height="{rh}" fill="url(#gRing)" rx="2" opacity="{rop}"/>')
-    A(f'<ellipse cx="{T}" cy="{ry+rh/2:.1f}" rx="{hw+18:.0f}" ry="{rh+4:.0f}" fill="#78B8FF" opacity="{rop*0.20:.2f}"/>')
-
-# Tower base skirt + glow
-bw = tw(278)
-A(f'<polygon points="{T-bw:.0f},278 {T-bw-44},298 {T-bw-46},308 '
-  f'{T},315 {T+bw+46},308 {T+bw+44},298 {T+bw:.0f},278" '
-  f'fill="url(#gTVert)" opacity="0.60"/>')
-A(f'<ellipse cx="{T}" cy="308" rx="98" ry="22" fill="#B8E0FF" opacity="0.52"/>')
-A(f'<ellipse cx="{T}" cy="308" rx="72" ry="14" fill="#D8F0FF" opacity="0.70"/>')
-A(f'<ellipse cx="{T}" cy="308" rx="42" ry="8" fill="#FFFFFF" opacity="0.82"/>')
-
-# ═══════════════════════════════════════════════════════════════════════════
-#  4. FLOATING CRYSTAL SHARDS (sky, y 40-205, avoid stage 5 area y 148-185)
-# ═══════════════════════════════════════════════════════════════════════════
-shards_data = [
-    (52,  108, 14, 36, -22, '#A8D0FF', 0.78),
-    (75,  142, 9,  22, 18,  '#C8E8FF', 0.70),
-    (42,  78,  7,  18, -38, '#D0EEFF', 0.65),
-    (88,  128, 12, 28, -12, '#C0E4FF', 0.72),
-    (62,  195, 6,  14, 28,  '#B8DCFF', 0.58),
-    (345, 115, 15, 38, 24,  '#A0CCFF', 0.76),
-    (362, 88,  9,  24, -18, '#C8E8FF', 0.68),
-    (322, 148, 8,  20, 35,  '#B8DCFF', 0.62),
-    (348, 188, 6,  15, -28, '#D0EEFF', 0.56),
-    (308, 94,  12, 28, 15,  '#B0D8FF', 0.70),
-    (136, 55,  10, 24, -8,  '#C0E0FF', 0.64),
-    (258, 62,  11, 27, 20,  '#B8DCFF', 0.66),
-    (112, 85,  7,  16, 44,  '#D8EEFF', 0.54),
-    (285, 80,  8,  18, -30, '#C8E4FF', 0.60),
-    (158, 42,  9,  20, -5,  '#A8D4FF', 0.62),
-    (240, 46,  8,  18, 14,  '#C0E0FF', 0.58),
-    (105, 200, 6,  13, -18, '#D0ECFF', 0.50),
-    (292, 198, 7,  15, 25,  '#C8E4FF', 0.52),
+# Additional nebula patches (wobbly shapes for hand-drawn feel)
+nebula_patches = [
+    (80, 90, 60, 45, '#2A1058', 0.12),
+    (320, 140, 50, 35, '#1A2050', 0.10),
+    (200, 60, 70, 40, '#221848', 0.08),
+    (50, 400, 55, 40, '#1E1045', 0.10),
+    (350, 450, 45, 35, '#182048', 0.09),
+    (150, 500, 60, 30, '#201448', 0.07),
 ]
-for d in shards_data:
-    A(shard(*d))
+for nx, ny, nrx, nry, nc, nop in nebula_patches:
+    A(f'<path d="{wobble_ellipse(nx, ny, nrx, nry, 12, 2.0)}" fill="{nc}" opacity="{nop}"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  5. LAKELAND PURPLE FOREST (y 255-278)
+#  DENSE STARFIELD (180 small + 30 medium + 12 bright stars = 222 stars)
 # ═══════════════════════════════════════════════════════════════════════════
-# Left forest
-A('<path d="M0,272 Q12,252 28,262 Q44,240 62,257 Q78,234 98,252 '
-  'Q114,232 132,248 Q146,236 154,252 L154,282 L0,282 Z" fill="#3E1872" opacity="0.82"/>')
-A('<path d="M0,278 Q18,260 36,270 Q54,250 74,264 Q90,248 108,262 '
-  'Q124,252 140,265 L140,282 L0,282 Z" fill="#280E50" opacity="0.62"/>')
-for tx,ty,tr in [(14,256,11),(34,246,13),(56,242,12),(76,246,14),(98,240,12),(118,244,11),(140,250,10)]:
-    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.72)}" fill="#4C2298" opacity="0.90"/>')
-    A(f'<ellipse cx="{tx-2}" cy="{ty-4}" rx="{int(tr*0.56)}" ry="{int(tr*0.44)}" fill="#5E2AAA" opacity="0.65"/>')
-# Right forest
-A('<path d="M246,282 L246,252 Q264,234 284,250 Q300,232 320,248 '
-  'Q336,232 356,250 Q370,240 388,256 Q396,250 400,256 L400,282 Z" fill="#3E1872" opacity="0.82"/>')
-A('<path d="M260,282 L260,264 Q278,248 298,262 Q316,246 336,262 '
-  'Q354,252 374,268 L400,272 L400,282 Z" fill="#280E50" opacity="0.62"/>')
-for tx,ty,tr in [(262,250,11),(284,242,13),(306,236,12),(326,242,14),(348,238,12),(368,246,11),(388,252,10)]:
-    A(f'<ellipse cx="{tx}" cy="{ty}" rx="{tr}" ry="{int(tr*0.72)}" fill="#4C2298" opacity="0.90"/>')
-    A(f'<ellipse cx="{tx+2}" cy="{ty-4}" rx="{int(tr*0.56)}" ry="{int(tr*0.44)}" fill="#5E2AAA" opacity="0.65"/>')
+
+# Small stars (faint, scattered everywhere)
+for _ in range(180):
+    sx = _r.uniform(0, 400)
+    sy = _r.uniform(0, 600)
+    sr = _r.uniform(0.3, 0.9)
+    sop = _r.uniform(0.25, 0.75)
+    sc = _r.choice(['#FFFFFF', '#FFFFFF', '#B0D0FF', '#F0F4FF', '#FFF8F0'])
+    A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr:.1f}" fill="{sc}" opacity="{sop:.2f}"/>')
+
+# Medium stars (with subtle glow halo)
+for _ in range(30):
+    sx = _r.uniform(0, 400)
+    sy = _r.uniform(0, 600)
+    sr = _r.uniform(0.9, 1.6)
+    sop = _r.uniform(0.55, 0.90)
+    A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr:.1f}" fill="#FFFFFF" opacity="{sop:.2f}"/>')
+    A(f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{sr*2.5:.1f}" fill="#B0D0FF" opacity="{sop*0.10:.2f}"/>')
+
+# Bright named stars (with 4-point rays)
+bright_stars = [
+    (18, 25, 1.8), (72, 48, 2.0), (135, 18, 2.2), (198, 8, 1.9),
+    (265, 32, 2.1), (338, 22, 2.3), (385, 55, 1.7), (52, 560, 1.6),
+    (160, 580, 1.5), (310, 570, 1.8), (390, 540, 1.4), (28, 480, 1.6),
+]
+for bsx, bsy, bsr in bright_stars:
+    bsop = _r.uniform(0.85, 0.98)
+    A(f'<circle cx="{bsx}" cy="{bsy}" r="{bsr}" fill="#FFFFFF" opacity="{bsop:.2f}"/>')
+    A(f'<circle cx="{bsx}" cy="{bsy}" r="{bsr*3:.1f}" fill="#B0D0FF" opacity="{bsop*0.12:.2f}"/>')
+    for sa in (0, 90):
+        rad = math.radians(sa)
+        ex = bsx + math.cos(rad) * bsr * 5
+        ey = bsy + math.sin(rad) * bsr * 5
+        A(f'<line x1="{bsx}" y1="{bsy}" x2="{ex:.1f}" y2="{ey:.1f}" '
+          f'stroke="#FFFFFF" stroke-width="0.5" opacity="{bsop*0.35:.2f}"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  6. LEFT & RIGHT BUILDING WINGS (sandstone + black iron, y 145-278)
+#  LAYER 5 — STREETS & PLAZA (drawn first, underneath buildings)
+#  Bird's-eye: dark stone tiles, crystal veins, winding streets
 # ═══════════════════════════════════════════════════════════════════════════
-def wing(bx, by, bw, bh, side='L'):
-    G = 'gSandL' if side=='L' else 'gSandS'
-    Gs= 'gSandS' if side=='L' else 'gSandL'
-    out=[]
-    # Sub-building behind
-    sbx = bx+4 if side=='L' else bx-4
-    sbw = int(bw*0.68); sbh = int(bh*0.75)
-    out.append(f'<rect x="{sbx}" y="{by+bh-sbh}" width="{sbw}" height="{sbh}" fill="url(#{Gs})" rx="2" opacity="0.85"/>')
-    out.append(f'<line x1="{sbx-1}" y1="{by+bh-sbh}" x2="{sbx+sbw+1}" y2="{by+bh-sbh}" stroke="#181820" stroke-width="3" opacity="0.78"/>')
-    # Main body
-    out.append(f'<rect x="{bx}" y="{by}" width="{bw}" height="{bh}" fill="url(#{G})" rx="2" opacity="0.95"/>')
-    # Iron pilasters (vertical strips)
-    n_pil = max(3, bw//22)
-    for pi in range(n_pil+1):
-        px2 = bx + pi*(bw/n_pil)
-        out.append(f'<rect x="{px2-2.5:.0f}" y="{by}" width="5" height="{bh}" fill="url(#gIron)" rx="1" opacity="0.70"/>')
-    # Iron horizontal band courses
-    for frac in [0.0, 0.20, 0.42, 0.64, 0.84]:
-        by2 = by + bh*frac
-        out.append(f'<rect x="{bx-2}" y="{by2:.0f}" width="{bw+4}" height="4" fill="url(#gIron)" rx="1" opacity="0.68"/>')
-    # Crystal-glow windows (3 rows)
-    ww=int(bw*0.28); wh=int(bh*0.11)
-    for row in range(3):
-        wy2=int(by + bh*(0.15+row*0.26))
-        wx2=int(bx + (bw-ww)*0.50)
-        out.append(iron_win(wx2, wy2, ww, wh, 0.62))
-    # Crenellated parapet
-    mx=bx+3
-    while mx < bx+bw-6:
-        out.append(f'<rect x="{mx:.0f}" y="{by-9}" width="6" height="11" fill="url(#gIron)" rx="1" opacity="0.82"/>')
-        mx += 10
-    out.append(f'<line x1="{bx-2}" y1="{by-9}" x2="{bx+bw+2}" y2="{by-9}" stroke="url(#gRing)" stroke-width="2" opacity="0.45"/>')
-    # Corner crystal turrets
-    for tx2 in [bx+7, bx+bw-7]:
-        out.append(f'<polygon points="{tx2},{by-9-16} {tx2+5},{by-9} {tx2-5},{by-9}" fill="url(#gRing)" opacity="0.82"/>')
-        out.append(f'<ellipse cx="{tx2}" cy="{by-9-10}" rx="6" ry="6" fill="#50A8F0" opacity="0.14"/>')
+
+# Main plaza area (central, around tower)
+A(f'<path d="{wobble_ellipse(200, 250, 160, 130, 20, 1.5)}" fill="#1A1828" opacity="0.85"/>')
+A(f'<path d="{wobble_ellipse(200, 250, 140, 115, 18, 1.2)}" fill="#1E1C30" opacity="0.70"/>')
+
+# Tile grid pattern (subtle lines forming plaza tiles)
+# Horizontal tile lines
+for ty in range(135, 580, 18):
+    x_start = max(0, 200 - 180 + abs(ty - 250) * 0.3)
+    x_end = min(400, 200 + 180 - abs(ty - 250) * 0.3)
+    if x_start < x_end:
+        A(f'<path d="{wobble_line(x_start, ty, x_end, ty, 0.5)}" '
+          f'stroke="#252038" stroke-width="0.6" fill="none" opacity="0.35"/>')
+# Vertical tile lines
+for tx in range(30, 400, 18):
+    y_start = max(100, 250 - 130 + abs(tx - 200) * 0.5)
+    y_end = min(580, 250 + 130 - abs(tx - 200) * 0.3 + 200)
+    if y_start < y_end:
+        A(f'<path d="{wobble_line(tx, y_start, tx, y_end, 0.5)}" '
+          f'stroke="#252038" stroke-width="0.5" fill="none" opacity="0.30"/>')
+
+# Steps / staircases (parallel lines - 4 staircase areas)
+staircase_data = [
+    (130, 180, 170, 180, 5),   # north-west stairs
+    (230, 180, 270, 180, 5),   # north-east stairs
+    (120, 350, 160, 350, 6),   # south-west stairs
+    (240, 350, 280, 350, 6),   # south-east stairs
+]
+for sx1, sy1, sx2, sy2, n_steps in staircase_data:
+    for si in range(n_steps):
+        offset = si * 4
+        A(f'<path d="{wobble_line(sx1, sy1+offset, sx2, sy1+offset, 0.4)}" '
+          f'stroke="#303048" stroke-width="1.2" fill="none" opacity="0.50"/>')
+
+# Winding streets between buildings (darker paths)
+streets = [
+    # Main north-south avenue
+    "M200,100 Q198,160 200,250 Q202,340 200,500",
+    # East-west cross street
+    "M40,260 Q120,255 200,250 Q280,255 360,260",
+    # Diagonal approach roads
+    "M60,140 Q100,180 140,210",
+    "M340,140 Q300,180 260,210",
+    # Southern streets
+    "M80,380 Q140,370 180,350",
+    "M320,380 Q260,370 220,350",
+    # Outer ring path
+    "M50,200 Q60,300 80,380 Q120,440 200,460 Q280,440 320,380 Q340,300 350,200",
+]
+for sp in streets:
+    A(f'<path d="{sp}" fill="none" stroke="#0E0C18" stroke-width="10" opacity="0.50" stroke-linecap="round"/>')
+    A(f'<path d="{sp}" fill="none" stroke="#141220" stroke-width="6" opacity="0.35" stroke-linecap="round"/>')
+
+# Small gardens / planter boxes (dark green patches)
+garden_data = [
+    (85, 210, 12, 8), (315, 210, 12, 8), (90, 330, 10, 7),
+    (310, 330, 10, 7), (150, 400, 14, 9), (250, 400, 14, 9),
+    (70, 280, 8, 6), (330, 280, 8, 6), (170, 460, 11, 7),
+    (230, 460, 11, 7), (50, 350, 9, 6), (350, 350, 9, 6),
+]
+for gx, gy, grx, gry in garden_data:
+    A(f'<path d="{wobble_ellipse(gx, gy, grx, gry, 8, 0.8)}" fill="#142818" opacity="0.65"/>')
+    A(f'<path d="{wobble_ellipse(gx, gy, grx-2, gry-2, 8, 0.6)}" fill="#1A3420" opacity="0.45"/>')
+    # Tiny plant dots
+    for _ in range(3):
+        px = gx + _r.uniform(-grx*0.6, grx*0.6)
+        py = gy + _r.uniform(-gry*0.6, gry*0.6)
+        A(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="1.2" fill="#284828" opacity="0.55"/>')
+
+# Crystal vein channels (glowing lines running through ground)
+vein_paths = [
+    ("M200,250 L200,100", 0.45),
+    ("M200,250 L200,500", 0.40),
+    ("M200,250 L40,250",  0.35),
+    ("M200,250 L360,250", 0.35),
+    ("M200,250 L80,140",  0.25),
+    ("M200,250 L320,140", 0.25),
+    ("M200,250 L80,380",  0.25),
+    ("M200,250 L320,380", 0.25),
+    ("M200,250 Q150,200 60,170", 0.20),
+    ("M200,250 Q250,200 340,170", 0.20),
+    ("M200,250 Q150,310 60,350", 0.20),
+    ("M200,250 Q250,310 340,350", 0.20),
+]
+for vp, vop in vein_paths:
+    A(f'<path d="{vp}" fill="none" stroke="#A060FF" stroke-width="2.0" opacity="{vop*0.30:.2f}" stroke-linecap="round"/>')
+    A(f'<path d="{vp}" fill="none" stroke="#B8DCFF" stroke-width="0.8" opacity="{vop:.2f}" stroke-linecap="round"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  LAYER 4 — BUILDINGS (rooftops from above, bird's-eye)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def building_rooftop(bx, by, bw, bh, angle=0, sand='url(#uSand)', iron_color='#181820'):
+    """Draw a building rooftop from bird's-eye view.
+    Sandstone base with iron framework lines visible on top."""
+    out = []
+    # Main rooftop shape (wobbly rectangle)
+    pts = [
+        (bx, by), (bx+bw, by), (bx+bw, by+bh), (bx, by+bh)
+    ]
+    if angle != 0:
+        # Rotate points around center
+        cx, cy = bx + bw/2, by + bh/2
+        rad = math.radians(angle)
+        rotated = []
+        for px, py in pts:
+            dx, dy = px - cx, py - cy
+            rx = dx * math.cos(rad) - dy * math.sin(rad) + cx
+            ry = dx * math.sin(rad) + dy * math.cos(rad) + cy
+            rotated.append((rx, ry))
+        pts = rotated
+    path = wobble_polygon(pts, jitter=0.8)
+
+    # Shadow (offset slightly)
+    shadow_pts = [(px+2, py+2) for px, py in pts]
+    out.append(f'<path d="{wobble_polygon(shadow_pts, 0.6)}" fill="#08060E" opacity="0.40"/>')
+
+    # Main sandstone fill
+    out.append(f'<path d="{path}" fill="{sand}" opacity="0.88"/>')
+
+    # Iron framework (cross beams visible on rooftop)
+    cx, cy = sum(p[0] for p in pts)/4, sum(p[1] for p in pts)/4
+    # Horizontal beam
+    mid_l = ((pts[0][0]+pts[3][0])/2, (pts[0][1]+pts[3][1])/2)
+    mid_r = ((pts[1][0]+pts[2][0])/2, (pts[1][1]+pts[2][1])/2)
+    out.append(f'<path d="{wobble_line(mid_l[0], mid_l[1], mid_r[0], mid_r[1], 0.5)}" '
+               f'stroke="{iron_color}" stroke-width="1.8" fill="none" opacity="0.65"/>')
+    # Vertical beam
+    mid_t = ((pts[0][0]+pts[1][0])/2, (pts[0][1]+pts[1][1])/2)
+    mid_b = ((pts[2][0]+pts[3][0])/2, (pts[2][1]+pts[3][1])/2)
+    out.append(f'<path d="{wobble_line(mid_t[0], mid_t[1], mid_b[0], mid_b[1], 0.5)}" '
+               f'stroke="{iron_color}" stroke-width="1.8" fill="none" opacity="0.65"/>')
+    # Diagonal braces
+    out.append(f'<path d="{wobble_line(pts[0][0], pts[0][1], pts[2][0], pts[2][1], 0.4)}" '
+               f'stroke="{iron_color}" stroke-width="1.0" fill="none" opacity="0.35"/>')
+    out.append(f'<path d="{wobble_line(pts[1][0], pts[1][1], pts[3][0], pts[3][1], 0.4)}" '
+               f'stroke="{iron_color}" stroke-width="1.0" fill="none" opacity="0.35"/>')
+
+    # Outline
+    out.append(f'<path d="{path}" fill="none" stroke="{iron_color}" stroke-width="1.5" opacity="0.75"/>')
+
+    # Glowing windows (tiny cyan dots on roof)
+    n_windows = max(1, int(bw * bh / 200))
+    for _ in range(n_windows):
+        wx = _r.uniform(min(p[0] for p in pts)+4, max(p[0] for p in pts)-4)
+        wy = _r.uniform(min(p[1] for p in pts)+4, max(p[1] for p in pts)-4)
+        wc = _r.choice(['#58AFF0', '#A8D8FF', '#78C8FF'])
+        wop = _r.uniform(0.45, 0.75)
+        out.append(f'<circle cx="{wx:.1f}" cy="{wy:.1f}" r="1.5" fill="{wc}" opacity="{wop:.2f}"/>')
+        out.append(f'<circle cx="{wx:.1f}" cy="{wy:.1f}" r="3.5" fill="{wc}" opacity="{wop*0.15:.2f}"/>')
+
     return ''.join(out)
 
-A(wing(bx=-14, by=148, bw=105, bh=132, side='L'))
-A(wing(bx=309, by=148, bw=105, bh=132, side='R'))
-
-# Building wall lanterns
-for lx2,ly2 in [(18,200),(18,248),(382,200),(382,248)]:
-    A(lamp(lx2, ly2, h=18))
-
-# ═══════════════════════════════════════════════════════════════════════════
-#  7. DISTANT CITY SKYLINE (behind buildings, y 248-278)
-# ═══════════════════════════════════════════════════════════════════════════
-A('<path d="M0,252 L0,272 L16,272 L16,256 L26,256 L26,268 L38,268 '
-  'L38,250 L50,250 L50,264 L60,264 L60,254 L70,254 L70,262 '
-  'L78,262 L78,252 L90,252 L90,262 L100,262 L100,254" '
-  'fill="url(#gSandS)" opacity="0.65"/>')
-A('<path d="M300,254 L300,262 L310,262 L310,252 L320,252 L320,262 '
-  'L330,262 L330,252 L342,252 L342,264 L352,264 L352,254 '
-  'L362,254 L362,268 L374,268 L374,256 L384,256 L384,272 L400,272 L400,252" '
-  'fill="url(#gSandS)" opacity="0.65"/>')
-# Tiny amber windows on distant buildings
-for wx2,wy2 in [(22,257),(46,254),(66,258),(84,256),
-                (312,256),(334,256),(356,258),(376,260)]:
-    A(f'<rect x="{wx2}" y="{wy2}" width="5" height="4" fill="#FFC030" rx="1" opacity="0.60"/>')
-# Iron roofline
-A('<line x1="0" y1="252" x2="100" y2="252" stroke="#181820" stroke-width="2" opacity="0.72"/>')
-A('<line x1="300" y1="252" x2="400" y2="252" stroke="#181820" stroke-width="2" opacity="0.72"/>')
-
-# ═══════════════════════════════════════════════════════════════════════════
-#  8. GROUND PLAZA (dark stone, y 278-600)
-# ═══════════════════════════════════════════════════════════════════════════
-A('<rect y="278" width="400" height="322" fill="url(#gGnd)"/>')
-# Crystal-lit platform edge
-A('<rect y="276" width="400" height="4" fill="url(#gRing)" opacity="0.35"/>')
-A('<ellipse cx="200" cy="278" rx="200" ry="7" fill="#5898E0" opacity="0.16"/>')
-# Tile grid
-for ty2 in range(285, 600, 26):
-    A(f'<line x1="0" y1="{ty2}" x2="400" y2="{ty2}" stroke="#1A1C2C" stroke-width="1.2" opacity="0.46"/>')
-for tx2 in range(0, 401, 28):
-    A(f'<line x1="{tx2}" y1="278" x2="{tx2}" y2="600" stroke="#1A1C2C" stroke-width="0.9" opacity="0.36"/>')
-# Crystal aether veins in floor
-for vpath, vop in [
-    ("M200,278 Q193,310 186,360 L180,430 L177,520 L175,600", 0.38),
-    ("M200,278 Q207,310 214,360 L220,430 L223,520 L225,600", 0.38),
-    ("M200,278 Q182,305 165,330 L142,370 L115,420",          0.24),
-    ("M200,278 Q218,305 235,330 L258,370 L285,420",          0.24),
-]:
-    A(f'<path d="{vpath}" fill="none" stroke="#3878C8" stroke-width="2.5" opacity="{vop*0.40:.2f}"/>')
-    A(f'<path d="{vpath}" fill="none" stroke="#88C8FF" stroke-width="0.7" opacity="{vop:.2f}"/>')
-
-# ═══════════════════════════════════════════════════════════════════════════
-#  9. CRYSTAL PILLARS (flanking path, y 285-380)
-# ═══════════════════════════════════════════════════════════════════════════
-def xpillar(px, py, h=75, w=12):
-    out=[]
-    # stone base plinth
-    out.append(f'<rect x="{px-w//2-4}" y="{py-10}" width="{w+8}" height="12" fill="url(#gSandS)" rx="2" opacity="0.88"/>')
-    out.append(f'<line x1="{px-w//2-5}" y1="{py-10}" x2="{px+w//2+5}" y2="{py-10}" stroke="#181820" stroke-width="2.5" opacity="0.72"/>')
-    # shaft
-    out.append(f'<rect x="{px-w//2}" y="{py-10-h}" width="{w}" height="{h}" fill="url(#gPillar)" rx="2" opacity="0.92"/>')
-    out.append(f'<rect x="{px-w//2}" y="{py-10-h}" width="3" height="{h}" fill="url(#gIron)" opacity="0.55"/>')
-    out.append(f'<rect x="{px+w//2-3}" y="{py-10-h}" width="3" height="{h}" fill="url(#gIron)" opacity="0.55"/>')
-    # iron capital ring
-    out.append(f'<rect x="{px-w//2-5}" y="{py-10-h-4}" width="{w+10}" height="5" fill="url(#gIron)" rx="1" opacity="0.80"/>')
-    # crystal shard cap
-    A_pts=f'{px},{py-10-h-20} {px+w//2+4},{py-10-h-2} {px-w//2-4},{py-10-h-2}'
-    out.append(f'<polygon points="{A_pts}" fill="url(#gRing)" opacity="0.88"/>')
-    out.append(f'<polygon points="{A_pts}" fill="url(#gCPanel)" opacity="0.40"/>')
-    # highlight
-    out.append(f'<line x1="{px-2}" y1="{py-10-h-18}" x2="{px-2}" y2="{py-12}" stroke="#FFFFFF" stroke-width="1.2" opacity="0.20"/>')
-    # glow
-    out.append(f'<ellipse cx="{px}" cy="{py-10-h-10}" rx="{w+5:.0f}" ry="15" fill="#60B0F0" opacity="0.22"/>')
-    out.append(f'<ellipse cx="{px}" cy="{py-10-h-10}" rx="{w*2:.0f}" ry="28" fill="#4090D8" opacity="0.08"/>')
+def building_with_balcony(bx, by, bw, bh, balcony_side='S', angle=0):
+    """Building with a small balcony/terrace extending from one side."""
+    out = []
+    out.append(building_rooftop(bx, by, bw, bh, angle))
+    # Balcony platform
+    if balcony_side == 'S':
+        out.append(f'<path d="{wobble_rect(bx+bw*0.3, by+bh, bw*0.4, 5, 0.5)}" '
+                   f'fill="#B09858" opacity="0.70" stroke="#181820" stroke-width="0.8"/>')
+    elif balcony_side == 'N':
+        out.append(f'<path d="{wobble_rect(bx+bw*0.3, by-5, bw*0.4, 5, 0.5)}" '
+                   f'fill="#B09858" opacity="0.70" stroke="#181820" stroke-width="0.8"/>')
+    elif balcony_side == 'E':
+        out.append(f'<path d="{wobble_rect(bx+bw, by+bh*0.3, 5, bh*0.4, 0.5)}" '
+                   f'fill="#B09858" opacity="0.70" stroke="#181820" stroke-width="0.8"/>')
+    elif balcony_side == 'W':
+        out.append(f'<path d="{wobble_rect(bx-5, by+bh*0.3, 5, bh*0.4, 0.5)}" '
+                   f'fill="#B09858" opacity="0.70" stroke="#181820" stroke-width="0.8"/>')
     return ''.join(out)
 
-A(xpillar(80,  418, h=70, w=14))
-A(xpillar(108, 404, h=60, w=12))
-A(xpillar(136, 392, h=52, w=11))
-A(xpillar(320, 418, h=70, w=14))
-A(xpillar(292, 404, h=60, w=12))
-A(xpillar(264, 392, h=52, w=11))
+# --- Place 28 building rooftops around the city ---
+
+# Northern building cluster (above tower)
+buildings = [
+    # (x, y, w, h, angle, has_balcony, balcony_side)
+    # NW cluster
+    (18, 68, 38, 28, 5, True, 'E'),
+    (22, 102, 32, 22, -3, False, ''),
+    (62, 78, 28, 35, 8, True, 'S'),
+    (58, 120, 35, 24, -5, False, ''),
+    # NE cluster
+    (310, 72, 36, 30, -6, True, 'W'),
+    (315, 108, 30, 22, 4, False, ''),
+    (352, 82, 32, 28, -4, True, 'S'),
+    (348, 118, 28, 20, 7, False, ''),
+    # West buildings (flanking tower)
+    (15, 168, 45, 32, 3, True, 'E'),
+    (20, 208, 40, 28, -4, True, 'E'),
+    (25, 242, 42, 30, 2, False, ''),
+    (18, 280, 38, 25, -3, True, 'E'),
+    (30, 312, 35, 22, 5, False, ''),
+    # East buildings (flanking tower)
+    (338, 168, 45, 30, -3, True, 'W'),
+    (340, 206, 42, 28, 4, True, 'W'),
+    (335, 242, 40, 32, -2, False, ''),
+    (342, 282, 38, 24, 3, True, 'W'),
+    (332, 314, 36, 22, -5, False, ''),
+    # Southern buildings
+    (40, 380, 35, 28, 6, True, 'N'),
+    (82, 390, 30, 24, -4, False, ''),
+    (128, 385, 32, 26, 3, True, 'N'),
+    (260, 385, 34, 26, -3, True, 'N'),
+    (305, 390, 28, 24, 5, False, ''),
+    (342, 380, 36, 28, -6, True, 'N'),
+    # Far south
+    (60, 440, 30, 22, 4, False, ''),
+    (110, 450, 28, 20, -3, True, 'N'),
+    (270, 450, 30, 22, 3, True, 'N'),
+    (320, 440, 32, 24, -4, False, ''),
+]
+
+for bdata in buildings:
+    bx, by, bw, bh, angle, has_bal, bal_side = bdata
+    if has_bal:
+        A(building_with_balcony(bx, by, bw, bh, bal_side, angle))
+    else:
+        A(building_rooftop(bx, by, bw, bh, angle))
+
+# Banner/flag indicators on some buildings (small triangles)
+banner_buildings = [
+    (37, 68, '#C83030'), (78, 78, '#3060A0'), (328, 72, '#C8A030'),
+    (37, 168, '#3060A0'), (360, 168, '#C83030'), (60, 380, '#A03060'),
+    (355, 380, '#3060A0'), (140, 385, '#C8A030'),
+]
+for bfx, bfy, bfc in banner_buildings:
+    A(f'<polygon points="{bfx},{bfy} {bfx+5},{bfy-3} {bfx+5},{bfy+3}" '
+      f'fill="{bfc}" opacity="0.60" stroke="#181820" stroke-width="0.5"/>')
+    # Tiny flag pole (dot from above)
+    A(f'<circle cx="{bfx}" cy="{bfy}" r="1" fill="#181820" opacity="0.80"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  10. THE ROTUNDA — left of path (y 248-340)
-#      "Elegant black iron and sheets of shimmering crystal" — domed hall
+#  THE ROTUNDA DOME (large circle with architectural detail, from above)
+#  Located at roughly (100, 300)
 # ═══════════════════════════════════════════════════════════════════════════
-rx0=88;  rot_base=340
-drum_h=50; drum_r=40
 
-# Steps
-for si,(sw2,sh2) in enumerate([(96,8),(78,7),(62,6)]):
-    sy2=rot_base-si*7
-    A(f'<rect x="{rx0-sw2//2}" y="{sy2-sh2}" width="{sw2}" height="{sh2}" fill="url(#gSandL)" rx="2" opacity="0.86"/>')
-    A(f'<line x1="{rx0-sw2//2-1}" y1="{sy2-sh2}" x2="{rx0+sw2//2+1}" y2="{sy2-sh2}" stroke="#181820" stroke-width="2" opacity="0.70"/>')
+rot_cx, rot_cy, rot_r = 100, 300, 35
 
-# Drum
-drum_y = rot_base - 22
-A(f'<rect x="{rx0-drum_r}" y="{drum_y-drum_h}" width="{drum_r*2}" height="{drum_h}" fill="url(#gSandL)" rx="3" opacity="0.93"/>')
-# Pilasters
-for pi in range(5):
-    px2=rx0-drum_r+pi*(drum_r*2/4)
-    A(f'<rect x="{px2-2.5:.0f}" y="{drum_y-drum_h}" width="5" height="{drum_h}" fill="url(#gIron)" rx="1" opacity="0.72"/>')
-# Entablature
-A(f'<rect x="{rx0-drum_r-3}" y="{drum_y-drum_h-7}" width="{drum_r*2+6}" height="9" fill="url(#gIron)" rx="1" opacity="0.88"/>')
-A(f'<rect x="{rx0-drum_r+3}" y="{drum_y-drum_h-5}" width="{(drum_r-3)*2}" height="5" fill="url(#gCPanel)" rx="1" opacity="0.40"/>')
-# Windows
-for wi in range(3):
-    wx2=rx0-22+wi*22; wy2=drum_y-drum_h+drum_h*0.20
-    A(iron_win(int(wx2), int(wy2), 12, int(drum_h*0.50), 0.58))
+# Outer steps (concentric circles)
+for si in range(3):
+    sr = rot_r + 12 - si * 4
+    A(f'<path d="{wobble_ellipse(rot_cx, rot_cy, sr, sr, 20, 0.6)}" '
+      f'fill="#C8A870" opacity="{0.50 + si*0.10}" stroke="#181820" stroke-width="1.0"/>')
 
-# Dome base ring
-dome_cy=drum_y-drum_h-7; dome_rx=drum_r+4; dome_ry=36
-A(f'<rect x="{rx0-dome_rx-2}" y="{dome_cy-4}" width="{(dome_rx+2)*2}" height="6" fill="url(#gIron)" rx="1" opacity="0.90"/>')
-A(f'<rect x="{rx0-dome_rx-2}" y="{dome_cy-6}" width="{(dome_rx+2)*2}" height="3" fill="url(#gRing)" rx="1" opacity="0.45"/>')
+# Dome body (dark iron dome seen from above)
+A(f'<path d="{wobble_ellipse(rot_cx, rot_cy, rot_r, rot_r, 24, 0.5)}" '
+  f'fill="#0C1020" opacity="0.92" stroke="#181820" stroke-width="2.0"/>')
 
-# Dome body
-A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="#0C1828" opacity="0.88"/>')
-A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="url(#gTGlow)" opacity="0.52"/>')
-A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx}" ry="{dome_ry}" fill="url(#gCPanel)" opacity="0.28"/>')
-# Highlight
-A(f'<ellipse cx="{rx0-12}" cy="{dome_cy-16}" rx="{int(dome_rx*0.38)}" ry="{int(dome_ry*0.28)}" fill="#A8D8FF" opacity="0.30"/>')
-# Iron ribs
-for ri in range(8):
-    ang=math.radians(ri*22.5)
-    ex=rx0+math.cos(ang)*dome_rx; ey=dome_cy+math.sin(ang)*dome_ry
-    A(f'<line x1="{rx0}" y1="{dome_cy-dome_ry}" x2="{ex:.0f}" y2="{ey:.0f}" stroke="#181820" stroke-width="2.8" opacity="0.85"/>')
-# Oculus + finial
-A(f'<circle cx="{rx0}" cy="{dome_cy-dome_ry}" r="7" fill="url(#gIron)" opacity="0.90"/>')
-A(f'<circle cx="{rx0}" cy="{dome_cy-dome_ry}" r="4" fill="url(#gRing)" opacity="0.82"/>')
-fin_y=dome_cy-dome_ry-8
-A(f'<polygon points="{rx0},{fin_y-20} {rx0+7},{fin_y} {rx0-7},{fin_y}" fill="url(#gRing)" opacity="0.90"/>')
-A(f'<polygon points="{rx0},{fin_y-20} {rx0+4},{fin_y-10} {rx0-4},{fin_y-10}" fill="#FFFFFF" opacity="0.75"/>')
-A(f'<circle cx="{rx0}" cy="{fin_y-12}" r="7" fill="#80C8FF" opacity="0.20"/>')
-# Base collar
-A(f'<ellipse cx="{rx0}" cy="{dome_cy}" rx="{dome_rx+2}" ry="7" fill="url(#gIron)" opacity="0.88"/>')
+# Iron ribs radiating from center (dome structural ribs)
+for ri in range(12):
+    ang = math.radians(ri * 30)
+    ex = rot_cx + math.cos(ang) * rot_r
+    ey = rot_cy + math.sin(ang) * rot_r
+    A(f'<path d="{wobble_line(rot_cx, rot_cy, ex, ey, 0.4)}" '
+      f'stroke="#181820" stroke-width="2.0" fill="none" opacity="0.80"/>')
+
+# Concentric ring details on dome
+for rr_frac in (0.35, 0.65, 0.90):
+    rr = rot_r * rr_frac
+    A(f'<path d="{wobble_ellipse(rot_cx, rot_cy, rr, rr, 16, 0.4)}" '
+      f'fill="none" stroke="#282838" stroke-width="1.2" opacity="0.60"/>')
+
+# Crystal panel sections (between ribs, shimmering)
+for ri in range(12):
+    ang1 = math.radians(ri * 30 + 5)
+    ang2 = math.radians(ri * 30 + 25)
+    mid_r = rot_r * 0.55
+    mx = rot_cx + math.cos((ang1+ang2)/2) * mid_r
+    my = rot_cy + math.sin((ang1+ang2)/2) * mid_r
+    cop = _r.uniform(0.10, 0.25)
+    A(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="4" fill="#58AFF0" opacity="{cop:.2f}"/>')
+
+# Oculus (center hole/lantern of dome)
+A(f'<circle cx="{rot_cx}" cy="{rot_cy}" r="6" fill="#B8DCFF" opacity="0.75"/>')
+A(f'<circle cx="{rot_cx}" cy="{rot_cy}" r="3" fill="#FFFFFF" opacity="0.90"/>')
+A(f'<circle cx="{rot_cx}" cy="{rot_cy}" r="12" fill="#60A0FF" opacity="0.15"/>')
+
+# Finial (tiny crystal spire tip visible from above as bright dot)
+A(f'<circle cx="{rot_cx}" cy="{rot_cy}" r="2" fill="#FFFFFF" opacity="0.95"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  STAGE 5 OBJECT — THE EXEDRA FOUNTAIN  (centered at SVG 200, 166)
-#  Crystal fountain basin + pedestal + glowing crystal obelisk
+#  THE EXEDRA FOUNTAIN (circle with water pattern, bird's-eye)
+#  Located at roughly (300, 310)
 # ═══════════════════════════════════════════════════════════════════════════
-# Target: node center at (200, 166). Object spans y ≈ 120-188.
 
-FC = 200   # fountain center x
-FB = 182   # fountain base (lower basin bottom)
+ftn_cx, ftn_cy, ftn_r = 300, 310, 28
 
-# ── lower basin (wide circular pool) ──
-A(f'<ellipse cx="{FC}" cy="{FB}" rx="52" ry="13" fill="#080E1C" opacity="0.88"/>')
-A(f'<ellipse cx="{FC}" cy="{FB}" rx="52" ry="13" fill="url(#gWater)" opacity="0.58"/>')
-# Water reflections
-A(f'<ellipse cx="{FC-12}" cy="{FB-3}" rx="18" ry="5" fill="#C0E8FF" opacity="0.25"/>')
-for rr in (0.55, 0.75, 0.92):
-    A(f'<ellipse cx="{FC}" cy="{FB}" rx="{52*rr:.0f}" ry="{13*rr:.0f}" fill="none" stroke="#68C0FF" stroke-width="1.2" opacity="0.32"/>')
-# Basin wall (sandstone + iron)
-A(f'<rect x="{FC-54}" y="{FB-12}" width="108" height="12" fill="url(#gSandL)" rx="2" opacity="0.90"/>')
-A(f'<ellipse cx="{FC}" cy="{FB-12}" rx="54" ry="8" fill="url(#gSandL)" opacity="0.90"/>')
-A(f'<line x1="{FC-55}" y1="{FB-12}" x2="{FC+55}" y2="{FB-12}" stroke="#181820" stroke-width="2.5" opacity="0.75"/>')
-A(f'<ellipse cx="{FC}" cy="{FB-12}" rx="54" ry="8" fill="none" stroke="url(#gRing)" stroke-width="2" opacity="0.45"/>')
-# Iron bracket pins around basin
-for bi in range(6):
-    bang=math.radians(bi*60)
-    bx2=FC+math.cos(bang)*50; by2=FB+math.sin(bang)*13-12
-    A(f'<circle cx="{bx2:.0f}" cy="{by2:.0f}" r="2.8" fill="url(#gIron)" opacity="0.80"/>')
+# Outer basin rim (sandstone)
+A(f'<path d="{wobble_ellipse(ftn_cx, ftn_cy, ftn_r+6, ftn_r+6, 20, 0.5)}" '
+  f'fill="#C8A870" opacity="0.80" stroke="#181820" stroke-width="1.5"/>')
 
-# ── pedestal column ──
-A(f'<rect x="{FC-7}" y="{FB-68}" width="14" height="56" fill="url(#gSandL)" rx="3" opacity="0.92"/>')
-A(f'<line x1="{FC-8}" y1="{FB-68}" x2="{FC+8}" y2="{FB-68}" stroke="#181820" stroke-width="2.5" opacity="0.72"/>')
-A(f'<line x1="{FC-8}" y1="{FB-13}" x2="{FC+8}" y2="{FB-13}" stroke="#181820" stroke-width="2.5" opacity="0.72"/>')
-# Iron fluting on column
-for fl in (-3, 0, 3):
-    A(f'<line x1="{FC+fl}" y1="{FB-68}" x2="{FC+fl}" y2="{FB-14}" stroke="#181820" stroke-width="1.2" opacity="0.38"/>')
+# Water surface
+A(f'<path d="{wobble_ellipse(ftn_cx, ftn_cy, ftn_r, ftn_r, 20, 0.4)}" '
+  f'fill="url(#uWater)" opacity="0.75"/>')
 
-# ── upper basin (elevated) ──
-A(f'<ellipse cx="{FC}" cy="{FB-70}" rx="26" ry="7" fill="#080E1C" opacity="0.88"/>')
-A(f'<ellipse cx="{FC}" cy="{FB-70}" rx="26" ry="7" fill="url(#gWater)" opacity="0.52"/>')
-A(f'<rect x="{FC-28}" y="{FB-78}" width="56" height="8" fill="url(#gSandL)" rx="2" opacity="0.90"/>')
-A(f'<ellipse cx="{FC}" cy="{FB-78}" rx="28" ry="7" fill="url(#gSandL)" opacity="0.90"/>')
-A(f'<line x1="{FC-29}" y1="{FB-78}" x2="{FC+29}" y2="{FB-78}" stroke="#181820" stroke-width="2" opacity="0.70"/>')
-A(f'<ellipse cx="{FC}" cy="{FB-78}" rx="28" ry="7" fill="none" stroke="url(#gRing)" stroke-width="1.8" opacity="0.45"/>')
+# Concentric water ripples
+for wr_frac in (0.30, 0.50, 0.70, 0.85, 0.95):
+    wr = ftn_r * wr_frac
+    wop = 0.20 + (1.0 - wr_frac) * 0.25
+    A(f'<path d="{wobble_ellipse(ftn_cx, ftn_cy, wr, wr, 14, 0.3)}" '
+      f'fill="none" stroke="#88C8FF" stroke-width="0.8" opacity="{wop:.2f}"/>')
 
-# ── crystal obelisk (the glowing centerpiece) ──
-# Node center at y=166. Obelisk tip at y=124, body to y=170.
-# The node (y=166) is right at the widest part of the obelisk.
-A(f'<polygon points="{FC},{FB-116} {FC+13},{FB-78} {FC-13},{FB-78}" fill="url(#gTVert)" opacity="0.92"/>')
-A(f'<polygon points="{FC},{FB-116} {FC+8},{FB-96} {FC-8},{FB-96}" fill="#FFFFFF" opacity="0.72"/>')
-# Facet highlight
-A(f'<line x1="{FC+2}" y1="{FB-114}" x2="{FC+2}" y2="{FB-80}" stroke="#FFFFFF" stroke-width="1.5" opacity="0.52"/>')
-# Crystal ring bands on obelisk (smaller mirror of tower)
-for oby, obh in [(FB-106, 2.5), (FB-92, 2.5), (FB-88, 2)]:
-    A(f'<rect x="{FC-10}" y="{oby}" width="20" height="{obh}" fill="url(#gRing)" opacity="0.72"/>')
-# Multi-layer glow
-A(f'<ellipse cx="{FC}" cy="{FB-98}" rx="28" ry="28" fill="#58B0FF" opacity="0.13"/>')
-A(f'<ellipse cx="{FC}" cy="{FB-98}" rx="18" ry="20" fill="#88D0FF" opacity="0.20"/>')
-A(f'<ellipse cx="{FC}" cy="{FB-102}" rx="9" ry="12" fill="#C0EAFF" opacity="0.38"/>')
-A(f'<circle cx="{FC}" cy="{FB-114}" r="5" fill="#FFFFFF" opacity="0.92"/>')
-# Orbiting crystal facets
-for si in range(4):
-    srad=math.radians(si*90)
-    sox=FC+math.cos(srad)*22; soy=FB-98+math.sin(srad)*9
-    A(f'<polygon points="{sox:.0f},{soy-8:.0f} {sox+5:.0f},{soy:.0f} {sox-5:.0f},{soy:.0f}" fill="url(#gRing)" opacity="0.70"/>')
-    A(f'<circle cx="{sox:.0f}" cy="{soy-4:.0f}" r="3" fill="#90D0FF" opacity="0.28"/>')
-# Water jets
-for jang in (-50, -22, 0, 22, 50):
-    jrad=math.radians(jang-90)
-    jex=FC+math.cos(jrad)*36; jey=FB-78+math.sin(jrad)*28
-    A(f'<path d="M{FC},{FB-78} Q{FC+math.cos(jrad)*18:.0f},{FB-78+math.sin(jrad)*12:.0f} {jex:.0f},{jey:.0f}" '
-      f'fill="none" stroke="#88D0FF" stroke-width="2.0" opacity="0.48" stroke-linecap="round"/>')
-    A(f'<circle cx="{jex:.0f}" cy="{jey:.0f}" r="2" fill="#A8E0FF" opacity="0.48"/>')
+# Central fountain jet (seen from above as bright dot with spray pattern)
+A(f'<circle cx="{ftn_cx}" cy="{ftn_cy}" r="4" fill="#C0E8FF" opacity="0.85"/>')
+A(f'<circle cx="{ftn_cx}" cy="{ftn_cy}" r="2" fill="#FFFFFF" opacity="0.95"/>')
+# Spray droplets radiating outward
+for si in range(8):
+    sang = math.radians(si * 45 + _r.uniform(-5, 5))
+    sdist = _r.uniform(8, 18)
+    sdx = ftn_cx + math.cos(sang) * sdist
+    sdy = ftn_cy + math.sin(sang) * sdist
+    A(f'<circle cx="{sdx:.1f}" cy="{sdy:.1f}" r="1" fill="#A8E0FF" opacity="0.55"/>')
+
+# Iron bracket pins around fountain rim
+for bi in range(8):
+    bang = math.radians(bi * 45)
+    bpx = ftn_cx + math.cos(bang) * (ftn_r + 4)
+    bpy = ftn_cy + math.sin(bang) * (ftn_r + 4)
+    A(f'<circle cx="{bpx:.1f}" cy="{bpy:.1f}" r="1.5" fill="#181820" opacity="0.75"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  STAGE 10 OBJECT — MAIN CRYSTARIUM GATE  (centered at SVG 200, 336)
-#  Twin iron-stone towers + arch + Crystal Tower visible through gate opening
+#  MAIN GATE (thick arch shape from above)
+#  Located at south of the city, around (200, 470)
 # ═══════════════════════════════════════════════════════════════════════════
-# Target: node center at (200, 336). Gate spans y ≈ 278-368.
-# Arch opening: peak y≈296, base y≈344. Node (200,336) is inside arch.
 
-GX = 200; GB = 362   # gate base y (threshold/platform)
+gate_cx, gate_cy = 200, 470
 
-# ── threshold platform ──
-A(f'<rect x="{GX-82}" y="{GB-8}" width="164" height="12" fill="url(#gSandL)" rx="2" opacity="0.92"/>')
-A(f'<line x1="{GX-83}" y1="{GB-8}" x2="{GX+83}" y2="{GB-8}" stroke="#181820" stroke-width="3" opacity="0.80"/>')
-# Crystal inlay
-A(f'<rect x="{GX-72}" y="{GB-5}" width="144" height="3.5" fill="url(#gRing)" rx="1" opacity="0.32"/>')
-# Iron bracket pins
-for ti in range(8):
-    A(f'<rect x="{GX-66+ti*18}" y="{GB-7}" width="10" height="4" fill="url(#gIron)" rx="1" opacity="0.52"/>')
+# Gate towers (two thick rectangles)
+A(f'<path d="{wobble_rect(gate_cx-35, gate_cy-10, 18, 24, 0.8)}" '
+  f'fill="url(#uSand)" opacity="0.90" stroke="#181820" stroke-width="1.8"/>')
+A(f'<path d="{wobble_rect(gate_cx+17, gate_cy-10, 18, 24, 0.8)}" '
+  f'fill="url(#uSand)" opacity="0.90" stroke="#181820" stroke-width="1.8"/>')
 
-# ── left column tower ──
-CW=28; CH=128
-A(f'<rect x="{GX-86}" y="{GB-8-CH}" width="{CW}" height="{CH}" fill="url(#gSandL)" rx="2" opacity="0.95"/>')
-# Pilasters
-for pi in range(3):
-    px2=GX-86+pi*CW/2
-    A(f'<rect x="{px2:.0f}" y="{GB-8-CH}" width="5" height="{CH}" fill="url(#gIron)" rx="1" opacity="0.62"/>')
-# Band courses
-for frac in (0.16, 0.38, 0.60, 0.82):
-    by2=GB-8-CH+CH*frac
-    A(f'<rect x="{GX-88}" y="{by2:.0f}" width="{CW+4}" height="5" fill="url(#gIron)" rx="1" opacity="0.68"/>')
-# Crystal window
-A(iron_win(GX-80, int(GB-8-CH+CH*0.32), 16, 22, 0.72))
-# Capital (crenellation)
-A(f'<rect x="{GX-90}" y="{GB-8-CH-10}" width="{CW+8}" height="12" fill="url(#gIron)" rx="1" opacity="0.90"/>')
-A(f'<rect x="{GX-90}" y="{GB-8-CH-13}" width="{CW+8}" height="4" fill="url(#gRing)" rx="1" opacity="0.52"/>')
-# Crystal spire
-A(f'<polygon points="{GX-72},{GB-8-CH-34} {GX-64},{GB-8-CH-10} {GX-80},{GB-8-CH-10}" fill="url(#gRing)" opacity="0.88"/>')
-A(f'<polygon points="{GX-72},{GB-8-CH-34} {GX-68},{GB-8-CH-20} {GX-76},{GB-8-CH-20}" fill="#FFFFFF" opacity="0.68"/>')
-A(f'<ellipse cx="{GX-72}" cy="{GB-8-CH-22}" rx="9" ry="9" fill="#50A8F0" opacity="0.16"/>')
-# Lanterns
-A(lamp(GX-78, GB-10, h=20))
-A(lamp(GX-100, GB-8, h=24))
+# Iron framing on gate towers
+for gox in [gate_cx-35, gate_cx+17]:
+    # Cross iron beams
+    A(f'<path d="{wobble_line(gox+2, gate_cy-8, gox+16, gate_cy+12, 0.3)}" '
+      f'stroke="#181820" stroke-width="1.2" fill="none" opacity="0.55"/>')
+    A(f'<path d="{wobble_line(gox+16, gate_cy-8, gox+2, gate_cy+12, 0.3)}" '
+      f'stroke="#181820" stroke-width="1.2" fill="none" opacity="0.55"/>')
 
-# ── right column tower ──
-A(f'<rect x="{GX+58}" y="{GB-8-CH}" width="{CW}" height="{CH}" fill="url(#gSandS)" rx="2" opacity="0.95"/>')
-for pi in range(3):
-    px2=GX+58+pi*CW/2
-    A(f'<rect x="{px2:.0f}" y="{GB-8-CH}" width="5" height="{CH}" fill="url(#gIron)" rx="1" opacity="0.62"/>')
-for frac in (0.16, 0.38, 0.60, 0.82):
-    by2=GB-8-CH+CH*frac
-    A(f'<rect x="{GX+56}" y="{by2:.0f}" width="{CW+4}" height="5" fill="url(#gIron)" rx="1" opacity="0.68"/>')
-A(iron_win(GX+64, int(GB-8-CH+CH*0.32), 16, 22, 0.72))
-A(f'<rect x="{GX+54}" y="{GB-8-CH-10}" width="{CW+8}" height="12" fill="url(#gIron)" rx="1" opacity="0.90"/>')
-A(f'<rect x="{GX+54}" y="{GB-8-CH-13}" width="{CW+8}" height="4" fill="url(#gRing)" rx="1" opacity="0.52"/>')
-A(f'<polygon points="{GX+72},{GB-8-CH-34} {GX+80},{GB-8-CH-10} {GX+64},{GB-8-CH-10}" fill="url(#gRing)" opacity="0.88"/>')
-A(f'<polygon points="{GX+72},{GB-8-CH-34} {GX+76},{GB-8-CH-20} {GX+68},{GB-8-CH-20}" fill="#FFFFFF" opacity="0.68"/>')
-A(f'<ellipse cx="{GX+72}" cy="{GB-8-CH-22}" rx="9" ry="9" fill="#50A8F0" opacity="0.16"/>')
-A(lamp(GX+78, GB-10, h=20))
-A(lamp(GX+100, GB-8, h=24))
+# Arch between towers (thick curve from above - appears as dark gap)
+A(f'<path d="M{gate_cx-17},{gate_cy-2} Q{gate_cx},{gate_cy-14} {gate_cx+17},{gate_cy-2}" '
+  f'fill="none" stroke="url(#uSand)" stroke-width="8" opacity="0.85"/>')
+A(f'<path d="M{gate_cx-17},{gate_cy-2} Q{gate_cx},{gate_cy-14} {gate_cx+17},{gate_cy-2}" '
+  f'fill="none" stroke="#181820" stroke-width="2" opacity="0.70"/>')
 
-# ── arch ──
-# Arch spans from x=GX-58 to GX+58 (inside columns), peak at y=296
-arch_lx=GX-58; arch_rx=GX+58
-arch_bY=GB-8-CH+28    # where arch starts on column sides
-arch_pY=arch_bY-52    # arch peak y
+# Dark opening beneath arch
+A(f'<path d="M{gate_cx-14},{gate_cy+2} Q{gate_cx},{gate_cy-8} {gate_cx+14},{gate_cy+2} Z" '
+  f'fill="#06031C" opacity="0.80"/>')
 
-# Night sky inside arch
-A(f'<path d="M{arch_lx+10},{arch_bY} C{arch_lx+10},{arch_pY+10} {arch_rx-10},{arch_pY+10} {arch_rx-10},{arch_bY} Z" '
-  f'fill="#030110" opacity="0.90"/>')
-# Stars through arch
+# Crystal keystone on arch (bright dot at center top)
+A(f'<circle cx="{gate_cx}" cy="{gate_cy-10}" r="3" fill="#B8DCFF" opacity="0.80"/>')
+A(f'<circle cx="{gate_cx}" cy="{gate_cy-10}" r="6" fill="#60A0FF" opacity="0.20"/>')
+
+# Gate lanterns (amber dots at tower corners)
+for glx, gly in [(gate_cx-38, gate_cy-12), (gate_cx-38, gate_cy+16),
+                  (gate_cx+38, gate_cy-12), (gate_cx+38, gate_cy+16)]:
+    A(f'<circle cx="{glx}" cy="{gly}" r="2.5" fill="#FFC030" opacity="0.80"/>')
+    A(f'<circle cx="{glx}" cy="{gly}" r="6" fill="#FFB020" opacity="0.18"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  SANDSTONE WALL TEXTURES (warm tan detail lines on buildings)
+#  Additional architectural detail pass
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Sandstone texture lines on larger buildings (subtle hatching)
+texture_buildings = [
+    (18, 68, 38, 28), (62, 78, 28, 35), (310, 72, 36, 30),
+    (15, 168, 45, 32), (338, 168, 45, 30), (40, 380, 35, 28),
+    (342, 380, 36, 28),
+]
+for tbx, tby, tbw, tbh in texture_buildings:
+    # Subtle horizontal texture lines
+    for ti in range(3):
+        ty_off = tby + tbh * (0.25 + ti * 0.25)
+        A(f'<path d="{wobble_line(tbx+2, ty_off, tbx+tbw-2, ty_off, 0.3)}" '
+          f'stroke="#A08848" stroke-width="0.5" fill="none" opacity="0.25"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  LAYER 2 — CRYSTAL TOWER (CENTER, the most prominent feature)
+#  Bird's-eye: large glowing octagonal shape at center
+# ═══════════════════════════════════════════════════════════════════════════
+
+TCX, TCY = 200, 250  # Tower center position
+
+# ── Intense glow halo (outermost, very large, semi-transparent) ──
+A(f'<circle cx="{TCX}" cy="{TCY}" r="160" fill="#3060C0" opacity="0.04" filter="url(#uSoftGlow)"/>')
+A(f'<circle cx="{TCX}" cy="{TCY}" r="120" fill="#4878D0" opacity="0.06" filter="url(#uSoftGlow)"/>')
+A(f'<circle cx="{TCX}" cy="{TCY}" r="85" fill="#60A0FF" opacity="0.10" filter="url(#uSoftGlow)"/>')
+
+# ── Light beams emanating outward (16 radial lines with gradient opacity) ──
+for bi in range(16):
+    b_ang = math.radians(bi * 22.5 + _r.uniform(-3, 3))
+    b_len = _r.uniform(140, 220)
+    bex = TCX + math.cos(b_ang) * b_len
+    bey = TCY + math.sin(b_ang) * b_len
+    b_op = _r.uniform(0.03, 0.08)
+    b_sw = _r.uniform(1.5, 4.0)
+    A(f'<line x1="{TCX}" y1="{TCY}" x2="{bex:.1f}" y2="{bey:.1f}" '
+      f'stroke="#88B8FF" stroke-width="{b_sw:.1f}" opacity="{b_op:.3f}" stroke-linecap="round"/>')
+
+# ── Radiating energy rings (concentric circles with glow) ──
+energy_rings = [
+    (70, 1.0, '#8040E0', 0.12),
+    (55, 1.2, '#A060FF', 0.16),
+    (42, 1.5, '#60A0FF', 0.22),
+    (32, 1.8, '#88B8FF', 0.28),
+    (24, 2.0, '#B8DCFF', 0.35),
+]
+for er_r, er_sw, er_c, er_op in energy_rings:
+    A(f'<path d="{wobble_ellipse(TCX, TCY, er_r, er_r, 24, 0.6)}" '
+      f'fill="none" stroke="{er_c}" stroke-width="{er_sw}" opacity="{er_op:.2f}"/>')
+    # Faint glow version (wider, more transparent)
+    A(f'<path d="{wobble_ellipse(TCX, TCY, er_r, er_r, 20, 0.8)}" '
+      f'fill="none" stroke="{er_c}" stroke-width="{er_sw*3:.1f}" opacity="{er_op*0.20:.3f}"/>')
+
+# ── Tower octagonal shape (main body from above) ──
+tower_r = 18  # Octagon outer radius
+
+# Outer glow ring
+oct_outer = octagon(TCX, TCY, tower_r + 8, rotation=22.5)
+A(f'<path d="{wobble_polygon(oct_outer, 0.5)}" fill="#60A0FF" opacity="0.25"/>')
+
+# Main octagonal body
+oct_main = octagon(TCX, TCY, tower_r, rotation=22.5)
+A(f'<path d="{wobble_polygon(oct_main, 0.4)}" fill="#B8DCFF" opacity="0.90" '
+  f'stroke="#88B8FF" stroke-width="2"/>')
+
+# Inner crystal facet pattern (geometric lines within the tower shape)
+# Facet lines from each vertex to center
+for pt in oct_main:
+    A(f'<path d="{wobble_line(pt[0], pt[1], TCX, TCY, 0.3)}" '
+      f'stroke="#FFFFFF" stroke-width="0.8" fill="none" opacity="0.50"/>')
+
+# Inner octagonal rings (nested)
+for inner_frac in (0.65, 0.35):
+    inner_r = tower_r * inner_frac
+    oct_inner = octagon(TCX, TCY, inner_r, rotation=22.5)
+    A(f'<path d="{wobble_polygon(oct_inner, 0.3)}" fill="none" '
+      f'stroke="#FFFFFF" stroke-width="1.0" opacity="0.55"/>')
+
+# Additional facet lines (connecting midpoints of edges to inner ring)
+for i in range(8):
+    p1 = oct_main[i]
+    p2 = oct_main[(i+1) % 8]
+    mid = ((p1[0]+p2[0])/2, (p1[1]+p2[1])/2)
+    inner_p = octagon(TCX, TCY, tower_r * 0.35, rotation=22.5)[i]
+    A(f'<path d="{wobble_line(mid[0], mid[1], inner_p[0], inner_p[1], 0.2)}" '
+      f'stroke="#D0ECFF" stroke-width="0.6" fill="none" opacity="0.40"/>')
+
+# Central bright core
+A(f'<circle cx="{TCX}" cy="{TCY}" r="6" fill="#FFFFFF" opacity="0.95"/>')
+A(f'<circle cx="{TCX}" cy="{TCY}" r="4" fill="#FFFFFF" opacity="1.0"/>')
+A(f'<circle cx="{TCX}" cy="{TCY}" r="10" fill="#D0ECFF" opacity="0.50"/>')
+
+# Secondary highlight flares (cross-shaped from center)
+for fa in (0, 45, 90, 135):
+    frad = math.radians(fa)
+    fex = TCX + math.cos(frad) * 28
+    fey = TCY + math.sin(frad) * 28
+    fex2 = TCX - math.cos(frad) * 28
+    fey2 = TCY - math.sin(frad) * 28
+    fop = 0.12 if fa % 90 == 0 else 0.06
+    A(f'<line x1="{fex:.1f}" y1="{fey:.1f}" x2="{fex2:.1f}" y2="{fey2:.1f}" '
+      f'stroke="#FFFFFF" stroke-width="1.5" opacity="{fop}"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  LAYER 3 — FLOATING CRYSTALS (scattered around the tower)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def floating_crystal(cx, cy, size, angle=0, color='#B8DCFF', opacity=0.70):
+    """Draw a floating crystal shard (diamond/kite shape from above with shadow)."""
+    out = []
+    hw = size * 0.5
+    hh = size * 0.8
+
+    # Diamond/kite shape points
+    pts = [
+        (cx, cy - hh),        # top
+        (cx + hw, cy),        # right
+        (cx, cy + hh * 0.6),  # bottom (shorter)
+        (cx - hw, cy),        # left
+    ]
+
+    # Rotate if needed
+    if angle != 0:
+        rad = math.radians(angle)
+        rotated = []
+        for px, py in pts:
+            dx, dy = px - cx, py - cy
+            rx = dx * math.cos(rad) - dy * math.sin(rad) + cx
+            ry = dx * math.sin(rad) + dy * math.cos(rad) + cy
+            rotated.append((rx, ry))
+        pts = rotated
+
+    # Shadow/glow below shard
+    out.append(f'<ellipse cx="{cx}" cy="{cy+2}" rx="{size*0.8:.1f}" ry="{size*0.4:.1f}" '
+               f'fill="{color}" opacity="{opacity*0.12:.2f}"/>')
+
+    # Crystal body
+    out.append(f'<path d="{wobble_polygon(pts, 0.4)}" fill="{color}" opacity="{opacity:.2f}" '
+               f'stroke="#FFFFFF" stroke-width="0.8"/>')
+
+    # Inner facet line (center line)
+    out.append(f'<path d="{wobble_line(pts[0][0], pts[0][1], pts[2][0], pts[2][1], 0.2)}" '
+               f'stroke="#FFFFFF" stroke-width="0.6" fill="none" opacity="{opacity*0.50:.2f}"/>')
+
+    # Bright highlight spot
+    out.append(f'<circle cx="{cx}" cy="{cy-hh*0.3:.1f}" r="1.5" fill="#FFFFFF" opacity="{opacity*0.60:.2f}"/>')
+
+    return ''.join(out)
+
+# 12 floating crystal shards at various positions
+crystal_shards = [
+    # (cx, cy, size, angle, color, opacity)
+    (145, 175, 14, 25,  '#B8DCFF', 0.75),
+    (255, 175, 12, -20, '#A8D0FF', 0.70),
+    (125, 215, 10, 35,  '#C8E8FF', 0.65),
+    (275, 215, 11, -30, '#90C8FF', 0.68),
+    (160, 310, 13, 15,  '#B8DCFF', 0.72),
+    (240, 310, 10, -25, '#A0D0FF', 0.66),
+    (105, 270, 9,  40,  '#D0EEFF', 0.60),
+    (295, 270, 12, -15, '#B0D8FF', 0.72),
+    (170, 140, 8,  -10, '#C0E4FF', 0.58),
+    (230, 140, 9,  20,  '#A8D4FF', 0.62),
+    (140, 360, 7,  30,  '#D0EEFF', 0.55),
+    (260, 360, 8,  -35, '#C8E4FF', 0.58),
+]
+
+for cd in crystal_shards:
+    A(floating_crystal(*cd))
+
+# Energy lines connecting some crystals to the tower
+crystal_connections = [
+    (145, 175), (255, 175), (160, 310), (240, 310),
+    (125, 215), (275, 215), (105, 270), (295, 270),
+]
+for ccx, ccy in crystal_connections:
+    cop = _r.uniform(0.06, 0.14)
+    A(f'<line x1="{ccx}" y1="{ccy}" x2="{TCX}" y2="{TCY}" '
+      f'stroke="#A060FF" stroke-width="0.8" opacity="{cop:.2f}" stroke-dasharray="3,4"/>')
+
+# Small crystal dust particles (tiny bright dots scattered)
+for _ in range(40):
+    dx = _r.uniform(100, 300)
+    dy = _r.uniform(140, 370)
+    dr = _r.uniform(0.4, 1.0)
+    dop = _r.uniform(0.30, 0.70)
+    dc = _r.choice(['#B8DCFF', '#FFFFFF', '#A060FF', '#88B8FF'])
+    A(f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="{dr:.1f}" fill="{dc}" opacity="{dop:.2f}"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  LAYER 6 — LIGHTING & DETAILS
+# ═══════════════════════════════════════════════════════════════════════════
+
+# --- Street lanterns (25+ amber glow dots along streets) ---
+lantern_positions = [
+    # Along main north-south avenue
+    (195, 150), (205, 180), (195, 210), (205, 290),
+    (195, 320), (205, 350), (195, 380), (205, 410),
+    (195, 440), (205, 490), (195, 520),
+    # Along east-west cross street
+    (100, 255), (130, 252), (160, 250), (240, 250),
+    (270, 252), (300, 258), (340, 262),
+    # Outer ring path
+    (65, 220), (55, 280), (70, 340), (110, 400),
+    (330, 220), (345, 280), (330, 340), (290, 400),
+    # Near buildings
+    (55, 90), (350, 90), (45, 170), (355, 170),
+]
+
+for lx, ly in lantern_positions:
+    # Lantern body (small dot)
+    A(f'<circle cx="{lx}" cy="{ly}" r="2" fill="#FFC030" opacity="0.85"/>')
+    # Inner bright core
+    A(f'<circle cx="{lx}" cy="{ly}" r="1" fill="#FFE888" opacity="0.95"/>')
+    # Warm amber glow halo
+    A(f'<circle cx="{lx}" cy="{ly}" r="7" fill="#FFB020" opacity="0.18"/>')
+    A(f'<circle cx="{lx}" cy="{ly}" r="14" fill="#FF8800" opacity="0.06"/>')
+
+# --- Iron lamp fixtures on buildings (small dark rectangles with glow) ---
+lamp_fixture_data = [
+    (52, 72), (76, 82), (322, 76), (366, 86),
+    (55, 172), (50, 212), (352, 172), (356, 210),
+    (55, 384), (355, 384), (90, 394), (310, 394),
+]
+for lfx, lfy in lamp_fixture_data:
+    A(f'<rect x="{lfx-2}" y="{lfy-1}" width="4" height="3" fill="#181820" rx="0.5" opacity="0.75"/>')
+    A(f'<circle cx="{lfx}" cy="{lfy}" r="3" fill="#FFC030" opacity="0.30"/>')
+
+# --- Purple Lakeland forest patches at edges ---
+# Top-left forest
+forest_patches_tl = [
+    (15, 30, 18, 14), (35, 20, 16, 12), (5, 45, 14, 11),
+    (28, 48, 12, 10), (50, 35, 15, 12), (8, 18, 12, 9),
+]
+for fx, fy, frx, fry in forest_patches_tl:
+    A(f'<path d="{wobble_ellipse(fx, fy, frx, fry, 10, 1.0)}" fill="#3A1848" opacity="0.82"/>')
+    A(f'<path d="{wobble_ellipse(fx-2, fy-2, frx*0.6, fry*0.6, 8, 0.6)}" fill="#4A2058" opacity="0.50"/>')
+
+# Top-right forest
+forest_patches_tr = [
+    (385, 30, 18, 14), (365, 22, 16, 12), (395, 48, 14, 11),
+    (372, 50, 12, 10), (350, 38, 15, 12), (392, 18, 12, 9),
+]
+for fx, fy, frx, fry in forest_patches_tr:
+    A(f'<path d="{wobble_ellipse(fx, fy, frx, fry, 10, 1.0)}" fill="#3A1848" opacity="0.82"/>')
+    A(f'<path d="{wobble_ellipse(fx+2, fy-2, frx*0.6, fry*0.6, 8, 0.6)}" fill="#4A2058" opacity="0.50"/>')
+
+# Bottom-left forest
+forest_patches_bl = [
+    (12, 530, 16, 13), (30, 545, 14, 11), (8, 560, 18, 12),
+    (45, 555, 12, 10), (22, 575, 15, 10), (5, 590, 14, 9),
+]
+for fx, fy, frx, fry in forest_patches_bl:
+    A(f'<path d="{wobble_ellipse(fx, fy, frx, fry, 10, 1.0)}" fill="#2A1040" opacity="0.85"/>')
+    A(f'<path d="{wobble_ellipse(fx-1, fy-2, frx*0.55, fry*0.55, 8, 0.6)}" fill="#3A1848" opacity="0.50"/>')
+
+# Bottom-right forest
+forest_patches_br = [
+    (388, 530, 16, 13), (370, 548, 14, 11), (392, 565, 18, 12),
+    (355, 558, 12, 10), (378, 578, 15, 10), (395, 592, 14, 9),
+]
+for fx, fy, frx, fry in forest_patches_br:
+    A(f'<path d="{wobble_ellipse(fx, fy, frx, fry, 10, 1.0)}" fill="#2A1040" opacity="0.85"/>')
+    A(f'<path d="{wobble_ellipse(fx+1, fy-2, frx*0.55, fry*0.55, 8, 0.6)}" fill="#3A1848" opacity="0.50"/>')
+
+# Left edge forest strip
+for fi in range(8):
+    fy = 60 + fi * 62
+    fx = _r.uniform(2, 18)
+    frx = _r.uniform(10, 16)
+    fry = _r.uniform(8, 14)
+    A(f'<path d="{wobble_ellipse(fx, fy, frx, fry, 10, 1.0)}" fill="#3A1848" opacity="0.75"/>')
+
+# Right edge forest strip
+for fi in range(8):
+    fy = 60 + fi * 62
+    fx = _r.uniform(382, 398)
+    frx = _r.uniform(10, 16)
+    fry = _r.uniform(8, 14)
+    A(f'<path d="{wobble_ellipse(fx, fy, frx, fry, 10, 1.0)}" fill="#3A1848" opacity="0.75"/>')
+
+# --- Crystal energy sparkles throughout ---
+for _ in range(30):
+    spx = _r.uniform(50, 350)
+    spy = _r.uniform(100, 500)
+    spr = _r.uniform(0.5, 1.2)
+    spop = _r.uniform(0.20, 0.55)
+    spc = _r.choice(['#B8DCFF', '#A060FF', '#88B8FF', '#FFFFFF'])
+    A(f'<circle cx="{spx:.1f}" cy="{spy:.1f}" r="{spr:.1f}" fill="{spc}" opacity="{spop:.2f}"/>')
+
+# --- People-scale dots on streets (tiny, very subtle) ---
+people_positions = [
+    (192, 200), (208, 220), (188, 340), (212, 360),
+    (185, 420), (215, 400), (170, 250), (230, 250),
+    (140, 255), (260, 255), (195, 480), (205, 460),
+    (100, 260), (300, 260), (115, 390), (285, 390),
+    (155, 260), (245, 260), (180, 300), (220, 300),
+]
+for ppx, ppy in people_positions:
+    A(f'<circle cx="{ppx}" cy="{ppy}" r="1.0" fill="#C8A870" opacity="0.25"/>')
+
+# --- Moonlight reflections on crystals (subtle bright spots) ---
+moon_reflections = [
+    (TCX-5, TCY-8, 3, 0.15),
+    (TCX+12, TCY-3, 2, 0.12),
+    (145, 173, 2, 0.10),
+    (255, 173, 2, 0.10),
+    (rot_cx-3, rot_cy-5, 2.5, 0.10),
+    (ftn_cx+5, ftn_cy-8, 2, 0.12),
+]
+for mrx, mry, mrr, mrop in moon_reflections:
+    A(f'<circle cx="{mrx}" cy="{mry}" r="{mrr}" fill="#FFFFFF" opacity="{mrop}"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ADDITIONAL DETAIL — extra building rooftops for density
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Small ancillary structures (sheds, small rooftops)
+small_buildings = [
+    (98, 130, 18, 14, 5), (285, 130, 16, 12, -8),
+    (42, 150, 15, 12, 3), (350, 150, 14, 11, -4),
+    (30, 350, 16, 13, 7), (360, 350, 15, 12, -6),
+    (95, 420, 14, 11, -3), (300, 420, 16, 12, 4),
+    (160, 420, 12, 10, 2), (235, 420, 14, 11, -5),
+    (75, 470, 13, 10, 6), (315, 470, 14, 11, -4),
+]
+for sbx, sby, sbw, sbh, sba in small_buildings:
+    pts = [(sbx, sby), (sbx+sbw, sby), (sbx+sbw, sby+sbh), (sbx, sby+sbh)]
+    if sba != 0:
+        cx, cy = sbx + sbw/2, sby + sbh/2
+        rad = math.radians(sba)
+        pts = [(
+            (px-cx)*math.cos(rad) - (py-cy)*math.sin(rad) + cx,
+            (px-cx)*math.sin(rad) + (py-cy)*math.cos(rad) + cy
+        ) for px, py in pts]
+    # Shadow
+    A(f'<path d="{wobble_polygon([(px+1.5, py+1.5) for px,py in pts], 0.5)}" '
+      f'fill="#08060E" opacity="0.35"/>')
+    # Body
+    A(f'<path d="{wobble_polygon(pts, 0.6)}" fill="url(#uSandS)" opacity="0.80" '
+      f'stroke="#181820" stroke-width="1.0"/>')
+    # Iron cross
+    cx2, cy2 = sum(p[0] for p in pts)/4, sum(p[1] for p in pts)/4
+    A(f'<path d="{wobble_line(pts[0][0], pts[0][1], pts[2][0], pts[2][1], 0.3)}" '
+      f'stroke="#181820" stroke-width="0.8" fill="none" opacity="0.40"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  MORE CRYSTAL VEIN CHANNELS (glowing blue/purple lines in ground)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Secondary vein network (thinner, more distributed)
+secondary_veins = [
+    "M50,200 Q80,230 120,240",
+    "M350,200 Q320,230 280,240",
+    "M80,350 Q120,340 160,320",
+    "M320,350 Q280,340 240,320",
+    "M100,420 Q150,430 200,425",
+    "M300,420 Q250,430 200,425",
+    "M60,160 Q90,180 130,195",
+    "M340,160 Q310,180 270,195",
+    "M150,480 Q175,470 200,465",
+    "M250,480 Q225,470 200,465",
+]
+for svp in secondary_veins:
+    sv_op = _r.uniform(0.08, 0.18)
+    A(f'<path d="{svp}" fill="none" stroke="#8040E0" stroke-width="1.2" opacity="{sv_op:.2f}" stroke-linecap="round"/>')
+    A(f'<path d="{svp}" fill="none" stroke="#B8DCFF" stroke-width="0.4" opacity="{sv_op*1.5:.2f}" stroke-linecap="round"/>')
+
+# Vein intersection glow points
+vein_nodes = [
+    (120, 240), (280, 240), (160, 320), (240, 320),
+    (130, 195), (270, 195), (200, 425), (200, 465),
+]
+for vnx, vny in vein_nodes:
+    A(f'<circle cx="{vnx}" cy="{vny}" r="2.5" fill="#A060FF" opacity="0.25"/>')
+    A(f'<circle cx="{vnx}" cy="{vny}" r="5" fill="#8040E0" opacity="0.08"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ADDITIONAL FLOATING ELEMENTS — crystal dust, energy wisps
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Energy wisps (tiny curved lines near tower)
+for _ in range(15):
+    wx = TCX + _r.uniform(-80, 80)
+    wy = TCY + _r.uniform(-80, 80)
+    wlen = _r.uniform(5, 12)
+    wang = _r.uniform(0, 360)
+    wrad = math.radians(wang)
+    wex = wx + math.cos(wrad) * wlen
+    wey = wy + math.sin(wrad) * wlen
+    wmx = (wx + wex)/2 + _r.uniform(-3, 3)
+    wmy = (wy + wey)/2 + _r.uniform(-3, 3)
+    wop = _r.uniform(0.10, 0.28)
+    A(f'<path d="M{wx:.1f},{wy:.1f} Q{wmx:.1f},{wmy:.1f} {wex:.1f},{wey:.1f}" '
+      f'fill="none" stroke="#A060FF" stroke-width="0.8" opacity="{wop:.2f}" stroke-linecap="round"/>')
+
+# Additional tiny crystal fragments floating (smaller than shards)
 for _ in range(20):
-    asx=_r.uniform(arch_lx+14, arch_rx-14)
-    asy=_r.uniform(arch_pY+14, arch_bY-4)
-    A(f'<circle cx="{asx:.0f}" cy="{asy:.0f}" r="{_r.uniform(0.5,1.3):.1f}" fill="#FFFFFF" opacity="{_r.uniform(0.38,0.82):.2f}"/>')
-# Mini Crystal Tower silhouette through arch
-mt_tip=arch_pY+10
-A(f'<polygon points="{GX},{mt_tip} {GX+22},{arch_bY-5} {GX-22},{arch_bY-5}" fill="url(#gTVert)" opacity="0.60"/>')
-A(f'<polygon points="{GX},{mt_tip} {GX+10},{mt_tip+22} {GX-10},{mt_tip+22}" fill="#EEF8FF" opacity="0.76"/>')
-A(f'<ellipse cx="{GX}" cy="{mt_tip+12}" rx="24" ry="5" fill="#80C8FF" opacity="0.38"/>')
-# Aether shimmer overlay
-A(f'<path d="M{arch_lx+10},{arch_bY} C{arch_lx+10},{arch_pY+10} {arch_rx-10},{arch_pY+10} {arch_rx-10},{arch_bY} Z" '
-  f'fill="url(#gShimmer)" opacity="0.88"/>')
-for vi in range(5):
-    vx2=arch_lx+12+vi*19
-    A(f'<line x1="{vx2}" y1="{arch_pY+12}" x2="{vx2}" y2="{arch_bY}" stroke="#80C8FF" stroke-width="1.0" opacity="0.18"/>')
-
-# Arch stone body
-A(f'<path d="M{arch_lx},{arch_bY} C{arch_lx},{arch_pY} {arch_rx},{arch_pY} {arch_rx},{arch_bY}" '
-  f'fill="none" stroke="url(#gSandL)" stroke-width="22" stroke-linecap="butt" opacity="0.95"/>')
-A(f'<path d="M{arch_lx-5},{arch_bY} C{arch_lx-5},{arch_pY-7} {arch_rx+5},{arch_pY-7} {arch_rx+5},{arch_bY}" '
-  f'fill="none" stroke="url(#gIron)" stroke-width="5" stroke-linecap="butt" opacity="0.84"/>')
-A(f'<path d="M{arch_lx+10},{arch_bY} C{arch_lx+10},{arch_pY+10} {arch_rx-10},{arch_pY+10} {arch_rx-10},{arch_bY}" '
-  f'fill="none" stroke="url(#gRing)" stroke-width="2" stroke-linecap="butt" opacity="0.50"/>')
-# Voussoir joints
-for ji in range(7):
-    t=(ji+1)/8.0
-    bx2=(1-t)**2*arch_lx+2*(1-t)*t*GX+t**2*arch_rx
-    by2=(1-t)**2*arch_bY +2*(1-t)*t*arch_pY+t**2*arch_bY
-    tdx=2*(1-t)*(GX-arch_lx)+2*t*(arch_rx-GX)
-    tdy=2*(1-t)*(arch_pY-arch_bY)+2*t*(arch_bY-arch_pY)
-    tlen=math.hypot(tdx,tdy) or 1
-    nx=-tdy/tlen*13; ny=tdx/tlen*13
-    A(f'<line x1="{bx2-nx*0.3:.1f}" y1="{by2-ny*0.3:.1f}" x2="{bx2+nx:.1f}" y2="{by2+ny:.1f}" '
-      f'stroke="#181820" stroke-width="1.5" opacity="0.50"/>')
-# Keystone
-ks_cy=arch_pY-2
-A(f'<ellipse cx="{GX}" cy="{ks_cy}" rx="15" ry="11" fill="url(#gIron)" opacity="0.92"/>')
-A(f'<polygon points="{GX},{ks_cy-15} {GX+8},{ks_cy+1} {GX-8},{ks_cy+1}" fill="url(#gRing)" opacity="0.90"/>')
-A(f'<polygon points="{GX},{ks_cy-15} {GX+5},{ks_cy-7} {GX-5},{ks_cy-7}" fill="#FFFFFF" opacity="0.70"/>')
-A(f'<ellipse cx="{GX}" cy="{ks_cy-6}" rx="8" ry="8" fill="#60B0FF" opacity="0.20"/>')
-# Crystal accents at gate base
-for gfx,gfs in [(GX-96,-1),(GX+96,1)]:
-    A(f'<polygon points="{gfx},{GB-30} {gfx+gfs*7},{GB-6} {gfx-gfs*7},{GB-6}" fill="url(#gRing)" opacity="0.70"/>')
-    A(f'<ellipse cx="{gfx}" cy="{GB-22}" rx="8" ry="12" fill="#60A8F0" opacity="0.15"/>')
+    cfx = _r.uniform(60, 340)
+    cfy = _r.uniform(120, 480)
+    cfs = _r.uniform(2, 4)
+    cfa = _r.uniform(0, 360)
+    cfop = _r.uniform(0.25, 0.50)
+    cfc = _r.choice(['#B8DCFF', '#A060FF', '#88B8FF'])
+    # Tiny diamond
+    cfrad = math.radians(cfa)
+    p1 = (cfx, cfy - cfs)
+    p2 = (cfx + cfs*0.6, cfy)
+    p3 = (cfx, cfy + cfs*0.5)
+    p4 = (cfx - cfs*0.6, cfy)
+    A(f'<polygon points="{p1[0]:.1f},{p1[1]:.1f} {p2[0]:.1f},{p2[1]:.1f} '
+      f'{p3[0]:.1f},{p3[1]:.1f} {p4[0]:.1f},{p4[1]:.1f}" '
+      f'fill="{cfc}" opacity="{cfop:.2f}"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  11. STREET LANTERNS (plaza)
+#  ARCHITECTURAL DETAILS — wall sections between buildings (from above)
 # ═══════════════════════════════════════════════════════════════════════════
-for lx2,ly2,lh in [
-    (48,438,32),(86,424,28),(124,438,30),(158,448,26),
-    (352,438,32),(314,424,28),(276,438,30),(242,448,26),
-    (32,518,28),(68,528,26),(106,518,28),(148,530,24),
-    (368,518,28),(332,528,26),(294,518,28),(252,530,24),
-]:
-    A(lamp(lx2, ly2, lh))
+
+# Low walls connecting some buildings (visible as thin lines from above)
+wall_segments = [
+    (56, 95, 62, 118),    # NW buildings connected
+    (90, 100, 95, 128),
+    (340, 98, 338, 118),  # NE buildings connected
+    (308, 102, 315, 128),
+    (58, 200, 58, 240),   # West wall
+    (342, 200, 342, 240), # East wall
+    (78, 385, 128, 385),  # South wall segment
+    (260, 385, 310, 385),
+]
+for wx1, wy1, wx2, wy2 in wall_segments:
+    A(f'<path d="{wobble_line(wx1, wy1, wx2, wy2, 0.5)}" '
+      f'stroke="#A08848" stroke-width="2.5" fill="none" opacity="0.55"/>')
+    A(f'<path d="{wobble_line(wx1, wy1, wx2, wy2, 0.3)}" '
+      f'stroke="#181820" stroke-width="0.8" fill="none" opacity="0.40"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  12. CENTRAL PATH
+#  ADDITIONAL ROOFTOP DETAILS — chimneys, vents, etc.
 # ═══════════════════════════════════════════════════════════════════════════
-A('<path d="M172,600 L176,540 L179,480 L182,425 L184,385 L186,355 L187,320 L188,282" '
-  'fill="none" stroke="#20223A" stroke-width="28" stroke-linecap="round" opacity="0.82"/>')
-A('<path d="M172,600 L176,540 L179,480 L182,425 L184,385 L186,355 L187,320 L188,282" '
-  'fill="none" stroke="#303248" stroke-width="22" stroke-linecap="round" opacity="0.60"/>')
-# Flagstone lines
-for pjy in (292,318,348,378,408,438,468,500,538):
-    A(f'<line x1="170" y1="{pjy}" x2="194" y2="{pjy}" stroke="#181828" stroke-width="1.5" opacity="0.52"/>')
-# Crystal vein along path
-A('<path d="M180,600 L183,540 L185,480 L186,425 L187,385 L188,355 L189,320 L189,282" '
-  'fill="none" stroke="#5898D8" stroke-width="1.2" opacity="0.30"/>')
+
+# Chimneys (small squares on some building rooftops)
+chimney_positions = [
+    (30, 74), (72, 85), (320, 78), (360, 88),
+    (28, 174), (50, 214), (350, 174), (370, 212),
+    (50, 386), (354, 386), (92, 396), (312, 396),
+    (68, 446), (118, 456), (278, 456), (328, 446),
+]
+for chx, chy in chimney_positions:
+    A(f'<rect x="{chx-2}" y="{chy-2}" width="4" height="4" fill="#282830" rx="0.5" opacity="0.70"/>')
+    # Faint warm glow from chimney
+    A(f'<circle cx="{chx}" cy="{chy}" r="2" fill="#FFC030" opacity="0.12"/>')
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  13. ATMOSPHERE
+#  WATER/FOUNTAIN AREA — additional small fountain/pond
 # ═══════════════════════════════════════════════════════════════════════════
-# Ground haze
-A('<rect y="515" width="400" height="85" fill="url(#gHaze)" opacity="0.70"/>')
 
-# Crystal Tower light shafts (faint blue rays from base)
-for lang in (-60,-38,-20,-7,0,7,20,38,60):
-    lrad=math.radians(lang-90)
-    llx=T+math.cos(lrad)*500; lly=300+math.sin(lrad)*500
-    lop=max(0.006, 0.052-abs(lang)*0.0004)
-    lsw=max(0.4, 2.2-abs(lang)*0.028)
-    A(f'<line x1="{T}" y1="300" x2="{llx:.0f}" y2="{lly:.0f}" '
-      f'stroke="#78B8FF" stroke-width="{lsw:.1f}" opacity="{lop:.3f}"/>')
+# Small decorative pond near the Rotunda
+pond_cx, pond_cy = 130, 340
+pond_r = 10
+A(f'<path d="{wobble_ellipse(pond_cx, pond_cy, pond_r+3, pond_r+2, 12, 0.4)}" '
+  f'fill="#C8A870" opacity="0.60" stroke="#181820" stroke-width="0.8"/>')
+A(f'<path d="{wobble_ellipse(pond_cx, pond_cy, pond_r, pond_r-1, 12, 0.3)}" '
+  f'fill="#2060A0" opacity="0.45"/>')
+for wr in (0.4, 0.7, 0.9):
+    A(f'<path d="{wobble_ellipse(pond_cx, pond_cy, pond_r*wr, (pond_r-1)*wr, 10, 0.2)}" '
+      f'fill="none" stroke="#68B0E0" stroke-width="0.5" opacity="0.30"/>')
 
-# Crystal dust motes
-for mx,my,mc,mop in [
-    (50,182,'#90C8FF',0.62),(95,168,'#C0E0FF',0.55),
-    (148,152,'#80B8F0',0.58),(182,175,'#A0D0FF',0.50),
-    (222,160,'#C0E0FF',0.55),(268,148,'#80C0FF',0.58),
-    (315,168,'#90C8FF',0.54),(352,155,'#A0D0FF',0.58),
-    (40,238,'#80B8F0',0.46),(125,228,'#C0E0FF',0.50),
-    (282,232,'#90C8FF',0.50),(360,222,'#80C0FF',0.46),
-]:
-    A(f'<ellipse cx="{mx}" cy="{my}" rx="1.8" ry="1.1" fill="{mc}" opacity="{mop}"/>')
-    A(f'<ellipse cx="{mx}" cy="{my}" rx="5.5" ry="3.5" fill="{mc}" opacity="{mop*0.08:.2f}"/>')
+# ═══════════════════════════════════════════════════════════════════════════
+#  TOWER PLATFORM — circular raised area around the Crystal Tower
+# ═══════════════════════════════════════════════════════════════════════════
 
-# Vignette
-A('<rect width="400" height="600" fill="url(#gVig)"/>')
+# Raised circular platform (seen as concentric rings from above)
+for pi, (pr, pop, pc) in enumerate([
+    (50, 0.20, '#252038'),
+    (45, 0.25, '#1E1C30'),
+    (40, 0.18, '#282840'),
+]):
+    A(f'<path d="{wobble_ellipse(TCX, TCY, pr, pr, 20, 0.5)}" '
+      f'fill="none" stroke="{pc}" stroke-width="2.0" opacity="{pop}"/>')
+
+# Decorative railing around tower platform (small regularly-spaced dots)
+railing_r = 48
+for ri in range(24):
+    rang = math.radians(ri * 15)
+    rpx = TCX + math.cos(rang) * railing_r
+    rpy = TCY + math.sin(rang) * railing_r
+    A(f'<circle cx="{rpx:.1f}" cy="{rpy:.1f}" r="1.0" fill="#C8A870" opacity="0.45"/>')
+
+# Small iron bollards along the railing
+for ri in range(8):
+    rang = math.radians(ri * 45)
+    rpx = TCX + math.cos(rang) * railing_r
+    rpy = TCY + math.sin(rang) * railing_r
+    A(f'<circle cx="{rpx:.1f}" cy="{rpy:.1f}" r="2.0" fill="#181820" opacity="0.60"/>')
+    A(f'<circle cx="{rpx:.1f}" cy="{rpy:.1f}" r="1.0" fill="#88B8FF" opacity="0.35"/>')
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  FINAL ATMOSPHERE LAYERS
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Tower glow overlay (adds overall crystal light to scene)
+A(f'<rect width="400" height="600" fill="url(#uTowerGlow)"/>')
+
+# Edge vignette
+A('<rect width="400" height="600" fill="url(#uVig)"/>')
+
+# Final crystal sparkle layer (on top of everything)
+for _ in range(15):
+    fsx = _r.uniform(120, 280)
+    fsy = _r.uniform(170, 340)
+    fsr = _r.uniform(0.3, 0.8)
+    fsop = _r.uniform(0.40, 0.80)
+    A(f'<circle cx="{fsx:.1f}" cy="{fsy:.1f}" r="{fsr:.1f}" fill="#FFFFFF" opacity="{fsop:.2f}"/>')
+
+# Close SVG
 A('</svg>')
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -795,37 +1178,51 @@ A('</svg>')
 svg = ''.join(parts)
 print(f'ULTIMATE SVG: {len(svg):,} chars')
 
-ro=len(_re.findall(r'<radialGradient', svg)); rc=len(_re.findall(r'</radialGradient', svg))
-lo=len(_re.findall(r'<linearGradient', svg)); lc=len(_re.findall(r'</linearGradient', svg))
-print(f'  radialGradient: {ro}/{rc}  linearGradient: {lo}/{lc}')
-if ro!=rc: raise RuntimeError(f'radialGradient mismatch: {ro}/{rc}')
-if lo!=lc: raise RuntimeError(f'linearGradient mismatch: {lo}/{lc}')
-
-if svg.count('`'): raise RuntimeError('Backtick in SVG!')
-if svg.count("'"): raise RuntimeError("Single quote in SVG!")
-
+# Count elements
 import xml.etree.ElementTree as ET
 try:
-    ET.fromstring(svg)
+    root = ET.fromstring(svg)
+    elem_count = sum(1 for _ in root.iter()) - 1  # subtract root
+    print(f'  SVG elements: {elem_count}')
     print('  XML parse: OK')
 except ET.ParseError as e:
     raise RuntimeError(f'XML parse error: {e}')
 
+# Gradient balance check
+ro = len(_re.findall(r'<radialGradient', svg)); rc = len(_re.findall(r'</radialGradient', svg))
+lo = len(_re.findall(r'<linearGradient', svg)); lc = len(_re.findall(r'</linearGradient', svg))
+fo = len(_re.findall(r'<filter ', svg)); fc = len(_re.findall(r'</filter', svg))
+print(f'  radialGradient: {ro}/{rc}  linearGradient: {lo}/{lc}  filter: {fo}/{fc}')
+if ro != rc: raise RuntimeError(f'radialGradient mismatch: {ro}/{rc}')
+if lo != lc: raise RuntimeError(f'linearGradient mismatch: {lo}/{lc}')
+if fo != fc: raise RuntimeError(f'filter mismatch: {fo}/{fc}')
+
+if svg.count('`'): raise RuntimeError('Backtick in SVG!')
+if svg.count("'"): raise RuntimeError("Single quote in SVG!")
+
+# CSS adjustments
 html2 = html
 for old, new in [
     ('#game-view[data-diff="ULTIMATE"] { background: rgb(3,1,15); }',
-     '#game-view[data-diff="ULTIMATE"] { background: rgb(2,1,10); }'),
+     '#game-view[data-diff="ULTIMATE"] { background: rgb(2,1,16); }'),
+    ('#game-view[data-diff="ULTIMATE"] { background: rgb(2,1,10); }',
+     '#game-view[data-diff="ULTIMATE"] { background: rgb(2,1,16); }'),
     ('.map-scroll[data-diff="ULTIMATE"] { background: #03010F; }',
-     '.map-scroll[data-diff="ULTIMATE"] { background: #020108; }'),
+     '.map-scroll[data-diff="ULTIMATE"] { background: #020110; }'),
+    ('.map-scroll[data-diff="ULTIMATE"] { background: #020108; }',
+     '.map-scroll[data-diff="ULTIMATE"] { background: #020110; }'),
 ]:
     if old in html2:
-        html2=html2.replace(old,new); print(f'  CSS: {old[:55]}')
+        html2 = html2.replace(old, new)
+        print(f'  CSS: {old[:55]}')
 
 pattern = r"(if\(diff===.ULTIMATE.\) return \`)(.*?)(\`;)"
-repl    = lambda m: m.group(1) + svg + m.group(3)
+repl = lambda m: m.group(1) + svg + m.group(3)
 new_html, n = _re.subn(pattern, repl, html2, flags=_re.DOTALL)
-if n==0: raise RuntimeError("ULTIMATE pattern not found!")
+if n == 0: raise RuntimeError("ULTIMATE pattern not found!")
 
-with open('/Users/hirokazukataoka/subitze/stage.html','w',encoding='utf-8') as f:
+with open('/Users/hirokazukataoka/subitze/stage.html', 'w', encoding='utf-8') as f:
     f.write(new_html)
-print(f'stage.html written. ({n} replacement)')
+
+print(f'  Injected into stage.html ({n} replacement)')
+print('Done!')
