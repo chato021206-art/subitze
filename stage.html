@@ -24,6 +24,15 @@
   --duo-card: #1A2E35;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* Low-end device optimizations (applied via JS class on <html>) */
+.low-end .map-bg::after { display: none !important; }
+.low-end .map-bg { filter: saturate(1.15) brightness(1.01) !important; }
+.low-end .enemy-char.plus-enemy { filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12)) hue-rotate(200deg) saturate(1.2) !important; }
+.low-end .result-bg { background: rgba(255,248,232,0.97) !important; backdrop-filter: none !important; }
+.low-end #cd-overlay { background: rgba(255,248,232,0.95) !important; backdrop-filter: none !important; }
+.low-end .enemy-damage { animation-duration: 0.25s; }
+.low-end #game-view.boss-final { animation: none; }
+.low-end #game-view.boss-mid { box-shadow: none; }
 body {
   font-family: var(--font-ui); margin: 0; padding: 0;
   height: 100dvh; width: 100%; overflow: hidden; position: fixed; user-select: none;
@@ -191,6 +200,9 @@ body {
   background: radial-gradient(ellipse 90% 80% at 50% 40%, transparent 45%, rgba(0,0,0,0.22) 100%);
   pointer-events: none; z-index: 2;
 }
+/* Performance-lite mode: disable heavy pseudo-elements during gameplay on low-end */
+.map-bg.perf-lite { filter: none !important; }
+.map-bg.perf-lite::after, .map-bg.perf-lite::before { display: none !important; }
 .road-svg { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; z-index: 0; }
 #game-bg { height: 100%; z-index: -1; }
 
@@ -335,10 +347,10 @@ body {
 #game-view[data-diff="ULTIMATE"] { background: #EBE8F2; }
 #game-view[data-diff="ULTIMATE+"] { background: #E3E0EA; }
 #game-view.boss-mid { box-shadow: inset 0 0 50px rgba(255,180,0,0.15); }
-#game-view.boss-final { box-shadow: inset 0 0 60px rgba(255,215,0,0.2); animation: bossGlow 2s ease-in-out infinite; }
+#game-view.boss-final { box-shadow: inset 0 0 60px rgba(255,215,0,0.2); animation: bossGlow 2s ease-in-out infinite; will-change: opacity; }
 @keyframes bossGlow {
-  0%,100% { box-shadow: inset 0 0 40px rgba(255,215,0,0.12); }
-  50% { box-shadow: inset 0 0 70px rgba(255,215,0,0.3); }
+  0%,100% { opacity: 0.85; }
+  50% { opacity: 1; }
 }
 
 /* Game top bar — stage label + HP */
@@ -366,6 +378,8 @@ body {
   width: 128px; height: 128px; transition: transform 0.1s;
   filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12));
   animation: enemyIdle 2s ease-in-out infinite;
+  will-change: transform;
+  contain: layout style;
 }
 .enemy-char svg { width: 100%; height: 100%; }
 .enemy-char.boss-enemy { width: 160px; height: 160px; animation: enemyIdleBoss 1.5s ease-in-out infinite; }
@@ -406,11 +420,11 @@ body {
 /* Enemy damage */
 .enemy-damage { animation: enemyDamage 0.4s ease-out; }
 @keyframes enemyDamage {
-  0% { transform: translateY(0); filter: drop-shadow(3px 4px 0 rgba(0,0,0,0.12)); }
-  15% { transform: translateX(8px) rotate(5deg); filter: brightness(2) drop-shadow(3px 4px 0 rgba(0,0,0,0.12)); }
-  30% { transform: translateX(-8px) rotate(-5deg); filter: brightness(1.5) drop-shadow(3px 4px 0 rgba(0,0,0,0.12)); }
+  0% { transform: translateY(0); }
+  15% { transform: translateX(8px) rotate(5deg); filter: brightness(2); }
+  30% { transform: translateX(-8px) rotate(-5deg); filter: brightness(1.5); }
   50% { transform: translateX(4px) rotate(3deg); }
-  100% { transform: translateY(0); filter: drop-shadow(3px 4px 0 rgba(0,0,0,0.12)); }
+  100% { transform: translateY(0); }
 }
 .enemy-defeat { animation: enemyDefeat 1s ease-out forwards; }
 @keyframes enemyDefeat {
@@ -434,11 +448,13 @@ body {
   border: 4px solid rgba(0,0,0,0.08);
   box-shadow: 0 4px 0 rgba(0,0,0,0.06);
   transition: box-shadow 0.3s;
+  will-change: box-shadow;
 }
 #game-blocks {
   display: flex; align-items: flex-end; justify-content: center;
   width: 100%; height: 100%; padding-bottom: 10px; transform-origin: center center;
   position: relative;
+  will-change: transform;
 }
 #game-blocks.brain-layout {
   align-items: center; padding-bottom: 0;
@@ -522,8 +538,9 @@ body {
 /* Hit particles */
 .hit-particle {
   position: fixed; z-index: 350; pointer-events: none;
-  border-radius: 50%;
+  border-radius: 50%; will-change: transform, opacity;
   animation: particleBurst 0.6s ease-out forwards;
+  contain: strict;
 }
 @keyframes particleBurst {
   0% { transform: translate(0,0) scale(1); opacity: 1; }
@@ -739,6 +756,8 @@ body {
 .confetti {
   position: fixed; z-index: 400; pointer-events: none;
   animation: confettiFall linear forwards;
+  will-change: transform, opacity;
+  contain: strict;
 }
 @keyframes confettiFall {
   0%{transform:translateY(-20px) rotate(0);opacity:1}
@@ -1630,6 +1649,17 @@ function thShowTab(diff) {
     if(btn) { btn.style.color = d===diff?'#fff':'#999'; btn.style.background = d===diff?DC2[d]:'#eee'; }
   });
 }
+/* =============== PERFORMANCE DETECTION =============== */
+const _isLowEnd = (function() {
+  const ua = navigator.userAgent;
+  const isAndroid = /Android/i.test(ua);
+  const cores = navigator.hardwareConcurrency || 4;
+  const mem = navigator.deviceMemory || 4;
+  const low = isAndroid && (cores <= 6 || mem <= 4);
+  if(low) document.documentElement.classList.add('low-end');
+  return low;
+})();
+
 /* =============== LANDSCAPE BACKGROUNDS =============== */
 const _bgCache = {};
 function getLandscapeSVG(diff) {
@@ -1669,6 +1699,10 @@ function setLandscapeBg(el, diff) {
      bgEl.style.backgroundSize = '100% 100%';
      bgEl.style.backgroundRepeat = 'no-repeat';
      bgEl.style.backgroundPosition = '0 0';
+     // On low-end devices, disable grain & vignette pseudo-elements on game bg
+     if(_isLowEnd && el.id === 'game-view') {
+       bgEl.classList.add('perf-lite');
+     }
    }
  }
 
@@ -2038,7 +2072,7 @@ function renderMap() {
     if(ok) {
       const num = document.createElement('div');
       num.className = 'node-num';
-      num.textContent = isMid ? '⚡'+(i+1) : (i+1);
+      num.textContent = (i+1);
       node.appendChild(num);
       node.addEventListener('click', ((d,idx) => () => startStage(d,idx))(curDiff,i));
 
@@ -2190,7 +2224,18 @@ function startStage(d, idx) {
   document.getElementById('enemy-hp-fill').className = 'enemy-hp-fill';
   document.getElementById('enemy-hp-text').textContent = QS + '/' + QS;
 
-  showEnemyIntro(s.boss || null, () => startCountdown());
+  const bossType = s.boss || null;
+  showEnemyIntro(bossType, () => {
+    startCountdown(() => {
+      if(bossType) {
+        const gv = document.getElementById('game-view');
+        gv.classList.add('boss-shake');
+        setTimeout(() => { gv.classList.remove('boss-shake'); beginGame(); }, 600);
+      } else {
+        beginGame();
+      }
+    });
+  });
 }
 
 function showEnemyIntro(type, cb) {
@@ -2217,16 +2262,11 @@ function showEnemyIntro(type, cb) {
   document.body.appendChild(ov);
   setTimeout(() => {
     ov.remove();
-    if (isBoss || isMid) {
-      const gv = document.getElementById('game-view');
-      gv.classList.add('boss-shake');
-      setTimeout(() => gv.classList.remove('boss-shake'), 500);
-    }
     cb();
   }, duration);
 }
 
-function startCountdown() {
+function startCountdown(onDone) {
   GS.status = 'COUNTDOWN'; GS.blocked = true;
   const ov = document.getElementById('cd-overlay');
   const txt = document.getElementById('cd-text');
@@ -2245,7 +2285,7 @@ function startCountdown() {
     } else {
       clearInterval(iv);
       ov.style.display = 'none'; ov.classList.remove('show');
-      beginGame();
+      if(onDone) onDone(); else beginGame();
     }
   }, 500);
 }
@@ -2295,6 +2335,8 @@ function beginGame() {
   }
 }
 
+// Cached DOM refs for hot path
+let _timerFill = null, _gameSlot = null, _lastGlowVal = '';
 function gameLoop() {
   if(GS.status!=='PLAYING') return;
   const now = Date.now();
@@ -2308,8 +2350,9 @@ function gameLoop() {
   if(GS.elapsed > tl) { handleMiss('TIME','-',GS.current.n); return; }
 
   const pct = Math.max(0, 1-(GS.elapsed/tl));
-  const fill = document.getElementById('timer-fill');
-  fill.style.width = (pct*100)+'%';
+  if(!_timerFill) _timerFill = document.getElementById('timer-fill');
+  if(!_gameSlot) _gameSlot = document.getElementById('game-slot');
+  _timerFill.style.width = (pct*100)+'%';
 
   const j = s.j;
   let c;
@@ -2318,18 +2361,30 @@ function gameLoop() {
   else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
   else if(GS.elapsed<=tl) c='#CCCCCC';
   else c='#FF4B4B';
-  fill.style.background = c;
+  _timerFill.style.background = c;
 
-  // Boss urgency glow
+  // Boss urgency glow — throttled to reduce repaints
   if(s.boss && pct<0.3) {
-    document.getElementById('game-slot').style.boxShadow = '0 0 '+Math.round(30*(1-pct))+'px rgba(255,75,75,'+((1-pct)*0.3).toFixed(2)+')';
-  } else {
-    document.getElementById('game-slot').style.boxShadow = '';
+    const glowSize = Math.round(30*(1-pct));
+    const glowAlpha = ((1-pct)*0.3).toFixed(1);
+    const val = glowSize + ',' + glowAlpha;
+    if(val !== _lastGlowVal) {
+      _lastGlowVal = val;
+      if(_isLowEnd) {
+        _gameSlot.style.boxShadow = '0 0 '+Math.min(glowSize,20)+'px rgba(255,75,75,'+glowAlpha+')';
+      } else {
+        _gameSlot.style.boxShadow = '0 0 '+glowSize+'px rgba(255,75,75,'+glowAlpha+')';
+      }
+    }
+  } else if(_lastGlowVal !== '') {
+    _lastGlowVal = '';
+    _gameSlot.style.boxShadow = '';
   }
 
   GS.rafId = requestAnimationFrame(gameLoop);
 }
 
+let _taHpFill = null, _taHpText = null;
 function taGameLoop() {
   if(!taMode || GS.status !== 'PLAYING') return;
   const now = Date.now();
@@ -2337,11 +2392,13 @@ function taGameLoop() {
   taLastTick = now;
   if(taTimer <= 0) { taTimer = 0; taGameOver('TIME'); return; }
   const pct = taTimer / 60;
-  document.getElementById('enemy-hp-fill').style.width = (pct*100) + '%';
-  document.getElementById('enemy-hp-text').textContent = Math.ceil(taTimer) + 's';
-  const fill = document.getElementById('timer-fill');
-  fill.style.width = (pct*100) + '%';
-  fill.style.background = taTimer > 15 ? '#58CC02' : '#FF4B4B';
+  if(!_taHpFill) _taHpFill = document.getElementById('enemy-hp-fill');
+  if(!_taHpText) _taHpText = document.getElementById('enemy-hp-text');
+  if(!_timerFill) _timerFill = document.getElementById('timer-fill');
+  _taHpFill.style.width = (pct*100) + '%';
+  _taHpText.textContent = Math.ceil(taTimer) + 's';
+  _timerFill.style.width = (pct*100) + '%';
+  _timerFill.style.background = taTimer > 15 ? '#58CC02' : '#FF4B4B';
   taRafId = requestAnimationFrame(taGameLoop);
 }
 
@@ -2515,9 +2572,10 @@ function renderBlocks() {
     container.className = 'random-layout';
     const S = Math.min(window.innerWidth * 0.075, 30);
     const used = [];
+    const maxAttempts = _isLowEnd ? 50 : 200;
     for(let i=0; i<n; i++) {
       let best = {x:50, y:50};
-      for(let k=0; k<200; k++) {
+      for(let k=0; k<maxAttempts; k++) {
         const xp = 8 + Math.random() * 84;
         const yp = 8 + Math.random() * 84;
         const ok = !used.some(u => Math.abs(u.x-xp)<12 && Math.abs(u.y-yp)<12);
@@ -2803,7 +2861,8 @@ function spawnParticles(lbl) {
   const colors = {EXCELLENT:['#FFC800','#FFE082','#FFD54F'],GREAT:['#1CB0F6','#5DCBF8','#80DEEA'],GOOD:['#FF9600','#FFB84D','#FFCC80'],OK:['#CCCCCC','#E0E0E0','#BDBDBD']};
   const cs = colors[lbl] || ['#fff'];
   const cx = window.innerWidth / 2, cy = window.innerHeight * 0.38;
-  const count = lbl === 'EXCELLENT' ? 12 : 6;
+  const baseCount = lbl === 'EXCELLENT' ? 12 : 6;
+  const count = _isLowEnd ? Math.ceil(baseCount * 0.5) : baseCount;
   for(let i=0;i<count;i++) {
     const p = document.createElement('div');
     p.className = 'hit-particle';
@@ -3209,8 +3268,10 @@ function showResult(score, stars, isNew) {
 }
 
 function launchConfetti(count) {
+  const actual = _isLowEnd ? Math.ceil(count * 0.35) : count;
   const colors = ['#FF4B4B','#FFC800','#58CC02','#1CB0F6','#CE82FF','#FF9600','#FF6EB4','#00D2D3'];
-  for(let i=0;i<count;i++) {
+  const frag = document.createDocumentFragment();
+  for(let i=0;i<actual;i++) {
     const p = document.createElement('div');
     p.className = 'confetti';
     p.style.left = Math.random()*100+'%';
@@ -3222,9 +3283,10 @@ function launchConfetti(count) {
     p.style.borderRadius = Math.random()>0.5?'50%':'3px';
     p.style.animationDuration = (1.8+Math.random()*2.5)+'s';
     p.style.animationDelay = Math.random()*0.8+'s';
-    document.body.appendChild(p);
+    frag.appendChild(p);
     setTimeout(()=>p.remove(),5000);
   }
+  document.body.appendChild(frag);
 }
 
 /* =============== SURVIVAL MODE =============== */
