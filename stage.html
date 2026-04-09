@@ -3738,15 +3738,11 @@ function renderBlocks() {
     let blockPx = Math.min(window.innerWidth * 0.075, 30);
     if(brainMode) blockPx = Math.min(window.innerWidth * 0.24, 90);
     const gap = 4;
-    // For +MODE (st.plus) or survival/drill/TA, scale to actual shape size for bigger blocks
+    // Scale to actual shape size for bigger blocks
     let scaleCols, scaleMh;
-    if(st.plus || drillMode || survivalMode || brainMode) {
-      const shape = GS.current.shape;
-      scaleCols = Math.max(1, shape.filter(h => h > 0).length);
-      scaleMh   = Math.max(1, ...shape);
-    } else {
-      scaleCols = st.cols; scaleMh = st.mh;
-    }
+    const shape = GS.current.shape;
+    scaleCols = Math.max(1, shape.filter(h => h > 0).length);
+    scaleMh   = Math.max(1, ...shape);
     const natW = scaleCols * blockPx + Math.max(0, scaleCols - 1) * gap;
     const natH = scaleMh  * blockPx + Math.max(0, scaleMh  - 1) * gap;
     const slot = document.getElementById('game-slot');
