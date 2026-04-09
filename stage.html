@@ -374,7 +374,7 @@ body {
 #game-view[data-diff="ULTIMATE"] { background: #EBE8F2; }
 #game-view[data-diff="ULTIMATE+"] { background: #E3E0EA; }
 #game-view.boss-mid { box-shadow: inset 0 0 50px rgba(255,180,0,0.15); }
-#game-view.boss-final { box-shadow: inset 0 0 60px rgba(255,215,0,0.2); animation: bossGlow 2s ease-in-out infinite; will-change: opacity; }
+#game-view.boss-final { box-shadow: inset 0 0 60px rgba(255,215,0,0.2); animation: bossGlow 2s ease-in-out infinite; }
 @keyframes bossGlow {
   0%,100% { opacity: 0.85; }
   50% { opacity: 1; }
@@ -405,7 +405,7 @@ body {
   width: 128px; height: 128px; transition: transform 0.1s;
   filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12));
   animation: enemyIdle 2s ease-in-out infinite;
-  will-change: transform;
+
   contain: layout style;
 }
 .enemy-char svg { width: 100%; height: 100%; }
@@ -475,13 +475,13 @@ body {
   border: 4px solid rgba(0,0,0,0.08);
   box-shadow: 0 4px 0 rgba(0,0,0,0.06);
   transition: box-shadow 0.3s;
-  will-change: box-shadow;
+
 }
 #game-blocks {
   display: flex; align-items: flex-end; justify-content: center;
   width: 100%; height: 100%; padding-bottom: 10px; transform-origin: center center;
   position: relative;
-  will-change: transform;
+
 }
 #game-blocks.brain-layout {
   align-items: center; padding-bottom: 0;
@@ -565,7 +565,7 @@ body {
 /* Hit particles */
 .hit-particle {
   position: fixed; z-index: 350; pointer-events: none;
-  border-radius: 50%; will-change: transform, opacity;
+  border-radius: 50%;
   animation: particleBurst 0.6s ease-out forwards;
   contain: strict;
 }
@@ -1142,7 +1142,6 @@ body {
 .confetti {
   position: fixed; z-index: 400; pointer-events: none;
   animation: confettiFall linear forwards;
-  will-change: transform, opacity;
   contain: strict;
 }
 @keyframes confettiFall {
@@ -1278,7 +1277,6 @@ body {
 .panels-wrap {
   display:flex; height:100%;
   transition:transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
-  will-change:transform;
 }
 .panel {
   min-width:100%; width:100%; height:100%; display:flex; flex-direction:column;
@@ -3394,6 +3392,7 @@ function updateProg() {
 /* =============== START STAGE =============== */
 function startStage(d, idx) {
   curDiff = d; curIdx = idx;
+  _slotW = 0; _slotH = 0; // Reset cached slot dimensions
   const s = STAGES[d][idx];
   const dc = DC[d];
   const gv = document.getElementById('game-view');
@@ -3556,6 +3555,7 @@ function beginGame() {
 
 // Cached DOM refs for hot path
 let _timerFill = null, _gameSlot = null, _lastGlowVal = '';
+let _slotW = 0, _slotH = 0;
 function gameLoop() {
   if(GS.status!=='PLAYING') return;
   const now = Date.now();
@@ -3857,9 +3857,9 @@ function renderBlocks() {
     scaleMh   = Math.max(1, ...shape);
     const natW = scaleCols * blockPx + Math.max(0, scaleCols - 1) * gap;
     const natH = scaleMh  * blockPx + Math.max(0, scaleMh  - 1) * gap;
-    const slot = document.getElementById('game-slot');
-    const avW = (slot.clientWidth  || 300) * 0.88;
-    const avH = (slot.clientHeight || 250) * 0.78;
+    if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
+    const avW = _slotW * 0.88;
+    const avH = _slotH * 0.78;
     const sc = Math.min(1, avW / natW, avH / natH);
     el.style.transform = 'scale(' + sc + ')';
   }
