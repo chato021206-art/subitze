@@ -1743,7 +1743,7 @@ const STAGES = {
 function makePlusStages(base) {
   return base.map((s, i) => {
     const t = i / 9;
-    const bagExtras = [1,1,1,2,2,2,2,3,4,5];
+    const bagExtras = [1,1,1,2,2,2,2,3,4,5,6];
     const bagExtra  = bagExtras[i] ?? 3;
     const newBag = s.bag.map(n => n + bagExtra);
     const maxVal = Math.max(...newBag);
@@ -2301,6 +2301,7 @@ function renderCollectionGrid(diff) {
   for(let i = 0; i < count; i++) {
     const cardId = diff + '_' + i;
     const card = CARD_CATALOG[cardId];
+    if(!card) continue;
     const owned = hasCard(cardId);
     const isNew = !!newCards[cardId];
 
@@ -2465,7 +2466,8 @@ function renderStats() {
   h2.textContent = 'レアリティ別';
   container.appendChild(h2);
   const rarityCounts = {common:0, rare:0, legendary:0};
-  const rarityTotals = {common:80, rare:10, legendary:10};
+  const rarityTotals = {common:0, rare:0, legendary:0};
+  Object.values(CARD_CATALOG).forEach(c => { if(c) rarityTotals[c.rarity]++; });
   Object.keys(collectedCards).forEach(id => {
     const c = CARD_CATALOG[id];
     if(c) rarityCounts[c.rarity]++;
@@ -2501,14 +2503,16 @@ const ACHIEVEMENTS = [
   { id:'collect80', icon:'💎', name:'マスターコレクター',desc:'カードを80枚取得',  check: () => getCardCount() >= 80 },
   { id:'complete',  icon:'👑', name:'コンプリート!!',    desc:'全カード取得',      check: () => getCardCount() >= getTotalCards() },
   { id:'boss_all',  icon:'🐉', name:'ボスハンター',     desc:'全Legendaryカード取得', check: () => {
-    return ALL_DIFFS.every(d => hasCard(d + '_9'));
+    return Object.values(CARD_CATALOG).filter(c => c.rarity === 'legendary').every(c => hasCard(c.id));
   }},
 ];
 // Add per-difficulty achievements
 ALL_DIFFS.forEach(d => {
+  const bd = d.replace('+','');
+  const total = ENEMIES[bd] ? ENEMIES[bd].length : 10;
   ACHIEVEMENTS.push({
-    id: 'diff_' + d, icon: '🗂', name: d + ' 制覇', desc: d + ' の10枚コンプ',
-    check: () => { for(let i=0;i<10;i++) if(!hasCard(d+'_'+i)) return false; return true; }
+    id: 'diff_' + d, icon: '🗂', name: d + ' 制覇', desc: d + ' の全' + total + '枚コンプ',
+    check: () => { for(let i=0;i<total;i++) if(!hasCard(d+'_'+i)) return false; return true; }
   });
 });
 
@@ -2689,15 +2693,17 @@ function load() {
   });
 }
 function save() {
-  localStorage.setItem('snow_stage_progress', JSON.stringify(prog));
-  localStorage.setItem('snow_total_xp', totalXP.toString());
-  localStorage.setItem('snow_number_stats', JSON.stringify(numberStats));
-  localStorage.setItem('snow_missed_shapes', JSON.stringify(missedShapes));
-  localStorage.setItem('snow_slow_shapes', JSON.stringify(slowShapes));
-  localStorage.setItem('snow_ta_best', JSON.stringify(taBest));
-  localStorage.setItem('snow_survival_best', JSON.stringify(survivalBest));
-  if(drillUnlocked) localStorage.setItem('snow_drill_unlocked', '1');
-  localStorage.setItem('snow_daily', JSON.stringify({streak, lastStreakDate, missions:dailyMissions, date:dailyDate}));
+  try {
+    localStorage.setItem('snow_stage_progress', JSON.stringify(prog));
+    localStorage.setItem('snow_total_xp', totalXP.toString());
+    localStorage.setItem('snow_number_stats', JSON.stringify(numberStats));
+    localStorage.setItem('snow_missed_shapes', JSON.stringify(missedShapes));
+    localStorage.setItem('snow_slow_shapes', JSON.stringify(slowShapes));
+    localStorage.setItem('snow_ta_best', JSON.stringify(taBest));
+    localStorage.setItem('snow_survival_best', JSON.stringify(survivalBest));
+    if(drillUnlocked) localStorage.setItem('snow_drill_unlocked', '1');
+    localStorage.setItem('snow_daily', JSON.stringify({streak, lastStreakDate, missions:dailyMissions, date:dailyDate}));
+  } catch(e) { console.warn('Save failed:', e.message); }
 }
 
 function getLevel() {
@@ -4486,7 +4492,8 @@ function showResult(score, stars, isNew, droppedCard) {
     }
   }
 
-  document.getElementById('r-next').style.display = (curIdx<9) ? 'inline-block' : 'none';
+  const maxIdx = STAGES[curDiff] ? STAGES[curDiff].length - 1 : 9;
+  document.getElementById('r-next').style.display = (curIdx < maxIdx) ? 'inline-block' : 'none';
   {
     const _ndMap = {EASY:'NORMAL',NORMAL:'HARD',HARD:'EXTREME',EXTREME:'ULTIMATE',
       'EASY+':'NORMAL+','NORMAL+':'HARD+','HARD+':'EXTREME+','EXTREME+':'ULTIMATE+'};
@@ -5262,7 +5269,8 @@ function retryStage() {
 }
 function nextStage() {
   document.getElementById('result-overlay').classList.remove('show');
-  if(curIdx < 9) {
+  const maxIdx = STAGES[curDiff] ? STAGES[curDiff].length - 1 : 9;
+  if(curIdx < maxIdx) {
     pendingHighlight = curIdx; // highlight path from cleared → next
     backToMap();
   } else {
