@@ -31,6 +31,8 @@
 .low-end .result-bg { background: rgba(255,248,232,0.97) !important; backdrop-filter: none !important; }
 .low-end #cd-overlay { background: rgba(255,248,232,0.95) !important; backdrop-filter: none !important; }
 .low-end .enemy-damage { animation-duration: 0.25s; }
+.low-end .s-block { box-shadow: none; animation: blockFadeIn 0.1s ease-out both; }
+@keyframes blockFadeIn { 0%{opacity:0} 100%{opacity:1} }
 .low-end #game-view.boss-final { animation: none; }
 .low-end #game-view.boss-mid { box-shadow: none; }
 body {
@@ -3794,7 +3796,7 @@ function renderBlocks() {
       b.style.background = dc.block;
       b.style.left = best.x + '%';
       b.style.top = best.y + '%';
-      b.style.animationDelay = (i * 0.015) + 's';
+      if(!_isLowEnd) b.style.animationDelay = (i * 0.015) + 's';
       container.appendChild(b);
     }
     el.appendChild(container);
@@ -3813,7 +3815,7 @@ function renderBlocks() {
         b.className = 's-block' + (brainMode ? ' brain-block' : '');
         if(brainMode) { b.textContent = GS.current.brainNum; }
         else { b.style.background = dc.block; }
-        b.style.animationDelay = (blockIdx * 0.015) + 's';
+        if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
         col.appendChild(b);
         blockIdx++;
       }
