@@ -277,13 +277,8 @@ body {
   font-size: 12px; color: #fff; font-weight: 900;
   box-shadow: 0 2px 0 rgba(0,0,0,0.15);
 }
-.stage-node .node-card-mark {
-  position: absolute; bottom: -4px; left: -4px;
-  width: 24px; height: 24px; border-radius: 50%;
-  background: #CE82FF; border: 3px solid #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+.stage-node .node-check.has-card {
+  background: #222; border-color: #444;
 }
 
 /* Boss/mid-boss nodes */
@@ -3031,19 +3026,12 @@ function renderMap() {
       if(curDiff.endsWith('+')) preview.style.filter = 'hue-rotate(200deg) saturate(1.4) brightness(1.05)';
       node.appendChild(preview);
 
-      // Checkmark for cleared stages
+      // Checkmark for cleared stages — black if card collected
       if(p.cleared) {
         const check = document.createElement('div');
-        check.className = 'node-check';
+        check.className = 'node-check' + (hasCard(curDiff + '_' + i) ? ' has-card' : '');
         check.textContent = '✓';
         node.appendChild(check);
-      }
-      // Card mark for collected cards
-      if(hasCard(curDiff + '_' + i)) {
-        const cm = document.createElement('div');
-        cm.className = 'node-card-mark';
-        cm.textContent = '📇';
-        node.appendChild(cm);
       }
     }
 
