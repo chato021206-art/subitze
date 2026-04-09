@@ -2385,11 +2385,16 @@ function renderStats() {
   h1.textContent = '難易度別';
   container.appendChild(h1);
   ALL_DIFFS.forEach(d => {
+    const unlocked = diffUnlocked(d);
     let count = 0;
     for(let i=0;i<10;i++) if(hasCard(d+'_'+i)) count++;
     const row = document.createElement('div');
     row.className = 'col-stat-row';
-    row.innerHTML = '<span>' + d + '</span><span class="col-stat-val">' + count + ' / 10</span>';
+    if(unlocked) {
+      row.innerHTML = '<span>' + d + '</span><span class="col-stat-val">' + count + ' / 10</span>';
+    } else {
+      row.innerHTML = '<span style="opacity:0.35">???</span><span class="col-stat-val" style="opacity:0.35">- / 10</span>';
+    }
     container.appendChild(row);
   });
   // Rarity stats
