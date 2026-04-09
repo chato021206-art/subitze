@@ -27,14 +27,24 @@
 /* Low-end device optimizations (applied via JS class on <html>) */
 .low-end .map-bg::after { display: none !important; }
 .low-end .map-bg { filter: saturate(1.15) brightness(1.01) !important; }
-.low-end .enemy-char.plus-enemy { filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12)) hue-rotate(200deg) saturate(1.2) !important; }
+.low-end .enemy-char { filter: none !important; animation: none !important; }
+.low-end .enemy-char.plus-enemy { filter: hue-rotate(200deg) saturate(1.2) !important; animation: none !important; }
+.low-end .enemy-char.boss-enemy, .low-end .enemy-char.mid-boss-enemy { animation: none !important; }
 .low-end .result-bg { background: rgba(255,248,232,0.97) !important; backdrop-filter: none !important; }
 .low-end #cd-overlay { background: rgba(255,248,232,0.95) !important; backdrop-filter: none !important; }
-.low-end .enemy-damage { animation-duration: 0.25s; }
+.low-end .enemy-damage { animation: enemyDamageLite 0.2s ease-out !important; }
+@keyframes enemyDamageLite {
+  0% { transform: translateY(0); } 15% { transform: translateX(6px) rotate(4deg); }
+  30% { transform: translateX(-6px) rotate(-4deg); } 100% { transform: translateY(0); }
+}
 .low-end .s-block { box-shadow: none; animation: blockFadeIn 0.1s ease-out both; }
 @keyframes blockFadeIn { 0%{opacity:0} 100%{opacity:1} }
 .low-end #game-view.boss-final { animation: none; }
 .low-end #game-view.boss-mid { box-shadow: none; }
+.low-end .r-rating-bar-inner { transition: none !important; }
+.low-end .stage-landmark svg { filter: none !important; }
+.low-end .node-crown { filter: none !important; animation: none !important; }
+.low-end .node-enemy-preview { animation: none !important; }
 body {
   font-family: var(--font-ui); margin: 0; padding: 0;
   height: 100dvh; width: 100%; overflow: hidden; position: fixed; user-select: none;
