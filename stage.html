@@ -861,6 +861,7 @@ body {
 }
 /* Rarity frames */
 .snow-card.rarity-common .snow-card-face { border: 4px solid #E0E0E0; background: #FAFAFA; }
+.snow-card.rarity-uncommon .snow-card-face { border: 4px solid #58CC02; background: #F0FFF0; }
 .snow-card.rarity-rare .snow-card-face { border: 4px solid #B0C4DE; background: #EDF2FA; }
 .snow-card.rarity-legendary .snow-card-face { border: 4px solid #FFD700; background: #FFF8E1; }
 
@@ -1556,8 +1557,9 @@ body {
         <div class="col-filter-btn" data-filter="owned" onclick="setCardFilter('owned')">取得済み</div>
         <div class="col-filter-btn" data-filter="missing" onclick="setCardFilter('missing')">未取得</div>
         <div class="col-filter-btn" data-filter="common" onclick="setCardFilter('common')">★</div>
-        <div class="col-filter-btn" data-filter="rare" onclick="setCardFilter('rare')">★★</div>
-        <div class="col-filter-btn" data-filter="legendary" onclick="setCardFilter('legendary')">★★★</div>
+        <div class="col-filter-btn" data-filter="uncommon" onclick="setCardFilter('uncommon')">★★</div>
+        <div class="col-filter-btn" data-filter="rare" onclick="setCardFilter('rare')">★★★</div>
+        <div class="col-filter-btn" data-filter="legendary" onclick="setCardFilter('legendary')">★★★★</div>
       </div>
       <div class="collection-tabs" id="col-tabs"></div>
       <div class="collection-grid" id="col-grid"></div>
@@ -1880,14 +1882,14 @@ const CARD_CATALOG = (function() {
     const count = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
     for(let i = 0; i < count; i++) {
       const id = diff + '_' + i;
-      const rarity = (i >= 10) ? 'legendary' : (i === 4) ? 'rare' : (i === 9) ? 'legendary' : 'common';
+      const rarity = (i >= 10) ? 'legendary' : (i === 9) ? 'rare' : (i === 4) ? 'uncommon' : 'common';
       const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][i] : null;
       cards[id] = { id, diff, idx: i, rarity, name: enemy ? enemy.name : '???', isPlus: diff.endsWith('+') };
     }
   });
   return cards;
 })();
-const CARD_DROP_RATES = { common: 0.20, rare: 0.12, legendary: 0.08 };
+const CARD_DROP_RATES = { common: 0.20, uncommon: 0.15, rare: 0.10, legendary: 0.06 };
 const CARD_STAR3_BONUS = 1.5;
 
 let collectedCards = {};  // { cardId: { date: 'YYYY-MM-DD' } }
@@ -2127,7 +2129,7 @@ function renderCard(card, opts) {
     const cardArt = CARD_ART[baseDiff] && CARD_ART[baseDiff][card.idx];
     const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][card.idx] : null;
     const svgHtml = cardArt ? cardArt() : (enemy ? enemy.svg() : '');
-    const rarityStars = {common:'★', rare:'★★', legendary:'★★★'}[card.rarity];
+    const rarityStars = {common:'★', uncommon:'★★', rare:'★★★', legendary:'★★★★'}[card.rarity];
     const diffLabel = card.diff.replace('+','+');
     const fs = size === 'thumb' ? 8 : size === 'large' ? 18 : 11;
     const dfs = size === 'thumb' ? 6 : size === 'large' ? 12 : 8;
@@ -2178,8 +2180,8 @@ function showCardDropOverlay(card, onDone) {
   const cardArt = CARD_ART[baseDiff] && CARD_ART[baseDiff][card.idx];
   const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][card.idx] : null;
   const svgHtml = cardArt ? cardArt() : (enemy ? enemy.svg() : '');
-  const rarityColors = {common:'#E0E0E0', rare:'#B0C4DE', legendary:'#FFD700'};
-  const rarityStars = {common:'★', rare:'★★', legendary:'★★★'}[card.rarity];
+  const rarityColors = {common:'#E0E0E0', uncommon:'#58CC02', rare:'#B0C4DE', legendary:'#FFD700'};
+  const rarityStars = {common:'★', uncommon:'★★', rare:'★★★', legendary:'★★★★'}[card.rarity];
   const front = document.createElement('div');
   front.className = 'cdrop-front';
   front.style.cssText = 'border:5px solid '+rarityColors[card.rarity]+';border-radius:14px;background:#fff;overflow:hidden;display:flex;flex-direction:column;';
@@ -2209,7 +2211,7 @@ function showCardDropOverlay(card, onDone) {
 
   const rarityEl = document.createElement('div');
   rarityEl.className = 'cdrop-rarity' + (card.rarity === 'legendary' ? ' legendary' : '');
-  rarityEl.textContent = rarityStars + ' ' + {common:'Common',rare:'Rare',legendary:'Legendary'}[card.rarity];
+  rarityEl.textContent = rarityStars + ' ' + {common:'Common',uncommon:'Uncommon',rare:'Rare',legendary:'Legendary'}[card.rarity];
   ov.appendChild(rarityEl);
 
   const tap = document.createElement('div');
@@ -2309,6 +2311,7 @@ function renderCollectionGrid(diff) {
     if(_cardFilter === 'owned' && !owned) continue;
     if(_cardFilter === 'missing' && owned) continue;
     if(_cardFilter === 'common' && card.rarity !== 'common') continue;
+    if(_cardFilter === 'uncommon' && card.rarity !== 'uncommon') continue;
     if(_cardFilter === 'rare' && card.rarity !== 'rare') continue;
     if(_cardFilter === 'legendary' && card.rarity !== 'legendary') continue;
 
@@ -2364,7 +2367,7 @@ function showCardDetail(cardId) {
 
     const info = document.createElement('div');
     info.className = 'card-detail-info';
-    const rarityLabel = {common:'★ Common', rare:'★★ Rare', legendary:'★★★ Legendary'}[card.rarity];
+    const rarityLabel = {common:'★ Common', uncommon:'★★ Uncommon', rare:'★★★ Rare', legendary:'★★★★ Legendary'}[card.rarity];
     info.innerHTML =
       '<div class="card-detail-name">' + card.name + '</div>' +
       '<div class="card-detail-diff">' + card.diff + ' — STAGE ' + (card.idx + 1) + ' — ' + rarityLabel + '</div>' +
@@ -2465,14 +2468,14 @@ function renderStats() {
   h2.style.cssText = 'font-size:12px;font-weight:900;color:#aaa;letter-spacing:1px;margin:12px 0 8px';
   h2.textContent = 'レアリティ別';
   container.appendChild(h2);
-  const rarityCounts = {common:0, rare:0, legendary:0};
-  const rarityTotals = {common:0, rare:0, legendary:0};
+  const rarityCounts = {common:0, uncommon:0, rare:0, legendary:0};
+  const rarityTotals = {common:0, uncommon:0, rare:0, legendary:0};
   Object.values(CARD_CATALOG).forEach(c => { if(c) rarityTotals[c.rarity]++; });
   Object.keys(collectedCards).forEach(id => {
     const c = CARD_CATALOG[id];
     if(c) rarityCounts[c.rarity]++;
   });
-  [{k:'common',l:'★ Common'},{k:'rare',l:'★★ Rare'},{k:'legendary',l:'★★★ Legendary'}].forEach(r => {
+  [{k:'common',l:'★ Common'},{k:'uncommon',l:'★★ Uncommon'},{k:'rare',l:'★★★ Rare'},{k:'legendary',l:'★★★★ Legendary'}].forEach(r => {
     const row = document.createElement('div');
     row.className = 'col-stat-row';
     row.innerHTML = '<span>' + r.l + '</span><span class="col-stat-val">' + rarityCounts[r.k] + ' / ' + rarityTotals[r.k] + '</span>';
