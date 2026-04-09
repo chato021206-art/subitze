@@ -1133,7 +1133,7 @@ body {
   display: flex; gap: 8px; align-items: center; justify-content: center;
 }
 .setting-btn {
-  padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 900;
+  padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 900; white-space: nowrap;
   cursor: pointer; transition: all 0.2s; border: 3px solid #ddd;
   background: #fff; color: #888; box-shadow: 2px 3px 0 rgba(0,0,0,0.08);
 }
@@ -1434,7 +1434,7 @@ body {
   <!-- Settings: KEY + RANDOM only -->
   <div class="map-settings">
     <div class="map-settings-row">
-      <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">KEY: A</button>
+      <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">📱 電話配置</button>
       <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
     </div>
   </div>
@@ -2410,9 +2410,9 @@ let totalXP = 0;
 let isRandomMode = false;
 
 const KB_LAYOUTS = [
-  { id:'PHONE', label:'KEY: A', cls:'kb-a', layout:'layout-phone' },
-  { id:'CALC', label:'KEY: B', cls:'kb-b', layout:'layout-calc' },
-  { id:'SPECIAL', label:'KEY: C', cls:'kb-c', layout:'layout-special' }
+  { id:'PHONE', label:'📱 電話配置', cls:'kb-a', layout:'layout-phone' },
+  { id:'CALC', label:'🔢 電卓配置', cls:'kb-b', layout:'layout-calc' },
+  { id:'SPECIAL', label:'⚡ 特殊配置', cls:'kb-c', layout:'layout-special' }
 ];
 let curKbIdx = 0;
 
