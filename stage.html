@@ -293,6 +293,17 @@ body {
   border: 6px solid #FFD700;
   box-shadow: 0 7px 0 rgba(180,140,0,0.4), 0 0 0 4px rgba(255,215,0,0.25);
 }
+.stage-node.true-final {
+  width: 100px; height: 100px; font-size: 20px;
+  border: 6px solid #7B00FF;
+  box-shadow: 0 8px 0 rgba(90,0,180,0.5), 0 0 0 5px rgba(123,0,255,0.2), 0 0 20px rgba(123,0,255,0.15);
+  background: linear-gradient(135deg, #1A0040, #2A0060) !important;
+}
+.stage-node.true-final .node-num { color: #C090FF; }
+.true-final-gate {
+  font-size: 10px; font-weight: 900; color: #7B00FF; letter-spacing: 1px;
+  text-align: center; margin-top: 4px; opacity: 0.7;
+}
 .node-num { font-family: var(--font-num); font-style: italic; letter-spacing: -1px; text-shadow: 0 2px 0 rgba(0,0,0,0.2); }
 
 /* Next stage pulse after returning from result */
@@ -1145,7 +1156,7 @@ body {
 .setting-btn.active { color: #fff; border-color: var(--btn-c); background: var(--btn-c); box-shadow: 3px 4px 0 rgba(0,0,0,0.15); }
 .setting-btn.kb-a { --btn-c: #58CC02; }
 .setting-btn.kb-b { --btn-c: #1CB0F6; }
-.setting-btn.kb-c { --btn-c: #FF9600; }
+.setting-btn.kb-c { --btn-c: #E03020; }
 .random-toggle {
   padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 900;
   cursor: pointer; transition: all 0.2s; border: 3px solid #ddd;
@@ -1701,6 +1712,7 @@ const STAGES = {
     { bag:[54,56,58,60,62,64],                    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
     { bag:[56,58,60,62,64,66],                    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
     { bag:[55,58,60,62,64,66,68,70],              t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E', boss:'final' },
+    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.5}, cols:9, mh:9, tp:'E', boss:'true_final', noExt:true },
   ]
 };
 
@@ -1814,6 +1826,8 @@ ENEMIES['ULTIMATE'] = [
   {name:'ケルベロス', svg:()=>`<svg viewBox="0 0 80 80"><ellipse cx="40" cy="54" rx="22" ry="18" fill="#3A3045" stroke="#555" stroke-width="2"/><circle cx="40" cy="42" r="12" fill="#4A3858" stroke="#555" stroke-width="2.5"/><circle cx="34" cy="40" r="5" fill="#FFF" stroke="#555" stroke-width="1.5"/><circle cx="46" cy="40" r="5" fill="#FFF" stroke="#555" stroke-width="1.5"/><circle cx="34" cy="40" r="3" fill="#CC2020"/><circle cx="46" cy="40" r="3" fill="#CC2020"/><circle cx="33" cy="39" r="1" fill="#FFF"/><circle cx="45" cy="39" r="1" fill="#FFF"/><path d="M35 50 Q40 54 45 50" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="36" r="9" fill="#4A3858" stroke="#555" stroke-width="2"/><circle cx="14" cy="33" r="3.5" fill="#CC2020"/><circle cx="22" cy="33" r="3.5" fill="#CC2020"/><circle cx="13" cy="32" r="1" fill="#FFF"/><circle cx="21" cy="32" r="1" fill="#FFF"/><circle cx="62" cy="36" r="9" fill="#4A3858" stroke="#555" stroke-width="2"/><circle cx="58" cy="33" r="3.5" fill="#CC2020"/><circle cx="66" cy="33" r="3.5" fill="#CC2020"/><circle cx="57" cy="32" r="1" fill="#FFF"/><circle cx="65" cy="32" r="1" fill="#FFF"/></svg>`},
   // 10. クロノス（時の神・金の鎌）final boss
   {name:'クロノス', final:true, svg:()=>`<svg viewBox="0 0 80 80"><ellipse cx="40" cy="52" rx="28" ry="26" fill="#2A1A40" stroke="#888" stroke-width="3"/><circle cx="30" cy="44" r="9" fill="#FFF" stroke="#555" stroke-width="2.5"/><circle cx="50" cy="44" r="9" fill="#FFF" stroke="#555" stroke-width="2.5"/><circle cx="31" cy="45" r="6" fill="#8A50C0"/><circle cx="51" cy="45" r="6" fill="#8A50C0"/><circle cx="29" cy="43" r="2.5" fill="#000"/><circle cx="49" cy="43" r="2.5" fill="#000"/><circle cx="27" cy="41" r="1.5" fill="#FFF"/><circle cx="47" cy="41" r="1.5" fill="#FFF"/><path d="M31 58 Q40 66 49 58" fill="none" stroke="#888" stroke-width="3" stroke-linecap="round"/><path d="M14 18 Q10 8 18 4 Q14 12 22 14 Q16 8 26 8 Q20 14 24 18" fill="#C8A840" stroke="#A07820" stroke-width="1.5" stroke-linejoin="round"/><circle cx="18" cy="18" r="6" fill="#C8A840" stroke="#A07820" stroke-width="2"/><ellipse cx="40" cy="24" rx="24" ry="10" fill="#3A2858" stroke="#888" stroke-width="2"/><line x1="22" y1="24" x2="58" y2="24" stroke="#C8A840" stroke-width="2" stroke-linecap="round"/><ellipse cx="26" cy="60" rx="7" ry="4" fill="#4A3068" opacity="0.7"/><ellipse cx="54" cy="60" rx="7" ry="4" fill="#4A3068" opacity="0.7"/><circle cx="40" cy="12" r="4" fill="#8A50C0" opacity="0.8"/><circle cx="40" cy="12" r="2" fill="#C090FF"/></svg>`},
+  // 11. カオス（万物の始源・虚無の化身）true final boss
+  {name:'カオス', boss:true, svg:()=>`<svg viewBox="0 0 80 80"><defs><radialGradient id="chaos" cx="50%" cy="50%"><stop offset="0%" stop-color="#4A0080"/><stop offset="50%" stop-color="#1A0030"/><stop offset="100%" stop-color="#000"/></radialGradient></defs><circle cx="40" cy="40" r="38" fill="url(#chaos)" stroke="#7B00FF" stroke-width="2"/><circle cx="40" cy="40" r="28" fill="none" stroke="#4A0080" stroke-width="1.5" opacity="0.5"/><circle cx="40" cy="40" r="18" fill="none" stroke="#7B00FF" stroke-width="1" opacity="0.3"/><circle cx="30" cy="36" r="10" fill="#0A0020" stroke="#7B00FF" stroke-width="2.5"/><circle cx="50" cy="36" r="10" fill="#0A0020" stroke="#7B00FF" stroke-width="2.5"/><circle cx="31" cy="37" r="6" fill="#7B00FF"/><circle cx="51" cy="37" r="6" fill="#7B00FF"/><circle cx="29" cy="35" r="3" fill="#FFF"/><circle cx="49" cy="35" r="3" fill="#FFF"/><circle cx="33" cy="39" r="1.5" fill="#C090FF" opacity="0.6"/><circle cx="53" cy="39" r="1.5" fill="#C090FF" opacity="0.6"/><path d="M32 52 Q40 60 48 52" fill="none" stroke="#7B00FF" stroke-width="3" stroke-linecap="round"/><path d="M16 20 Q12 10 20 6 Q16 14 24 16" fill="#7B00FF" opacity="0.4" stroke="none"/><path d="M64 20 Q68 10 60 6 Q64 14 56 16" fill="#7B00FF" opacity="0.4" stroke="none"/><circle cx="18" cy="58" r="3" fill="#4A0080" opacity="0.5"/><circle cx="62" cy="58" r="3" fill="#4A0080" opacity="0.5"/><circle cx="40" cy="14" r="5" fill="#7B00FF" opacity="0.6"/><circle cx="40" cy="14" r="2.5" fill="#C090FF" opacity="0.8"/></svg>`},
 ];
 
 ENEMIES['ULTIMATE+'] = [
@@ -1827,6 +1841,8 @@ ENEMIES['ULTIMATE+'] = [
   {name:'ダークミノタウロス', svg:()=>`<svg viewBox="0 0 80 80"><ellipse cx="40" cy="52" rx="24" ry="22" fill="#0A0A14" stroke="#8A8AFF" stroke-width="2.5"/><circle cx="32" cy="46" r="6" fill="#050508" stroke="#8A8AFF" stroke-width="2"/><circle cx="48" cy="46" r="6" fill="#050508" stroke="#8A8AFF" stroke-width="2"/><circle cx="33" cy="47" r="4" fill="#8A8AFF"/><circle cx="49" cy="47" r="4" fill="#8A8AFF"/><circle cx="34" cy="45" r="1.5" fill="#DDDDFF"/><circle cx="50" cy="45" r="1.5" fill="#DDDDFF"/><ellipse cx="40" cy="57" rx="8" ry="4" fill="#1A1A2A" stroke="#8A8AFF" stroke-width="1.5"/><ellipse cx="26" cy="29" rx="10" ry="14" fill="#181828" stroke="#8A8AFF" stroke-width="2"/><ellipse cx="54" cy="29" rx="10" ry="14" fill="#181828" stroke="#8A8AFF" stroke-width="2"/><path d="M18 20 Q14 12 18 8" fill="none" stroke="#8A8AFF" stroke-width="3" stroke-linecap="round"/><path d="M62 20 Q66 12 62 8" fill="none" stroke="#8A8AFF" stroke-width="3" stroke-linecap="round"/></svg>`},
   {name:'ダークケルベロス', svg:()=>`<svg viewBox="0 0 80 80"><ellipse cx="40" cy="54" rx="22" ry="18" fill="#050010" stroke="#CC00FF" stroke-width="2"/><circle cx="40" cy="42" r="12" fill="#0A0020" stroke="#CC00FF" stroke-width="2.5"/><circle cx="34" cy="40" r="5" fill="#0A0020" stroke="#CC00FF" stroke-width="1.5"/><circle cx="46" cy="40" r="5" fill="#0A0020" stroke="#CC00FF" stroke-width="1.5"/><circle cx="34" cy="40" r="3" fill="#CC00FF"/><circle cx="46" cy="40" r="3" fill="#CC00FF"/><circle cx="33" cy="39" r="1" fill="#F0CCFF"/><circle cx="45" cy="39" r="1" fill="#F0CCFF"/><path d="M35 50 Q40 54 45 50" fill="none" stroke="#CC00FF" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="36" r="9" fill="#0A0020" stroke="#CC00FF" stroke-width="2"/><circle cx="14" cy="33" r="3.5" fill="#CC00FF"/><circle cx="22" cy="33" r="3.5" fill="#CC00FF"/><circle cx="62" cy="36" r="9" fill="#0A0020" stroke="#CC00FF" stroke-width="2"/><circle cx="58" cy="33" r="3.5" fill="#CC00FF"/><circle cx="66" cy="33" r="3.5" fill="#CC00FF"/></svg>`},
   {name:'ボイドクロノス', final:true, svg:()=>`<svg viewBox="0 0 80 80"><ellipse cx="40" cy="52" rx="28" ry="26" fill="#050010" stroke="#7B00FF" stroke-width="3"/><circle cx="30" cy="44" r="9" fill="#0A0020" stroke="#7B00FF" stroke-width="2.5"/><circle cx="50" cy="44" r="9" fill="#0A0020" stroke="#7B00FF" stroke-width="2.5"/><circle cx="31" cy="45" r="6" fill="#7B00FF"/><circle cx="51" cy="45" r="6" fill="#7B00FF"/><circle cx="29" cy="43" r="2.5" fill="#000"/><circle cx="49" cy="43" r="2.5" fill="#000"/><circle cx="27" cy="41" r="1.5" fill="#E0C0FF"/><circle cx="47" cy="41" r="1.5" fill="#E0C0FF"/><path d="M31 58 Q40 66 49 58" fill="none" stroke="#7B00FF" stroke-width="3" stroke-linecap="round"/><path d="M14 18 Q10 8 18 4 Q14 12 22 14 Q16 8 26 8 Q20 14 24 18" fill="#7B00FF" stroke="#3A0080" stroke-width="1.5" stroke-linejoin="round"/><circle cx="18" cy="18" r="6" fill="#3A0080" stroke="#7B00FF" stroke-width="2"/><ellipse cx="40" cy="24" rx="24" ry="10" fill="#0D0030" stroke="#7B00FF" stroke-width="2"/><circle cx="40" cy="12" r="5" fill="#7B00FF" opacity="0.9"/><circle cx="40" cy="12" r="3" fill="#E0C0FF"/><circle cx="26" cy="18" r="2" fill="#7B00FF" opacity="0.6"/><circle cx="54" cy="18" r="2" fill="#7B00FF" opacity="0.6"/></svg>`},
+  // 11. ボイドカオス（虚無の深淵）true final boss for ULTIMATE+
+  {name:'ボイドカオス', boss:true, svg:()=>`<svg viewBox="0 0 80 80"><defs><radialGradient id="vchaos" cx="50%" cy="50%"><stop offset="0%" stop-color="#3A0060"/><stop offset="50%" stop-color="#0A0020"/><stop offset="100%" stop-color="#000"/></radialGradient></defs><circle cx="40" cy="40" r="38" fill="url(#vchaos)" stroke="#CC00FF" stroke-width="2"/><circle cx="40" cy="40" r="28" fill="none" stroke="#3A0060" stroke-width="1.5" opacity="0.5"/><circle cx="30" cy="36" r="10" fill="#050010" stroke="#CC00FF" stroke-width="2.5"/><circle cx="50" cy="36" r="10" fill="#050010" stroke="#CC00FF" stroke-width="2.5"/><circle cx="31" cy="37" r="6" fill="#CC00FF"/><circle cx="51" cy="37" r="6" fill="#CC00FF"/><circle cx="29" cy="35" r="3" fill="#F0CCFF"/><circle cx="49" cy="35" r="3" fill="#F0CCFF"/><path d="M32 52 Q40 60 48 52" fill="none" stroke="#CC00FF" stroke-width="3" stroke-linecap="round"/><path d="M16 20 Q12 10 20 6 Q16 14 24 16" fill="#CC00FF" opacity="0.3"/><path d="M64 20 Q68 10 60 6 Q64 14 56 16" fill="#CC00FF" opacity="0.3"/><circle cx="40" cy="14" r="5" fill="#CC00FF" opacity="0.5"/><circle cx="40" cy="14" r="2.5" fill="#F0CCFF" opacity="0.7"/></svg>`},
 ];
 const QS = 10;
 const CAP_CH = 36000;
@@ -1836,10 +1852,11 @@ const ALL_DIFFS = ['EASY','NORMAL','HARD','EXTREME','ULTIMATE','EASY+','NORMAL+'
 const CARD_CATALOG = (function() {
   const cards = {};
   ALL_DIFFS.forEach(diff => {
-    for(let i = 0; i < 10; i++) {
+    const baseDiff = diff.replace('+','');
+    const count = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
+    for(let i = 0; i < count; i++) {
       const id = diff + '_' + i;
-      const rarity = (i === 4) ? 'rare' : (i === 9) ? 'legendary' : 'common';
-      const baseDiff = diff.replace('+','');
+      const rarity = (i >= 10) ? 'legendary' : (i === 4) ? 'rare' : (i === 9) ? 'legendary' : 'common';
       const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][i] : null;
       cards[id] = { id, diff, idx: i, rarity, name: enemy ? enemy.name : '???', isPlus: diff.endsWith('+') };
     }
@@ -1861,6 +1878,7 @@ function saveCards() {
   localStorage.setItem('snow_cards_new', JSON.stringify(newCards));
 }
 function getCardCount() { return Object.keys(collectedCards).length; }
+function getTotalCards() { return Object.keys(CARD_CATALOG).length; }
 function hasCard(id) { return !!collectedCards[id]; }
 
 /* =============== CARD ART (RO-style detailed portraits) =============== */
@@ -2042,7 +2060,9 @@ const CARD_ART = {
     ()=>`<svg viewBox="0 0 120 140"><defs><radialGradient id="cu6" cx="50%" cy="42%"><stop offset="0%" stop-color="#FF9060"/><stop offset="100%" stop-color="#D06020"/></radialGradient></defs><rect x="0" y="108" width="120" height="32" fill="#A08060"/><path d="M20 50 Q16 30 22 18 Q28 6 36 18 Q30 30 26 50" fill="#FF6B00" stroke="#D06020" stroke-width="2"/><path d="M92 50 Q96 30 90 18 Q84 6 76 18 Q82 30 86 50" fill="#FF6B00" stroke="#D06020" stroke-width="2"/><path d="M24 44 Q20 26 28 14" fill="#FFD93D" opacity="0.4" stroke="none"/><path d="M88 44 Q92 26 84 14" fill="#FFD93D" opacity="0.4" stroke="none"/><ellipse cx="56" cy="72" rx="30" ry="28" fill="url(#cu6)" stroke="#A04818" stroke-width="2.5"/><circle cx="44" cy="62" r="8" fill="#FFF" stroke="#A04818" stroke-width="2"/><circle cx="66" cy="60" r="7" fill="#FFF" stroke="#A04818" stroke-width="1.8"/><circle cx="46" cy="64" r="5" fill="#FF6B00"/><circle cx="67" cy="61" r="4" fill="#FF6B00"/><circle cx="44" cy="61" r="2" fill="#FFF"/><circle cx="65" cy="59" r="1.8" fill="#FFF"/><path d="M48 82 Q56 90 64 82" fill="none" stroke="#A04818" stroke-width="2.5" stroke-linecap="round"/></svg>`,
     ()=>`<svg viewBox="0 0 120 140"><defs><radialGradient id="cu7" cx="50%" cy="42%"><stop offset="0%" stop-color="#B0A080"/><stop offset="100%" stop-color="#806040"/></radialGradient></defs><rect x="0" y="108" width="120" height="32" fill="#6A5040"/><ellipse cx="56" cy="72" rx="30" ry="28" fill="url(#cu7)" stroke="#604028" stroke-width="2.5"/><ellipse cx="30" cy="38" rx="14" ry="18" fill="#806040" stroke="#604028" stroke-width="2"/><ellipse cx="82" cy="38" rx="14" ry="18" fill="#806040" stroke="#604028" stroke-width="2"/><path d="M20" y="24" Q14 14 20 8" fill="none" stroke="#806040" stroke-width="3" stroke-linecap="round"/><path d="M92 24 Q98 14 92 8" fill="none" stroke="#806040" stroke-width="3" stroke-linecap="round"/><circle cx="44" cy="62" r="8" fill="#FFF" stroke="#604028" stroke-width="2"/><circle cx="66" cy="60" r="7" fill="#FFF" stroke="#604028" stroke-width="1.8"/><circle cx="46" cy="64" r="5" fill="#806040"/><circle cx="67" cy="61" r="4" fill="#806040"/><circle cx="44" cy="61" r="2" fill="#FFF"/><circle cx="65" cy="59" r="1.8" fill="#FFF"/><path d="M48 82 Q56 88 62 82" fill="none" stroke="#604028" stroke-width="2.5" stroke-linecap="round"/></svg>`,
     ()=>`<svg viewBox="0 0 120 140"><defs><radialGradient id="cu8" cx="50%" cy="42%"><stop offset="0%" stop-color="#606060"/><stop offset="100%" stop-color="#303030"/></radialGradient></defs><rect x="0" y="108" width="120" height="32" fill="#404040"/><circle cx="56" cy="52" r="16" fill="url(#cu8)" stroke="#202020" stroke-width="2.5"/><circle cx="30" cy="48" r="12" fill="url(#cu8)" stroke="#202020" stroke-width="2"/><circle cx="82" cy="48" r="12" fill="url(#cu8)" stroke="#202020" stroke-width="2"/><ellipse cx="56" cy="80" rx="26" ry="22" fill="url(#cu8)" stroke="#202020" stroke-width="2.5"/><circle cx="48" cy="46" r="5" fill="#FFF" stroke="#202020" stroke-width="1.5"/><circle cx="64" cy="46" r="5" fill="#FFF" stroke="#202020" stroke-width="1.5"/><circle cx="26" cy="42" r="4" fill="#FFF" stroke="#202020" stroke-width="1.5"/><circle cx="34" cy="42" r="4" fill="#FFF" stroke="#202020" stroke-width="1.5"/><circle cx="78" cy="42" r="4" fill="#FFF" stroke="#202020" stroke-width="1.5"/><circle cx="86" cy="42" r="4" fill="#FFF" stroke="#202020" stroke-width="1.5"/><circle cx="49" cy="47" r="3" fill="#E74C3C"/><circle cx="65" cy="47" r="3" fill="#E74C3C"/><circle cx="27" cy="43" r="2.5" fill="#E74C3C"/><circle cx="35" cy="43" r="2.5" fill="#E74C3C"/><circle cx="79" cy="43" r="2.5" fill="#E74C3C"/><circle cx="87" cy="43" r="2.5" fill="#E74C3C"/><path d="M48 70 Q56 78 64 70" fill="none" stroke="#202020" stroke-width="2.5" stroke-linecap="round"/></svg>`,
-    ()=>`<svg viewBox="0 0 120 140"><defs><radialGradient id="cu9" cx="50%" cy="42%"><stop offset="0%" stop-color="#A080D0"/><stop offset="100%" stop-color="#6040A0"/></radialGradient></defs><rect x="0" y="0" width="120" height="140" fill="#1A1030" opacity="0.3"/><rect x="0" y="108" width="120" height="32" fill="#2A1840"/><path d="M26 32 L32 8 L46 24 L56 2 L66 24 L80 8 L86 32 Z" fill="#FFD700" stroke="#C9A44A" stroke-width="2.5" stroke-linejoin="round"/><circle cx="32" cy="8" r="5" fill="#E74C3C"/><circle cx="56" cy="2" r="6" fill="#58CC02"/><circle cx="80" cy="8" r="5" fill="#1CB0F6"/><path d="M10 68 Q4 38 16 28 L22 48 L20 108 Q10 116 10 116 Z" fill="#6040A0" opacity="0.4"/><path d="M110 68 Q116 38 104 28 L98 48 L100 108 Q110 116 110 116 Z" fill="#6040A0" opacity="0.4"/><ellipse cx="56" cy="72" rx="34" ry="32" fill="url(#cu9)" stroke="#4020A0" stroke-width="3"/><ellipse cx="56" cy="84" rx="18" ry="14" fill="#C0A0E0" opacity="0.3"/><path d="M86 60 L104 38" stroke="#C9A44A" stroke-width="3.5" stroke-linecap="round"/><circle cx="106" cy="34" r="5" fill="#FFD700" stroke="#C9A44A" stroke-width="2"/><circle cx="106" cy="34" r="2.5" fill="#FFF" opacity="0.4"/><circle cx="40" cy="60" r="10" fill="#FFF" stroke="#4020A0" stroke-width="2.5"/><circle cx="70" cy="58" r="9" fill="#FFF" stroke="#4020A0" stroke-width="2"/><circle cx="42" cy="62" r="6.5" fill="#7B00FF"/><circle cx="72" cy="60" r="5.5" fill="#7B00FF"/><circle cx="40" cy="59" r="3" fill="#4000A0"/><circle cx="70" cy="57" r="2.5" fill="#4000A0"/><circle cx="44" cy="58" r="2.2" fill="#FFF"/><circle cx="74" cy="56" r="2" fill="#FFF"/><path d="M46 82 Q56 92 66 82" fill="none" stroke="#4020A0" stroke-width="3" stroke-linecap="round"/></svg>`
+    ()=>`<svg viewBox="0 0 120 140"><defs><radialGradient id="cu9" cx="50%" cy="42%"><stop offset="0%" stop-color="#A080D0"/><stop offset="100%" stop-color="#6040A0"/></radialGradient></defs><rect x="0" y="0" width="120" height="140" fill="#1A1030" opacity="0.3"/><rect x="0" y="108" width="120" height="32" fill="#2A1840"/><path d="M26 32 L32 8 L46 24 L56 2 L66 24 L80 8 L86 32 Z" fill="#FFD700" stroke="#C9A44A" stroke-width="2.5" stroke-linejoin="round"/><circle cx="32" cy="8" r="5" fill="#E74C3C"/><circle cx="56" cy="2" r="6" fill="#58CC02"/><circle cx="80" cy="8" r="5" fill="#1CB0F6"/><path d="M10 68 Q4 38 16 28 L22 48 L20 108 Q10 116 10 116 Z" fill="#6040A0" opacity="0.4"/><path d="M110 68 Q116 38 104 28 L98 48 L100 108 Q110 116 110 116 Z" fill="#6040A0" opacity="0.4"/><ellipse cx="56" cy="72" rx="34" ry="32" fill="url(#cu9)" stroke="#4020A0" stroke-width="3"/><ellipse cx="56" cy="84" rx="18" ry="14" fill="#C0A0E0" opacity="0.3"/><path d="M86 60 L104 38" stroke="#C9A44A" stroke-width="3.5" stroke-linecap="round"/><circle cx="106" cy="34" r="5" fill="#FFD700" stroke="#C9A44A" stroke-width="2"/><circle cx="106" cy="34" r="2.5" fill="#FFF" opacity="0.4"/><circle cx="40" cy="60" r="10" fill="#FFF" stroke="#4020A0" stroke-width="2.5"/><circle cx="70" cy="58" r="9" fill="#FFF" stroke="#4020A0" stroke-width="2"/><circle cx="42" cy="62" r="6.5" fill="#7B00FF"/><circle cx="72" cy="60" r="5.5" fill="#7B00FF"/><circle cx="40" cy="59" r="3" fill="#4000A0"/><circle cx="70" cy="57" r="2.5" fill="#4000A0"/><circle cx="44" cy="58" r="2.2" fill="#FFF"/><circle cx="74" cy="56" r="2" fill="#FFF"/><path d="M46 82 Q56 92 66 82" fill="none" stroke="#4020A0" stroke-width="3" stroke-linecap="round"/></svg>`,
+    // 10: カオス — 虚無の渦から顕現する万物の始源
+    ()=>`<svg viewBox="0 0 120 140"><defs><radialGradient id="cu10" cx="50%" cy="50%"><stop offset="0%" stop-color="#4A0080"/><stop offset="40%" stop-color="#1A0030"/><stop offset="100%" stop-color="#000010"/></radialGradient></defs><rect x="0" y="0" width="120" height="140" fill="#000010"/><circle cx="60" cy="70" r="55" fill="url(#cu10)"/><circle cx="60" cy="70" r="50" fill="none" stroke="#7B00FF" stroke-width="1" opacity="0.2"/><circle cx="60" cy="70" r="40" fill="none" stroke="#7B00FF" stroke-width="1.5" opacity="0.15"/><circle cx="60" cy="70" r="30" fill="none" stroke="#C090FF" stroke-width="1" opacity="0.1"/><path d="M20 40 Q30 20 50 30 Q40 10 60 20 Q70 8 80 24 Q100 16 100 40" fill="none" stroke="#7B00FF" stroke-width="2" opacity="0.3"/><path d="M20 100 Q30 120 50 108 Q40 126 60 118 Q70 130 80 114 Q100 124 100 100" fill="none" stroke="#7B00FF" stroke-width="2" opacity="0.2"/><circle cx="48" cy="58" r="12" fill="#0A0020" stroke="#7B00FF" stroke-width="3"/><circle cx="72" cy="58" r="12" fill="#0A0020" stroke="#7B00FF" stroke-width="3"/><circle cx="50" cy="60" r="7.5" fill="#7B00FF"/><circle cx="74" cy="60" r="7.5" fill="#7B00FF"/><circle cx="48" cy="57" r="3.5" fill="#C090FF"/><circle cx="72" cy="57" r="3.5" fill="#C090FF"/><circle cx="52" cy="62" r="1.5" fill="#FFF" opacity="0.5"/><circle cx="76" cy="62" r="1.5" fill="#FFF" opacity="0.5"/><path d="M50 80 Q60 90 70 80" fill="none" stroke="#7B00FF" stroke-width="3.5" stroke-linecap="round"/><circle cx="30" cy="30" r="2" fill="#C090FF" opacity="0.3"/><circle cx="90" cy="28" r="1.5" fill="#C090FF" opacity="0.25"/><circle cx="20" cy="80" r="1" fill="#7B00FF" opacity="0.2"/><circle cx="100" cy="90" r="1.5" fill="#7B00FF" opacity="0.2"/></svg>`
   ]
 };
 
@@ -2207,7 +2227,7 @@ function openCollection() {
   modal.classList.add('show');
   switchCollectionView('cards');
   const desc = document.getElementById('col-mode-desc');
-  if(desc) desc.textContent = getCardCount() + '/100 カード収集済み';
+  if(desc) desc.textContent = getCardCount() + '/' + getTotalCards() + ' カード収集済み';
   renderRecentCards();
   renderCollectionTabs();
   renderCollectionGrid(_colTab);
@@ -2241,7 +2261,9 @@ function renderCollectionTabs() {
 function renderCollectionGrid(diff) {
   const grid = document.getElementById('col-grid');
   grid.innerHTML = '';
-  for(let i = 0; i < 10; i++) {
+  const baseDiff = diff.replace('+','');
+  const count = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
+  for(let i = 0; i < count; i++) {
     const cardId = diff + '_' + i;
     const card = CARD_CATALOG[cardId];
     const owned = hasCard(cardId);
@@ -2282,8 +2304,8 @@ function renderCollectionGrid(diff) {
 
 function updateCollectionProgress() {
   const count = getCardCount();
-  document.getElementById('col-progress-text').textContent = count + ' / 100';
-  document.getElementById('col-progress-fill').style.width = count + '%';
+  document.getElementById('col-progress-text').textContent = count + ' / ' + getTotalCards();
+  document.getElementById('col-progress-fill').style.width = (count / getTotalCards() * 100) + '%';
 }
 
 function showCardDetail(cardId) {
@@ -2386,14 +2408,16 @@ function renderStats() {
   container.appendChild(h1);
   ALL_DIFFS.forEach(d => {
     const unlocked = diffUnlocked(d);
+    const bd = d.replace('+','');
+    const total = ENEMIES[bd] ? ENEMIES[bd].length : 10;
     let count = 0;
-    for(let i=0;i<10;i++) if(hasCard(d+'_'+i)) count++;
+    for(let i=0;i<total;i++) if(hasCard(d+'_'+i)) count++;
     const row = document.createElement('div');
     row.className = 'col-stat-row';
     if(unlocked) {
-      row.innerHTML = '<span>' + d + '</span><span class="col-stat-val">' + count + ' / 10</span>';
+      row.innerHTML = '<span>' + d + '</span><span class="col-stat-val">' + count + ' / ' + total + '</span>';
     } else {
-      row.innerHTML = '<span style="opacity:0.35">???</span><span class="col-stat-val" style="opacity:0.35">- / 10</span>';
+      row.innerHTML = '<span style="opacity:0.35">???</span><span class="col-stat-val" style="opacity:0.35">- / ' + total + '</span>';
     }
     container.appendChild(row);
   });
@@ -2437,7 +2461,7 @@ const ACHIEVEMENTS = [
   { id:'collect30', icon:'📚', name:'カードマニア',      desc:'カードを30枚取得',  check: () => getCardCount() >= 30 },
   { id:'collect50', icon:'🏅', name:'ハーフコンプ',      desc:'カードを50枚取得',  check: () => getCardCount() >= 50 },
   { id:'collect80', icon:'💎', name:'マスターコレクター',desc:'カードを80枚取得',  check: () => getCardCount() >= 80 },
-  { id:'complete',  icon:'👑', name:'コンプリート!!',    desc:'全100枚取得',       check: () => getCardCount() >= 100 },
+  { id:'complete',  icon:'👑', name:'コンプリート!!',    desc:'全カード取得',      check: () => getCardCount() >= getTotalCards() },
   { id:'boss_all',  icon:'🐉', name:'ボスハンター',     desc:'全Legendaryカード取得', check: () => {
     return ALL_DIFFS.every(d => hasCard(d + '_9'));
   }},
@@ -2605,7 +2629,7 @@ let isRandomMode = false;
 const KB_LAYOUTS = [
   { id:'PHONE', label:'📱 電話配置', cls:'kb-a', layout:'layout-phone' },
   { id:'CALC', label:'🔢 電卓配置', cls:'kb-b', layout:'layout-calc' },
-  { id:'SPECIAL', label:'⚡ 特殊配置', cls:'kb-c', layout:'layout-special' }
+  { id:'SPECIAL', label:'🏪 特殊配置', cls:'kb-c', layout:'layout-special' }
 ];
 let curKbIdx = 0;
 
@@ -2622,7 +2646,8 @@ function load() {
   loadCards();
   ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE','ULTIMATE+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
-    for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
+    const stgLen = STAGES[d] ? STAGES[d].length : 10;
+    for(let i=0;i<stgLen;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
   });
 }
 function save() {
@@ -2638,10 +2663,15 @@ function save() {
 }
 
 function getLevel() {
-  // XP thresholds: Level 1=0, 2=50, 3=150, 4=300, 5=500, 6=750, 7=1050, 8=1400, 9=1800, 10=2250...
+  // XP thresholds: Level 1=0, 2=50, 3=150, 4=300... Level 100+ requires 3x XP per level
   let lv = 1, threshold = 50;
-  while(totalXP >= threshold) { lv++; threshold += lv * 50; }
-  const prevT = threshold - lv * 50;
+  while(totalXP >= threshold) {
+    lv++;
+    const increment = lv >= 100 ? lv * 150 : lv * 50;
+    threshold += increment;
+  }
+  const prevIncrement = lv >= 100 ? lv * 150 : lv * 50;
+  const prevT = threshold - prevIncrement;
   const pct = ((totalXP - prevT) / (threshold - prevT)) * 100;
   return { level: lv, pct: Math.min(100, pct), next: threshold };
 }
@@ -3153,14 +3183,17 @@ function renderMap() {
   const pos = ['center','right','left','right','center','left','right','left','right','center'];
   updateMapXP();
 
-  for(let i=0;i<10;i++) {
+  const stageCount = STAGES[curDiff].length;
+  for(let i=0;i<stageCount;i++) {
     const s = STAGES[curDiff][i];
+    if(!prog[curDiff][i]) prog[curDiff][i] = { cleared:false, stars:0, best:0 };
     const p = prog[curDiff][i];
     const ok = unlocked(curDiff,i);
-    const isMid = s.boss==='mid', isBoss = s.boss==='final';
+    const isMid = s.boss==='mid', isBoss = s.boss==='final' || s.boss==='true_final';
+    const isTrueFinal = s.boss==='true_final';
 
     const row = document.createElement('div');
-    row.className = 'stage-row pos-' + pos[i];
+    row.className = 'stage-row pos-' + (pos[i] || 'center');
 
     const wrap = document.createElement('div');
     wrap.className = 'node-wrapper';
@@ -3173,7 +3206,8 @@ function renderMap() {
     else { node.style.background = dc.bg; node.classList.add('available'); }
 
     if(isMid) node.classList.add('mid-boss');
-    if(isBoss) node.classList.add('boss');
+    if(isTrueFinal) node.classList.add('true-final');
+    else if(isBoss) node.classList.add('boss');
 
     if(ok) {
       const num = document.createElement('div');
@@ -3228,6 +3262,13 @@ function renderMap() {
         lm.innerHTML = lmData.svg;
         wrap.appendChild(lm);
       }
+    }
+
+    if(isTrueFinal && ok) {
+      const gate = document.createElement('div');
+      gate.className = 'true-final-gate';
+      gate.textContent = '⛩ GATE OF CHAOS';
+      wrap.appendChild(gate);
     }
 
     row.appendChild(wrap);
@@ -3299,7 +3340,7 @@ function startStage(d, idx) {
   gv.setAttribute('data-diff', d);
   gv.classList.remove('boss-mid','boss-final');
   if(s.boss==='mid') gv.classList.add('boss-mid');
-  else if(s.boss==='final') gv.classList.add('boss-final');
+  else if(s.boss==='final' || s.boss==='true_final') gv.classList.add('boss-final');
 
   document.getElementById('map-view').style.display = 'none';
 
@@ -3322,7 +3363,8 @@ function startStage(d, idx) {
   enemyName.textContent = enemy.name;
 
   const labelEl = document.getElementById('enemy-label');
-  if(enemy.boss) { labelEl.textContent = '👑 BOSS'; labelEl.style.background = '#FF4B4B'; }
+  if(s.boss==='true_final') { labelEl.textContent = '⛩ TRUE FINAL'; labelEl.style.background = '#7B00FF'; }
+  else if(enemy.boss) { labelEl.textContent = '👑 BOSS'; labelEl.style.background = '#FF4B4B'; }
   else if(enemy.mid) { labelEl.textContent = '⚡ MID BOSS'; labelEl.style.background = '#FF9600'; }
   else { labelEl.textContent = 'STAGE ' + (idx+1); labelEl.style.background = dc.main; }
 
@@ -3338,12 +3380,13 @@ function startStage(d, idx) {
 
 function showEnemyIntro(type, cb) {
   const enemy = ENEMIES[curDiff][curIdx];
-  const isBoss = type === 'final';
+  const isTrueFinal = type === 'true_final';
+  const isBoss = type === 'final' || isTrueFinal;
   const isMid = type === 'mid';
   const dc = DC[curDiff];
-  const label = isBoss ? '👑 BOSS 👑' : isMid ? '⚡ MID BOSS ⚡' : 'STAGE ' + (curIdx + 1);
-  const labelColor = isBoss ? '#FF4B4B' : isMid ? '#FF9600' : dc.main;
-  const enemySize = isBoss ? 100 : isMid ? 80 : 60;
+  const label = isTrueFinal ? '⛩ TRUE FINAL BOSS ⛩' : isBoss ? '👑 BOSS 👑' : isMid ? '⚡ MID BOSS ⚡' : 'STAGE ' + (curIdx + 1);
+  const labelColor = isTrueFinal ? '#7B00FF' : isBoss ? '#FF4B4B' : isMid ? '#FF9600' : dc.main;
+  const enemySize = isTrueFinal ? 120 : isBoss ? 100 : isMid ? 80 : 60;
   const duration = isBoss ? 1800 : isMid ? 1500 : 900;
 
   const ov = document.createElement('div');
@@ -4394,7 +4437,7 @@ function showResult(score, stars, isNew, droppedCard) {
     cardDropEl.className = 'r-card-drop show';
     const count = document.createElement('div');
     count.className = 'card-drop-count';
-    count.textContent = '📇 ' + droppedCard.name + ' GET! (' + getCardCount() + '/100)';
+    count.textContent = '📇 ' + droppedCard.name + ' GET! (' + getCardCount() + '/' + getTotalCards() + ')';
     cardDropEl.appendChild(count);
   }
 
@@ -4883,6 +4926,7 @@ function updateDrillLives() {
 function drillEnd(result) {
   GS.status = 'GAMEOVER'; GS.blocked = true;
   if(GS.rafId) cancelAnimationFrame(GS.rafId);
+  checkDailyProgress('drill_play', {});
   document.getElementById('game-blocks').innerHTML = '';
   document.getElementById('input-display').textContent = '';
 
@@ -4992,11 +5036,9 @@ function generateDailyMissions() {
 
   const missions = [];
 
-  // Mission 1: 弱点練習 (weak shape specific, or general if no weak shapes)
-  if(missedShapes.length > 0) {
-    const sorted = [...missedShapes].sort((a,b) => b.miss - a.miss);
-    const target = sorted[0];
-    missions.push({ type:'weak', icon:'⚔️', desc:'苦手な形('+target.n+'ブロック)を1回正解', goal:1, prog:0, done:false, targetSig: target.sig, targetN: target.n });
+  // Mission 1: 弱点特訓プレイ or general play
+  if(drillUnlocked) {
+    missions.push({ type:'drill_play', icon:'⚔️', desc:'弱点特訓を1回プレイしよう', goal:1, prog:0, done:false });
   } else {
     const dOrder = ['EASY','NORMAL','HARD','EXTREME'];
     const highestUnlocked = [...dOrder].reverse().find(d => diffUnlocked(d)) || 'EASY';
@@ -5098,6 +5140,9 @@ function checkDailyProgress(event, data) {
       if(m.prog >= m.goal) { m.done = true; changed = true; }
     }
     if(event === 'ta_play' && m.type === 'ta_play') {
+      m.done = true; changed = true;
+    }
+    if(event === 'drill_play' && m.type === 'drill_play') {
       m.done = true; changed = true;
     }
     if(event === 'survival_correct' && m.type === 'survival10') {
