@@ -3216,7 +3216,9 @@ function renderMap() {
   const pos = ['center','right','left','right','center','left','right','left','right','center'];
   updateMapXP();
 
-  const stageCount = STAGES[curDiff].length;
+  const allStages = STAGES[curDiff].length;
+  const stage10cleared = prog[curDiff] && prog[curDiff][9] && prog[curDiff][9].cleared;
+  const stageCount = (allStages > 10 && !stage10cleared) ? 10 : allStages;
   for(let i=0;i<stageCount;i++) {
     const s = STAGES[curDiff][i];
     if(!prog[curDiff][i]) prog[curDiff][i] = { cleared:false, stars:0, best:0 };
@@ -3225,11 +3227,8 @@ function renderMap() {
     const isMid = s.boss==='mid', isBoss = s.boss==='final' || s.boss==='true_final';
     const isTrueFinal = s.boss==='true_final';
 
-    // 11面: 10面クリア前は非表示、クリア後はスペーサー付きで表示
+    // 11面: スペーサーで2ノード分下に表示
     if(isTrueFinal) {
-      const stage10 = prog[curDiff] && prog[curDiff][i-1];
-      if(!stage10 || !stage10.cleared) continue;
-      // 2ノード分のスペーサー
       const spacer = document.createElement('div');
       spacer.style.height = '140px';
       list.appendChild(spacer);
