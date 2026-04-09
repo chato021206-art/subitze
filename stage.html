@@ -1890,7 +1890,16 @@ function saveCards() {
   localStorage.setItem('snow_cards_new', JSON.stringify(newCards));
 }
 function getCardCount() { return Object.keys(collectedCards).length; }
-function getTotalCards() { return Object.keys(CARD_CATALOG).length; }
+function getTotalCards() {
+  let total = 0;
+  ALL_DIFFS.forEach(d => {
+    const bd = d.replace('+','');
+    const allCount = ENEMIES[bd] ? ENEMIES[bd].length : 10;
+    const s10 = prog[d] && prog[d][9] && prog[d][9].cleared;
+    total += (allCount > 10 && !s10) ? 10 : allCount;
+  });
+  return total;
+}
 function hasCard(id) { return !!collectedCards[id]; }
 
 /* =============== CARD ART (RO-style detailed portraits) =============== */
@@ -2274,7 +2283,9 @@ function renderCollectionGrid(diff) {
   const grid = document.getElementById('col-grid');
   grid.innerHTML = '';
   const baseDiff = diff.replace('+','');
-  const count = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
+  const allCount = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
+  const stage10cleared = prog[diff] && prog[diff][9] && prog[diff][9].cleared;
+  const count = (allCount > 10 && !stage10cleared) ? 10 : allCount;
   for(let i = 0; i < count; i++) {
     const cardId = diff + '_' + i;
     const card = CARD_CATALOG[cardId];
@@ -2421,7 +2432,10 @@ function renderStats() {
   ALL_DIFFS.forEach(d => {
     const unlocked = diffUnlocked(d);
     const bd = d.replace('+','');
-    const total = ENEMIES[bd] ? ENEMIES[bd].length : 10;
+    const allTotal = ENEMIES[bd] ? ENEMIES[bd].length : 10;
+    // Hide stage 11 info until stage 10 is cleared
+    const stage10cleared = prog[d] && prog[d][9] && prog[d][9].cleared;
+    const total = (allTotal > 10 && !stage10cleared) ? 10 : allTotal;
     let count = 0;
     for(let i=0;i<total;i++) if(hasCard(d+'_'+i)) count++;
     const row = document.createElement('div');
