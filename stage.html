@@ -1463,7 +1463,9 @@ body {
     <div style="font-size:11px;color:#999;margin-bottom:14px">QRコードを読み取ってもらおう</div>
     <img id="qr-img" style="width:180px;height:180px;border-radius:8px" alt="QR">
     <div style="font-size:10px;color:#bbb;margin-top:10px">SNOW: SUBITZE</div>
-    <button style="margin-top:14px;padding:10px 28px;background:#58CC02;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:900;cursor:pointer" onclick="document.getElementById('qr-modal').style.display='none'">とじる</button>
+    <div id="qr-url" style="font-size:9px;color:#aaa;margin-top:8px;word-break:break-all;padding:6px 10px;background:#F5F5F5;border-radius:8px;cursor:pointer" onclick="copyURL()"></div>
+    <div id="qr-copied" style="font-size:10px;color:#58CC02;font-weight:900;margin-top:4px;height:16px"></div>
+    <button style="margin-top:8px;padding:10px 28px;background:#58CC02;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:900;cursor:pointer" onclick="document.getElementById('qr-modal').style.display='none'">とじる</button>
   </div>
 </div>
 
@@ -2916,7 +2918,15 @@ function showQR() {
   const url = window.location.href;
   const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(url);
   document.getElementById('qr-img').src = qrUrl;
+  document.getElementById('qr-url').textContent = url;
+  document.getElementById('qr-copied').textContent = '';
   document.getElementById('qr-modal').style.display = 'flex';
+}
+function copyURL() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    document.getElementById('qr-copied').textContent = 'コピーしました!';
+    setTimeout(() => { document.getElementById('qr-copied').textContent = ''; }, 2000);
+  });
 }
 
 function plusUnlocked(d) {
