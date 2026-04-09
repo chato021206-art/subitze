@@ -3779,7 +3779,7 @@ function addBrainQ() {
 /* =============== RENDER =============== */
 function renderBlocks() {
   const el = document.getElementById('game-blocks');
-  el.innerHTML = '';
+  while(el.firstChild) el.removeChild(el.firstChild);
   el.classList.toggle('brain-layout', !!brainMode);
   if(!GS.current||GS.current.n===null) return;
   const dc = DC[curDiff];
@@ -3894,12 +3894,16 @@ function processInput(val) {
   }
 }
 
+function reAnimateClass(el, cls) {
+  el.classList.remove(cls);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add(cls)));
+}
 function flashKey(val, isCorrect) {
   const btn = document.querySelector('.gk[data-key="' + val + '"]');
   if(!btn) return;
   btn.classList.remove('gk-correct', 'gk-wrong', 'tap');
-  void btn.offsetWidth;
-  btn.classList.add(isCorrect ? 'gk-correct' : 'gk-wrong');
+  const c = isCorrect ? 'gk-correct' : 'gk-wrong';
+  requestAnimationFrame(() => requestAnimationFrame(() => btn.classList.add(c)));
   setTimeout(() => btn.classList.remove('gk-correct', 'gk-wrong'), 420);
 }
 
@@ -3915,7 +3919,8 @@ function checkAns(val) {
       GS.xp += xpGain;
       // Slot flash + XP popup
       const slot = document.getElementById('game-slot');
-      slot.classList.remove('slot-correct'); void slot.offsetWidth; slot.classList.add('slot-correct');
+      slot.classList.remove('slot-correct');
+      reAnimateClass(slot, 'slot-correct');
       setTimeout(() => slot.classList.remove('slot-correct'), 300);
       document.querySelectorAll('.xp-popup').forEach(e=>e.remove());
       const xpEl = document.createElement('div'); xpEl.className='xp-popup'; xpEl.textContent='+'+xpGain+' XP';
@@ -4062,14 +4067,14 @@ function showEval(lbl, grade, xpGain) {
 
   // Slot flash
   const slot = document.getElementById('game-slot');
-  slot.classList.remove('slot-correct'); void slot.offsetWidth;
-  slot.classList.add('slot-correct');
+  slot.classList.remove('slot-correct');
+  reAnimateClass(slot, 'slot-correct');
   setTimeout(() => slot.classList.remove('slot-correct'), 300);
 
   // Enemy damage
   const enemyEl = document.getElementById('enemy-char');
-  enemyEl.classList.remove('enemy-damage'); void enemyEl.offsetWidth;
-  enemyEl.classList.add('enemy-damage');
+  enemyEl.classList.remove('enemy-damage');
+  reAnimateClass(enemyEl, 'enemy-damage');
   setTimeout(() => enemyEl.classList.remove('enemy-damage'), 400);
 
   // HP bar
@@ -5388,8 +5393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const k = document.querySelector('.gk[data-key="' + val + '"]');
     if(!k || k.classList.contains('disabled')) return;
     k.classList.remove('tap');
-    void k.offsetWidth;
-    k.classList.add('tap');
+    reAnimateClass(k, 'tap');
     setTimeout(() => k.classList.remove('tap'), 100);
   }
 
