@@ -1506,7 +1506,6 @@ body {
     <div class="collection-view-tabs">
       <div class="collection-view-tab active" onclick="switchCollectionView('cards')">カード</div>
       <div class="collection-view-tab" onclick="switchCollectionView('stats')">統計</div>
-      <div class="collection-view-tab" onclick="switchCollectionView('achieve')">アチーブメント</div>
     </div>
     <div id="col-cards-view">
       <div id="col-recent" class="col-recent" style="display:none">
@@ -1525,7 +1524,6 @@ body {
       <div class="collection-grid" id="col-grid"></div>
     </div>
     <div id="col-stats-view" class="collection-stats" style="display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
-    <div id="col-achieve-view" class="achieve-section" style="display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
   </div>
 </div>
 
@@ -2149,23 +2147,17 @@ let _cardFilter = 'all';
 function switchCollectionView(view) {
   const cardsView = document.getElementById('col-cards-view');
   const statsView = document.getElementById('col-stats-view');
-  const achieveView = document.getElementById('col-achieve-view');
   const tabs = document.querySelectorAll('.collection-view-tab');
   tabs.forEach(t => t.classList.remove('active'));
   cardsView.style.display = 'none';
   statsView.style.display = 'none';
-  achieveView.style.display = 'none';
   if(view === 'cards') {
     cardsView.style.display = '';
     tabs[0].classList.add('active');
-  } else if(view === 'stats') {
+  } else {
     statsView.style.display = '';
     tabs[1].classList.add('active');
     renderStats();
-  } else {
-    achieveView.style.display = '';
-    tabs[2].classList.add('active');
-    renderAchievements();
   }
 }
 
@@ -2435,7 +2427,6 @@ function load() {
   drillUnlocked = localStorage.getItem('snow_drill_unlocked') === '1';
   try { const d = localStorage.getItem('snow_daily'); if(d) { const p = JSON.parse(d); streak=p.streak||0; lastStreakDate=p.lastStreakDate||''; dailyMissions=p.missions||[]; dailyDate=p.date||''; } } catch(e){}
   loadCards();
-  loadAchievements();
   ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE','ULTIMATE+'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     for(let i=0;i<10;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -4210,7 +4201,7 @@ function showResult(score, stars, isNew, droppedCard) {
   }
 
   document.getElementById('result-overlay').classList.add('show');
-  if(droppedCard) { updateNewDot(); setTimeout(checkAchievements, 500); }
+  if(droppedCard) { updateNewDot(); }
 
   // Confetti
   if(stars>=2) launchConfetti(stars===3?100:40);
