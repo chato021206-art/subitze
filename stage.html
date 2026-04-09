@@ -3571,8 +3571,11 @@ function renderBlocks() {
 
 
 /* =============== INPUT =============== */
+let _inputCooldown = false;
 function processInput(val) {
   if(!GS.current||GS.blocked||GS.status!=='PLAYING') return;
+  // Prevent accidental double-tap (100ms cooldown after answer submit)
+  if(_inputCooldown) return;
   const s = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
   // Drill: use multi-digit input when current number > 9
   const effectiveTp = (drillMode && GS.current && GS.current.n > 9) ? 'H' : s.tp;
@@ -3582,10 +3585,16 @@ function processInput(val) {
     const tLen = String(GS.current.n).length;
     if(GS.input.length<tLen) GS.input+=val;
     inputEl.textContent = GS.input;
-    if(GS.input.length===tLen){checkAns(parseInt(GS.input,10));GS.input='';inputEl.textContent='';}
+    if(GS.input.length===tLen){
+      _inputCooldown = true; setTimeout(() => { _inputCooldown = false; }, 120);
+      checkAns(parseInt(GS.input,10));GS.input='';inputEl.textContent='';
+    }
   } else {
     const v=parseInt(val,10);
-    if(!isNaN(v)&&v>=1&&v<=9) checkAns(v);
+    if(!isNaN(v)&&v>=1&&v<=9) {
+      _inputCooldown = true; setTimeout(() => { _inputCooldown = false; }, 120);
+      checkAns(v);
+    }
   }
 }
 
