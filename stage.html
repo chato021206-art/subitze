@@ -1157,6 +1157,7 @@ body {
 .setting-btn.kb-a { --btn-c: #58CC02; }
 .setting-btn.kb-b { --btn-c: #1CB0F6; }
 .setting-btn.kb-c { --btn-c: #E03020; }
+.setting-btn.qr-btn { --btn-c: #555; color: #555; font-size: 12px; }
 .random-toggle {
   padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 900;
   cursor: pointer; transition: all 0.2s; border: 3px solid #ddd;
@@ -1351,7 +1352,7 @@ body {
 
   <!-- Panel indicator (arrows + dots) -->
   <div class="panel-indicator" id="panel-indicator">
-    <div class="pi-side" id="pi-left" onclick="goToPanel(currentPanel-1)">◀ モード</div>
+    <div class="pi-side" id="pi-left" onclick="goToPanel(currentPanel-1)">◀ メニュー</div>
     <div class="pi-dots">
       <div class="pi-dot" id="pi-dot-0"></div>
       <div class="pi-dot active" id="pi-dot-1"></div>
@@ -1367,7 +1368,7 @@ body {
     <!-- Panel 0: Modes -->
     <div class="panel panel-modes" id="panel-0">
       <div class="modes-scroll">
-        <div class="modes-title">モード選択</div>
+        <div class="modes-title">メニュー</div>
         <div class="mode-card" onclick="showSkillMap()">
           <div class="mode-icon">📊</div>
           <div class="mode-info">
@@ -1446,12 +1447,23 @@ body {
   </div><!-- /panels-wrap -->
   </div><!-- /panels-outer -->
 
-  <!-- Settings: KEY + RANDOM only -->
   <div class="map-settings">
     <div class="map-settings-row">
       <button id="kb-btn" class="setting-btn kb-a active" onclick="cycleKeyboard()">📱 電話配置</button>
       <button id="random-btn" class="random-toggle" onclick="toggleRandom()">RANDOM</button>
+      <button class="setting-btn qr-btn" onclick="showQR()">QR</button>
     </div>
+  </div>
+</div>
+
+<!-- =============== QR MODAL =============== -->
+<div id="qr-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#FFF;border-radius:20px;padding:24px;text-align:center;width:80%;max-width:300px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="font-size:16px;font-weight:900;color:#555;margin-bottom:8px">友達にシェア!</div>
+    <div style="font-size:11px;color:#999;margin-bottom:14px">QRコードを読み取ってもらおう</div>
+    <img id="qr-img" style="width:180px;height:180px;border-radius:8px" alt="QR">
+    <div style="font-size:10px;color:#bbb;margin-top:10px">SNOW: SUBITZE</div>
+    <button style="margin-top:14px;padding:10px 28px;background:#58CC02;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:900;cursor:pointer" onclick="document.getElementById('qr-modal').style.display='none'">とじる</button>
   </div>
 </div>
 
@@ -1712,7 +1724,7 @@ const STAGES = {
     { bag:[54,56,58,60,62,64],                    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
     { bag:[56,58,60,62,64,66],                    t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E' },
     { bag:[55,58,60,62,64,66,68,70],              t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'E', boss:'final' },
-    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.5}, cols:9, mh:9, tp:'E', boss:'true_final', noExt:true },
+    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.5}, cols:9, mh:9, tp:'E', boss:'true_final' },
   ]
 };
 
@@ -2886,6 +2898,13 @@ function toggleRandom() {
   btn.textContent = isRandomMode ? 'RANDOM ON' : 'RANDOM';
 }
 
+function showQR() {
+  const url = window.location.href;
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(url);
+  document.getElementById('qr-img').src = qrUrl;
+  document.getElementById('qr-modal').style.display = 'flex';
+}
+
 function plusUnlocked(d) {
   const base = d.replace('+','');
   if(!prog[base]) return false;
@@ -2971,7 +2990,7 @@ function updatePanelIndicator() {
   const rightEl = document.getElementById('pi-right');
   leftEl.classList.toggle('pi-hidden', currentPanel === 0);
   rightEl.classList.toggle('pi-hidden', currentPanel >= total - 1);
-  leftEl.textContent  = currentPanel === 1 ? '◀ モード' : '◀ ステージ';
+  leftEl.textContent  = currentPanel === 1 ? '◀ メニュー' : '◀ ステージ';
   rightEl.textContent = currentPanel === 0 ? 'ステージ ▶' : '＋ ▶';
 }
 
@@ -4130,7 +4149,7 @@ function handleMiss(type,inp,ans) {
   else if(type==='SLOW'){ft.textContent='おそすぎた！';fs.textContent='こたえ: '+ans;}
   else{ft.textContent='ざんねん！';fs.textContent=inp+' → こたえ: '+ans;}
   if(fx) fx.textContent = GS.xp > 0 ? '⚡ +' + GS.xp + ' XP' : '';
-  document.querySelector('.fbtn-back').textContent = brainMode ? 'モード' : 'やめる';
+  document.querySelector('.fbtn-back').textContent = brainMode ? 'メニュー' : 'やめる';
   document.getElementById('fail-overlay').classList.add('show');
 }
 
@@ -4501,7 +4520,7 @@ function startSurvival() {
 
   document.getElementById('enemy-char').innerHTML = ENEMIES['EASY'][0].svg();
   document.getElementById('enemy-char').className = 'enemy-char';
-  document.getElementById('enemy-name').textContent = 'サバイバルモード';
+  document.getElementById('enemy-name').textContent = 'サバイバル';
 
   // HP bar = progress to next level (X/10)
   document.getElementById('enemy-hp-fill').style.width = '0%';
@@ -4602,8 +4621,8 @@ function showSurvivalResult(isNewCorrect, isNewBlocks) {
   document.getElementById('r-record').style.display = (isNewCorrect||isNewBlocks) ? 'block' : 'none';
   document.getElementById('r-unlock').style.display = 'none';
   document.getElementById('r-next').style.display = 'none';
-  document.querySelector('.rbtn-map').textContent = 'モード';
-  document.querySelector('.fbtn-back').textContent = 'モード';
+  document.querySelector('.rbtn-map').textContent = 'メニュー';
+  document.querySelector('.fbtn-back').textContent = 'メニュー';
   document.getElementById('result-overlay').classList.add('show');
   if(survivalCorrect >= 10) launchConfetti(Math.min(100, survivalCorrect * 2));
 }
@@ -4747,8 +4766,8 @@ function showTAResult(isNewCorrect, isNewBlocks) {
   document.getElementById('r-record').style.display = (isNewCorrect||isNewBlocks) ? 'block' : 'none';
   document.getElementById('r-unlock').style.display = 'none';
   document.getElementById('r-next').style.display = 'none';
-  document.querySelector('.rbtn-map').textContent = 'モード';
-  document.querySelector('.fbtn-back').textContent = 'モード';
+  document.querySelector('.rbtn-map').textContent = 'メニュー';
+  document.querySelector('.fbtn-back').textContent = 'メニュー';
   document.getElementById('result-overlay').classList.add('show');
   if(taCorrect > 0) launchConfetti(Math.min(80, taCorrect * 2));
 }
@@ -4779,7 +4798,7 @@ function startBrain() {
   const enemyChar = document.getElementById('enemy-char');
   enemyChar.innerHTML = ENEMIES['EASY'][0].svg();
   enemyChar.className = 'enemy-char';
-  document.getElementById('enemy-name').textContent = '脳トレモード';
+  document.getElementById('enemy-name').textContent = '脳トレ';
 
   document.getElementById('enemy-hp-fill').style.width = '100%';
   document.getElementById('enemy-hp-fill').className = 'enemy-hp-fill';
@@ -4828,8 +4847,8 @@ function brainEnd(result) {
     document.getElementById('r-unlock').style.display = 'none';
     document.getElementById('r-ratings').innerHTML = '';
     document.getElementById('r-next').style.display = 'none';
-    document.querySelector('.rbtn-map').textContent = 'モード';
-    document.querySelector('.fbtn-back').textContent = 'モード';
+    document.querySelector('.rbtn-map').textContent = 'メニュー';
+    document.querySelector('.fbtn-back').textContent = 'メニュー';
     document.getElementById('result-overlay').classList.add('show');
   }
 }
@@ -4896,7 +4915,7 @@ function startDrillWithDiff(diff) {
   const enemyChar = document.getElementById('enemy-char');
   enemyChar.innerHTML = ENEMIES['EASY'][0].svg();
   enemyChar.className = 'enemy-char';
-  document.getElementById('enemy-name').textContent = '弱点特訓モード';
+  document.getElementById('enemy-name').textContent = '弱点特訓';
 
   // HP bar = question progress
   document.getElementById('enemy-hp-fill').style.width = '100%';
@@ -4990,8 +5009,8 @@ function drillEnd(result) {
     document.getElementById('r-next').style.display = 'none';
     const retryBtn = document.querySelector('.rbtn-retry');
     if(retryBtn) retryBtn.style.display = allConquered ? 'none' : '';
-    document.querySelector('.rbtn-map').textContent = 'モード';
-    document.querySelector('.fbtn-back').textContent = 'モード';
+    document.querySelector('.rbtn-map').textContent = 'メニュー';
+    document.querySelector('.fbtn-back').textContent = 'メニュー';
     document.getElementById('result-overlay').classList.add('show');
     launchConfetti(allConquered ? 120 : drillLives >= 3 ? 80 : 30);
 
