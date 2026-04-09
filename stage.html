@@ -3211,6 +3211,16 @@ function renderMap() {
     const isMid = s.boss==='mid', isBoss = s.boss==='final' || s.boss==='true_final';
     const isTrueFinal = s.boss==='true_final';
 
+    // 11面: 10面クリア前は非表示、クリア後はスペーサー付きで表示
+    if(isTrueFinal) {
+      const stage10 = prog[curDiff] && prog[curDiff][i-1];
+      if(!stage10 || !stage10.cleared) continue;
+      // 2ノード分のスペーサー
+      const spacer = document.createElement('div');
+      spacer.style.height = '140px';
+      list.appendChild(spacer);
+    }
+
     const row = document.createElement('div');
     row.className = 'stage-row pos-' + (pos[i] || 'center');
 
