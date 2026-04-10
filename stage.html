@@ -548,6 +548,12 @@ body {
 .input-display:empty { display: none; }
 
 .s-cluster { display: flex; align-items: flex-end; gap: 4px; }
+/* Gravity layout: blocks grow from center axis */
+.gravity-cluster { display: flex; gap: 4px; align-items: stretch; }
+.gravity-col { display: flex; flex-direction: column; gap: 0; align-items: center; }
+.gravity-upper { display: flex; flex-direction: column; gap: 4px; justify-content: flex-end; }
+.gravity-lower { display: flex; flex-direction: column-reverse; gap: 4px; justify-content: flex-end; }
+.gravity-axis { height: 2px; width: 100%; background: rgba(0,0,0,0.12); border-radius: 1px; margin: 3px 0; flex-shrink: 0; }
 .s-column { display: flex; flex-direction: column-reverse; gap: 4px; }
 .s-block {
   width: min(7.5vw, 30px); height: min(7.5vw, 30px); border-radius: 8px;
@@ -1804,6 +1810,23 @@ STAGES['HARD+']     = makePlusStages(STAGES.HARD);
 STAGES['EXTREME+']  = makePlusStages(STAGES.EXTREME);
 STAGES['ULTIMATE+'] = makePlusStages(STAGES.ULTIMATE);
 
+function makeGravityStages(base) {
+  return base.map((s, i) => {
+    const bagExtras = [1,1,1,2,2,2,2,3,4,5,6];
+    const bagExtra = bagExtras[i] ?? 3;
+    const newBag = s.bag.map(n => n + bagExtra);
+    const maxVal = Math.max(...newBag);
+    let tp = s.tp;
+    if(tp === 'S' && maxVal > 9) tp = 'H';
+    return { ...s, bag: newBag, cols: 11, mh: 11, tp, gravity: true };
+  });
+}
+STAGES['EASY▲']     = makeGravityStages(STAGES.EASY);
+STAGES['NORMAL▲']   = makeGravityStages(STAGES.NORMAL);
+STAGES['HARD▲']     = makeGravityStages(STAGES.HARD);
+STAGES['EXTREME▲']  = makeGravityStages(STAGES.EXTREME);
+STAGES['ULTIMATE▲'] = makeGravityStages(STAGES.ULTIMATE);
+
 const DC = {
   EASY:    { main:'#58CC02', bg:'linear-gradient(135deg,#7FE030,#58CC02)', block:'#7FE030', glow:'88,204,2' },
   NORMAL:  { main:'#1CB0F6', bg:'linear-gradient(135deg,#5DCBF8,#1CB0F6)', block:'#5DCBF8', glow:'28,176,246' },
@@ -1814,7 +1837,12 @@ const DC = {
   'HARD+':    { main:'#E08600', bg:'linear-gradient(135deg,#E08600,#B86000)', block:'#E8A020', glow:'224,134,0' },
   'EXTREME+': { main:'#CC3C3C', bg:'linear-gradient(135deg,#CC3C3C,#AA2828)', block:'#DC5555', glow:'204,60,60' },
   'ULTIMATE':  { main:'#7C3AED', bg:'linear-gradient(135deg,#9D5FF0,#7C3AED)', block:'#A370F7', glow:'124,58,237' },
-  'ULTIMATE+': { main:'#1A0050', bg:'linear-gradient(135deg,#3D0080,#1A0050)', block:'#7B00FF', glow:'123,0,255' }
+  'ULTIMATE+': { main:'#1A0050', bg:'linear-gradient(135deg,#3D0080,#1A0050)', block:'#7B00FF', glow:'123,0,255' },
+  'EASY▲':     { main:'#00E676', bg:'linear-gradient(135deg,#00E676,#00C853)', block:'#69F0AE', glow:'0,230,118' },
+  'NORMAL▲':   { main:'#00B0FF', bg:'linear-gradient(135deg,#00B0FF,#0091EA)', block:'#40C4FF', glow:'0,176,255' },
+  'HARD▲':     { main:'#FF6D00', bg:'linear-gradient(135deg,#FF6D00,#E65100)', block:'#FF9E40', glow:'255,109,0' },
+  'EXTREME▲':  { main:'#FF1744', bg:'linear-gradient(135deg,#FF1744,#D50000)', block:'#FF5252', glow:'255,23,68' },
+  'ULTIMATE▲': { main:'#D500F9', bg:'linear-gradient(135deg,#D500F9,#AA00FF)', block:'#E040FB', glow:'213,0,249' }
 };
 
 const ENEMIES = {
@@ -1878,6 +1906,11 @@ const ENEMIES_PLUS = {
   'EXTREME+': ENEMIES.EXTREME
 };
 Object.assign(ENEMIES, ENEMIES_PLUS);
+// Gravity enemies share base enemies
+ENEMIES['EASY▲']     = ENEMIES.EASY;
+ENEMIES['NORMAL▲']   = ENEMIES.NORMAL;
+ENEMIES['HARD▲']     = ENEMIES.HARD;
+ENEMIES['EXTREME▲']  = ENEMIES.EXTREME;
 ENEMIES['ULTIMATE'] = [
   // 1. ヘルメス（使者の神・翼の兜）
   {name:'ヘルメス', svg:()=>`<svg viewBox="0 0 80 80"><ellipse cx="40" cy="50" rx="24" ry="22" fill="#D4AF6A" stroke="#555" stroke-width="2.5"/><circle cx="32" cy="44" r="6" fill="#FFF" stroke="#555" stroke-width="2"/><circle cx="48" cy="44" r="6" fill="#FFF" stroke="#555" stroke-width="2"/><circle cx="33" cy="45" r="3.5" fill="#4A90D9"/><circle cx="49" cy="45" r="3.5" fill="#4A90D9"/><circle cx="34" cy="43" r="1.5" fill="#FFF"/><circle cx="50" cy="43" r="1.5" fill="#FFF"/><path d="M37 55 Q40 59 43 55" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round"/><ellipse cx="40" cy="28" rx="22" ry="12" fill="#C8A055" stroke="#555" stroke-width="2"/><path d="M20 26 Q16 18 12 14 Q18 20 22 26" fill="#E8D080" stroke="#555" stroke-width="1.5"/><path d="M60 26 Q64 18 68 14 Q62 20 58 26" fill="#E8D080" stroke="#555" stroke-width="1.5"/><ellipse cx="40" cy="28" rx="10" ry="5" fill="#E8C860" opacity="0.7"/></svg>`},
@@ -1917,21 +1950,22 @@ ENEMIES['ULTIMATE+'] = [
   // 11. ボイドカオス（虚無の深淵）true final boss for ULTIMATE+
   {name:'ボイドカオス', boss:true, svg:()=>`<svg viewBox="0 0 80 80"><defs><radialGradient id="vchaos" cx="50%" cy="50%"><stop offset="0%" stop-color="#3A0060"/><stop offset="50%" stop-color="#0A0020"/><stop offset="100%" stop-color="#000"/></radialGradient></defs><circle cx="40" cy="40" r="38" fill="url(#vchaos)" stroke="#CC00FF" stroke-width="2"/><circle cx="40" cy="40" r="28" fill="none" stroke="#3A0060" stroke-width="1.5" opacity="0.5"/><circle cx="30" cy="36" r="10" fill="#050010" stroke="#CC00FF" stroke-width="2.5"/><circle cx="50" cy="36" r="10" fill="#050010" stroke="#CC00FF" stroke-width="2.5"/><circle cx="31" cy="37" r="6" fill="#CC00FF"/><circle cx="51" cy="37" r="6" fill="#CC00FF"/><circle cx="29" cy="35" r="3" fill="#F0CCFF"/><circle cx="49" cy="35" r="3" fill="#F0CCFF"/><path d="M32 52 Q40 60 48 52" fill="none" stroke="#CC00FF" stroke-width="3" stroke-linecap="round"/><path d="M16 20 Q12 10 20 6 Q16 14 24 16" fill="#CC00FF" opacity="0.3"/><path d="M64 20 Q68 10 60 6 Q64 14 56 16" fill="#CC00FF" opacity="0.3"/><circle cx="40" cy="14" r="5" fill="#CC00FF" opacity="0.5"/><circle cx="40" cy="14" r="2.5" fill="#F0CCFF" opacity="0.7"/></svg>`},
 ];
+ENEMIES['ULTIMATE▲'] = ENEMIES['ULTIMATE'];
 const QS = 10;
 const CAP_CH = 36000;
 
 /* =============== CARD COLLECTION SYSTEM =============== */
-const ALL_DIFFS = ['EASY','NORMAL','HARD','EXTREME','ULTIMATE','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE+'];
+const ALL_DIFFS = ['EASY','NORMAL','HARD','EXTREME','ULTIMATE','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE+','EASY▲','NORMAL▲','HARD▲','EXTREME▲','ULTIMATE▲'];
 const CARD_CATALOG = (function() {
   const cards = {};
   ALL_DIFFS.forEach(diff => {
-    const baseDiff = diff.replace('+','');
+    const baseDiff = diff.replace(/[+▲]/g,'');
     const count = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
     for(let i = 0; i < count; i++) {
       const id = diff + '_' + i;
       const rarity = (i >= 10) ? 'rare' : (i === 9) ? 'rare' : (i === 4) ? 'uncommon' : 'common';
       const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][i] : null;
-      cards[id] = { id, diff, idx: i, rarity, name: enemy ? enemy.name : '???', isPlus: diff.endsWith('+') };
+      cards[id] = { id, diff, idx: i, rarity, name: enemy ? enemy.name : '???', isPlus: diff.endsWith('+') || diff.endsWith('▲') };
     }
   });
   return cards;
@@ -1954,7 +1988,7 @@ function getCardCount() { return Object.keys(collectedCards).length; }
 function getTotalCards() {
   let total = 0;
   ALL_DIFFS.forEach(d => {
-    const bd = d.replace('+','');
+    const bd = d.replace(/[+▲]/g,'');
     const allCount = ENEMIES[bd] ? ENEMIES[bd].length : 10;
     const s10 = prog[d] && prog[d][9] && prog[d][9].cleared;
     total += (allCount > 10 && !s10) ? 10 : allCount;
@@ -2186,7 +2220,7 @@ function renderCard(card, opts) {
       el.style.border = 'none';
       el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
     } else {
-      const baseDiff = card.diff.replace('+','');
+      const baseDiff = card.diff.replace(/[+▲]/g,'');
       const cardArt = CARD_ART[baseDiff] && CARD_ART[baseDiff][card.idx];
       const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][card.idx] : null;
       const svgHtml = cardArt ? cardArt() : (enemy ? enemy.svg() : '');
@@ -2245,7 +2279,7 @@ function showCardDropOverlay(card, onDone) {
     front.style.cssText = 'border-radius:14px;overflow:hidden;';
     front.innerHTML = '<img src="' + cardImg + '" style="width:100%;height:100%;object-fit:cover;" alt="' + card.name + '">';
   } else {
-    const baseDiff = card.diff.replace('+','');
+    const baseDiff = card.diff.replace(/[+▲]/g,'');
     const cardArt = CARD_ART[baseDiff] && CARD_ART[baseDiff][card.idx];
     const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][card.idx] : null;
     const svgHtml = cardArt ? cardArt() : (enemy ? enemy.svg() : '');
@@ -2364,7 +2398,7 @@ function renderCollectionTabs() {
 function renderCollectionGrid(diff) {
   const grid = document.getElementById('col-grid');
   grid.innerHTML = '';
-  const baseDiff = diff.replace('+','');
+  const baseDiff = diff.replace(/[+▲]/g,'');
   const allCount = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
   const stage10cleared = prog[diff] && prog[diff][9] && prog[diff][9].cleared;
   const count = (allCount > 10 && !stage10cleared) ? 10 : allCount;
@@ -2515,7 +2549,7 @@ function renderStats() {
   container.appendChild(h1);
   ALL_DIFFS.forEach(d => {
     const unlocked = diffUnlocked(d);
-    const bd = d.replace('+','');
+    const bd = d.replace(/[+▲]/g,'');
     const allTotal = ENEMIES[bd] ? ENEMIES[bd].length : 10;
     // Hide stage 11 info until stage 10 is cleared
     const stage10cleared = prog[d] && prog[d][9] && prog[d][9].cleared;
@@ -2579,7 +2613,7 @@ const ACHIEVEMENTS = [
 ];
 // Add per-difficulty achievements
 ALL_DIFFS.forEach(d => {
-  const bd = d.replace('+','');
+  const bd = d.replace(/[+▲]/g,'');
   const total = ENEMIES[bd] ? ENEMIES[bd].length : 10;
   ACHIEVEMENTS.push({
     id: 'diff_' + d, icon: '🗂', name: d + ' 制覇', desc: d + ' の全' + total + '枚コンプ',
@@ -2757,7 +2791,7 @@ function load() {
   drillUnlocked = localStorage.getItem('snow_drill_unlocked') === '1';
   try { const d = localStorage.getItem('snow_daily'); if(d) { const p = JSON.parse(d); streak=p.streak||0; lastStreakDate=p.lastStreakDate||''; dailyMissions=p.missions||[]; dailyDate=p.date||''; } } catch(e){}
   loadCards();
-  ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE','ULTIMATE+'].forEach(d => {
+  ALL_DIFFS.forEach(d => {
     if(!prog[d]) prog[d] = {};
     const stgLen = STAGES[d] ? STAGES[d].length : 10;
     for(let i=0;i<stgLen;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -3018,7 +3052,7 @@ function copyURL() {
 }
 
 function plusUnlocked(d) {
-  const base = d.replace('+','');
+  const base = d.replace(/[+▲]/g,'');
   if(!prog[base]) return false;
   for(let i=0;i<10;i++) if(!prog[base][i]||!prog[base][i].cleared) return false;
   return true;
@@ -3126,7 +3160,7 @@ function switchTab(d) {
     t.classList.toggle('locked', !diffUnlocked(t.dataset.diff));
   });
   updateTabLabels();
-  const baseDiff = d.replace('+','');
+  const baseDiff = d.replace(/[+▲]/g,'');
   const scrollId = d.endsWith('+') ? 'plus-scroll' : 'map-scroll';
   const scrollEl = document.getElementById(scrollId);
   scrollEl.setAttribute('data-diff', baseDiff);
@@ -3361,7 +3395,7 @@ function renderMap() {
       // Enemy preview
       const preview = document.createElement('div');
       preview.className = 'node-enemy-preview';
-      preview.innerHTML = ENEMIES[curDiff.replace('+','')][i].svg();
+      preview.innerHTML = ENEMIES[curDiff.replace(/[+▲]/g,'')][i].svg();
       if(curDiff.endsWith('+')) preview.style.filter = 'hue-rotate(200deg) saturate(1.4) brightness(1.05)';
       node.appendChild(preview);
 
@@ -3922,6 +3956,58 @@ function renderBlocks() {
     }
     el.appendChild(container);
     el.style.transform = '';
+  } else if(curDiff.endsWith('▲') && !brainMode) {
+    // Gravity layout: blocks grow from center axis up and down
+    const cluster = document.createElement('div');
+    cluster.className = 'gravity-cluster';
+    let blockIdx = 0;
+    GS.current.shape.forEach(h => {
+      if(!h) return;
+      const col = document.createElement('div');
+      col.className = 'gravity-col';
+      // Split height into upper and lower randomly
+      const upper = Math.ceil(h / 2) + (Math.random() > 0.5 ? (h > 2 ? -1 : 0) : 0);
+      const lower = h - upper;
+      const upDiv = document.createElement('div');
+      upDiv.className = 'gravity-upper';
+      for(let i=0;i<upper;i++) {
+        const b = document.createElement('div');
+        b.className = 's-block';
+        b.style.background = dc.block;
+        if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
+        upDiv.appendChild(b);
+        blockIdx++;
+      }
+      const axis = document.createElement('div');
+      axis.className = 'gravity-axis';
+      const loDiv = document.createElement('div');
+      loDiv.className = 'gravity-lower';
+      for(let i=0;i<lower;i++) {
+        const b = document.createElement('div');
+        b.className = 's-block';
+        b.style.background = dc.block;
+        if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
+        loDiv.appendChild(b);
+        blockIdx++;
+      }
+      col.appendChild(upDiv);
+      col.appendChild(axis);
+      col.appendChild(loDiv);
+      cluster.appendChild(col);
+    });
+    el.appendChild(cluster);
+    // Gravity scaling
+    const st = STAGES[curDiff][curIdx] || STAGES[curDiff][0];
+    let blockPx = Math.min(window.innerWidth * 0.075, 30);
+    const gap = 4;
+    const shape = GS.current.shape;
+    const scaleCols = Math.max(1, shape.filter(h => h > 0).length);
+    const scaleMh = Math.max(1, ...shape);
+    const natW = scaleCols * blockPx + Math.max(0, scaleCols - 1) * gap;
+    const natH = scaleMh * blockPx + scaleMh * gap + 8; // +8 for axis
+    if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
+    const sc = Math.min(1, _slotW * 0.88 / natW, _slotH * 0.78 / natH);
+    el.style.transform = 'scale(' + sc + ')';
   } else {
     // Normal stacked layout
     const cluster = document.createElement('div');
@@ -4094,7 +4180,7 @@ function checkAns(val) {
         slowShapes[sidx].slowCount++;
         slowShapes[sidx].ts = Date.now();
       } else {
-        slowShapes.push({sig: GS.current.sig, n: GS.current.n, slowCount: 1, ts: Date.now(), diff: curDiff.replace('+','')});
+        slowShapes.push({sig: GS.current.sig, n: GS.current.n, slowCount: 1, ts: Date.now(), diff: curDiff.replace(/[+▲]/g,'')});
       }
     }
     // Resolve slow shape on fast correct answer
@@ -4238,7 +4324,7 @@ function handleMiss(type,inp,ans) {
     const sig = GS.current.sig;
     const existing = missedShapes.find(m => m.sig === sig);
     if(existing) { existing.miss++; existing.ts = Date.now(); }
-    else { missedShapes.push({sig, n: GS.current.n, miss:1, ts: Date.now(), diff: curDiff.replace('+','')}); }
+    else { missedShapes.push({sig, n: GS.current.n, miss:1, ts: Date.now(), diff: curDiff.replace(/[+▲]/g,'')}); }
     if(missedShapes.length > 50) {
       missedShapes.sort((a,b) => b.ts - a.ts);
       missedShapes = missedShapes.slice(0, 50);
@@ -5309,14 +5395,14 @@ function checkDailyProgress(event, data) {
     }
     if(event === 'clear' && m.type === 'clear') {
       const diffOrder = ['EASY','NORMAL','HARD','EXTREME'];
-      if(diffOrder.indexOf(data.diff.replace('+','')) >= diffOrder.indexOf(m.minDiff||'NORMAL')) {
+      if(diffOrder.indexOf(data.diff.replace(/[+▲]/g,'')) >= diffOrder.indexOf(m.minDiff||'NORMAL')) {
         m.prog = Math.min(m.goal, m.prog + 1);
         if(m.prog >= m.goal) { m.done = true; changed = true; }
       }
     }
     if(event === 'clear' && m.type === 'hard_clear') {
       const diffOrder = ['EASY','NORMAL','HARD','EXTREME'];
-      if(diffOrder.indexOf(data.diff.replace('+','')) >= diffOrder.indexOf('HARD')) {
+      if(diffOrder.indexOf(data.diff.replace(/[+▲]/g,'')) >= diffOrder.indexOf('HARD')) {
         m.prog = Math.min(m.goal, m.prog + 1);
         if(m.prog >= m.goal) { m.done = true; changed = true; }
       }
