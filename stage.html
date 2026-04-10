@@ -563,10 +563,10 @@ body {
 
 .s-cluster { display: flex; align-items: flex-end; gap: 4px; }
 /* Pulse layout: blocks grow from center up and down */
-.gravity-cluster { display: flex; gap: 4px; align-items: stretch; }
-.gravity-col { display: flex; flex-direction: column; gap: 0; }
-.gravity-half-up { flex: 1; display: flex; flex-direction: column-reverse; gap: 4px; }
-.gravity-half-down { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.gravity-cluster { display: flex; gap: 4px; justify-content: center; }
+.gravity-col { display: flex; flex-direction: column; gap: 4px; }
+.gravity-half-up { display: flex; flex-direction: column-reverse; gap: 4px; align-items: center; }
+.gravity-half-down { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .s-column { display: flex; flex-direction: column-reverse; gap: 4px; }
 .s-block {
   width: min(7.5vw, 30px); height: min(7.5vw, 30px); border-radius: 8px;
@@ -4015,16 +4015,30 @@ function renderBlocks() {
     const cluster = document.createElement('div');
     cluster.className = 'gravity-cluster';
     let blockIdx = 0;
+    const blockPx = Math.min(window.innerWidth * 0.075, 30);
+    const gap = 4;
+    const maxH = Math.max(...GS.current.shape.filter(h => h > 0));
+    // Half height in px (max blocks that can go in one direction)
+    const halfMax = Math.ceil(maxH / 2);
+    const halfPx = halfMax * (blockPx + gap);
+
     GS.current.shape.forEach(h => {
       if(!h) return;
       const col = document.createElement('div');
       col.className = 'gravity-col';
       // Random split: some blocks go up, some go down
-      const up = h <= 1 ? (Math.random() > 0.5 ? 1 : 0) : Math.max(1, Math.floor(Math.random() * h));
-      const down = h - up;
-      // Upper half: column-reverse so blocks grow upward from center
+      let up, down;
+      if(h <= 1) {
+        up = Math.random() > 0.5 ? 1 : 0;
+        down = h - up;
+      } else {
+        up = Math.max(1, Math.min(h - 1, Math.floor(Math.random() * (h - 1)) + 1));
+        down = h - up;
+      }
+      // Upper half: fixed height, blocks grow upward from bottom of this div
       const upDiv = document.createElement('div');
       upDiv.className = 'gravity-half-up';
+      upDiv.style.height = halfPx + 'px';
       for(let i = 0; i < up; i++) {
         const b = document.createElement('div');
         b.className = 's-block';
@@ -4033,9 +4047,10 @@ function renderBlocks() {
         upDiv.appendChild(b);
         blockIdx++;
       }
-      // Lower half: column so blocks grow downward from center
+      // Lower half: fixed height, blocks grow downward from top of this div
       const downDiv = document.createElement('div');
       downDiv.className = 'gravity-half-down';
+      downDiv.style.height = halfPx + 'px';
       for(let i = 0; i < down; i++) {
         const b = document.createElement('div');
         b.className = 's-block';
@@ -4051,12 +4066,9 @@ function renderBlocks() {
     el.appendChild(cluster);
     // Scaling
     const shape = GS.current.shape;
-    let blockPx = Math.min(window.innerWidth * 0.075, 30);
-    const gap = 4;
     const scaleCols = Math.max(1, shape.filter(h => h > 0).length);
-    const maxH = Math.max(1, ...shape);
     const natW = scaleCols * blockPx + Math.max(0, scaleCols - 1) * gap;
-    const natH = maxH * (blockPx + gap);
+    const natH = halfPx * 2;
     if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
     const sc = Math.min(1, _slotW * 0.88 / natW, _slotH * 0.78 / natH);
     el.style.transform = 'scale(' + sc + ')';
