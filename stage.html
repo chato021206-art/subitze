@@ -2252,7 +2252,7 @@ function renderCard(card, opts) {
       const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][card.idx] : null;
       const svgHtml = cardArt ? cardArt() : (enemy ? enemy.svg() : '');
       const rarityStars = {common:'★', uncommon:'★★', rare:'★★★', legendary:'★★★★'}[card.rarity];
-      const diffLabel = card.diff.replace('+','+');
+      const diffLabel = card.diff.replace(/[+▲]/g,'');
       const fs = size === 'thumb' ? 8 : size === 'large' ? 18 : 11;
       const dfs = size === 'thumb' ? 6 : size === 'large' ? 12 : 8;
       const sfs = size === 'thumb' ? 8 : size === 'large' ? 16 : 10;
@@ -3482,7 +3482,7 @@ function renderMap() {
 
     // Landmark for S5 (mid-boss) and S10 (final boss)
     if ((i === 4 || i === 9) && ok) {
-      const diffBase = curDiff.replace('+', '');
+      const diffBase = curDiff.replace(/[+▲]/g,'');
       const lmData = LANDMARKS[diffBase] && LANDMARKS[diffBase][i + 1];
       if (lmData) {
         const lm = document.createElement('div');
@@ -4011,7 +4011,7 @@ function renderBlocks() {
   const dc = DC[curDiff];
   const n = GS.current.n;
 
-  if(isRandomMode && !brainMode) {
+  if(isRandomMode && !brainMode && !curDiff.endsWith('▲')) {
     // Random scattered layout
     const container = document.createElement('div');
     container.className = 'random-layout';
