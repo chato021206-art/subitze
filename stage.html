@@ -1508,11 +1508,11 @@ body {
     <!-- Panel 2: Plus stages -->
     <div class="panel" id="panel-2">
       <div class="plus-tabs" id="plus-tabs">
-        <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY+<span class="tab-star-avg" id="avg-EASY+"></span></button>
-        <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL+<span class="tab-star-avg" id="avg-NORMAL+"></span></button>
-        <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD+<span class="tab-star-avg" id="avg-HARD+"></span></button>
-        <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME+<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
-        <button class="plus-tab" data-diff="ULTIMATE+" onclick="switchTab('ULTIMATE+')">ULTIMATE+<span class="tab-star-avg" id="avg-ULTIMATE+"></span></button>
+        <button class="plus-tab" data-diff="EASY+" onclick="switchTab('EASY+')">EASY<span class="tab-star-avg" id="avg-EASY+"></span></button>
+        <button class="plus-tab" data-diff="NORMAL+" onclick="switchTab('NORMAL+')">NORMAL<span class="tab-star-avg" id="avg-NORMAL+"></span></button>
+        <button class="plus-tab" data-diff="HARD+" onclick="switchTab('HARD+')">HARD<span class="tab-star-avg" id="avg-HARD+"></span></button>
+        <button class="plus-tab" data-diff="EXTREME+" onclick="switchTab('EXTREME+')">EXTREME<span class="tab-star-avg" id="avg-EXTREME+"></span></button>
+        <button class="plus-tab" data-diff="ULTIMATE+" onclick="switchTab('ULTIMATE+')">ULTIMATE<span class="tab-star-avg" id="avg-ULTIMATE+"></span></button>
       </div>
       <div id="plus-scroll" class="map-scroll" data-diff="EASY">
         <div class="map-bg" id="plus-bg"></div>
@@ -1523,11 +1523,11 @@ body {
     <!-- Panel 3: Gravity stages (hidden until debug unlock) -->
     <div class="panel panel-gravity" id="panel-3" style="display:none">
       <div class="gravity-tabs" id="gravity-tabs">
-        <button class="gravity-tab" data-diff="EASY▲" onclick="switchTab('EASY▲')">EASY▲</button>
-        <button class="gravity-tab" data-diff="NORMAL▲" onclick="switchTab('NORMAL▲')">NORMAL▲</button>
-        <button class="gravity-tab" data-diff="HARD▲" onclick="switchTab('HARD▲')">HARD▲</button>
-        <button class="gravity-tab" data-diff="EXTREME▲" onclick="switchTab('EXTREME▲')">EXTREME▲</button>
-        <button class="gravity-tab" data-diff="ULTIMATE▲" onclick="switchTab('ULTIMATE▲')">ULTIMATE▲</button>
+        <button class="gravity-tab" data-diff="EASY▲" onclick="switchTab('EASY▲')">EASY</button>
+        <button class="gravity-tab" data-diff="NORMAL▲" onclick="switchTab('NORMAL▲')">NORMAL</button>
+        <button class="gravity-tab" data-diff="HARD▲" onclick="switchTab('HARD▲')">HARD</button>
+        <button class="gravity-tab" data-diff="EXTREME▲" onclick="switchTab('EXTREME▲')">EXTREME</button>
+        <button class="gravity-tab" data-diff="ULTIMATE▲" onclick="switchTab('ULTIMATE▲')">ULTIMATE</button>
       </div>
       <div id="gravity-scroll" class="map-scroll" data-diff="EASY">
         <div class="map-bg" id="gravity-bg"></div>
@@ -3169,9 +3169,9 @@ function updatePanelIndicator() {
   if(totalCleared() > 0) { leftEl.style.opacity = ''; leftEl.style.pointerEvents = ''; rightEl.style.opacity = ''; rightEl.style.pointerEvents = ''; }
   leftEl.classList.toggle('pi-hidden', currentPanel === 0);
   rightEl.classList.toggle('pi-hidden', currentPanel >= total - 1);
-  const labels = ['メニュー','ステージ','＋','▲'];
+  const labels = ['メニュー','ステージ','Plus','Pulse'];
   leftEl.textContent = '◀ ' + (labels[currentPanel - 1] || 'メニュー');
-  rightEl.textContent = (labels[currentPanel + 1] || '▲') + ' ▶';
+  rightEl.textContent = (labels[currentPanel + 1] || 'Pulse') + ' ▶';
 }
 
 function updateTabLabels() {
