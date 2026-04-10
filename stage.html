@@ -563,7 +563,8 @@ body {
 
 .s-cluster { display: flex; align-items: flex-end; gap: 4px; }
 /* Pulse layout: blocks grow from center up and down */
-.pulse-container { position: relative; width: 100%; height: 100%; }
+#game-blocks.pulse-layout { align-items: center; padding-bottom: 0; }
+.pulse-container { position: relative; }
 .s-column { display: flex; flex-direction: column-reverse; gap: 4px; }
 .s-block {
   width: min(7.5vw, 30px); height: min(7.5vw, 30px); border-radius: 8px;
@@ -4005,6 +4006,7 @@ function renderBlocks() {
   const el = document.getElementById('game-blocks');
   while(el.firstChild) el.removeChild(el.firstChild);
   el.classList.toggle('brain-layout', !!brainMode);
+  el.classList.toggle('pulse-layout', curDiff.endsWith('▲'));
   if(!GS.current||GS.current.n===null) return;
   const dc = DC[curDiff];
   const n = GS.current.n;
