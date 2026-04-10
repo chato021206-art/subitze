@@ -2242,7 +2242,7 @@ function renderCard(card, opts) {
     const cardImg = CARD_IMAGES[card.id];
     if(cardImg) {
       // Use generated image (includes frame + name)
-      inner.innerHTML = '<img src="' + cardImg + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" alt="' + card.name + '">';
+      inner.innerHTML = '<img src="' + cardImg + '" style="width:106%;height:106%;object-fit:cover;border-radius:10px;margin:-3% 0 0 -3%;" alt="' + card.name + '">';
       el.style.border = 'none';
       el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
     } else {
@@ -2303,7 +2303,7 @@ function showCardDropOverlay(card, onDone) {
   front.className = 'cdrop-front';
   if(cardImg) {
     front.style.cssText = 'border-radius:14px;overflow:hidden;';
-    front.innerHTML = '<img src="' + cardImg + '" style="width:100%;height:100%;object-fit:cover;" alt="' + card.name + '">';
+    front.innerHTML = '<img src="' + cardImg + '" style="width:106%;height:106%;object-fit:cover;margin:-3% 0 0 -3%;" alt="' + card.name + '">';
   } else {
     const baseDiff = card.diff.replace(/[+▲]/g,'');
     const cardArt = CARD_ART[baseDiff] && CARD_ART[baseDiff][card.idx];
