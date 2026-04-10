@@ -1636,7 +1636,6 @@ body {
         <div class="col-filter-btn" data-filter="common" onclick="setCardFilter('common')">★</div>
         <div class="col-filter-btn" data-filter="uncommon" onclick="setCardFilter('uncommon')">★★</div>
         <div class="col-filter-btn" data-filter="rare" onclick="setCardFilter('rare')">★★★</div>
-        <div class="col-filter-btn" data-filter="legendary" onclick="setCardFilter('legendary')">★★★★</div>
       </div>
       <div class="collection-tabs" id="col-tabs"></div>
       <div class="collection-grid" id="col-grid"></div>
@@ -1982,7 +1981,7 @@ const QS = 10;
 const CAP_CH = 36000;
 
 /* =============== CARD COLLECTION SYSTEM =============== */
-const ALL_DIFFS = ['EASY','NORMAL','HARD','EXTREME','ULTIMATE','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE+','EASY▲','NORMAL▲','HARD▲','EXTREME▲','ULTIMATE▲'];
+const ALL_DIFFS = ['EASY','NORMAL','HARD','EXTREME','ULTIMATE','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE+'];
 const CARD_CATALOG = (function() {
   const cards = {};
   ALL_DIFFS.forEach(diff => {
@@ -2509,7 +2508,7 @@ function showCardDetail(cardId) {
 
     const hint = document.createElement('div');
     hint.className = 'card-detail-hint';
-    hint.textContent = card.diff + ' ステージ ' + (card.idx + 1) + ' で入手できます';
+    hint.textContent = card.diff + ' ' + (card.idx + 1) + ' で入手できます';
     ov.appendChild(hint);
   }
 
@@ -2604,7 +2603,7 @@ function renderStats() {
     const c = CARD_CATALOG[id];
     if(c) rarityCounts[c.rarity]++;
   });
-  [{k:'common',l:'★ Common'},{k:'uncommon',l:'★★ Uncommon'},{k:'rare',l:'★★★ Rare'},{k:'legendary',l:'★★★★ Legendary'}].forEach(r => {
+  [{k:'common',l:'★ Common'},{k:'uncommon',l:'★★ Uncommon'},{k:'rare',l:'★★★ Rare'}].forEach(r => {
     const row = document.createElement('div');
     row.className = 'col-stat-row';
     row.innerHTML = '<span>' + r.l + '</span><span class="col-stat-val">' + rarityCounts[r.k] + ' / ' + rarityTotals[r.k] + '</span>';
@@ -2818,7 +2817,7 @@ function load() {
   drillUnlocked = localStorage.getItem('snow_drill_unlocked') === '1';
   try { const d = localStorage.getItem('snow_daily'); if(d) { const p = JSON.parse(d); streak=p.streak||0; lastStreakDate=p.lastStreakDate||''; dailyMissions=p.missions||[]; dailyDate=p.date||''; } } catch(e){}
   loadCards();
-  ALL_DIFFS.forEach(d => {
+  [...ALL_DIFFS, 'EASY▲','NORMAL▲','HARD▲','EXTREME▲','ULTIMATE▲'].forEach(d => {
     if(!prog[d]) prog[d] = {};
     const stgLen = STAGES[d] ? STAGES[d].length : 10;
     for(let i=0;i<stgLen;i++) if(!prog[d][i]) prog[d][i] = { cleared:false, stars:0, best:0 };
@@ -3166,7 +3165,7 @@ function updatePanelIndicator() {
   if(totalCleared() > 0) { leftEl.style.opacity = ''; leftEl.style.pointerEvents = ''; rightEl.style.opacity = ''; rightEl.style.pointerEvents = ''; }
   leftEl.classList.toggle('pi-hidden', currentPanel === 0);
   rightEl.classList.toggle('pi-hidden', currentPanel >= total - 1);
-  const labels = ['メニュー','ステージ','Plus','Pulse'];
+  const labels = ['メニュー','バトル','Plus','Pulse'];
   leftEl.textContent = '◀ ' + (labels[currentPanel - 1] || 'メニュー');
   rightEl.textContent = (labels[currentPanel + 1] || 'Pulse') + ' ▶';
 }
@@ -3717,37 +3716,32 @@ function beginGame() {
     if(GS.rafId) cancelAnimationFrame(GS.rafId);
     // Tutorial for first-time players
     if(!localStorage.getItem('snow_tutorial_done') && !brainMode && !drillMode) {
-      GS.blocked = true;
-      showTutorialGuide(() => {
-        GS.blocked = false;
-        GS.lastTick = Date.now();
-        gameLoop();
-      });
+      showTutorialGuide();
+      gameLoop();
     } else {
       gameLoop();
     }
   }
 }
 
-function showTutorialGuide(onDone) {
+let _tutorialOv = null;
+function showTutorialGuide() {
   const slot = document.getElementById('game-slot');
-  const ov = document.createElement('div');
-  ov.className = 'tutorial-overlay';
-  ov.innerHTML =
+  _tutorialOv = document.createElement('div');
+  _tutorialOv.className = 'tutorial-overlay';
+  _tutorialOv.style.pointerEvents = 'none';
+  _tutorialOv.innerHTML =
     '<div class="tutorial-hint-top">' +
       '<div class="tutorial-circle">' +
         '<div class="tutorial-label">🧊 何個ある？</div>' +
       '</div>' +
     '</div>' +
     '<div class="tutorial-arrow">▼</div>' +
-    '<div class="tutorial-sub">数字をタップして答えよう！</div>' +
-    '<div class="tutorial-tap">タップでスタート</div>';
-  ov.addEventListener('click', () => {
-    ov.remove();
-    localStorage.setItem('snow_tutorial_done', '1');
-    onDone();
-  }, { once: true });
-  slot.appendChild(ov);
+    '<div class="tutorial-sub">数字をタップして答えよう！</div>';
+  slot.appendChild(_tutorialOv);
+}
+function dismissTutorial() {
+  if(_tutorialOv) { _tutorialOv.remove(); _tutorialOv = null; localStorage.setItem('snow_tutorial_done', '1'); }
 }
 
 // Cached DOM refs for hot path
@@ -4241,6 +4235,7 @@ function checkAns(val) {
   const j = s.j;
   const tl = getTimeLimit(s);
   if(val===GS.current.n) {
+    if(_tutorialOv) dismissTutorial();
     flashKey(val, true);
     const eff = Math.max(dt, CAP_SEC);
     let k='miss', lbl='MISS';
@@ -5400,7 +5395,7 @@ function generateDailyMissions() {
     const dOrder = ['EASY','NORMAL','HARD','EXTREME'];
     const highestUnlocked = [...dOrder].reverse().find(d => diffUnlocked(d)) || 'EASY';
     if(highestUnlocked === 'EASY') {
-      missions.push({ type:'play', icon:'🎯', desc:'今日3回ステージをクリアしよう', goal:3, prog:0, done:false });
+      missions.push({ type:'play', icon:'🎯', desc:'今日3回クリアしよう', goal:3, prog:0, done:false });
     } else {
       missions.push({ type:'clear', icon:'🎯', desc: highestUnlocked + 'を1ステージクリア', goal:1, prog:0, done:false, minDiff: highestUnlocked });
     }
