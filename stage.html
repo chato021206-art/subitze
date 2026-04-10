@@ -486,30 +486,6 @@ body {
 #game-blocks.brain-layout {
   align-items: center; padding-bottom: 0;
 }
-/* Streak badge */
-.streak-badge {
-  position: absolute; top: 8px; right: 8px; z-index: 5;
-  font-family: var(--font-num); font-size: 13px; font-weight: 900;
-  background: #FFC800; color: #6B4E00; padding: 3px 10px;
-  border-radius: 20px; border: 3px solid #E8A800;
-  box-shadow: 0 3px 0 rgba(0,0,0,0.12);
-  opacity: 0; pointer-events: none; transition: opacity 0.15s;
-}
-.streak-badge.visible { opacity: 1; animation: streakPulse 0.25s ease-out; }
-.streak-badge.broken { animation: streakBreak 0.3s ease-out forwards; }
-@keyframes streakPulse { 0%{transform:scale(1.4)} 100%{transform:scale(1)} }
-@keyframes streakBreak { 0%{transform:scale(1)} 50%{transform:scale(0.7) rotate(-5deg)} 100%{opacity:0;transform:scale(0)} }
-.low-end .streak-badge { animation: none !important; }
-
-/* Stage clear flash */
-#game-view.stage-cleared { animation: clearFlash 0.4s ease-out forwards; }
-@keyframes clearFlash {
-  0% { filter: brightness(1); }
-  20% { filter: brightness(2) saturate(0); }
-  40% { filter: brightness(1.3); }
-  100% { filter: brightness(1); }
-}
-.low-end #game-view.stage-cleared { animation: none !important; }
 
 .game-timer-bar {
   position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
@@ -1626,7 +1602,6 @@ body {
   <!-- Game area -->
   <div class="game-stage-area">
     <div id="game-slot" class="game-slot">
-      <div id="streak-badge" class="streak-badge"></div>
       <div id="game-blocks"></div>
       <div id="input-display" class="input-display"></div>
       <div class="game-timer-bar"><div id="timer-fill" class="timer-fill"></div></div>
@@ -3584,7 +3559,7 @@ function beginGame() {
   GS.queue = []; GS.qCount = 0; GS.genCount = 0;
   GS.totalTime = 0; GS.input = ''; GS.xp = 0;
   GS.lastN = null; GS.lastSig = null; GS.consec = 0;
-  GS.maxCombo = 0; GS.exStreak = 0;
+  GS.maxCombo = 0;
   GS.stats = { excellent:{c:0,t:0}, great:{c:0,t:0}, good:{c:0,t:0}, ok:{c:0,t:0} };
   sBag = [];
   document.getElementById('input-display').textContent = '';
@@ -3955,19 +3930,6 @@ function processInput(val) {
   }
 }
 
-function updateStreak() {
-  const badge = document.getElementById('streak-badge');
-  if(GS.exStreak >= 3) {
-    badge.textContent = GS.exStreak + 'x EXCELLENT';
-    badge.className = 'streak-badge visible';
-  }
-}
-function breakStreak() {
-  const badge = document.getElementById('streak-badge');
-  badge.className = 'streak-badge broken';
-  setTimeout(() => { badge.className = 'streak-badge'; }, 400);
-}
-
 function reAnimateClass(el, cls) {
   el.classList.remove(cls);
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add(cls)));
@@ -4042,15 +4004,6 @@ function checkAns(val) {
     else if(dt<=tl){k='ok';lbl='OK';}  // 延長帯 = OK
     else{handleMiss('SLOW',val,GS.current.n);return;}
     GS.stats[k].c++; GS.stats[k].t+=eff;
-    // Streak tracking
-    if(k === 'excellent') {
-      GS.exStreak++;
-      GS.maxCombo = Math.max(GS.maxCombo, GS.exStreak);
-      updateStreak();
-    } else {
-      if(GS.exStreak >= 3) breakStreak();
-      GS.exStreak = 0;
-    }
 
     // Number stats tracking
     const cn = GS.current.n;
@@ -4203,8 +4156,6 @@ function nextQ() {
 }
 
 function handleMiss(type,inp,ans) {
-  if(GS.exStreak >= 3) breakStreak();
-  GS.exStreak = 0;
   document.getElementById('input-display').textContent = '';
 
   // Record missed shape (WRONG, TIME, SLOW all count as weak shape) — skip in brain mode
@@ -4303,10 +4254,6 @@ function gameOver(result) {
 
 
   if(result!=='CLEAR') return;
-  // Clear flash
-  document.getElementById('game-view').classList.add('stage-cleared');
-  // Hide streak badge
-  document.getElementById('streak-badge').className = 'streak-badge';
 
   // Daily: stage clear
   checkDailyProgress('clear', { diff: curDiff });
@@ -4561,8 +4508,7 @@ function showResult(score, stars, isNew, droppedCard) {
 
   // Detail
   const avg = (GS.totalTime/QS).toFixed(2);
-  const comboText = GS.maxCombo >= 3 ? '<span>🔥 COMBO: '+GS.maxCombo+'x</span>' : '';
-  document.getElementById('r-detail').innerHTML = '<span>AVG: '+avg+'s</span><span>TIME: '+GS.totalTime.toFixed(1)+'s</span>' + comboText;
+  document.getElementById('r-detail').innerHTML = '<span>AVG: '+avg+'s</span><span>TIME: '+GS.totalTime.toFixed(1)+'s</span>';
 
   document.getElementById('r-record').style.display = isNew ? 'block' : 'none';
 
@@ -5346,7 +5292,6 @@ function goBack() { window.location.href = 'index.html?classic&autoselect=1'; }
 function retryStage() {
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
-  document.getElementById('game-view').classList.remove('stage-cleared');
   if(taMode) { startTA(taDiff); return; }
   if(survivalMode) { startSurvival(); return; }
   if(drillMode) { startDrillWithDiff(drillDiff); return; }
@@ -5377,7 +5322,6 @@ function backToMap() {
   const wasMode = taMode || survivalMode || drillMode || brainMode;
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
-  document.getElementById('game-view').classList.remove('stage-cleared');
   document.getElementById('game-view').style.display = 'none';
   document.getElementById('map-view').style.display = 'flex';
   GS.status = 'IDLE';
