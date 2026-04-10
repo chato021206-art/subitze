@@ -3165,7 +3165,7 @@ function updatePanelIndicator() {
   if(totalCleared() > 0) { leftEl.style.opacity = ''; leftEl.style.pointerEvents = ''; rightEl.style.opacity = ''; rightEl.style.pointerEvents = ''; }
   leftEl.classList.toggle('pi-hidden', currentPanel === 0);
   rightEl.classList.toggle('pi-hidden', currentPanel >= total - 1);
-  const labels = ['メニュー','バトル','Plus','Pulse'];
+  const labels = ['メニュー','アドベンチャー','Plus','Pulse'];
   leftEl.textContent = '◀ ' + (labels[currentPanel - 1] || 'メニュー');
   rightEl.textContent = (labels[currentPanel + 1] || 'Pulse') + ' ▶';
 }
