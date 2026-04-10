@@ -192,6 +192,20 @@ body {
 .diff-tab[data-diff="HARD+"] { --tab-c: #E08600; }
 .diff-tab[data-diff="EXTREME+"] { --tab-c: #CC3C3C; }
 .plus-tab[data-diff="ULTIMATE+"] { --tab-c: #1A0050; font-size: 10px; }
+/* Gravity tabs */
+.gravity-tabs { display: flex; gap: 6px; flex-shrink: 0; background: #1A1A2E; padding: 8px 8px; border-bottom: 3px solid #333; }
+.gravity-tab {
+  flex: 1; padding: 8px 0; text-align: center;
+  font-size: 11px; font-weight: 900;
+  color: #666; background: #222; border: 3px solid #444; border-radius: 30px;
+  cursor: pointer; transition: all 0.2s; box-shadow: 2px 3px 0 rgba(0,0,0,0.2);
+}
+.gravity-tab.active { color: #FFF; border-color: var(--tab-c); background: var(--tab-c); box-shadow: 3px 4px 0 rgba(0,0,0,0.3); transform: scale(1.05); }
+.gravity-tab[data-diff="EASY▲"] { --tab-c: #00E676; }
+.gravity-tab[data-diff="NORMAL▲"] { --tab-c: #00B0FF; }
+.gravity-tab[data-diff="HARD▲"] { --tab-c: #FF6D00; }
+.gravity-tab[data-diff="EXTREME▲"] { --tab-c: #FF1744; }
+.gravity-tab[data-diff="ULTIMATE▲"] { --tab-c: #D500F9; }
 .diff-tab[data-diff="ULTIMATE+"] { --tab-c: #1A0050; font-size: 10px; }
 .tab-star-avg { display: block; font-size: 9px; margin-top: 2px; line-height: 1; }
 .diff-tab.tab-gold, .plus-tab.tab-gold { border-color: #FFD700 !important; }
@@ -1418,6 +1432,7 @@ body {
       <div class="pi-dot" id="pi-dot-0"></div>
       <div class="pi-dot active" id="pi-dot-1"></div>
       <div class="pi-dot" id="pi-dot-2"></div>
+      <div class="pi-dot" id="pi-dot-3" style="display:none"></div>
     </div>
     <div class="pi-side" id="pi-right" onclick="goToPanel(currentPanel+1)">＋ ▶</div>
   </div>
@@ -1502,6 +1517,21 @@ body {
       <div id="plus-scroll" class="map-scroll" data-diff="EASY">
         <div class="map-bg" id="plus-bg"></div>
         <div id="plus-stage-list" class="stage-list"></div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Gravity stages (hidden until debug unlock) -->
+    <div class="panel panel-gravity" id="panel-3" style="display:none">
+      <div class="gravity-tabs" id="gravity-tabs">
+        <button class="gravity-tab" data-diff="EASY▲" onclick="switchTab('EASY▲')">EASY▲</button>
+        <button class="gravity-tab" data-diff="NORMAL▲" onclick="switchTab('NORMAL▲')">NORMAL▲</button>
+        <button class="gravity-tab" data-diff="HARD▲" onclick="switchTab('HARD▲')">HARD▲</button>
+        <button class="gravity-tab" data-diff="EXTREME▲" onclick="switchTab('EXTREME▲')">EXTREME▲</button>
+        <button class="gravity-tab" data-diff="ULTIMATE▲" onclick="switchTab('ULTIMATE▲')">ULTIMATE▲</button>
+      </div>
+      <div id="gravity-scroll" class="map-scroll" data-diff="EASY">
+        <div class="map-bg" id="gravity-bg"></div>
+        <div id="gravity-stage-list" class="stage-list"></div>
       </div>
     </div>
 
@@ -3060,6 +3090,7 @@ function plusUnlocked(d) {
 function unlocked(d,i) {
   if(i===0) {
     if(d==='EASY') return true;
+    if(d.endsWith('▲')) return _gravityUnlocked; // Debug-only for now
     if(d.endsWith('+')) return plusUnlocked(d);
     const prev = {NORMAL:'EASY',HARD:'NORMAL',EXTREME:'HARD',ULTIMATE:'EXTREME'}[d];
     return prev && prog[prev] && prog[prev][9] && prog[prev][9].cleared;
@@ -3108,25 +3139,26 @@ function anyPlusUnlocked() {
 }
 
 function goToPanel(n) {
-  const total = anyPlusUnlocked() ? 3 : 2;
+  const total = _gravityUnlocked ? 4 : anyPlusUnlocked() ? 3 : 2;
   n = Math.max(0, Math.min(n, total - 1));
   currentPanel = n;
   const outerW = document.getElementById('panels-outer').offsetWidth || 390;
   document.getElementById('panels-wrap').style.transform = 'translateX(' + (-n * outerW) + 'px)';
   updatePanelIndicator();
-  // Ensure correct diff is active for the target panel
-  if(n === 2 && !curDiff.endsWith('+')) {
+  if(n === 3 && !curDiff.endsWith('▲')) {
+    switchTab(lastGravityDiff);
+  } else if(n === 2 && !curDiff.endsWith('+')) {
     const plDiff = diffUnlocked(lastPlusDiff) ? lastPlusDiff :
       ['EASY+','NORMAL+','HARD+','EXTREME+'].find(d => diffUnlocked(d));
     if(plDiff) switchTab(plDiff);
-  } else if(n === 1 && curDiff.endsWith('+')) {
+  } else if(n === 1 && (curDiff.endsWith('+') || curDiff.endsWith('▲'))) {
     switchTab(lastNormalDiff);
   }
 }
 
 function updatePanelIndicator() {
-  const total = anyPlusUnlocked() ? 3 : 2;
-  for(let i = 0; i < 3; i++) {
+  const total = _gravityUnlocked ? 4 : anyPlusUnlocked() ? 3 : 2;
+  for(let i = 0; i < 4; i++) {
     const dot = document.getElementById('pi-dot-' + i);
     if(!dot) continue;
     dot.style.display = i < total ? '' : 'none';
@@ -3134,12 +3166,12 @@ function updatePanelIndicator() {
   }
   const leftEl  = document.getElementById('pi-left');
   const rightEl = document.getElementById('pi-right');
-  // Restore panel nav after first clear
   if(totalCleared() > 0) { leftEl.style.opacity = ''; leftEl.style.pointerEvents = ''; rightEl.style.opacity = ''; rightEl.style.pointerEvents = ''; }
   leftEl.classList.toggle('pi-hidden', currentPanel === 0);
   rightEl.classList.toggle('pi-hidden', currentPanel >= total - 1);
-  leftEl.textContent  = currentPanel === 1 ? '◀ メニュー' : '◀ ステージ';
-  rightEl.textContent = currentPanel === 0 ? 'ステージ ▶' : '＋ ▶';
+  const labels = ['メニュー','ステージ','＋','▲'];
+  leftEl.textContent = '◀ ' + (labels[currentPanel - 1] || 'メニュー');
+  rightEl.textContent = (labels[currentPanel + 1] || '▲') + ' ▶';
 }
 
 function updateTabLabels() {
@@ -3151,17 +3183,38 @@ function updateTabLabels() {
     if(span) span.style.display = diffUnlocked(d) ? '' : 'none';
   });
 }
+let _gravityDebugCt = 0;
+let _gravityUnlocked = false;
+let lastGravityDiff = 'EASY▲';
+
+function enableGravityPanel() {
+  document.getElementById('panel-3').style.display = '';
+  updatePanelIndicator();
+  goToPanel(3);
+  switchTab('EASY▲');
+}
 function switchTab(d) {
   if(!diffUnlocked(d)) return;
+  // Debug: tap ULTIMATE tab 20 times to unlock GRAVITY
+  if(d === 'ULTIMATE') {
+    _gravityDebugCt++;
+    if(_gravityDebugCt >= 20 && !_gravityUnlocked) {
+      _gravityUnlocked = true;
+      _gravityDebugCt = 0;
+      enableGravityPanel();
+    }
+  } else { _gravityDebugCt = 0; }
   curDiff = d;
-  if(d.endsWith('+')) lastPlusDiff = d; else lastNormalDiff = d;
-  document.querySelectorAll('.diff-tab, .plus-tab').forEach(t => {
+  if(d.endsWith('▲')) lastGravityDiff = d;
+  else if(d.endsWith('+')) lastPlusDiff = d;
+  else lastNormalDiff = d;
+  document.querySelectorAll('.diff-tab, .plus-tab, .gravity-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.diff===d);
     t.classList.toggle('locked', !diffUnlocked(t.dataset.diff));
   });
   updateTabLabels();
   const baseDiff = d.replace(/[+▲]/g,'');
-  const scrollId = d.endsWith('+') ? 'plus-scroll' : 'map-scroll';
+  const scrollId = d.endsWith('▲') ? 'gravity-scroll' : d.endsWith('+') ? 'plus-scroll' : 'map-scroll';
   const scrollEl = document.getElementById(scrollId);
   scrollEl.setAttribute('data-diff', baseDiff);
   setLandscapeBg(scrollEl, d);
@@ -3244,9 +3297,10 @@ function updateRoad() {
   // Road removed — clear any existing SVG
   document.querySelectorAll('.road-svg').forEach(s => s.remove());
   return;
+  const isGravity = curDiff.endsWith('▲');
   const isPlus = curDiff.endsWith('+');
-  const scrollId = isPlus ? 'plus-scroll' : 'map-scroll';
-  const listId   = isPlus ? 'plus-stage-list' : 'stage-list';
+  const scrollId = isGravity ? 'gravity-scroll' : isPlus ? 'plus-scroll' : 'map-scroll';
+  const listId   = isGravity ? 'gravity-stage-list' : isPlus ? 'plus-stage-list' : 'stage-list';
   const scrollEl = document.getElementById(scrollId);
   const listEl   = document.getElementById(listId);
   if (!scrollEl || !listEl) return;
@@ -3343,8 +3397,9 @@ function updateRoad() {
 const LANDMARKS = {};
 
 function renderMap() {
+  const isGravity = curDiff.endsWith('▲');
   const isPlus = curDiff.endsWith('+');
-  const list = document.getElementById(isPlus ? 'plus-stage-list' : 'stage-list');
+  const list = document.getElementById(isGravity ? 'gravity-stage-list' : isPlus ? 'plus-stage-list' : 'stage-list');
   list.innerHTML = '';
   const dc = DC[curDiff];
   const pos = ['center','right','left','right','center','left','right','left','right','center'];
@@ -3396,7 +3451,7 @@ function renderMap() {
       const preview = document.createElement('div');
       preview.className = 'node-enemy-preview';
       preview.innerHTML = ENEMIES[curDiff.replace(/[+▲]/g,'')][i].svg();
-      if(curDiff.endsWith('+')) preview.style.filter = 'hue-rotate(200deg) saturate(1.4) brightness(1.05)';
+      if(curDiff.endsWith('+') || curDiff.endsWith('▲')) preview.style.filter = 'hue-rotate(200deg) saturate(1.4) brightness(1.05)';
       node.appendChild(preview);
 
       // Checkmark for cleared stages — black if card collected
@@ -3536,7 +3591,7 @@ function startStage(d, idx) {
   const enemyChar = document.getElementById('enemy-char');
   const enemyName = document.getElementById('enemy-name');
   enemyChar.innerHTML = enemy.svg();
-  enemyChar.className = 'enemy-char' + (enemy.boss ? ' boss-enemy' : enemy.mid ? ' mid-boss-enemy' : '') + (d.endsWith('+') ? ' plus-enemy' : '');
+  enemyChar.className = 'enemy-char' + (enemy.boss ? ' boss-enemy' : enemy.mid ? ' mid-boss-enemy' : '') + ((d.endsWith('+') || d.endsWith('▲')) ? ' plus-enemy' : '');
   enemyName.textContent = enemy.name;
 
   const labelEl = document.getElementById('enemy-label');
@@ -3571,7 +3626,7 @@ function showEnemyIntro(type, cb) {
   if (!isBoss && !isMid) ov.style.background = 'rgba(255,248,232,0.82)';
   const content = document.createElement('div');
   content.className = 'boss-intro-content';
-  const plusFilter = curDiff.endsWith('+') ? 'filter:hue-rotate(200deg) saturate(1.4) brightness(1.05);' : '';
+  const plusFilter = (curDiff.endsWith('+') || curDiff.endsWith('▲')) ? 'filter:hue-rotate(200deg) saturate(1.4) brightness(1.05);' : '';
   content.innerHTML =
     '<div class="boss-intro-label" style="color:'+labelColor+'">'+label+'</div>'+
     '<div class="boss-intro-enemy" style="width:'+enemySize+'px;height:'+enemySize+'px;margin:0 auto 8px;'+plusFilter+'">'+enemy.svg()+'</div>'+
@@ -3841,7 +3896,7 @@ function addQ() {
   const s = drillMode ? DRILL_CONFIG : STAGES[curDiff][curIdx];
   for(let att=0;att<2000;att++) {
     const n = drillMode ? (DRILL_CONFIG.drillMin + Math.floor(Math.random() * (DRILL_CONFIG.drillMax - DRILL_CONFIG.drillMin + 1))) : bagNext();
-    const shape = genShape(n, s.cols, s.mh, curDiff.endsWith('+') ? 0.3 : 0);
+    const shape = genShape(n, s.cols, s.mh, (curDiff.endsWith('+') || curDiff.endsWith('▲')) ? 0.3 : 0);
     const total = shape.reduce((a,b)=>a+b,0);
     const sig = JSON.stringify(shape);
     if(GS.lastSig&&sig===GS.lastSig) continue;
@@ -5508,7 +5563,7 @@ function backToMap() {
   if(wasMode) { goToPanel(0); return; }
   switchTab(curDiff);
   // Restore correct panel without animation
-  const targetPanel = curDiff.endsWith('+') ? 2 : 1;
+  const targetPanel = curDiff.endsWith('▲') ? 3 : curDiff.endsWith('+') ? 2 : 1;
   const wrap = document.getElementById('panels-wrap');
   const outerW2 = (document.getElementById('panels-outer') || {offsetWidth: 390}).offsetWidth || 390;
   wrap.style.transition = 'none';
