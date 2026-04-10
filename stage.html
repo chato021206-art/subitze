@@ -45,6 +45,49 @@
 .low-end .stage-landmark svg { filter: none !important; }
 .low-end .node-crown { filter: none !important; animation: none !important; }
 .low-end .node-enemy-preview { animation: none !important; }
+
+/* Tutorial guide overlay */
+.tutorial-overlay {
+  position: absolute; inset: 0; z-index: 15;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(255,248,232,0.6); pointer-events: all;
+  animation: fadeIn 0.3s;
+}
+.tutorial-hint-top {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  margin-bottom: 12px;
+}
+.tutorial-circle {
+  width: 140px; height: 140px; border-radius: 50%;
+  border: 4px dashed var(--duo-green); display: flex; align-items: center; justify-content: center;
+  animation: tutorialPulse 1.5s ease-in-out infinite;
+}
+@keyframes tutorialPulse {
+  0%,100% { transform: scale(1); border-color: var(--duo-green); }
+  50% { transform: scale(1.05); border-color: var(--duo-gold); }
+}
+.tutorial-label {
+  font-size: 20px; font-weight: 900; color: var(--duo-green);
+  font-family: var(--font-ui); letter-spacing: 1px;
+}
+.tutorial-arrow {
+  font-size: 28px; color: var(--duo-green); margin: 8px 0;
+  animation: tutorialBounce 1s ease-in-out infinite;
+}
+@keyframes tutorialBounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+.tutorial-sub {
+  font-size: 15px; font-weight: 900; color: #555;
+  font-family: var(--font-ui); background: #FFF; padding: 8px 20px;
+  border-radius: 16px; box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+  border: 3px solid var(--duo-green);
+}
+.tutorial-tap {
+  font-size: 11px; color: #aaa; margin-top: 12px;
+}
+
 body {
   font-family: var(--font-ui); margin: 0; padding: 0;
   height: 100dvh; width: 100%; overflow: hidden; position: fixed; user-select: none;
@@ -2939,6 +2982,7 @@ function toggleRandom() {
       localStorage.removeItem('snow_cards');
       localStorage.removeItem('snow_cards_new');
       localStorage.removeItem('snow_achievements');
+      localStorage.removeItem('snow_tutorial_done');
       collectedCards = {}; newCards = {}; achievements = {};
       survivalBest = { correct:0, blocks:0 };
       drillUnlocked = false;
@@ -3585,8 +3629,39 @@ function beginGame() {
     renderBlocks();
     GS.elapsed = 0; GS.lastTick = Date.now();
     if(GS.rafId) cancelAnimationFrame(GS.rafId);
-    gameLoop();
+    // Tutorial for first-time players
+    if(!localStorage.getItem('snow_tutorial_done') && !brainMode && !drillMode) {
+      GS.blocked = true;
+      showTutorialGuide(() => {
+        GS.blocked = false;
+        GS.lastTick = Date.now();
+        gameLoop();
+      });
+    } else {
+      gameLoop();
+    }
   }
+}
+
+function showTutorialGuide(onDone) {
+  const slot = document.getElementById('game-slot');
+  const ov = document.createElement('div');
+  ov.className = 'tutorial-overlay';
+  ov.innerHTML =
+    '<div class="tutorial-hint-top">' +
+      '<div class="tutorial-circle">' +
+        '<div class="tutorial-label">🧊 何個ある？</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="tutorial-arrow">▼</div>' +
+    '<div class="tutorial-sub">数字をタップして答えよう！</div>' +
+    '<div class="tutorial-tap">タップでスタート</div>';
+  ov.addEventListener('click', () => {
+    ov.remove();
+    localStorage.setItem('snow_tutorial_done', '1');
+    onDone();
+  }, { once: true });
+  slot.appendChild(ov);
 }
 
 // Cached DOM refs for hot path
