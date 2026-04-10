@@ -563,10 +563,7 @@ body {
 
 .s-cluster { display: flex; align-items: flex-end; gap: 4px; }
 /* Pulse layout: blocks grow from center up and down */
-.gravity-cluster { display: flex; gap: 4px; justify-content: center; }
-.gravity-col { display: flex; flex-direction: column; gap: 4px; }
-.gravity-half-up { display: flex; flex-direction: column-reverse; gap: 4px; align-items: center; }
-.gravity-half-down { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.pulse-container { position: relative; width: 100%; height: 100%; }
 .s-column { display: flex; flex-direction: column-reverse; gap: 4px; }
 .s-block {
   width: min(7.5vw, 30px); height: min(7.5vw, 30px); border-radius: 8px;
@@ -4011,66 +4008,61 @@ function renderBlocks() {
     el.appendChild(container);
     el.style.transform = '';
   } else if(curDiff.endsWith('▲') && !brainMode) {
-    // Pulse layout: blocks grow from center up and down
-    const cluster = document.createElement('div');
-    cluster.className = 'gravity-cluster';
-    let blockIdx = 0;
+    // Pulse layout: absolute positioning from center line
+    const container = document.createElement('div');
+    container.className = 'pulse-container';
     const blockPx = Math.min(window.innerWidth * 0.075, 30);
     const gap = 4;
-    const maxH = Math.max(...GS.current.shape.filter(h => h > 0));
-    // Half height in px (max blocks that can go in one direction)
+    const step = blockPx + gap;
+    const shape = GS.current.shape;
+    const cols = shape.filter(h => h > 0).length;
+    const maxH = Math.max(...shape.filter(h => h > 0));
     const halfMax = Math.ceil(maxH / 2);
-    const halfPx = halfMax * (blockPx + gap);
-
-    GS.current.shape.forEach(h => {
+    const totalW = cols * step - gap;
+    const totalH = (halfMax * 2) * step;
+    // Center of the container
+    const centerY = halfMax * step;
+    let blockIdx = 0;
+    let colIdx = 0;
+    shape.forEach(h => {
       if(!h) return;
-      const col = document.createElement('div');
-      col.className = 'gravity-col';
-      // Random split: some blocks go up, some go down
+      // Random split
       let up, down;
-      if(h <= 1) {
-        up = Math.random() > 0.5 ? 1 : 0;
-        down = h - up;
-      } else {
-        up = Math.max(1, Math.min(h - 1, Math.floor(Math.random() * (h - 1)) + 1));
-        down = h - up;
-      }
-      // Upper half: fixed height, blocks grow upward from bottom of this div
-      const upDiv = document.createElement('div');
-      upDiv.className = 'gravity-half-up';
-      upDiv.style.height = halfPx + 'px';
+      if(h <= 1) { up = Math.random() > 0.5 ? 1 : 0; down = h - up; }
+      else { up = Math.max(1, Math.min(h - 1, Math.floor(Math.random() * (h - 1)) + 1)); down = h - up; }
+      const x = colIdx * step;
+      // Upper blocks: grow upward from center
       for(let i = 0; i < up; i++) {
         const b = document.createElement('div');
         b.className = 's-block';
         b.style.background = dc.block;
+        b.style.position = 'absolute';
+        b.style.left = x + 'px';
+        b.style.top = (centerY - (i + 1) * step) + 'px';
         if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
-        upDiv.appendChild(b);
+        container.appendChild(b);
         blockIdx++;
       }
-      // Lower half: fixed height, blocks grow downward from top of this div
-      const downDiv = document.createElement('div');
-      downDiv.className = 'gravity-half-down';
-      downDiv.style.height = halfPx + 'px';
+      // Lower blocks: grow downward from center
       for(let i = 0; i < down; i++) {
         const b = document.createElement('div');
         b.className = 's-block';
         b.style.background = dc.block;
+        b.style.position = 'absolute';
+        b.style.left = x + 'px';
+        b.style.top = (centerY + i * step) + 'px';
         if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
-        downDiv.appendChild(b);
+        container.appendChild(b);
         blockIdx++;
       }
-      col.appendChild(upDiv);
-      col.appendChild(downDiv);
-      cluster.appendChild(col);
+      colIdx++;
     });
-    el.appendChild(cluster);
+    container.style.width = totalW + 'px';
+    container.style.height = totalH + 'px';
+    el.appendChild(container);
     // Scaling
-    const shape = GS.current.shape;
-    const scaleCols = Math.max(1, shape.filter(h => h > 0).length);
-    const natW = scaleCols * blockPx + Math.max(0, scaleCols - 1) * gap;
-    const natH = halfPx * 2;
     if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
-    const sc = Math.min(1, _slotW * 0.88 / natW, _slotH * 0.78 / natH);
+    const sc = Math.min(1, _slotW * 0.88 / totalW, _slotH * 0.78 / totalH);
     el.style.transform = 'scale(' + sc + ')';
   } else {
     // Normal stacked layout
