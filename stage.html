@@ -1726,7 +1726,7 @@ body {
     </div>
     <div class="fail-btns">
       <button class="fbtn fbtn-back" onclick="backToMap()">やめる</button>
-      <button class="fbtn fbtn-retry" id="fbtn-retry" onclick="retryStage()">もう一回</button>
+      <button class="fbtn fbtn-retry" id="fbtn-retry" onclick="retryStage(true)">もう一回</button>
     </div>
   </div>
 </div>
@@ -3738,6 +3738,7 @@ function updateProg() {
 function startStage(d, idx) {
   curDiff = d; curIdx = idx;
   _slotW = 0; _slotH = 0; // Reset cached slot dimensions
+  _supportUsed = false; _supportMode = false; _supportLeft = 0;
   const s = STAGES[d][idx];
   const dc = DC[d];
   const gv = document.getElementById('game-view');
@@ -5738,6 +5739,7 @@ function goBack() { window.location.href = 'index.html?classic&autoselect=1'; }
 
 let _supportMode = false;  // ミス後リトライ時の優しさサポート
 let _supportLeft = 0;      // サポート残り問題数
+let _supportUsed = false;  // このステージでサポート使用済みか
 
 // 得意な数字リスト（正答回数が多い順）
 function getComfortNumbers() {
@@ -5748,13 +5750,16 @@ function getComfortNumbers() {
 }
 let _comfortNumbers = [];
 
-function retryStage() {
+function retryStage(fromFail) {
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
-  // ミス後のリトライ → サポートモード発動（最初の2問を優しく）
-  _supportMode = true;
-  _supportLeft = 2;
-  _comfortNumbers = getComfortNumbers();
+  // ミス後の赤ボタンからのリトライのみ、かつ1回限りサポート発動
+  if(fromFail && !_supportUsed) {
+    _supportMode = true;
+    _supportLeft = 2;
+    _supportUsed = true;
+    _comfortNumbers = getComfortNumbers();
+  }
   if(taMode) { startTA(taDiff); return; }
   if(survivalMode) { startSurvival(); return; }
   if(drillMode) { startDrillWithDiff(drillDiff); return; }
