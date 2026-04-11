@@ -9,8 +9,8 @@ MODEL = 'imagen-4.0-generate-001'
 CTX = ssl.create_default_context()
 
 S = """Super deformed cute chibi blob creature, anime mobile game card illustration,
-extremely round soft body with tiny stubby limbs, large sparkling anime eyes
-with star-shaped highlights, rosy cheeks, glossy skin with specular highlights,
+extremely round soft body with tiny stubby limbs, large sparkling anime eyes,
+rosy cheeks, glossy skin with specular highlights,
 digital painting, vibrant saturated colors, rich detailed background that fills
 the ENTIRE image edge to edge with NO white borders or margins anywhere,
 creature fills about 55-60% of the frame vertically and is centered with clear
@@ -21,292 +21,247 @@ portrait orientation 7:10 aspect ratio, no text, no frame, no border, no UI elem
 
 CARDS = {
   # ══════════════ EASY（港・海辺 ラノシア風）══════════════
-  'easy_0': { 'frame': 'common', 'prompt': S + """A cute round pink slime/jelly creature with translucent glossy bubblegum-pink body.
-White highlight spots shimmer on its surface like soap bubbles. Large sparkling
-deep blue anime eyes with star highlights. Tiny stubby pseudopod limbs. It sits
-contentedly on sun-warmed wooden dock planks, a small puddle of goo beneath it.
-A tiny pink heart-shaped bubble floats above its head. Rosy cheeks and a sweet smile.
-Background: a peaceful seaside wooden dock at golden hour. Calm turquoise ocean
-stretches to the horizon. Fluffy white clouds in a warm blue sky. Wooden barrels
-and coiled ropes on the dock. A lighthouse visible in the distance. Seagulls soar.
-Warm golden afternoon sunlight makes the ocean glitter.""" },
+  'easy_0': { 'frame': 'common', 'prompt': S + """A cute round slime jelly creature — NOT a dog, NOT an animal — a simple featureless
+pink blob of translucent glossy bubblegum-pink gelatin. No ears, no nose, no fur.
+Smooth glistening surface with white bubble-like highlight spots. Large sparkling
+deep blue anime eyes with HEART-SHAPED highlights (not stars). Tiny stubby pseudopod
+limbs made of the same pink goo. It sits on sun-warmed wooden dock planks, a small
+puddle of pink goo beneath it. A tiny pink heart bubble floats above its head.
+Background: peaceful seaside wooden dock at golden hour. Calm turquoise ocean.
+Fluffy clouds. Wooden barrels and coiled ropes. Lighthouse in the distance.""" },
 
-  'easy_1': { 'frame': 'common', 'prompt': S + """A cute round snail creature with a large golden spiral shell on its back, the shell
-gleaming with warm amber highlights and spiral grooves. Its soft body is cream-yellow
-with a glossy sheen. Large sparkling warm brown eyes with star highlights. Tiny
-stubby arms — one holds a small seashell, the other carries a tiny woven basket
-overflowing with collected shells. Running happily along a sandy beach, leaving
-a faint trail behind. Rosy cheeks and a determined smile.
-Background: a warm sandy beach at midday. Crystal-clear water laps at the shore.
-Scattered seashells and starfish dot the sand. Beach grass sways in the breeze.
-Distant cliffs with a coastal path. Fluffy clouds in a bright blue sky.""" },
+  'easy_1': { 'frame': 'common', 'prompt': S + """A cute round snail creature with a large golden spiral shell on its back gleaming
+with warm amber highlights. Soft cream-yellow glossy body. Large sparkling warm
+brown eyes with TEARDROP-SHAPED highlights (like dewdrops). Tiny stubby arms — one
+holds a small seashell, the other carries a tiny woven basket overflowing with shells.
+Running happily along a sandy beach, leaving a faint trail. Determined smile.
+Background: warm sandy beach at midday. Crystal water laps at shore. Scattered
+seashells and starfish. Beach grass sways. Distant cliffs. Bright blue sky.""" },
 
-  'easy_2': { 'frame': 'common', 'prompt': S + """A cute round pufferfish creature with glossy chartreuse/lime-green body that is
-slightly inflated with tiny soft rounded spines. Lighter yellow-green belly.
-Small round pectoral fins flapping. A surprised flustered expression with puffed
-cheeks. Large sparkling bright green eyes with star highlights. Tiny "o" mouth.
-It floats near the surface of calm harbor water, having just puffed up in surprise
-at a small fish swimming by. Tiny bubbles rise from its mouth.
-Background: a calm harbor scene at midday with crystal-clear turquoise water. A wooden
-dock with barnacles visible underwater. Colorful tropical fish swim below. Sunlight
-sparkles on the water surface. Boats in the distance. Half underwater perspective.""" },
+  'easy_2': { 'frame': 'common', 'prompt': S + """A cute round pufferfish creature with glossy chartreuse/lime-green body slightly
+inflated with tiny soft rounded spines. Lighter yellow-green belly. Small round
+pectoral fins. A surprised flustered expression with puffed cheeks. Large sparkling
+bright green eyes with CIRCULAR RING-SHAPED highlights (like ripples in water).
+Tiny "o" mouth. Floats near harbor water surface, puffed up in surprise at a small
+fish. Tiny bubbles rise from its mouth.
+Background: calm harbor with crystal turquoise water. Wooden dock with barnacles
+underwater. Colorful tropical fish. Sunlight sparkles on water. Half underwater.""" },
 
   'easy_3': { 'frame': 'common', 'prompt': S + """A cute round starfish creature with glossy warm coral-orange body shaped like a
-chubby five-pointed starfish blob. Each arm tip has a tiny lighter orange spot.
-Its smooth round center has a lighter peach-colored belly. Large sparkling warm
-orange eyes with star highlights. Rosy cheeks and a big happy cheerful smile.
-It sits on a sun-warmed wooden dock post, tiny arms waving cheerfully at the viewer.
-Small seashells and a tiny hermit crab sit nearby.
-Background: a warm sunset harbor with wooden docks and colorful fishing boats
-bobbing on calm golden water. Stacked lobster traps and coiled ropes. Seagulls fly
-across a brilliant orange-pink sunset sky. Lighthouse in the distance.""" },
+chubby five-pointed starfish blob. Each arm tip has a lighter orange spot. Lighter
+peach-colored belly. Large sparkling warm orange eyes with STAR-SHAPED highlights
+(matching its starfish body). Big happy cheerful smile. It sits on a sun-warmed
+wooden dock post, tiny arms waving cheerfully. Seashells and a hermit crab nearby.
+Background: warm sunset harbor with wooden docks and colorful fishing boats on
+calm golden water. Lobster traps and ropes. Seagulls. Orange-pink sunset sky.""" },
 
   'easy_4': { 'frame': 'uncommon', 'prompt': S + """A cute but imposing round fish-warrior creature with bright royal blue glossy body.
-A small golden crown sits on its head with a teal jewel. A tiny golden trident held
-in one stubby fin. Small blue-green fin ears. Large sparkling bright cyan eyes with
-star highlights. Determined furrowed brows but still adorable. White belly. It stands
-on a rocky outcrop by the crashing sea, one fin raised holding the trident proudly.
-Background: a dramatic rocky coastline with waves crashing against dark rocks sending
-up white spray. A lighthouse on a distant cliff. Storm clouds gathering on one side
-but sunlight breaks through on the other. Dramatic lighting with turquoise sea.""" },
+Small golden crown with teal jewel. Tiny golden trident in one stubby fin. Blue-green
+fin ears. Large sparkling bright cyan eyes with SHARP DIAMOND-SHAPED highlights
+(like cut aquamarine gems). Determined furrowed brows. White belly. It stands on a
+rocky outcrop by the crashing sea, one fin raised holding the trident proudly.
+Background: dramatic rocky coastline with crashing waves and white spray. Lighthouse
+on distant cliff. Storm clouds with sunlight breaking through.""" },
 
-  'easy_5': { 'frame': 'common', 'prompt': S + """A cute round ladybug creature with glossy dark navy-black body and a bright red
-shell/carapace with black polka dots on its back. Small black antennae with tiny
-balls on the tips. Large sparkling warm golden-amber eyes with honeycomb-pattern
-highlights. Rosy cheeks and a gentle smile. Tiny black legs. It sits on a large
-colorful flower, wings slightly spread, basking in the sunshine.
-Background: a vibrant flower garden overlooking the sea. Colorful flowers in full
-bloom — roses, daisies, lavender. A castle or tower silhouette in the misty distance.
-Butterflies flutter nearby. Bright blue sky with fluffy white clouds. Warm sunlight.""" },
+  'easy_5': { 'frame': 'common', 'prompt': S + """A cute round ladybug creature with glossy dark navy-black body and bright red shell
+with black polka dots. Small black antennae with tiny balls. Large sparkling warm
+golden-amber eyes with HONEYCOMB-PATTERN hexagonal highlights. Gentle smile. Tiny
+black legs. It sits on a large colorful flower, wings slightly spread, basking.
+Background: vibrant flower garden overlooking the sea. Colorful flowers in bloom.
+Castle tower in misty distance. Butterflies. Bright blue sky. Warm sunlight.""" },
 
   'easy_6': { 'frame': 'common', 'prompt': S + """A cute round anglerfish creature with glossy deep teal-green body. A bioluminescent
-lure dangles from a small stalk on its forehead, glowing warm golden-yellow. Large
-sparkling dark eyes with star highlights — expressive and curious despite the deep-sea
-theme. Small fins on the sides. A wide friendly grin showing tiny rounded teeth.
-It floats in deep blue water, its lure illuminating the area around it with warm light.
-Background: a deep ocean scene with dark navy-blue water. The anglerfish's lure creates
-a warm circle of golden light. Coral formations and sea anemones glow faintly below.
-Small glowing jellyfish drift in the background. Mysterious deep-sea atmosphere.""" },
+lure dangles from a forehead stalk, glowing warm golden-yellow. Large sparkling dark
+eyes with GLOWING ROUND SPOTLIGHT highlights (like its own lure reflected). Wide
+friendly grin showing tiny rounded teeth. Small fins. It floats in deep water, its
+lure illuminating the area with warm light.
+Background: deep ocean with dark navy water. The lure creates warm golden light circle.
+Coral formations glow faintly. Small glowing jellyfish drift. Deep-sea atmosphere.""" },
 
-  'easy_7': { 'frame': 'common', 'prompt': S + """A cute round jellyfish creature with a translucent lavender-purple glossy dome cap.
-Iridescent rainbow sheen on the dome surface. Delicate trailing tentacles below.
-Large sparkling purple anime eyes with star highlights. Rosy cheeks, gentle smile.
-The creature is SMALL — it floats in the center of the image with plenty of space
-around it, taking up only 50% of frame height. Tentacles trail gracefully.
-Background: deep ocean blue water gradient from lighter at top to darker navy below.
-Tiny bioluminescent particles glow around it like underwater stars. Coral reef
-hints at the bottom. Shafts of sunlight filter down from above. Serene atmosphere.""" },
+  'easy_7': { 'frame': 'common', 'prompt': S + """A cute round jellyfish creature with translucent lavender-purple glossy dome cap.
+Iridescent rainbow sheen. Delicate trailing tentacles. Large sparkling purple anime
+eyes with CRESCENT MOON-SHAPED highlights (ethereal and dreamy). Gentle smile.
+The creature is SMALL — only 50% of frame height, plenty of space around it.
+Background: deep ocean blue gradient. Bioluminescent particles glow like underwater
+stars. Coral reef hints at bottom. Sunlight shafts from above. Serene.""" },
 
-  'easy_8': { 'frame': 'common', 'prompt': S + """A cute round crab creature with glossy warm chocolate-brown body and a lighter tan
-belly. Two small pincers held up in a cheerful pose, as if showing them off. Large
-sparkling warm honey-brown eyes with star highlights. Rosy cheeks and a proud grin.
-Tiny legs beneath the round body. It stands on a wooden dock at sunset, striking
-a confident pose with both pincers raised like a bodybuilder showing off.
-Background: a warm harbor at sunset. Fishing boats moored at wooden docks. Golden
-sunset light reflects off calm water. Stacked crates and fishing nets nearby. The sky
-is painted in warm oranges and pinks. A few seagulls in the distance.""" },
+  'easy_8': { 'frame': 'common', 'prompt': S + """A cute round crab creature with glossy warm chocolate-brown body and lighter tan
+belly. Two small pincers held up cheerfully. Large sparkling warm honey-brown eyes
+with WARM OVAL highlights (like polished pebbles). Proud grin. Tiny legs. It stands
+on a wooden dock at sunset, striking a confident pose with both pincers raised
+like a bodybuilder showing off its strength.
+Background: warm harbor at sunset. Fishing boats at wooden docks. Golden sunset
+light on calm water. Crates and fishing nets. Orange-pink sky. Seagulls.""" },
 
   'easy_9': { 'frame': 'rare', 'prompt': S + """A majestic yet adorable round sea dragon creature with deep purple-blue glossy body.
-A golden crown with a teal jewel on its head. Small bat-like wings. A curling dragon
-tail. Blazing orange-amber eyes with fire-shaped highlights radiating power. Small
-white claws on stubby feet. A satisfied regal smile. Despite being round and cute,
-it radiates boss-level authority. Ocean waves churn around it dramatically.
-Background: a dramatic stormy sea filling the entire image. Dark thunderclouds with
-lightning bolts. Massive ocean waves crashing and swirling. Distant lighthouse on
-cliffs. Sea spray catches dramatic lighting. Dark moody teal-gray storm atmosphere.""" },
+Golden crown with teal jewel. Small bat-like wings. Curling dragon tail. Blazing
+orange-amber eyes with FLAME-SHAPED highlights (burning with inner fire, radiating
+boss power). Small white claws. Satisfied regal smile. Boss-level authority despite
+being round and cute. Ocean waves churn dramatically.
+Background: dramatic stormy sea filling entire image. Dark thunderclouds with
+lightning bolts. Massive crashing waves. Lighthouse on cliffs. Dark moody atmosphere.""" },
 
   # ══════════════ NORMAL（森・黒衣森風）══════════════
-  'normal_0': { 'frame': 'common', 'prompt': S + """A cute round mushroom creature with a large glossy red-and-white spotted mushroom
-cap on its head. The cap has classic toadstool appearance with bright red top and
-white polka dots. Its body is cream/beige and soft. Large sparkling warm brown eyes
-with star highlights beneath the mushroom cap. Rosy cheeks and a shy gentle smile.
-Tiny roots for feet. It stands in a mossy forest clearing, a few tiny spore particles
-floating upward from under the cap.
-Background: a lush enchanted forest with towering ancient trees. Dappled golden
-sunlight filters through the dense green canopy. Moss-covered logs and rocks.
-Small wildflowers dot the forest floor. Fireflies glow faintly. Peaceful atmosphere.""" },
+  'normal_0': { 'frame': 'common', 'prompt': S + """A cute round mushroom creature with large glossy red-and-white spotted toadstool
+cap on its head. Cream/beige soft body. Large sparkling warm brown eyes with
+SOFT ROUND DEW-DROP highlights (like morning dew on a mushroom). Shy gentle smile.
+Tiny roots for feet. It stands in a mossy clearing, tiny spore particles floating up.
+Background: lush enchanted forest with towering ancient trees. Dappled golden
+sunlight through dense canopy. Moss-covered logs. Wildflowers. Fireflies. Peaceful.""" },
 
-  'normal_1': { 'frame': 'common', 'prompt': S + """A cute round mandragora/root vegetable creature with glossy warm orange body shaped
-like a chubby carrot or turnip. Fresh green leaves sprout from the top of its head
-like a natural crown. Small root-like feet. Large sparkling dark brown eyes with
-star highlights, wide open in surprise — it looks like it was just pulled from the
-ground and is startled. Tiny "o" shaped mouth. Dirt particles still cling to its body.
-Background: a rich dark forest floor with upturned soil where it was just uprooted.
-Surrounding roots and fallen leaves. Mushrooms grow on nearby logs. Soft diffused
-forest light. Other small plants around the freshly dug hole. Earth-toned atmosphere.""" },
+  'normal_1': { 'frame': 'common', 'prompt': S + """A cute round mandragora/root vegetable creature with glossy warm orange body like a
+chubby carrot. Fresh green leaves sprout from its head. Small root feet. Large
+sparkling dark brown eyes with WIDE SHOCKED SPARKLE highlights — pupils dilated
+in surprise, multiple small light dots. Tiny "o" mouth. Just pulled from ground,
+startled. Dirt particles cling to body.
+Background: rich dark forest floor with upturned soil. Roots and fallen leaves.
+Mushrooms on logs. Soft diffused forest light. Freshly dug hole. Earth tones.""" },
 
-  'normal_2': { 'frame': 'common', 'prompt': S + """A cute round firefly creature with glowing lime-yellow translucent body. Its round
-bottom glows brightly with warm yellow-green bioluminescent light, creating a soft
-lantern-like radiance. Small translucent wings buzz on its back. Two tiny antennae
-on top with glowing tips. Large sparkling yellow-green eyes with star highlights.
-Cheerful excited expression. It flies through a dark nighttime forest, leaving a
-trail of glowing light particles behind.
-Background: a dark enchanted forest at night with tall shadowy trees. Dozens of tiny
-firefly lights dot the darkness like floating stars. Soft green moss glows faintly on
-tree trunks. Crescent moon through canopy. Magical mystical atmosphere.""" },
+  'normal_2': { 'frame': 'common', 'prompt': S + """A cute round firefly creature with glowing lime-yellow translucent body. Bottom
+glows with yellow-green bioluminescent light like a lantern. Small translucent wings.
+Two tiny antennae with glowing tips. Large sparkling yellow-green eyes with
+GLOWING RING-SHAPED highlights (like halos of light). Cheerful expression.
+Flying through dark nighttime forest, trail of glowing particles behind.
+Background: dark enchanted forest at night. Dozens of tiny firefly lights like
+floating stars. Moss glows on tree trunks. Crescent moon. Magical atmosphere.""" },
 
   'normal_3': { 'frame': 'common', 'prompt': S + """A cute round morbol/plant-beast creature with glossy dark olive-green body. Small
-red flower buds sprout from the top of its head like a crown of roses. A slightly
-grumpy but cute expression — tiny furrowed brows and a small pout showing one
-fang. Large sparkling dark red-brown eyes with star highlights. Stubby vine-like
-arms. It sits on a mossy log in a dense swamp-like forest, tiny vines trailing.
-Background: a deep dark mossy forest with thick undergrowth. Ancient gnarled trees
-with hanging moss. A misty atmosphere with blue-green fog. Ferns and bracket fungi
-cover everything. Dim mysterious light filtering through. Primal swamp atmosphere.""" },
+red flower buds on its head like a crown. Slightly grumpy but cute — furrowed brows,
+small pout showing one fang. Large sparkling dark red-brown eyes with CROSS-SHAPED
+highlights (like thorns). Stubby vine arms. Sits on a mossy log in a dense swamp.
+Background: deep dark mossy forest with thick undergrowth. Gnarled trees with
+hanging moss. Blue-green fog. Ferns and bracket fungi. Dim mysterious light.""" },
 
   'normal_4': { 'frame': 'uncommon', 'prompt': S + """A cute but fierce round wolf creature with glossy steel-gray fur and thick fluffy
-white mane around its neck. Pointed wolf ears standing alert. A bushy gray tail.
-Large sparkling fierce amber-golden eyes with sharp diamond-shaped highlights.
-Furrowed eyebrows showing determination. A small scar on one cheek. Tiny sharp fangs
-peek from its mouth in a confident smirk. One paw raised as if commanding respect.
-Despite being fierce, its round chibi body is adorable.
-Background: a mystical misty forest clearing surrounded by towering ancient oaks.
-Morning fog rolls between tree trunks. Golden sunlight breaks through the canopy.
-Ancient standing stones covered in moss and runes form a circle. Fallen autumn leaves.""" },
+white mane. Pointed wolf ears. Bushy gray tail. Large sparkling fierce amber-golden
+eyes with SHARP VERTICAL SLIT highlights (like a wolf's predatory gaze combined
+with cute anime style). Furrowed eyebrows. Small scar on cheek. Tiny fangs in
+confident smirk. One paw raised. Round chibi body is adorable despite fierceness.
+Background: mystical misty forest clearing with towering ancient oaks. Morning fog.
+Golden sunlight through canopy. Ancient standing stones with moss and runes.""" },
 
   'normal_5': { 'frame': 'common', 'prompt': S + """A cute round frog creature with glossy sky-blue body and white belly. Smooth slightly
-transparent skin like blue glass. Large sparkling aqua-blue eyes with star highlights.
-Rosy cheeks. A small golden crown sits tilted on its head. It sits on a large green
-lily pad on a forest pond, puffing up its white throat pouch while singing joyfully.
-Tiny colorful musical notes float upward from its mouth.
-Background: a sunlit forest pond surrounded by lush green vegetation. Multiple lily
-pads with small pink lotus flowers. Tall trees with golden sunlight through leaves.
-Dragonflies hover nearby. Crystal-clear water with visible pebbles. Bright peaceful.""" },
+transparent blue-glass skin. Large sparkling aqua-blue eyes with HORIZONTAL OVAL
+highlights (like a real frog's wide pupils but sparkly and cute). Small golden crown
+tilted on head. Sits on a lily pad, puffing white throat pouch while singing.
+Musical notes float upward.
+Background: sunlit forest pond with lush vegetation. Lily pads with pink lotus
+flowers. Trees with golden sunlight. Dragonflies. Clear water. Bright peaceful.""" },
 
-  'normal_6': { 'frame': 'common', 'prompt': S + """A cute round baby chocobo/chick creature with fluffy bright golden-yellow feathers.
-A small orange beak. Tiny wings flapping excitedly as it runs. Large sparkling dark
-brown-black eyes with star highlights — round and innocent. Rosy cheeks and a wide
-happy open-mouth smile. A single tuft of feather sticks up on its head. Tiny orange
-bird feet in mid-run. It dashes across a farm field with pure joy.
-Background: a peaceful pastoral ranch with green rolling hills and a wooden fence.
-A red barn visible in the distance. Fluffy sheep grazing nearby. Blue sky with
-cotton-candy clouds. Warm gentle sunlight. Country farm atmosphere.""" },
+  'normal_6': { 'frame': 'common', 'prompt': S + """A cute round baby chocobo/chick with fluffy bright golden-yellow feathers. Small
+orange beak. Tiny wings flapping excitedly. Large sparkling dark brown-black eyes
+with LARGE INNOCENT ROUND highlights (the biggest, most innocent-looking highlights
+of all — pure childlike wonder). Wide happy open-mouth smile. Single head tuft.
+Tiny orange feet in mid-run. Dashing across a farm field with pure joy.
+Background: peaceful pastoral ranch with green rolling hills and wooden fence.
+Red barn in distance. Fluffy sheep. Blue sky with cotton-candy clouds.""" },
 
-  'normal_7': { 'frame': 'common', 'prompt': S + """A cute round tree spirit/dryad creature with glossy mossy-green body covered in tiny
-leaves and small branches growing from it. An acorn dangles from one small branch.
-Vine arms reach outward gently. Large sparkling warm amber-orange eyes with star
-highlights. A peaceful sleepy smile. It sits contentedly on a thick tree branch high
-up in the canopy, legs dangling. Dappled sunlight warms its mossy body.
-Background: high up in the canopy of an ancient forest. Massive tree branches form
-natural platforms. Hanging vines and creeping moss everywhere. Golden sunbeams cut
-through the leaves. A bird's nest nearby. Far below, the forest floor is barely
-visible through the foliage. Peaceful elevated forest atmosphere.""" },
+  'normal_7': { 'frame': 'common', 'prompt': S + """A cute round tree spirit/dryad with glossy mossy-green body covered in tiny leaves
+and branches. An acorn dangles from one branch. Vine arms. Large sparkling warm
+amber-orange eyes with LEAF-SHAPED highlights (organic and natural, like tiny
+golden leaves reflected in the iris). Peaceful sleepy smile. Sits on a thick tree
+branch high in canopy, legs dangling. Dappled sunlight warms its mossy body.
+Background: high canopy of ancient forest. Massive branches as platforms. Hanging
+vines and moss. Golden sunbeams. Bird's nest nearby. Forest floor far below.""" },
 
   'normal_8': { 'frame': 'common', 'prompt': S + """A cute round fox spirit creature with glossy warm amber-orange fur and fluffy white
-chest. A bushy fox tail with white tip that has small blue-white spirit flames
-flickering from the tip. Pointed fox ears with dark tips. Large sparkling golden-amber
-eyes with star highlights. A mischievous grin showing one tiny fang. One tiny paw
-raised as if casting a spell. Three small blue-white foxfire flames float around it.
-Background: an autumn forest at dusk with trees in brilliant red, orange, and gold
-foliage. A weathered red torii gate silhouette visible in the misty background.
-Fallen maple leaves carpet the ground. Golden-hour lighting with purple twilight sky.
-Mysterious Japanese folklore atmosphere.""" },
+chest. Bushy fox tail with blue-white spirit flames at the tip. Pointed ears with
+dark tips. Large sparkling golden-amber eyes with VERTICAL FLAME-SHAPED highlights
+(like dancing foxfire reflected in the iris — mystical and alluring). Mischievous
+grin with one tiny fang. One paw raised casting a spell. Three foxfire flames around.
+Background: autumn forest at dusk with brilliant red, orange, gold foliage.
+Red torii gate silhouette in misty background. Fallen maple leaves. Purple twilight.""" },
 
   'normal_9': { 'frame': 'rare', 'prompt': S + """A majestic yet adorable round moogle king creature with fluffy pure white body.
-A small red pompom bobbles on a stalk above its head. A golden crown with a red
-gem sits between tiny bat-like purple wings. Large sparkling deep red-pink eyes with
-star highlights. Rosy cheeks. A regal but sweet expression — it knows it's royalty
-but is still friendly. It sits on an ancient tree stump in a magical fairy ring.
-Background: an enchanted forest clearing at twilight. A circle of glowing mushrooms
-forms a fairy ring around the stump. Tiny magical sparkles and fireflies float
-everywhere. Ancient trees with hanging moss surround the clearing. Soft golden-green
-magical light emanates from the ground. Small red mushrooms dot the grass.""" },
+Red pompom on stalk above head. Golden crown with red gem between tiny purple wings.
+Large sparkling deep red-pink eyes with CROSS-STAR/ROYAL highlights (like a
+royal four-pointed cross, radiating regal authority). Regal but sweet expression.
+Sits on ancient tree stump in a magical fairy ring.
+Background: enchanted forest clearing at twilight. Glowing mushroom fairy ring.
+Magical sparkles and fireflies. Ancient trees with moss. Golden-green magical light.""" },
 
   # ══════════════ HARD（砂漠・ザナラーン風）══════════════
-  'hard_0': { 'frame': 'common', 'prompt': S + """A cute round rock golem creature with glossy blue-gray stone body covered in natural
-cracks and weathered texture. Small teal-blue crystal gems embedded in its surface
-glow faintly. Thick stone eyebrow ridges give it a determined look. Large sparkling
-ice-blue diamond-shaped eyes with cross highlights. A small crack on its forehead
-reveals a glowing teal light inside. Tiny stone fists. Sturdy and ancient but adorable.
-Background: dramatic desert ruins at golden sunset. Crumbling sandstone pillars and
-ancient carved doorways. The setting sun creates spectacular orange-gold sky behind
-towering mesa formations. Sand drifts around ruins. Archaeological dig atmosphere.""" },
+  'hard_0': { 'frame': 'common', 'prompt': S + """A cute round rock golem creature with glossy blue-gray stone body with natural cracks
+and weathered texture. Small teal-blue crystal gems embedded, glowing faintly. Thick
+stone eyebrow ridges. Large sparkling ice-blue eyes with CROSS/PLUS-SHAPED highlights
+(like fractured crystal refractions). Small forehead crack reveals teal light inside.
+Tiny stone fists. Sturdy and ancient but adorable.
+Background: dramatic desert ruins at golden sunset. Crumbling sandstone pillars.
+Setting sun creates orange-gold sky behind mesa formations. Sand drifts. Dig site.""" },
 
   'hard_1': { 'frame': 'common', 'prompt': S + """A cute round scorpion creature with glossy sandy-beige/tan body like desert sand.
-Segmented tail curls up high above its head with a small stinger that glows faintly
-orange. Two small pincers held up in a threatening but adorable pose. Dark brown
-camouflage markings on its back. Large sparkling amber-brown eyes with star highlights.
-It emerges halfway from desert sand, tail raised high in warning.
-Background: vast desert landscape at golden sunset. Towering sand dunes stretch into
-the distance under dramatic orange-pink sky. Heat shimmer rises from sand. Scattered
-desert rocks and a lone dead tree. Warm golden light bathes everything.""" },
+Segmented tail curled high with faintly orange glowing stinger. Two small pincers
+in threatening but adorable pose. Dark brown camouflage markings. Large sparkling
+amber-brown eyes with SHARP ANGULAR/TRIANGULAR highlights (like desert crystals).
+Emerging halfway from sand, tail raised in warning.
+Background: vast desert at golden sunset. Towering sand dunes under orange-pink sky.
+Heat shimmer. Desert rocks and lone dead tree. Warm golden light.""" },
 
-  'hard_2': { 'frame': 'common', 'prompt': S + """A cute round falcon/hawk creature with brilliant golden-brown glossy plumage. White
-chest with golden-brown speckles. Small fierce spread wings with darker brown tips.
-A small curved golden beak. Sharp but adorable large golden eyes with diamond-shaped
-highlights. A tiny golden anklet on one foot. It perches on a desert rock, body
-puffed up proudly, wings slightly spread, scanning the horizon with fierce determination.
-Background: dramatic desert canyon at sunrise. Towering sandstone cliffs in warm orange
-and red layers. Distant pyramids on the horizon. Rising sun creates dramatic golden
-rays cutting through morning haze. Eagles soar as tiny silhouettes.""" },
+  'hard_2': { 'frame': 'common', 'prompt': S + """A cute round falcon/hawk creature with brilliant golden-brown glossy plumage.
+White chest with golden-brown speckles. Small fierce spread wings with darker tips.
+Curved golden beak. Large sparkling golden eyes with SHARP DIAMOND/RAPTOR-SHAPED
+highlights (like a hawk's piercing focused gaze). Golden anklet. Perches on desert
+rock, puffed up proudly, wings slightly spread, scanning horizon.
+Background: dramatic desert canyon at sunrise. Towering sandstone cliffs. Distant
+pyramids. Rising sun creates golden rays through morning haze.""" },
 
-  'hard_3': { 'frame': 'common', 'prompt': S + """A cute round cactus creature with glossy bright green body covered in small golden
-spines. A beautiful pink flower blooms on top of its head. Small cactus arm-branches
-wave cheerfully on each side. Large sparkling dark green eyes with star highlights.
-Rosy cheeks and a wide happy smile. It dances joyfully in a cactus field, one foot
-raised in mid-step, tiny cactus flower petals falling from its bloom.
-Background: a beautiful desert cactus field at golden sunset. Tall saguaro cacti
-and prickly pear surround it. Mountains in the distance painted in purple and orange.
-The sky blazes with warm sunset colors. Small desert wildflowers bloom at the base
-of each cactus. Warm peaceful desert evening atmosphere.""" },
+  'hard_3': { 'frame': 'common', 'prompt': S + """A cute round cactus creature with glossy bright green body with small golden spines.
+Beautiful pink flower blooming on its head. Small cactus arm-branches waving. Large
+sparkling dark green eyes with SPARKLE-BURST highlights (like tiny fireworks, joyful
+and energetic). Wide happy smile. Dancing in a cactus field, one foot raised,
+flower petals falling from its bloom.
+Background: beautiful desert cactus field at golden sunset. Saguaro cacti and prickly
+pear. Mountains in purple-orange distance. Sunset sky. Desert wildflowers.""" },
 
   'hard_4': { 'frame': 'uncommon', 'prompt': S + """A cute but imposing round desert sphinx creature with glossy warm golden-amber body.
-A pharaoh-style striped headdress (nemes) in blue and gold sits on its round head.
-Small lion paws visible below. A mysterious knowing smile. Large sparkling deep amber
-eyes with hieroglyph-shaped highlights — ancient wisdom in cute form. Tiny golden
-wings folded at its sides. A golden ankh pendant hangs from its neck on a chain.
-It sits regally on a stone pedestal in front of a massive pyramid.
-Background: a dramatic Egyptian-inspired desert at golden hour. A massive golden
-pyramid rises behind the creature. The Sphinx's own shadow stretches across golden
-sand. Obelisks with hieroglyphs flank the scene. Warm amber light bathes everything.
-A crescent moon is already visible in the darkening sky above.""" },
+Pharaoh-style striped headdress (nemes) in blue and gold on its round head. Small
+lion paws. Mysterious knowing smile. Large sparkling deep amber eyes with
+HIEROGLYPH-SHAPED highlights (like ancient Egyptian eye-of-Horus symbols reflected
+in the iris — ancient wisdom in cute form). Golden wings at sides. Ankh pendant on
+golden chain. Sits regally on stone pedestal before a massive pyramid.
+Background: Egyptian-inspired desert at golden hour. Massive golden pyramid behind.
+Shadow stretches across sand. Obelisks with hieroglyphs. Amber light. Crescent moon.""" },
 
-  'hard_5': { 'frame': 'common', 'prompt': S + """A cute round crystal-scorpion creature with glossy teal/cyan body that shimmers
-with inner crystalline glow. Small crystalline segments along its back refract light
-into rainbow sparkles. Curled tail with glowing teal crystal tip. Two small translucent
-pincers. Large sparkling emerald-teal eyes with gem-facet highlights. It is inside
-a cavern, happily munching on a glowing teal crystal, mouth sparkling with crystal
-dust. Tiny crystal shards float around its head.
-Background: spectacular crystal cavern with massive teal and cyan crystal formations.
-Veins of glowing minerals in the rock. Underground pool reflects crystal light.
-Blue-green luminescence everywhere. Magical underground atmosphere.""" },
+  'hard_5': { 'frame': 'common', 'prompt': S + """A cute round crystal-scorpion creature with glossy teal/cyan body shimmering with
+inner crystalline glow. Crystalline segments refract rainbow sparkles. Curled tail
+with teal crystal tip. Small translucent pincers. Large sparkling emerald-teal eyes
+with GEM-FACET highlights (like cut emerald reflections, multifaceted). Happily
+munching a teal crystal, mouth sparkling. Crystal shards float around head.
+Background: spectacular crystal cavern with massive teal crystal formations.
+Glowing mineral veins. Underground pool reflecting crystal light. Blue-green glow.""" },
 
-  'hard_6': { 'frame': 'common', 'prompt': S + """A cute round bomb creature with glossy dark navy-blue body (NOT red). A metal cap
-on top with a blue-tipped fuse that has bright blue-white sparks shooting from it.
-Dark midnight blue body with tiny star-like sparkle patterns on surface. Large panicked
-spiral eyes in pale blue, mouth open in worried expression, a single blue sweat drop.
-Background: desert landscape at night under spectacular starry sky with Milky Way
-visible. Sand dunes in cool blue-gray moonlight. Blue sparks from fuse illuminate
-nearby sand. Shooting stars streak across sky. Cool blue nighttime atmosphere.""" },
+  'hard_6': { 'frame': 'common', 'prompt': S + """A cute round bomb creature with glossy dark navy-blue body (NOT red). Metal cap on
+top with blue-tipped fuse shooting blue-white sparks. Midnight blue body with tiny
+star-like sparkle patterns. Large panicked eyes with SPIRAL/SWIRL highlights
+(dizzied panic spirals in pale blue — classic cartoon bomb panic). Mouth open in
+worry, single blue sweat drop.
+Background: desert at night under spectacular starry Milky Way sky. Sand dunes in
+blue-gray moonlight. Blue fuse sparks illuminate nearby sand. Shooting stars.""" },
 
   'hard_7': { 'frame': 'common', 'prompt': S + """A cute round cobra creature with glossy jade-green/emerald body (NOT red). Beautiful
-darker green scale pattern. A lighter green belly. A small jade-green cobra hood fans
-out behind its head with golden ornamental markings. Large sparkling yellow-green
-slit-pupil eyes. Forked tongue flicks out playfully. Regal and mysterious expression.
-It is coiled in front of golden desert ruins, looking wise and confident.
-Background: ancient golden desert ruins with hieroglyph-covered sandstone walls.
-Sunlight streams through crumbled doorway creating dramatic light shafts. Green vines
-creep along ruins. Sand piles in corners. Warm golden afternoon light contrasts with
-the green snake. Mysterious archaeological atmosphere.""" },
+darker green scale pattern. Lighter green belly. Small jade-green cobra hood with
+golden ornamental markings. Large sparkling yellow-green eyes with VERTICAL SLIT-PUPIL
+highlights (reptilian serpent pupils with golden light — wise and hypnotic). Forked
+tongue flicks playfully. Regal mysterious expression. Coiled before golden ruins.
+Background: ancient golden desert ruins with hieroglyph sandstone walls. Sunlight
+through crumbled doorway. Green vines on ruins. Golden afternoon light.""" },
 
   'hard_8': { 'frame': 'common', 'prompt': S + """A cute round mineral/crystal creature with glossy ice-blue/frost-blue body (NOT brown).
-Body covered in sparkling ice-blue and pale white crystal clusters that grow from
-surface like frozen flowers. Translucent frosted glass quality. Large sparkling
-diamond-blue eyes like cut sapphires with bright white star highlights. Gentle peaceful
-smile. Tiny ice crystal feet. It glows softly with inner blue-white light.
-Background: mine tunnel with wooden support beams and old mining rails. Cool blue-white
-light from ice-blue crystal formations along walls. Mining lantern on beam casting
-warm contrasting light. Mine cart on rails in distance. Underground mine atmosphere.""" },
+Sparkling ice-blue and white crystal clusters growing from surface like frozen
+flowers. Translucent frosted glass quality. Large sparkling diamond-blue eyes with
+SAPPHIRE-FACET highlights (like looking into a cut sapphire — deep multifaceted
+blue reflections). Gentle peaceful smile. Tiny ice crystal feet. Inner blue glow.
+Background: mine tunnel with wooden beams and rails. Cool blue-white light from
+ice crystal formations. Mining lantern casting warm contrast. Mine cart in distance.""" },
 
-  'hard_9': { 'frame': 'rare', 'prompt': S + """A majestic cute round fire demon creature with deep dark crimson body (darker than
-typical red). Emanates an aura of blue-purple flames mixed with orange fire. Flame-
-shaped eyes that burn with inner blue-white fire center, surrounded by orange flame
-iris. Two small dark horns. Sharp tiny fangs in fierce grin. The creature radiates
-overwhelming boss energy despite being adorably round. Rosy cheeks for cute contrast.
-Background: volcanic arena with dark basalt pillars. Rivers of bright orange lava
-flow on ground. Dramatic tall pillars of BLUE fire rise on both sides creating
-unusual contrast with orange lava. Dark volcanic ash clouds swirl above. Blue and
-orange fire creates spectacular dual-tone lighting. Epic boss arena atmosphere.""" },
+  'hard_9': { 'frame': 'rare', 'prompt': S + """A majestic cute round fire demon creature with deep dark crimson body. Aura of
+blue-purple flames mixed with orange fire. Large eyes with BLUE-FIRE-CENTER highlights
+(inner iris burns with blue-white fire, outer ring of orange flame — dual-tone fire
+eyes radiating overwhelming boss power). Two small dark horns. Sharp tiny fangs in
+fierce grin. Rosy cheeks for cute contrast. Boss energy despite adorable round body.
+Background: volcanic arena with dark basalt pillars. Rivers of bright orange lava.
+Dramatic tall pillars of BLUE fire on both sides. Volcanic ash clouds. Dual-tone
+blue and orange fire lighting. Epic boss arena.""" },
 }
 
 FRAME_MAP = {
