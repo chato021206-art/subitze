@@ -2286,7 +2286,8 @@ function renderCard(card, opts) {
   } else {
     const cardImg = CARD_IMAGES[card.id];
     if(cardImg) {
-      inner.innerHTML = '<img src="' + cardImg + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" alt="' + card.name + '">';
+      const thumbSrc = (size === 'thumb' || size === 'normal') ? cardImg.replace('cards/', 'cards/thumb/').replace('.png', '.jpg') : cardImg;
+      inner.innerHTML = '<img src="' + thumbSrc + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" loading="lazy" alt="' + card.name + '">';
       el.style.border = 'none';
       el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
     } else {
@@ -2416,6 +2417,7 @@ function rollCardDrop(diff, idx, stars) {
     const prev = collectedCards[cardId];
     collectedCards[cardId] = { date: today, count: (prev ? prev.count || 1 : 0) + 1 };
     newCards[cardId] = true;
+    invalidateGridCache();
     saveCards();
     return card;
   }
@@ -2465,8 +2467,17 @@ function renderCollectionTabs() {
   });
 }
 
+const _gridCache = {};
+function invalidateGridCache(diff) { if(diff) delete _gridCache[diff]; else Object.keys(_gridCache).forEach(k => delete _gridCache[k]); }
+
 function renderCollectionGrid(diff) {
   const grid = document.getElementById('col-grid');
+  // Use cached grid if available and no new cards
+  const cacheKey = diff + '_' + _cardFilter + '_' + Object.keys(newCards).length;
+  if(_gridCache[diff] === cacheKey && grid.dataset.diff === diff && grid.dataset.filter === _cardFilter) return;
+  _gridCache[diff] = cacheKey;
+  grid.dataset.diff = diff;
+  grid.dataset.filter = _cardFilter;
   grid.innerHTML = '';
   const baseDiff = diff.replace(/[+▲]/g,'');
   const allCount = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
