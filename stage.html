@@ -2911,12 +2911,12 @@ function getLevel() {
     let increment = lv * 50;
     if(lv >= 100) {
       const tier = Math.floor((lv - 100) / 10);
-      increment = lv * 50 * Math.pow(2, tier);
+      increment = lv * 150 * Math.pow(2, tier);
     }
     threshold += increment;
   }
   let prevIncrement = lv * 50;
-  if(lv >= 100) { prevIncrement = lv * 50 * Math.pow(2, Math.floor((lv - 100) / 10)); }
+  if(lv >= 100) { prevIncrement = lv * 150 * Math.pow(2, Math.floor((lv - 100) / 10)); }
   const prevT = threshold - prevIncrement;
   const pct = ((totalXP - prevT) / (threshold - prevT)) * 100;
   return { level: lv, pct: Math.min(100, pct), next: threshold };
