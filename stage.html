@@ -455,19 +455,18 @@ body {
 
 /* Enemy section — character only, centred */
 .enemy-section {
-  display: flex; flex-direction: column; align-items: center;
-  flex-shrink: 0; padding: 0 0 4px;
+  display: flex; flex-direction: row; align-items: flex-start;
+  flex-shrink: 0; padding: 0 12px 0; position: relative; gap: 6px;
 }
 .enemy-char {
-  width: 128px; height: 128px; transition: transform 0.1s;
+  width: 80px; height: 80px; transition: transform 0.1s;
   filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12));
   animation: enemyIdle 2s ease-in-out infinite;
-
   contain: layout style;
 }
 .enemy-char svg { width: 100%; height: 100%; }
-.enemy-char.boss-enemy { width: 160px; height: 160px; animation: enemyIdleBoss 1.5s ease-in-out infinite; }
-.enemy-char.mid-boss-enemy { width: 144px; height: 144px; }
+.enemy-char.boss-enemy { width: 100px; height: 100px; animation: enemyIdleBoss 1.5s ease-in-out infinite; }
+.enemy-char.mid-boss-enemy { width: 90px; height: 90px; }
 .enemy-char.plus-enemy { filter: drop-shadow(2px 4px 0 rgba(0,0,0,0.12)) hue-rotate(200deg) saturate(1.4) brightness(1.05); }
 @keyframes enemyIdle {
   0%,100% { transform: translateY(0) rotate(0deg); }
@@ -479,9 +478,10 @@ body {
   75% { transform: translateY(-3px) scale(0.98) rotate(2deg); }
 }
 .enemy-name-tag {
-  font-size: 11px; font-weight: 900; color: #555;
-  background: rgba(255,255,255,0.85); padding: 2px 10px; border-radius: 10px;
+  font-size: 10px; font-weight: 900; color: #555;
+  background: rgba(255,255,255,0.85); padding: 1px 8px; border-radius: 8px;
   border: 2px solid rgba(0,0,0,0.06); white-space: nowrap;
+  align-self: center; margin-top: 8px;
 }
 .enemy-label {
   font-size: 10px; font-weight: 900; color: #fff; background: #FF4B4B;
@@ -524,8 +524,8 @@ body {
   justify-content: center; position: relative; overflow: hidden; min-height: 0;
 }
 .game-slot {
-  width: 88%; max-width: 340px;
-  height: calc(100% - 12px); min-height: 160px;
+  width: 96%; max-width: 460px;
+  height: calc(100% - 8px); min-height: 160px;
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
   background: rgba(255,255,255,0.88); border-radius: 22px;
@@ -567,7 +567,7 @@ body {
 .pulse-container { position: relative; }
 .s-column { display: flex; flex-direction: column-reverse; gap: 4px; }
 .s-block {
-  width: min(7.5vw, 30px); height: min(7.5vw, 30px); border-radius: 8px;
+  width: var(--s-block-size, min(10vw, 40px)); height: var(--s-block-size, min(10vw, 40px)); border-radius: 8px;
   border: 3px solid rgba(0,0,0,0.08);
   box-shadow: 0 3px 0 rgba(0,0,0,0.08);
   animation: blockIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275) both;
@@ -4074,7 +4074,7 @@ function renderBlocks() {
     // Random scattered layout
     const container = document.createElement('div');
     container.className = 'random-layout';
-    const S = Math.min(window.innerWidth * 0.075, 30);
+    const S = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--s-block-size')) || 30;
     const used = [];
     const maxAttempts = _isLowEnd ? 50 : 200;
     for(let i=0; i<n; i++) {
@@ -4100,12 +4100,16 @@ function renderBlocks() {
     // Pulse layout: absolute positioning from center line
     const container = document.createElement('div');
     container.className = 'pulse-container';
-    const blockPx = Math.min(window.innerWidth * 0.075, 30);
     const gap = 4;
-    const step = blockPx + gap;
     const shape = GS.current.shape;
     const cols = shape.filter(h => h > 0).length;
     const maxH = Math.max(...shape.filter(h => h > 0));
+    if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
+    const bsW = (_slotW * 0.88 - gap * Math.max(0, cols - 1)) / cols;
+    const bsH = (_slotH * 0.78 - gap * Math.max(0, maxH - 1)) / maxH;
+    const blockPx = Math.max(18, Math.min(48, Math.floor(Math.min(bsW, bsH))));
+    document.documentElement.style.setProperty('--s-block-size', blockPx + 'px');
+    const step = blockPx + gap;
     const halfMax = Math.ceil(maxH / 2);
     const totalW = cols * step - gap;
     const totalH = (halfMax * 2) * step;
@@ -4186,23 +4190,23 @@ function renderBlocks() {
       warn.textContent = '⚠️ 苦手な形!';
       el.appendChild(warn);
     }
-    // Dynamic scale based on slot dimensions + stage cols/mh
-    const st = taMode ? TA_CONFIGS[taDiff] : (survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx])));
-    let blockPx = Math.min(window.innerWidth * 0.075, 30);
-    if(brainMode) blockPx = Math.min(window.innerWidth * 0.24, 90);
-    const gap = 4;
-    // Scale to actual shape size for bigger blocks
-    let scaleCols, scaleMh;
+    // Dynamic block size based on slot dimensions + actual shape
     const shape = GS.current.shape;
-    scaleCols = Math.max(1, shape.filter(h => h > 0).length);
-    scaleMh   = Math.max(1, ...shape);
-    const natW = scaleCols * blockPx + Math.max(0, scaleCols - 1) * gap;
-    const natH = scaleMh  * blockPx + Math.max(0, scaleMh  - 1) * gap;
+    let scaleCols = Math.max(1, shape.filter(h => h > 0).length);
+    let scaleMh   = Math.max(1, ...shape);
+    const gap = 4;
     if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
-    const avW = _slotW * 0.88;
-    const avH = _slotH * 0.78;
-    const sc = Math.min(1, avW / natW, avH / natH);
-    el.style.transform = 'scale(' + sc + ')';
+    const avW = _slotW * 0.92;
+    const avH = _slotH * 0.88;
+    let blockPx;
+    if(brainMode) { blockPx = Math.min(window.innerWidth * 0.24, 90); }
+    else {
+      const bsW = (avW - gap * Math.max(0, scaleCols - 1)) / scaleCols;
+      const bsH = (avH - gap * Math.max(0, scaleMh - 1)) / scaleMh;
+      blockPx = Math.max(18, Math.min(48, Math.floor(Math.min(bsW, bsH))));
+    }
+    document.documentElement.style.setProperty('--s-block-size', blockPx + 'px');
+    el.style.transform = '';
   }
 }
 
