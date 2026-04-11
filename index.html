@@ -894,8 +894,16 @@ let UI = {};
         UI.appWrapper.classList.remove('theme-easy','theme-normal','theme-hard','theme-extreme');
         UI.appWrapper.classList.add('theme-'+STATE.currentModeKey.toLowerCase());
         // 老眼フレンドリー: モード別ブロックサイズ
-        const bsMap = { EASY:'min(12vw, 44px)', NORMAL:'min(11vw, 42px)', HARD:'min(9vw, 38px)', EXTREME:'min(7vw, 32px)' };
-        document.documentElement.style.setProperty('--block-size-base', bsMap[STATE.currentModeKey] || 'min(7vw, 32px)');
+        const mk = STATE.currentModeKey;
+        const isPlus = mk.endsWith('+') || mk.endsWith('▲');
+        let bs;
+        if(isPlus)                          bs = 'min(5.5vw, 26px)';  // +/▲: cols11,mh11 最高密度
+        else if(mk==='ULTIMATE')            bs = 'min(6vw, 28px)';    // cols9-11,mh11-13
+        else if(mk==='EXTREME')             bs = 'min(7vw, 32px)';    // cols9,mh9
+        else if(mk==='HARD')                bs = 'min(9vw, 38px)';
+        else if(mk==='NORMAL')              bs = 'min(11vw, 42px)';
+        else                                bs = 'min(12vw, 44px)';   // EASY
+        document.documentElement.style.setProperty('--block-size-base', bs);
     }
     function handleTapToStart() {
         if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
