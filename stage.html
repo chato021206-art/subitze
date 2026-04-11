@@ -4006,6 +4006,26 @@ function getDrillWeakCount(diff) {
 function addQ() {
   if(GS.genCount>=QS) { GS.queue.push({n:null,shape:[]}); return; }
 
+  // サポートモード: ミス後リトライの最初の1-2問を優しく
+  if(_supportMode && _supportLeft > 0 && !drillMode && !brainMode) {
+    _supportLeft--;
+    if(_supportLeft <= 0) _supportMode = false;
+    const s = STAGES[curDiff][curIdx];
+    const bag = s.bag;
+    const minN = Math.min(...bag);  // この難易度の最小ブロック数
+    // 得意な形(過去にexcellentで正解)があればそれを出題、なければ最小値
+    const goodN = _comfortNumbers.length > 0
+      ? _comfortNumbers.find(cn => bag.includes(cn)) || minN
+      : minN;
+    const shape = genShape(goodN, s.cols, s.mh, 0);
+    const total = shape.reduce((a,b)=>a+b,0);
+    const sig = JSON.stringify(shape);
+    GS.lastN = total; GS.lastSig = sig; GS.consec = 1;
+    GS.queue.push({n:total, shape, sig});
+    GS.genCount++;
+    return;
+  }
+
   // Drill mode: prioritize weak shapes filtered by drillDiff
   if(drillMode) {
     const match = m => (m.diff || inferDiff(m.n)) === drillDiff;
@@ -5650,9 +5670,25 @@ function getStreakXPBonus() {
 /* =============== NAVIGATION =============== */
 function goBack() { window.location.href = 'index.html?classic&autoselect=1'; }
 
+let _supportMode = false;  // ミス後リトライ時の優しさサポート
+let _supportLeft = 0;      // サポート残り問題数
+
+// 得意な数字リスト（正答回数が多い順）
+function getComfortNumbers() {
+  const entries = Object.entries(numberStats).filter(([n,s]) => s.c >= 2);
+  if(entries.length === 0) return [];  // 初回プレイヤー → 空（bagの最小値にフォールバック）
+  entries.sort((a,b) => (b[1].c / Math.max(0.1, b[1].t/b[1].c)) - (a[1].c / Math.max(0.1, a[1].t/a[1].c)));
+  return entries.map(([n]) => parseInt(n));
+}
+let _comfortNumbers = [];
+
 function retryStage() {
   document.getElementById('fail-overlay').classList.remove('show');
   document.getElementById('result-overlay').classList.remove('show');
+  // ミス後のリトライ → サポートモード発動（最初の2問を優しく）
+  _supportMode = true;
+  _supportLeft = 2;
+  _comfortNumbers = getComfortNumbers();
   if(taMode) { startTA(taDiff); return; }
   if(survivalMode) { startSurvival(); return; }
   if(drillMode) { startDrillWithDiff(drillDiff); return; }
