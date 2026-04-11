@@ -211,14 +211,15 @@ Background: enchanted clearing at twilight. Glowing mushroom fairy ring. Magical
 sparkles and fireflies. A squirrel and chipmunk waiting for the verdict. Ancient trees.""" },
 
   # ══════════════ HARD（砂漠・ザナラーン風）══════════════
-  'hard_0': { 'frame': 'common', 'prompt': S + """Scene: For 1000 years, this blue-gray stone golem has guarded a temple that no one
-visits anymore. It watches yet another sunset alone, the golden light catching the
-teal crystals embedded in its cracked body. One particular crack runs down its cheek
-like a tear trail — not damage, but the mark of centuries of solitary vigil. Yet
-there is peace in its ice-blue eyes with CROSS/CRYSTAL highlights. It still finds
-the sunset beautiful. A single desert flower has grown in a crack on its shoulder.
-Background: ancient crumbling desert temple at golden sunset. Sand-worn pillars.
-The setting sun paints everything amber-gold. A tiny desert flower growing in ruins.""" },
+  'hard_0': { 'frame': 'common', 'prompt': S + """Scene: A round sandy-beige camel creature with a small hump on its back loaded with
+colorful merchant goods — tiny carpets, brass lamps, and spice bags strapped with
+leather belts. It trudges cheerfully through the desert, leaving small hoofprints.
+A tattered red scarf flutters from its neck. Its warm brown eyes with GENTLE OVAL
+highlights are half-closed with contentment — it loves the journey more than the
+destination. A tiny gecko rides on top of the cargo, peeking out. Rosy cheeks.
+Background: a vast golden desert at late afternoon. A caravan trail stretches behind.
+Sand dunes glow amber in the warm light. An oasis with palm trees visible in the
+distance. Camel footprints trail into the background. Warm and adventurous.""" },
 
   'hard_1': { 'frame': 'common', 'prompt': S + """Scene: This sandy-beige scorpion has been buried motionless in the desert sand for
 THREE DAYS, waiting for a sand lizard to come within range. Finally — the moment
@@ -266,14 +267,16 @@ with GEM-FACET highlights see the world through crystal clarity.
 Background: spectacular crystal cavern. Massive teal formations. The scorpion is
 partially emerging from a large crystal. Glowing mineral veins. Underground pool.""" },
 
-  'hard_6': { 'frame': 'common', 'prompt': S + """Scene: This dark navy-blue bomb creature is an amateur astronomer who loves
-stargazing. Tonight it was watching the Milky Way from atop a sand dune when it got
-so excited about a shooting star that it BOUNCED — and accidentally lit its own fuse.
-"Wait no no NO—" Its eyes are panicked SPIRALS, mouth open in horror, a blue sweat
-drop on its forehead. But the blue sparks from its fuse are mixing with the actual
-stars above, and the scene is accidentally beautiful. Only the bomb is panicking.
-Background: desert night under magnificent Milky Way. Sand dunes in blue moonlight.
-Shooting stars. The bomb's blue sparks blend with the starry sky. Comically beautiful.""" },
+  'hard_6': { 'frame': 'common', 'prompt': S + """Scene: A wine-red/maroon desert jackal creature with pointed ears standing tall and
+a bushy tail. Its body is deep warm burgundy-red — distinctly different from brown.
+It sits on a sand dune at night, head tilted upward in a small adorable howl at the
+full moon. Its golden-amber eyes with SHARP CANINE highlights catch the moonlight.
+A tiny scar across its nose shows it is a desert survivor. The moonlight paints its
+fur with silver edges. Despite the fierce species, it looks cute and lonely.
+Background: a vast desert at night under a massive full moon low on the horizon. The
+moon creates a dramatic backlight silhouette effect. Sand dunes in silver-blue
+moonlight stretch endlessly. Stars scatter across the dark sky. A few desert rocks.
+Solitary and beautiful nighttime desert atmosphere.""" },
 
   'hard_7': { 'frame': 'common', 'prompt': S + """Scene: This jade-green cobra has spent 1000 years memorizing every hieroglyph on
 these ancient ruin walls. It has just finished reading the very last character — and
@@ -285,14 +288,15 @@ with golden knowledge-light. The golden cobra hood has ornamental markings.
 Background: golden desert ruins. Hieroglyph walls glowing gold. Dramatic light shafts
 through crumbled doorway. Green vines on ancient stone. Warm golden light.""" },
 
-  'hard_8': { 'frame': 'common', 'prompt': S + """Scene: Frozen for tens of thousands of years in the deepest mine shaft, this ice-blue
-crystal creature has just been awakened by a miner's lantern. Its first sight in eons
-is the warm orange glow of the lantern — so different from its own cold blue light.
-Crystal flowers bloom from its body as it slowly awakens, spreading icy light through
-the tunnel. It gazes at the lantern's warmth with gentle wonder and curiosity. Its
-diamond-blue eyes with SAPPHIRE-FACET highlights are ancient but newly curious.
-Background: mine tunnel with wooden beams and rails. The miner's dropped warm lantern
-contrasts with cool blue crystal light. Ice-blue formations on walls. Mine cart.""" },
+  'hard_8': { 'frame': 'common', 'prompt': S + """Scene: A cream/ivory-colored desert hedgehog creature with soft rounded quills that
+shimmer like crystal in the sunlight. Its belly is warm white. It has burrowed into
+the sand and is popping its head out triumphantly, holding up a tiny sparkling ruby
+gemstone it just found — its treasure-hunting hobby. Its round brown eyes with WARM
+SPARKLE highlights shine with pride at the discovery. A small collection of colorful
+gems (emerald, sapphire, amber) are piled next to its burrow entrance. Rosy cheeks.
+Background: warm desert at golden hour. Sandy ground with the hedgehog's burrow
+visible. Scattered tiny gems catching sunlight near the burrow. Desert rocks and a
+small dry bush. Warm golden light. Cozy treasure-hunter atmosphere.""" },
 
   'hard_9': { 'frame': 'rare', 'prompt': S + """Scene: The volcanic arena's ultimate guardian has been waiting for a truly worthy
 challenger. Today one has finally arrived. The dark crimson fire demon rises from its
