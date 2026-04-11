@@ -1198,7 +1198,7 @@ let UI = {};
                 const availH = (r.height || window.innerHeight * 0.45) * 0.85;
                 const bsW = (availW - gap * (cols - 1)) / cols;
                 const bsH = (availH - gap * (maxH - 1)) / maxH;
-                const bs = Math.max(18, Math.min(48, Math.floor(Math.min(bsW, bsH))));
+                const bs = Math.max(18, Math.min(35, Math.floor(Math.min(bsW, bsH))));
                 document.documentElement.style.setProperty('--block-size-base', bs + 'px');
             }
         }

@@ -4156,7 +4156,7 @@ function renderBlocks() {
     if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
     const bsW = (_slotW * 0.88 - gap * Math.max(0, cols - 1)) / cols;
     const bsH = (_slotH * 0.78 - gap * Math.max(0, maxH - 1)) / maxH;
-    const blockPx = Math.max(18, Math.min(48, Math.floor(Math.min(bsW, bsH))));
+    const blockPx = Math.max(18, Math.min(35, Math.floor(Math.min(bsW, bsH))));
     document.documentElement.style.setProperty('--s-block-size', blockPx + 'px');
     const step = blockPx + gap;
     const halfMax = Math.ceil(maxH / 2);
@@ -4252,7 +4252,7 @@ function renderBlocks() {
     else {
       const bsW = (avW - gap * Math.max(0, scaleCols - 1)) / scaleCols;
       const bsH = (avH - gap * Math.max(0, scaleMh - 1)) / scaleMh;
-      blockPx = Math.max(18, Math.min(48, Math.floor(Math.min(bsW, bsH))));
+      blockPx = Math.max(18, Math.min(35, Math.floor(Math.min(bsW, bsH))));
     }
     document.documentElement.style.setProperty('--s-block-size', blockPx + 'px');
     el.style.transform = '';
@@ -4752,7 +4752,7 @@ function showSkillMap() {
       const maxH = Math.max(...shape.filter(h => h > 0));
       const maxBlockW = Math.floor((280 - cols * 6) / Math.max(cols, 1));
       const maxBlockH = Math.floor((360 - maxH * 6) / Math.max(maxH, 1));
-      const bSize = Math.min(48, maxBlockW, maxBlockH);
+      const bSize = Math.min(35, maxBlockW, maxBlockH);
       const gap = Math.max(3, Math.round(bSize * 0.12));
       shape.forEach(h => {
         if(!h) return;
