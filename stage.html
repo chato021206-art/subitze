@@ -2903,14 +2903,20 @@ function save() {
 }
 
 function getLevel() {
-  // XP thresholds: Level 1=0, 2=50, 3=150, 4=300... Level 100+ requires 3x XP per level
+  // XP thresholds: Level 1=0, 2=50, 3=150, 4=300...
+  // Level 100+: 10レベルごとに必要XPが2倍 (100-109: x1, 110-119: x2, 120-129: x4...)
   let lv = 1, threshold = 50;
   while(totalXP >= threshold) {
     lv++;
-    const increment = lv >= 100 ? lv * 150 : lv * 50;
+    let increment = lv * 50;
+    if(lv >= 100) {
+      const tier = Math.floor((lv - 100) / 10);
+      increment = lv * 50 * Math.pow(2, tier);
+    }
     threshold += increment;
   }
-  const prevIncrement = lv >= 100 ? lv * 150 : lv * 50;
+  let prevIncrement = lv * 50;
+  if(lv >= 100) { prevIncrement = lv * 50 * Math.pow(2, Math.floor((lv - 100) / 10)); }
   const prevT = threshold - prevIncrement;
   const pct = ((totalXP - prevT) / (threshold - prevT)) * 100;
   return { level: lv, pct: Math.min(100, pct), next: threshold };
