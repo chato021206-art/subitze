@@ -1996,7 +1996,8 @@ const CARD_CATALOG = (function() {
     const count = ENEMIES[baseDiff] ? ENEMIES[baseDiff].length : 10;
     for(let i = 0; i < count; i++) {
       const id = diff + '_' + i;
-      const rarity = (i >= 10) ? 'rare' : (i === 9) ? 'rare' : (i === 4) ? 'uncommon' : 'common';
+      const isPlus = diff.endsWith('+');
+      const rarity = (i >= 10) ? 'rare' : (i === 9) ? (isPlus ? 'uncommon' : 'rare') : (i === 4) ? (isPlus ? 'common' : 'uncommon') : 'common';
       const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][i] : null;
       cards[id] = { id, diff, idx: i, rarity, name: enemy ? enemy.name : '???', isPlus: diff.endsWith('+') || diff.endsWith('▲') };
     }
