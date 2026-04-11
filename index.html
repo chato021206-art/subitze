@@ -525,22 +525,22 @@
 
     const RANK_ORDER = ['GOD', 'Z', 'S', 'A', 'B', 'C', 'D', 'F'];
     const MODES = {
-        'EASY': { 
+        'EASY': {
             count: 10, time: 3.0, color: 'var(--c-easy)', type: 'STD',
-            judgments: { marv: 0.5, exc: 1.0, great: 1.5, good: 2.0, ok: 3.0 },
+            judgments: { marv: 0.5, exc: 1.0, great: 1.5, ok: 3.0 },
             rankThresholds: { god: 12000, z: 10520, s: 7200, a: 5600, b: 3600, c: 1800, f: 0 }
         },
-        'NORMAL': { 
+        'NORMAL': {
             count: 10, time: 3.5, color: 'var(--c-normal)', type: 'STD',
-            judgments: { marv: 0.65, exc: 0.9, great: 1.4, good: 2.0 },
+            judgments: { marv: 0.65, exc: 0.9, great: 1.4 },
             rankThresholds: { god: 10000, z: 9000, s: 6000, a: 4000, b: 2500, c: 1200, f: 0 }
         },
-        'HARD': { 
+        'HARD': {
             count: 10, time: 4.0, color: 'var(--c-hard)', type: 'HARD',
-            judgments: { marv: 1.2, exc: 1.6, great: 2.5, good: 4.0 },
+            judgments: { marv: 1.2, exc: 1.6, great: 2.5 },
             rankThresholds: { god: 5000, z: 4000, s: 3000, a: 2000, b: 1200, c: 800, f: 0 }
         },
-        'EXTREME': { 
+        'EXTREME': {
             count: 10, time: 5.0, color: 'var(--c-extreme)', type: 'EXT',
             judgments: { marv: 2.0, exc: 3.0, great: 5.0 },
             rankThresholds: { god: 3800, z: 2800, s: 1800, a: 700, b: 500, c: 300, f: 0 }
