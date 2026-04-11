@@ -1103,7 +1103,7 @@ let UI = {};
             let k="miss", l="MISS";
             if (delta <= j.marv) { k="marvelous"; l="MARVELOUS"; } else if (delta <= j.exc) { k="excellent"; l="EXCELLENT"; }
             else if (delta <= j.great) { k="great"; l="GREAT"; } else if (j.good && delta <= j.good) { k="good"; l="GOOD"; }
-            else if (j.ok && delta <= j.ok) { k="ok"; l="OK"; } else { handleMiss("SLOW", val, STATE.current.count); return; }
+            else if (j.ok && delta <= j.ok) { k="ok"; l="GOOD"; } else { handleMiss("SLOW", val, STATE.current.count); return; }
             STATE.statsDetail[k].count++; STATE.statsDetail[k].time += eff;
             triggerEvalEffect(l); flashSlot(l);
             if(STATE.questionCount >= mode.count - 1) { DomPool.clearView(UI.view1); gameOver("FINISHED"); } else nextQuestion();
@@ -1311,7 +1311,7 @@ let UI = {};
       UI.resTotalBox.innerHTML = d.score>0 ? `<span class="total-label">TOTAL SCORE</span>${Number(d.score).toLocaleString()} <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">AVG TIME</span><span class="avg-value">${avgT}s</span></span><span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>${nxt}` : `<span class="total-label">TOTAL SCORE</span>0 <span style="font-size:16px;">ch</span>${scoreSuffix}<span class="total-avg-label"><span class="avg-text">CORRECT</span><span class="avg-value">${d.count}/${totalQuestions}</span></span>`;
 
       UI.detailTableBody.innerHTML='';
-        [{k:'marvelous',l:'MARVELOUS',c:'var(--g-exc)'},{k:'excellent',l:'EXCELLENT',c:'var(--g-perf)'},{k:'great',l:'GREAT',c:'var(--g-grt)'},{k:'good',l:'GOOD',c:'var(--g-good)'},{k:'ok',l:'OK',c:'var(--g-ok)'}].forEach(g=>{
+        [{k:'marvelous',l:'MARVELOUS',c:'var(--g-exc)'},{k:'excellent',l:'EXCELLENT',c:'var(--g-perf)'},{k:'great',l:'GREAT',c:'var(--g-grt)'},{k:'good',l:'GOOD',c:'var(--g-good)'},{k:'ok',l:'GOOD',c:'var(--g-ok)'}].forEach(g=>{
             const i=d.statsDetail[g.k];
             if(i&&i.count>0) {
                 const a=(i.time/i.count).toFixed(2);

@@ -4478,7 +4478,7 @@ function checkAns(val) {
     if(dt<=j.e){k='excellent';lbl='EXCELLENT';}
     else if(dt<=j.g){k='great';lbl='GREAT';}
     else if(j.gd&&dt<=j.gd){k='good';lbl='GOOD';}
-    else if(dt<=tl){k='ok';lbl='OK';}  // 延長帯 = OK
+    else if(dt<=tl){k='ok';lbl='GOOD';}  // 延長帯 = OK
     else{handleMiss('SLOW',val,GS.current.n);return;}
     GS.stats[k].c++; GS.stats[k].t+=eff;
 
@@ -4967,7 +4967,7 @@ function showResult(score, stars, isNew, droppedCard) {
     {k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},
     {k:'great',lbl:'GREAT',c:'#1CB0F6'},
     {k:'good',lbl:'GOOD',c:'#FF9600'},
-    {k:'ok',lbl:'OK',c:'#CCCCCC'}
+    {k:'ok',lbl:'GOOD',c:'#CCCCCC'}
   ];
   rData.forEach((r,ri) => {
     const cnt = GS.stats[r.k].c;
@@ -5555,7 +5555,7 @@ function drillEnd(result) {
 
     const ratings = document.getElementById('r-ratings');
     ratings.innerHTML = '';
-    [{k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},{k:'great',lbl:'GREAT',c:'#1CB0F6'},{k:'good',lbl:'GOOD',c:'#FF9600'},{k:'ok',lbl:'OK',c:'#CCCCCC'}].forEach((r,ri) => {
+    [{k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},{k:'great',lbl:'GREAT',c:'#1CB0F6'},{k:'good',lbl:'GOOD',c:'#FF9600'},{k:'ok',lbl:'GOOD',c:'#CCCCCC'}].forEach((r,ri) => {
       const cnt = GS.stats[r.k].c;
       if(!cnt && ri >= 2) return;
       const row = document.createElement('div');
