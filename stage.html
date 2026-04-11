@@ -1078,6 +1078,16 @@ body {
 .card-detail-name { font-size: 22px; font-weight: 900; color: #fff; }
 .card-detail-diff { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7); margin-top: 4px; }
 .card-detail-date { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.card-fullscreen-overlay {
+  position: fixed; inset: 0; z-index: 600; background: #000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.card-fullscreen-overlay.show { opacity: 1; pointer-events: all; }
+.card-fullscreen-overlay img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  animation: cardDetailIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
 .card-detail-hint {
   text-align: center; animation: fadeIn 0.3s;
   font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8);
@@ -1615,6 +1625,7 @@ body {
 
 <!-- =============== CARD COLLECTION MODAL =============== -->
 <div class="card-detail-overlay" id="card-detail-overlay" onclick="closeCardDetail()"></div>
+<div class="card-fullscreen-overlay" id="card-fullscreen-overlay" onclick="closeCardFullscreen()"></div>
 
 <div class="collection-modal" id="collection-modal" onclick="if(event.target===this)closeCollection()">
   <div class="collection-box">
@@ -2555,6 +2566,8 @@ function showCardDetail(cardId) {
     }
     const cardEl = renderCard(card, { size: 'large' });
     cardEl.classList.add('card-detail-card');
+    cardEl.style.cursor = 'pointer';
+    cardEl.addEventListener('click', function(e) { e.stopPropagation(); showCardFullscreen(cardId); });
     ov.appendChild(cardEl);
 
     const info = document.createElement('div');
@@ -2582,6 +2595,27 @@ function showCardDetail(cardId) {
 
 function closeCardDetail() {
   document.getElementById('card-detail-overlay').classList.remove('show');
+}
+
+function showCardFullscreen(cardId) {
+  const card = CARD_CATALOG[cardId];
+  if(!card) return;
+  // Use raw image (no frame) if available, otherwise fall back to card image
+  const rawSrc = CARD_IMAGES[card.id] ? CARD_IMAGES[card.id].replace('cards/', 'cards/raw_').replace('.png', '.png') : null;
+  const cardSrc = CARD_IMAGES[card.id] || null;
+  if(!rawSrc && !cardSrc) return;
+  const ov = document.getElementById('card-fullscreen-overlay');
+  ov.innerHTML = '';
+  const img = document.createElement('img');
+  // Try raw first, fall back to card with frame
+  img.src = rawSrc;
+  img.onerror = function() { img.src = cardSrc; img.onerror = null; };
+  ov.appendChild(img);
+  ov.classList.add('show');
+}
+
+function closeCardFullscreen() {
+  document.getElementById('card-fullscreen-overlay').classList.remove('show');
 }
 
 let _cardFilter = 'all';
