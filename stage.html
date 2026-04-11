@@ -1024,11 +1024,15 @@ body {
 .collection-tab.active { color: #fff; background: var(--tab-c, #58CC02); border-color: var(--tab-c, #58CC02); }
 .collection-tab.locked { opacity: 0.35; pointer-events: none; }
 #col-cards-view { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.collection-grid-wrap {
+  flex: 1; min-height: 0; overflow: hidden; position: relative; touch-action: pan-y;
+}
 .collection-grid {
-  flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
   padding: 8px 14px 20px;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
   align-content: start;
+  transition: transform 0.3s ease;
 }
 .collection-grid-item {
   display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
@@ -1457,12 +1461,18 @@ body {
     <!-- Panel 0: Modes -->
     <div class="panel panel-modes" id="panel-0">
       <div class="modes-scroll">
-        <div class="modes-title">メニュー</div>
         <div class="mode-card" onclick="showSkillMap()">
           <div class="mode-icon">📊</div>
           <div class="mode-info">
             <div class="mode-name">スキルマップ</div>
             <div class="mode-desc">数字別・形別の得意苦手を確認</div>
+          </div>
+        </div>
+        <div class="mode-card" onclick="openCollection()">
+          <div class="mode-icon">📇</div>
+          <div class="mode-info">
+            <div class="mode-name">カード図鑑</div>
+            <div class="mode-desc" id="col-mode-desc">集めたカードを確認しよう</div>
           </div>
         </div>
         <div class="mode-card" id="mode-drill-card" onclick="startDrill()">
@@ -1491,13 +1501,6 @@ body {
           <div class="mode-info">
             <div class="mode-name">脳トレ</div>
             <div class="mode-desc">数字に惑わされずブロックを数えよう！</div>
-          </div>
-        </div>
-        <div class="mode-card" onclick="openCollection()">
-          <div class="mode-icon">📇</div>
-          <div class="mode-info">
-            <div class="mode-name">カード図鑑</div>
-            <div class="mode-desc" id="col-mode-desc">集めたカードを確認しよう</div>
           </div>
         </div>
       </div>
@@ -1642,20 +1645,10 @@ body {
       <div class="collection-view-tab" onclick="switchCollectionView('stats')">統計</div>
     </div>
     <div id="col-cards-view">
-      <div id="col-recent" class="col-recent" style="display:none">
-        <div class="col-recent-title">RECENT</div>
-        <div class="col-recent-row" id="col-recent-row"></div>
-      </div>
-      <div class="collection-filters" id="col-filters">
-        <div class="col-filter-btn active" data-filter="all" onclick="setCardFilter('all')">全て</div>
-        <div class="col-filter-btn" data-filter="owned" onclick="setCardFilter('owned')">取得済み</div>
-        <div class="col-filter-btn" data-filter="missing" onclick="setCardFilter('missing')">未取得</div>
-        <div class="col-filter-btn" data-filter="common" onclick="setCardFilter('common')">★</div>
-        <div class="col-filter-btn" data-filter="uncommon" onclick="setCardFilter('uncommon')">★★</div>
-        <div class="col-filter-btn" data-filter="rare" onclick="setCardFilter('rare')">★★★</div>
-      </div>
       <div class="collection-tabs" id="col-tabs"></div>
-      <div class="collection-grid" id="col-grid"></div>
+      <div class="collection-grid-wrap" id="col-grid-wrap">
+        <div class="collection-grid" id="col-grid"></div>
+      </div>
     </div>
     <div id="col-stats-view" class="collection-stats" style="display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
   </div>
@@ -2491,13 +2484,44 @@ function openCollection() {
   switchCollectionView('cards');
   const desc = document.getElementById('col-mode-desc');
   if(desc) desc.textContent = getCardCount() + '/' + getTotalCards() + ' カード収集済み';
-  renderRecentCards();
   renderCollectionTabs();
   renderCollectionGrid(_colTab);
   updateCollectionProgress();
+  initCollectionSwipe();
 }
 function closeCollection() {
   document.getElementById('collection-modal').classList.remove('show');
+}
+
+// 横スワイプで難易度切り替え
+let _swipeInitialized = false;
+function initCollectionSwipe() {
+  if(_swipeInitialized) return;
+  _swipeInitialized = true;
+  const wrap = document.getElementById('col-grid-wrap');
+  if(!wrap) return;
+  let startX = 0, startY = 0, swiping = false;
+  wrap.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX; startY = e.touches[0].clientY; swiping = true;
+  }, {passive:true});
+  wrap.addEventListener('touchend', e => {
+    if(!swiping) return; swiping = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      const unlocked = ALL_DIFFS.filter(d => diffUnlocked(d));
+      const idx = unlocked.indexOf(_colTab);
+      if(idx < 0) return;
+      let next;
+      if(dx < 0) next = unlocked[idx + 1]; // swipe left → next
+      else next = unlocked[idx - 1]; // swipe right → prev
+      if(next) {
+        _colTab = next;
+        renderCollectionTabs();
+        renderCollectionGrid(_colTab);
+      }
+    }
+  }, {passive:true});
 }
 
 function renderCollectionTabs() {
