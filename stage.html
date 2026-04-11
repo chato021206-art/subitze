@@ -2664,7 +2664,15 @@ function renderStats() {
   const rarityCounts = {common:0, uncommon:0, rare:0, legendary:0};
   const rarityTotals = {common:0, uncommon:0, rare:0, legendary:0};
   const rarityOwned  = {common:0, uncommon:0, rare:0, legendary:0};
-  Object.values(CARD_CATALOG).forEach(c => { if(c) rarityTotals[c.rarity]++; });
+  Object.values(CARD_CATALOG).forEach(c => {
+    if(!c) return;
+    // Hide true-boss cards from totals if stage 10 not cleared for that difficulty
+    if(c.idx >= 10) {
+      const s10 = prog[c.diff] && prog[c.diff][9] && prog[c.diff][9].cleared;
+      if(!s10) return;
+    }
+    rarityTotals[c.rarity]++;
+  });
   Object.keys(collectedCards).forEach(id => {
     const c = CARD_CATALOG[id];
     if(c) { rarityCounts[c.rarity]++; rarityOwned[c.rarity] += (collectedCards[id].count || 1); }
