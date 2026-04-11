@@ -1181,6 +1181,27 @@ let UI = {};
     }
     function renderShape(el, d) {
         if(!el) return; DomPool.clearView(el); if(!d) return;
+        // メインスロットのみ動的ブロックサイズ計算
+        if(el === UI.view1 && d && d.length) {
+            const r = el.getBoundingClientRect();
+            const gap = 4;
+            let cols, maxH;
+            if(STATE.is3DMode && Array.isArray(d[0])) {
+                cols = d.length; maxH = 0;
+                d.forEach(row => row.forEach(h => { if(h > maxH) maxH = h; }));
+            } else {
+                const flat = Array.isArray(d[0]) ? d.flat().filter(h=>h>0) : d.filter(h=>h>0);
+                cols = flat.length; maxH = Math.max(...flat, 1);
+            }
+            if(cols > 0 && maxH > 0) {
+                const availW = (r.width || window.innerWidth * 0.92) * 0.92;
+                const availH = (r.height || window.innerHeight * 0.45) * 0.85;
+                const bsW = (availW - gap * (cols - 1)) / cols;
+                const bsH = (availH - gap * (maxH - 1)) / maxH;
+                const bs = Math.max(18, Math.min(48, Math.floor(Math.min(bsW, bsH))));
+                document.documentElement.style.setProperty('--block-size-base', bs + 'px');
+            }
+        }
         const mc = 'mode-'+STATE.currentModeKey.toLowerCase();
         if(STATE.is3DMode) render3D(el,d,mc); else render2D(el,Array.isArray(d[0])?d.flat().filter(h=>h>0):d,mc,STATE.randomAtPlay);
     }
@@ -1190,7 +1211,7 @@ let UI = {};
             const c = DomPool.get('cluster'); c.className='cluster-container random-layout'; el.appendChild(c);
             let pos = arr._rndPositions || [];
             if(pos.length!==t) {
-                pos=[]; const used=[]; const r=el.getBoundingClientRect(), W=r.width||window.innerWidth, H=r.height||(window.innerHeight*0.5), S=Math.min(window.innerWidth*0.075,30);
+                pos=[]; const used=[]; const r=el.getBoundingClientRect(), W=r.width||window.innerWidth, H=r.height||(window.innerHeight*0.5), S=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--block-size-base'))||30;
                 for(let i=0; i<t; i++) {
                     let best={pct:{x:50,y:50},px:{l:0,t:0,r:0,b:0}};
                     for(let k=0; k<200; k++) {
