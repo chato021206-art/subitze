@@ -26,7 +26,7 @@
 
     --font-ui: 'Montserrat', 'Noto Sans JP', sans-serif;
     --font-num: 'Montserrat', sans-serif;
-    --block-size-base: min(7.5vw, 30px);
+    --block-size-base: min(10vw, 44px);
     --block-size-2d: var(--block-size-base);
     --block-size-3d: calc(var(--block-size-base) * 1.1);
     --kb-height-base: clamp(200px, 33dvh, 320px);
@@ -174,8 +174,8 @@
   .slot-timer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; filter: drop-shadow(0 0 5px currentColor); }
   .timer-path { fill: none; stroke-linecap: butt; stroke-linejoin: round; transition: stroke 0.1s linear; }
 
-  .cluster-container { display: flex; align-items: flex-end; gap: 3px; padding-bottom: 12px; transform-style: preserve-3d; transition: transform 0.1s; }
-  .block-column { display: flex; flex-direction: column-reverse; gap: 3px; width: var(--block-size-2d); transform-style: preserve-3d; }
+  .cluster-container { display: flex; align-items: flex-end; gap: 4px; padding-bottom: 12px; transform-style: preserve-3d; transition: transform 0.1s; }
+  .block-column { display: flex; flex-direction: column-reverse; gap: 4px; width: var(--block-size-2d); transform-style: preserve-3d; }
   .block { width: var(--block-size-2d); height: var(--block-size-2d); border-radius: 2px; box-shadow: inset 3px 3px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.4), 3px 3px 5px rgba(0,0,0,0.6); border: 1px solid rgba(0,0,0,0.5); position: relative; }
   .cluster-container.random-layout { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; padding: 0; }
   .block.block-random { position: absolute; z-index: 10; }
@@ -893,6 +893,9 @@ let UI = {};
         if(!UI.appWrapper) return;
         UI.appWrapper.classList.remove('theme-easy','theme-normal','theme-hard','theme-extreme');
         UI.appWrapper.classList.add('theme-'+STATE.currentModeKey.toLowerCase());
+        // 老眼フレンドリー: モード別ブロックサイズ
+        const bsMap = { EASY:'min(12vw, 44px)', NORMAL:'min(11vw, 42px)', HARD:'min(9vw, 38px)', EXTREME:'min(7vw, 32px)' };
+        document.documentElement.style.setProperty('--block-size-base', bsMap[STATE.currentModeKey] || 'min(7vw, 32px)');
     }
     function handleTapToStart() {
         if (STATE.status !== 'IDLE' || STATE.isInputBlocked) return;
