@@ -114,10 +114,11 @@ Warm golden candlelight creates an intimate dreamlike atmosphere.""",
     8: STYLE_PREFIX + """A deep indigo-purple jackal creature with tall pointed triangular ears standing
 straight up and a small black nose. The body is dark indigo with slightly lighter
 purple on the ear edges and belly. Golden-amber eyes with crescent moon-shaped
-highlights, mystical and solemn.
-It sits upright on the lid of a weathered sandstone sarcophagus. One tiny paw
-rests on a golden ankh staff (cross with a loop on top) planted beside it. Its
-head tilts upward, mouth slightly open in a small adorable howl. Six or seven
+highlights, mystical and solemn. EXACTLY 4 LEGS visible (standard canine anatomy:
+2 front paws + 2 back paws, NOT 6, NOT 8).
+It sits upright on the lid of a weathered sandstone sarcophagus. One tiny front
+paw rests on a golden ankh staff (cross with a loop on top) planted beside it.
+Its head tilts upward, mouth slightly open in a small adorable howl. Six or seven
 pale blue-white wisps (spirit flames) float around it like ethereal fireflies.
 Background: the entrance to an ancient tomb at night. A massive full moon hangs
 low on the horizon directly behind the creature, creating a dramatic silhouette
