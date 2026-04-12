@@ -3965,17 +3965,20 @@ function beginGame() {
     gameLoop();
   } else {
     for(let i=0;i<3;i++) brainMode ? addBrainQ() : addQ();
+    // Tutorial: force first question to 3 blocks
+    if(!localStorage.getItem('snow_tutorial_done') && !brainMode && !drillMode) {
+      const s0 = STAGES[curDiff][curIdx];
+      const tutShape = genShape(3, s0.cols, s0.mh, 0);
+      GS.queue[0] = { n: 3, shape: tutShape, sig: JSON.stringify(tutShape) };
+    }
     GS.current = GS.queue.shift();
     renderBlocks();
     GS.elapsed = 0; GS.lastTick = Date.now();
     if(GS.rafId) cancelAnimationFrame(GS.rafId);
-    // Tutorial for first-time players
     if(!localStorage.getItem('snow_tutorial_done') && !brainMode && !drillMode) {
       showTutorialGuide();
-      gameLoop();
-    } else {
-      gameLoop();
     }
+    gameLoop();
   }
 }
 
