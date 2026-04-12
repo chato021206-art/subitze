@@ -2373,11 +2373,9 @@ function renderCard(card, opts) {
       const cardArt = CARD_ART[baseDiff] && CARD_ART[baseDiff][card.idx];
       const enemy = ENEMIES[baseDiff] ? ENEMIES[baseDiff][card.idx] : null;
       const svgHtml = cardArt ? cardArt() : (enemy ? enemy.svg() : '');
-      const rarityStars = {common:'★', uncommon:'★★', rare:'★★★', legendary:'★★★★'}[card.rarity];
       const diffLabel = card.diff.replace(/[+▲]/g,'');
       const fs = size === 'thumb' ? 8 : size === 'large' ? 18 : 11;
       const dfs = size === 'thumb' ? 6 : size === 'large' ? 12 : 8;
-      const sfs = size === 'thumb' ? 8 : size === 'large' ? 16 : 10;
 
       inner.innerHTML =
         '<div class="snow-card-face">' +
@@ -2385,7 +2383,6 @@ function renderCard(card, opts) {
           '<div class="card-info">' +
             '<div class="card-info-name" style="font-size:'+fs+'px">' + card.name + '</div>' +
             '<div class="card-info-diff" style="font-size:'+dfs+'px">' + diffLabel + '</div>' +
-            '<div class="card-info-stars" style="font-size:'+sfs+'px">' + rarityStars + '</div>' +
           '</div>' +
         '</div>';
     }
@@ -2439,7 +2436,6 @@ function showCardDropOverlay(card, onDone) {
     '<div style="flex:3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;gap:2px;">'+
       '<div style="font-size:14px;font-weight:900;color:#555">'+card.name+'</div>'+
       '<div style="font-size:9px;font-weight:700;color:#999;letter-spacing:1px">'+card.diff+'</div>'+
-      '<div style="font-size:12px;color:#FFB800">'+rarityStars+'</div>'+
     '</div>';
   }
   inner.appendChild(front);
@@ -2786,26 +2782,6 @@ function renderStats() {
     container.appendChild(row);
   });
   // Rarity stats
-  const h2 = document.createElement('div');
-  h2.style.cssText = 'font-size:12px;font-weight:900;color:#aaa;letter-spacing:1px;margin:12px 0 8px';
-  h2.textContent = 'レアリティ別';
-  container.appendChild(h2);
-  const rarityCounts = {common:0, uncommon:0, rare:0, legendary:0};
-  const rarityTotals = {common:0, uncommon:0, rare:0, legendary:0};
-  const rarityOwned  = {common:0, uncommon:0, rare:0, legendary:0};
-  Object.values(CARD_CATALOG).forEach(c => {
-    if(!c) return;
-    // Hide true-boss cards from totals if stage 10 not cleared for that difficulty
-    if(c.idx >= 10) {
-      const s10 = prog[c.diff] && prog[c.diff][9] && prog[c.diff][9].cleared;
-      if(!s10) return;
-    }
-    rarityTotals[c.rarity]++;
-  });
-  Object.keys(collectedCards).forEach(id => {
-    const c = CARD_CATALOG[id];
-    if(c) { rarityCounts[c.rarity]++; rarityOwned[c.rarity] += (collectedCards[id].count || 1); }
-  });
   // レアリティ別統計は廃止（枠色で視覚的に差別化）
   // Last obtained
   const entries = Object.entries(collectedCards).sort((a,b) => (b[1].date||'').localeCompare(a[1].date||''));
