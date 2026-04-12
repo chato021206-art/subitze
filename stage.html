@@ -1747,6 +1747,7 @@ body {
       <div class="r-xp-icon">⚡</div>
       <div><span id="r-xp-val" class="r-xp-val">0</span> <span class="r-xp-label">XP</span><span id="r-xp-bonus" style="font-size:12px;color:#CE82FF;font-weight:900;margin-left:6px"></span></div>
     </div>
+    <div id="r-level-bar" style="width:80%;margin:6px auto 10px;"></div>
     <div style="font-size:11px;color:#aaa;font-weight:900;letter-spacing:2px">SCORE</div>
     <div><span id="r-score" style="font-size:28px;font-weight:900;color:#555;font-family:var(--font-num)">0</span> <span id="r-score-unit" style="font-size:12px;color:#bbb;font-weight:700">ch</span></div>
     <div id="r-ratings" class="r-rating-bars"></div>
@@ -4912,6 +4913,24 @@ function showSkillMap() {
 }
 
 /* =============== RESULT =============== */
+function renderResultLevelBar() {
+  const lv = getLevel();
+  const lvBar = document.getElementById('r-level-bar');
+  if(!lvBar) return;
+  lvBar.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">' +
+      '<span style="font-size:12px;font-weight:900;color:#58CC02;">Lv' + lv.level + '</span>' +
+      '<span style="font-size:10px;color:#aaa;">Lv' + (lv.level+1) + '</span>' +
+    '</div>' +
+    '<div style="width:100%;height:10px;background:#E5E5E5;border-radius:10px;overflow:hidden;border:2px solid rgba(0,0,0,0.06);">' +
+      '<div id="r-lv-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#58CC02,#7FE030);border-radius:10px;transition:width 0.8s ease;"></div>' +
+    '</div>';
+  setTimeout(() => {
+    const fill = document.getElementById('r-lv-fill');
+    if(fill) fill.style.width = Math.min(100, lv.pct) + '%';
+  }, 400);
+}
+
 function showResult(score, stars, isNew, droppedCard, starScore) {
   try {
   starScore = starScore || stars; // fallback to integer stars
@@ -4964,6 +4983,9 @@ function showResult(score, stars, isNew, droppedCard, starScore) {
   // XP summary
   document.getElementById('r-xp-val').textContent = GS.xp;
   document.getElementById('r-xp-bonus').textContent = isRandomMode ? '(RANDOM +50%)' : '';
+
+  renderResultLevelBar();
+
   document.getElementById('r-score').textContent = score.toLocaleString();
   document.getElementById('r-score-unit').textContent = 'ch';
 
@@ -5180,6 +5202,7 @@ function showSurvivalResult(isNewCorrect, isNewBlocks) {
 
   document.getElementById('r-xp-val').textContent = GS.xp;
   document.getElementById('r-xp-bonus').textContent = '';
+  renderResultLevelBar();
   document.getElementById('r-score').textContent = survivalCorrect;
   document.getElementById('r-score-unit').textContent = '問';
 
@@ -5323,6 +5346,7 @@ function showTAResult(isNewCorrect, isNewBlocks) {
 
   document.getElementById('r-xp-val').textContent = GS.xp;
   document.getElementById('r-xp-bonus').textContent = '';
+  renderResultLevelBar();
   document.getElementById('r-score').textContent = taCorrect;
   document.getElementById('r-score-unit').textContent = '問';
 
@@ -5422,6 +5446,7 @@ function brainEnd(result) {
 
     document.getElementById('r-xp-val').textContent = GS.xp;
     document.getElementById('r-xp-bonus').textContent = '';
+    renderResultLevelBar();
     document.getElementById('r-score').textContent = GS.stats.excellent.c;
     document.getElementById('r-score-unit').textContent = 'EXCELLENT';
     document.getElementById('r-detail').innerHTML = '<span>AVG: ' + (GS.totalTime/QS).toFixed(2) + 's</span>';
@@ -5561,6 +5586,7 @@ function drillEnd(result) {
 
     document.getElementById('r-xp-val').textContent = GS.xp;
     document.getElementById('r-xp-bonus').textContent = multLabel ? '(' + multLabel + ')' : '';
+    renderResultLevelBar();
     document.getElementById('r-score').textContent = GS.stats.excellent.c;
     document.getElementById('r-score-unit').textContent = 'EXCELLENT';
 
