@@ -594,11 +594,17 @@ body {
   width: var(--s-block-size, min(10vw, 40px)); height: var(--s-block-size, min(10vw, 40px)); border-radius: 8px;
   border: 3px solid rgba(0,0,0,0.08);
   box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+  background: var(--block-bg, #4DC4FF);
   animation: blockIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275) both;
 }
 @keyframes blockIn {
   0% { transform: scale(0) rotate(20deg); opacity: 0; }
   100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+/* High-count layouts (e.g. ULTIMATE+) skip the scale/rotate cost */
+.dense-layout .s-block {
+  animation: blockFadeIn 0.12s ease-out both;
+  box-shadow: none;
 }
 .s-block.brain-block {
   background: #FFF8F0 !important; border-color: #F5C8A0 !important;
@@ -1880,7 +1886,7 @@ const STAGES = {
     { bag:[54,56,58,60,62,64],                    t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:12, tp:'E' },
     { bag:[56,58,60,62,64,66],                    t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:13, tp:'E' },
     { bag:[55,58,60,62,64,66,68,70],              t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:13, tp:'E', boss:'final' },
-    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.5}, cols:13, mh:13, tp:'E', boss:'true_final' },
+    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.0}, cols:13, mh:13, tp:'E', boss:'true_final' },
   ]
 };
 
@@ -3179,9 +3185,9 @@ function showThresholdList() {
   const DC2 = {EASY:'#58CC02',NORMAL:'#1CB0F6',HARD:'#FF9600',EXTREME:'#FF4B4B',
                'EASY+':'#46A302','NORMAL+':'#0891C4','HARD+':'#E08600','EXTREME+':'#CC3C3C',
                'ULTIMATE':'#7C3AED','ULTIMATE+':'#1A0050'};
-  const diffs = ['EASY','NORMAL','HARD','EXTREME','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE','ULTIMATE+'];
-  const row1 = ['EASY','NORMAL','HARD','EXTREME'];
-  const row2 = ['EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE','ULTIMATE+'];
+  const diffs = ['EASY','NORMAL','HARD','EXTREME','ULTIMATE','EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE+'];
+  const row1 = ['EASY','NORMAL','HARD','EXTREME','ULTIMATE'];
+  const row2 = ['EASY+','NORMAL+','HARD+','EXTREME+','ULTIMATE+'];
   const makeTabRow = (arr) => arr.map(d =>
     `<button id="ttab-${d}" onclick="thShowTab('${d}')"
       style="flex:1;padding:6px 2px;border:none;border-radius:8px;font-size:10px;font-weight:900;cursor:pointer;
@@ -3199,8 +3205,9 @@ function showThresholdList() {
       const bossMark = s.boss === 'final' ? '★' : s.boss === 'mid' ? '☆' : '';
       const bg = i % 2 === 0 ? '#f8f8f8' : '#fff';
       const eWin  = j.e ? j.e.toFixed(1) : '-';
-      const gWin  = (j.g && j.e) ? (j.g - j.e).toFixed(1) : '-';
-      const gdWin = (j.gd && j.g) ? (j.gd - j.g).toFixed(1) : '-';
+      const gEnd  = j.g && j.e ? Math.min(j.g, s.t) : null;
+      const gWin  = gEnd != null ? (gEnd - j.e).toFixed(1) : '-';
+      const goodWin = gEnd != null ? Math.max(0, s.t - gEnd).toFixed(1) : '-';
       const eOk   = parseFloat(eWin) >= 1.0;
       return `<tr style="background:${bg};">
         <td style="padding:3px 5px;text-align:center;font-weight:900;font-size:12px;">${i+1}<span style="color:${color};font-size:10px;">${bossMark}</span></td>
@@ -3208,7 +3215,7 @@ function showThresholdList() {
         <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${s.t}秒</td>
         <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:${eOk?'#A07800':'#FF4B4B'};">${eWin}秒</td>
         <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#0B6EA8;">${gWin}秒</td>
-        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#CC6600;">${gdWin}秒</td>
+        <td style="padding:3px 4px;text-align:center;font-weight:700;font-size:11px;color:#CC6600;">${goodWin}秒</td>
         <td style="padding:3px 4px;text-align:center;white-space:nowrap;font-size:11px;">${s.cols}列${s.mh}行</td>
       </tr>`;
     }).join('');
@@ -3230,8 +3237,8 @@ function showThresholdList() {
         </table>
       </div>
       <div style="font-size:9px;color:#bbb;margin-top:5px;line-height:1.6;">
-        EXCELLENT = 表示からe秒以内に正解（幅が広いほど狙いやすい）　/　GREAT・GOODも幅が広いほど余裕あり<br>
-        GOOD = 制限時間ぴったりまで　/　OK = タイムエクステンデッド（レベル補正）のみ
+        EXCELLENT = 表示から e秒以内に正解（最高評価）<br>
+        GREAT = e秒〜min(g, 制限時間)秒　/　GOOD = それ以降〜制限時間まで
       </div>
     </div>`;
   }
@@ -4369,6 +4376,11 @@ function renderBlocks() {
   if(!GS.current||GS.current.n===null) return;
   const dc = DC[curDiff];
   const n = GS.current.n;
+  // Dense layouts (large block counts or ULTIMATE family) drop the scale/rotate animation to avoid stutter
+  const _diffBase = curDiff.replace(/[+▲]/g,'');
+  const _dense = n >= 24 || _diffBase === 'ULTIMATE';
+  el.classList.toggle('dense-layout', _dense);
+  const _delayStep = _dense ? 0 : 0.015;
 
   if(isRandomMode && !brainMode && !curDiff.endsWith('▲')) {
     // Random scattered layout
@@ -4391,7 +4403,7 @@ function renderBlocks() {
       b.style.background = dc.block;
       b.style.left = best.x + '%';
       b.style.top = best.y + '%';
-      if(!_isLowEnd) b.style.animationDelay = (i * 0.015) + 's';
+      if(!_isLowEnd && _delayStep) b.style.animationDelay = (i * _delayStep) + 's';
       container.appendChild(b);
     }
     el.appendChild(container);
@@ -4431,7 +4443,7 @@ function renderBlocks() {
         b.style.position = 'absolute';
         b.style.left = x + 'px';
         b.style.top = (centerY - (i + 1) * step) + 'px';
-        if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
+        if(!_isLowEnd && _delayStep) b.style.animationDelay = (blockIdx * _delayStep) + 's';
         container.appendChild(b);
         blockIdx++;
       }
@@ -4443,7 +4455,7 @@ function renderBlocks() {
         b.style.position = 'absolute';
         b.style.left = x + 'px';
         b.style.top = (centerY + i * step) + 'px';
-        if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
+        if(!_isLowEnd && _delayStep) b.style.animationDelay = (blockIdx * _delayStep) + 's';
         container.appendChild(b);
         blockIdx++;
       }
@@ -4460,22 +4472,36 @@ function renderBlocks() {
     // Normal stacked layout
     const cluster = document.createElement('div');
     cluster.className = 's-cluster';
-    let blockIdx = 0;
-    GS.current.shape.forEach(h => {
-      if(!h) return;
-      const col = document.createElement('div');
-      col.className = 's-column';
-      for(let i=0;i<h;i++) {
-        const b = document.createElement('div');
-        b.className = 's-block' + (brainMode ? ' brain-block' : '');
-        if(brainMode) { b.textContent = GS.current.brainNum; }
-        else { b.style.background = dc.block; }
-        if(!_isLowEnd) b.style.animationDelay = (blockIdx * 0.015) + 's';
-        col.appendChild(b);
-        blockIdx++;
+    // Apply block color via CSS variable to avoid 99 inline-style writes
+    if(!brainMode) cluster.style.setProperty('--block-bg', dc.block);
+    if(_dense) {
+      // Fast path: bulk innerHTML for high block counts (Android-safe, no animation delays)
+      let html = '';
+      const shape = GS.current.shape;
+      for(let s=0; s<shape.length; s++) {
+        const h = shape[s]; if(!h) continue;
+        html += '<div class="s-column">';
+        for(let i=0;i<h;i++) html += '<div class="s-block"></div>';
+        html += '</div>';
       }
-      cluster.appendChild(col);
-    });
+      cluster.innerHTML = html;
+    } else {
+      let blockIdx = 0;
+      GS.current.shape.forEach(h => {
+        if(!h) return;
+        const col = document.createElement('div');
+        col.className = 's-column';
+        for(let i=0;i<h;i++) {
+          const b = document.createElement('div');
+          b.className = 's-block' + (brainMode ? ' brain-block' : '');
+          if(brainMode) { b.textContent = GS.current.brainNum; }
+          if(!_isLowEnd && _delayStep) b.style.animationDelay = (blockIdx * _delayStep) + 's';
+          col.appendChild(b);
+          blockIdx++;
+        }
+        cluster.appendChild(col);
+      });
+    }
     el.appendChild(cluster);
     // Drill: update 0/DEL key state per question based on current n
     if(drillMode && GS.current) {
