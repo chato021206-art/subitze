@@ -48,44 +48,20 @@
 
 /* Tutorial guide overlay */
 .tutorial-overlay {
-  position: absolute; inset: 0; z-index: 15;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.92); pointer-events: all;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 15;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 20px; pointer-events: all;
   animation: fadeIn 0.3s;
 }
-.tutorial-hint-top {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  margin-bottom: 12px;
-}
-.tutorial-circle {
-  width: 140px; height: 140px; border-radius: 50%;
-  border: 4px dashed var(--duo-green); display: flex; align-items: center; justify-content: center;
-  animation: tutorialPulse 1.5s ease-in-out infinite;
-}
-@keyframes tutorialPulse {
-  0%,100% { transform: scale(1); border-color: var(--duo-green); }
-  50% { transform: scale(1.05); border-color: var(--duo-gold); }
-}
 .tutorial-label {
-  font-size: 20px; font-weight: 900; color: var(--duo-green);
+  font-size: 22px; font-weight: 900; color: var(--duo-green);
   font-family: var(--font-ui); letter-spacing: 1px;
-}
-.tutorial-arrow {
-  font-size: 28px; color: var(--duo-green); margin: 8px 0;
-  animation: tutorialBounce 1s ease-in-out infinite;
-}
-@keyframes tutorialBounce {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
+  text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  white-space: nowrap;
 }
 .tutorial-sub {
-  font-size: 15px; font-weight: 900; color: #555;
-  font-family: var(--font-ui); background: #FFF; padding: 8px 20px;
-  border-radius: 16px; box-shadow: 0 3px 0 rgba(0,0,0,0.08);
-  border: 3px solid var(--duo-green);
-}
-.tutorial-tap {
-  font-size: 11px; color: #aaa; margin-top: 12px;
+  font-size: 14px; font-weight: 900; color: #888;
+  font-family: var(--font-ui); margin-top: 6px;
 }
 
 body {
@@ -4010,12 +3986,7 @@ function showTutorialGuide() {
   _tutorialOv.className = 'tutorial-overlay';
   _tutorialOv.style.pointerEvents = 'none';
   _tutorialOv.innerHTML =
-    '<div class="tutorial-hint-top">' +
-      '<div class="tutorial-circle">' +
-        '<div class="tutorial-label">🧊 何個ある？</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="tutorial-arrow">▼</div>' +
+    '<div class="tutorial-label">🧊 ブロックは何個ある？</div>' +
     '<div class="tutorial-sub">数字をタップして答えよう！</div>';
   slot.appendChild(_tutorialOv);
 }
