@@ -2460,9 +2460,8 @@ function showCardDropOverlay(card, onDone) {
   ov.appendChild(nameEl);
 
   const rarityEl = document.createElement('div');
-  rarityEl.className = 'cdrop-rarity' + (card.rarity === 'legendary' ? ' legendary' : '');
-  const _rs = {common:'★', uncommon:'★★', rare:'★★★', legendary:'★★★★'}[card.rarity];
-  rarityEl.textContent = _rs + ' ' + {common:'Common',uncommon:'Uncommon',rare:'Rare',legendary:'Legendary'}[card.rarity];
+  rarityEl.className = 'cdrop-rarity';
+  rarityEl.textContent = card.diff + ' — STAGE ' + (card.idx + 1);
   ov.appendChild(rarityEl);
 
   const tap = document.createElement('div');
@@ -2669,11 +2668,10 @@ function showCardDetail(cardId) {
 
     const info = document.createElement('div');
     info.className = 'card-detail-info';
-    const rarityLabel = {common:'★ Common', uncommon:'★★ Uncommon', rare:'★★★ Rare', legendary:'★★★★ Legendary'}[card.rarity];
     const cardCount = collectedCards[cardId].count || 1;
     info.innerHTML =
       '<div class="card-detail-name">' + card.name + '</div>' +
-      '<div class="card-detail-diff">' + card.diff + ' — STAGE ' + (card.idx + 1) + ' — ' + rarityLabel + '</div>' +
+      '<div class="card-detail-diff">' + card.diff + ' — STAGE ' + (card.idx + 1) + '</div>' +
       '<div class="card-detail-date">所持数: x' + cardCount + '　取得日: ' + (collectedCards[cardId].date || '不明') + '</div>';
     ov.appendChild(info);
   } else {
@@ -2808,12 +2806,7 @@ function renderStats() {
     const c = CARD_CATALOG[id];
     if(c) { rarityCounts[c.rarity]++; rarityOwned[c.rarity] += (collectedCards[id].count || 1); }
   });
-  [{k:'common',l:'★ Common'},{k:'uncommon',l:'★★ Uncommon'},{k:'rare',l:'★★★ Rare'}].forEach(r => {
-    const row = document.createElement('div');
-    row.className = 'col-stat-row';
-    row.innerHTML = '<span>' + r.l + '</span><span class="col-stat-val">' + rarityCounts[r.k] + '種 / ' + rarityTotals[r.k] + '種 (計' + rarityOwned[r.k] + '枚)</span>';
-    container.appendChild(row);
-  });
+  // レアリティ別統計は廃止（枠色で視覚的に差別化）
   // Last obtained
   const entries = Object.entries(collectedCards).sort((a,b) => (b[1].date||'').localeCompare(a[1].date||''));
   if(entries.length > 0) {
