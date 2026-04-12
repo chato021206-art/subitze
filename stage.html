@@ -406,7 +406,7 @@ body {
 .node-enemy-preview svg { width: 100%; height: 100%; }
 @keyframes enemyPeek { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-3px) rotate(5deg)} }
 
-.stage-stars { display: flex; gap: 2px; justify-content: center; margin-top: 8px; font-size: 22px; }
+.stage-stars { display: flex; gap: 3px; justify-content: center; margin-top: 8px; font-size: 28px; }
 .stage-stars .star { position: relative; display: inline-block; width: 1em; height: 1em; }
 .stage-stars .star-bg { position: absolute; top: 0; left: 0; opacity: 0.6; filter: grayscale(1) brightness(0.2); }
 .stage-stars .star-fill { position: absolute; top: 0; left: 0; overflow: hidden; }
@@ -589,10 +589,9 @@ body {
 /* Eval popup (Duolingo-style grade) */
 .game-eval {
   position: fixed; top: 25%; left: 50%; transform: translateX(-50%) scale(0);
-  font-size: 32px; font-weight: 900; z-index: 200; pointer-events: none;
-  letter-spacing: -1px; padding: 4px 20px; border-radius: 16px;
-  background: rgba(255,255,255,0.9); border: 4px solid currentColor;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+  font-size: 36px; font-weight: 900; z-index: 200; pointer-events: none;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 20px currentColor;
   animation: evalPop 0.55s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
 }
 @keyframes evalPop {
@@ -827,7 +826,7 @@ body {
   perspective: 1000px;
 }
 .cdrop-card-inner {
-  width: 200px; height: 280px; position: relative;
+  width: 280px; height: 392px; position: relative;
   transform-style: preserve-3d;
   animation: cdropFloat 0.6s ease-out forwards, cdropFlip 0.7s 0.6s ease-out forwards;
 }
@@ -835,10 +834,11 @@ body {
   animation: cdropFadeFall 0.6s ease-out forwards;
 }
 .cdrop-front, .cdrop-back {
-  position: absolute; inset: 0; backface-visibility: hidden; border-radius: 16px;
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(255,215,0,0.15);
 }
-.cdrop-front { transform: rotateY(180deg); }
+.cdrop-front { transform: rotateY(180deg); background: #000; }
 .cdrop-back {
   background: linear-gradient(145deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%);
   border: 4px solid rgba(255,215,0,0.3); border-radius: 16px;
@@ -3665,9 +3665,10 @@ function renderMap() {
     wrap.appendChild(node);
 
     if(ok) {
+      const sc = p.starScore || p.stars || 0;
+      if(sc > 0) { // 未プレイ(スコア0)は星を非表示
       const stars = document.createElement('div');
       stars.className = 'stage-stars';
-      const sc = p.starScore || 0;
       for(let s=0;s<3;s++) {
         const sp = document.createElement('span');
         sp.className = 'star';
@@ -3686,6 +3687,7 @@ function renderMap() {
         stars.appendChild(sp);
       }
       wrap.appendChild(stars);
+      } // end sc > 0
       if(p.best>0) {
         const sc = document.createElement('div');
         sc.className = 'stage-score';
@@ -4570,13 +4572,7 @@ function showEval(lbl, grade, xpGain) {
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),600);
 
-  // +XP popup
-  document.querySelectorAll('.xp-popup').forEach(e=>e.remove());
-  const xp = document.createElement('div');
-  xp.className = 'xp-popup';
-  xp.textContent = '+' + xpGain + ' XP';
-  document.body.appendChild(xp);
-  setTimeout(()=>xp.remove(),800);
+  // XP popup removed — cleaner game view
 
   // Particles
   spawnParticles(lbl);
