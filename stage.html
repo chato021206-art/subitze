@@ -590,7 +590,8 @@ body {
 .pulse-container { position: relative; }
 .s-column { display: flex; flex-direction: column-reverse; gap: 4px; }
 .s-block {
-  width: var(--s-block-size, min(10vw, 40px)); height: var(--s-block-size, min(10vw, 40px)); border-radius: 8px;
+  width: var(--s-block-size, min(10vw, 40px)); height: var(--s-block-size, min(10vw, 40px));
+  border-radius: min(8px, calc(var(--s-block-size, 40px) * 0.2));
   border: 3px solid rgba(0,0,0,0.08);
   box-shadow: 0 3px 0 rgba(0,0,0,0.08);
   background: var(--block-bg, #4DC4FF);
@@ -3961,10 +3962,13 @@ function updateProg() {
 }
 
 /* =============== START STAGE =============== */
-function startStage(d, idx) {
+function startStage(d, idx, keepSupport) {
   curDiff = d; curIdx = idx;
   _slotW = 0; _slotH = 0; // Reset cached slot dimensions
-  _supportUsed = false; _supportMode = false; _supportLeft = 0;
+  // keepSupport=true の場合は retryStage(true) で予約済みのサポート状態を維持
+  if(!keepSupport) {
+    _supportUsed = false; _supportMode = false; _supportLeft = 0;
+  }
   const s = STAGES[d][idx];
   const dc = DC[d];
   const gv = document.getElementById('game-view');
@@ -6068,7 +6072,7 @@ function retryStage(fromFail) {
   if(survivalMode) { startSurvival(); return; }
   if(drillMode) { startDrillWithDiff(drillDiff); return; }
   if(brainMode) { startBrain(); return; }
-  startStage(curDiff, curIdx);
+  startStage(curDiff, curIdx, fromFail === true);
 }
 function nextStage() {
   document.getElementById('result-overlay').classList.remove('show');
