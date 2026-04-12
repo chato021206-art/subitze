@@ -2927,10 +2927,10 @@ const CAP_SEC = 0.1;
 const DRILL_CONFIGS = {
   EASY:    { t:5.0, j:{e:2.0,g:3.0}, cols:5, mh:5, tp:'S', drillMin:1,  drillMax:9  },
   NORMAL:  { t:5.0, j:{e:2.0,g:3.0}, cols:9, mh:9, tp:'S', drillMin:2,  drillMax:12 },
-  HARD:    { t:5.0, j:{e:2.0,g:3.0}, cols:9, mh:9, tp:'H', drillMin:10, drillMax:25 },
+  HARD:    { t:5.0, j:{e:3.0,g:5.0}, cols:9, mh:9, tp:'H', drillMin:10, drillMax:25 },
   EXTREME: { t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:9, tp:'E', drillMin:13, drillMax:45 },
-  ULTIMATE: { t:5.0, j:{e:3.0,g:5.0},         cols:9, mh:9, tp:'E', drillMin:40, drillMax:70 },
-  'ULTIMATE+':{ t:5.0, j:{e:3.0,g:5.0},       cols:9, mh:9, tp:'E', drillMin:71, drillMax:99 },
+  ULTIMATE: { t:5.0, j:{e:3.5,g:5.0},         cols:9, mh:9, tp:'E', drillMin:40, drillMax:70 },
+  'ULTIMATE+':{ t:5.0, j:{e:3.5,g:5.0},       cols:9, mh:9, tp:'E', drillMin:71, drillMax:99 },
 };
 let DRILL_CONFIG = DRILL_CONFIGS.EASY;
 const BRAIN_CONFIG = { t:3.0, j:{e:1.0,g:2.0}, cols:5, mh:5, tp:'S', noExt:true };
@@ -2948,7 +2948,7 @@ const TA_CONFIGS = {
 const SURVIVAL_LEVELS = [
   { bag:[1,2,2,3,3,4,4,5,5,6,7,8,9],            cols:5, mh:5, tp:'S', t:5.0, j:{e:2.0,g:3.0}, label:'EASY'    },
   { bag:[5,6,7,8,9,10,11,12,13,14],              cols:7, mh:6, tp:'H', t:5.0, j:{e:2.0,g:3.0}, label:'NORMAL'  },
-  { bag:[10,12,14,15,16,17,18,19,20],            cols:8, mh:8, tp:'H', t:5.0, j:{e:2.0,g:3.0}, label:'HARD'    },
+  { bag:[10,12,14,15,16,17,18,19,20],            cols:8, mh:8, tp:'H', t:5.0, j:{e:3.0,g:5.0}, label:'HARD'    },
   { bag:[15,18,20,22,24,26,28,30,33,36],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:5.0},        label:'EXTREME' },
   { bag:[25,28,32,36,40,44,48,52,56,60],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:5.0},        label:'BEAST'   },
   { bag:[35,40,45,50,55,60,65,70,75,80],         cols:9, mh:9, tp:'H', t:5.0, j:{e:3.0,g:5.0},        label:'LEGEND'  },
