@@ -1885,7 +1885,7 @@ const STAGES = {
     { bag:[54,56,58,60,62,64],                    t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:12, tp:'E' },
     { bag:[56,58,60,62,64,66],                    t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:13, tp:'E' },
     { bag:[55,58,60,62,64,66,68,70],              t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:13, tp:'E', boss:'final' },
-    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.0}, cols:13, mh:13, tp:'E', boss:'true_final' },
+    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.0}, cols:12, mh:14, tp:'E', boss:'true_final' },
   ]
 };
 
@@ -1905,7 +1905,7 @@ STAGES['EASY+']     = makePlusStages(STAGES.EASY);
 STAGES['NORMAL+']   = makePlusStages(STAGES.NORMAL);
 STAGES['HARD+']     = makePlusStages(STAGES.HARD);
 STAGES['EXTREME+']  = makePlusStages(STAGES.EXTREME);
-STAGES['ULTIMATE+'] = makePlusStages(STAGES.ULTIMATE).map(s => ({ ...s, mh: 13 }));
+STAGES['ULTIMATE+'] = makePlusStages(STAGES.ULTIMATE).map(s => ({ ...s, mh: 14 }));
 
 function makeGravityStages(base) {
   return base.map((s, i) => {
@@ -4446,7 +4446,7 @@ function renderBlocks() {
     if(!_slotW || !_slotH) { const slot = document.getElementById('game-slot'); _slotW = slot.clientWidth || 300; _slotH = slot.clientHeight || 250; }
     const bsW = (_slotW * 0.88 - gap * Math.max(0, cols - 1)) / cols;
     const bsH = (_slotH * 0.78 - gap * Math.max(0, maxH - 1)) / maxH;
-    const blockPx = Math.max(18, Math.min(35, Math.floor(Math.min(bsW, bsH))));
+    const blockPx = Math.max(20, Math.min(35, Math.floor(Math.min(bsW, bsH))));
     document.documentElement.style.setProperty('--s-block-size', blockPx + 'px');
     const step = blockPx + gap;
     const halfMax = Math.ceil(maxH / 2);
@@ -4556,10 +4556,21 @@ function renderBlocks() {
     else {
       const bsW = (avW - gap * Math.max(0, scaleCols - 1)) / scaleCols;
       const bsH = (avH - gap * Math.max(0, scaleMh - 1)) / scaleMh;
-      blockPx = Math.max(18, Math.min(35, Math.floor(Math.min(bsW, bsH))));
+      blockPx = Math.max(20, Math.min(35, Math.floor(Math.min(bsW, bsH))));
     }
     document.documentElement.style.setProperty('--s-block-size', blockPx + 'px');
-    el.style.transform = '';
+    // Auto-scale: if block footprint exceeds the slot at the minimum block size,
+    // shrink the whole cluster uniformly so it fits. Guarantees readable size
+    // on large layouts (e.g. ULTIMATE 真ボス cols=12 mh=14) without clipping.
+    if(!brainMode) {
+      const step = blockPx + gap;
+      const totalW = scaleCols * step - gap;
+      const totalH = scaleMh * step - gap;
+      const sc = Math.min(1, avW / totalW, avH / totalH);
+      el.style.transform = sc < 1 ? 'scale(' + sc.toFixed(4) + ')' : '';
+    } else {
+      el.style.transform = '';
+    }
   }
 }
 
