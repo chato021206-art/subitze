@@ -1834,7 +1834,7 @@ const STAGES = {
     { bag:[54,56,58,60,62,64],                    t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:12, tp:'E' },
     { bag:[56,58,60,62,64,66],                    t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:13, tp:'E' },
     { bag:[55,58,60,62,64,66,68,70],              t:5.0, j:{e:3.5,g:5.0}, cols:9, mh:13, tp:'E', boss:'final' },
-    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.5}, cols:11, mh:11, tp:'E', boss:'true_final' },
+    { bag:[70,75,78,80,82,85,88,90,92,95,98,99],  t:5.0, j:{e:3.5,g:5.5}, cols:13, mh:13, tp:'E', boss:'true_final' },
   ]
 };
 
@@ -1847,7 +1847,7 @@ function makePlusStages(base) {
     const maxVal = Math.max(...newBag);
     let tp = s.tp;
     if(tp === 'S' && maxVal > 9) tp = 'H';
-    return { ...s, bag: newBag, cols: 11, mh: 11, tp, plus: true };
+    return { ...s, bag: newBag, cols: Math.max(11, s.cols), mh: Math.max(11, s.mh), tp, plus: true };
   });
 }
 STAGES['EASY+']     = makePlusStages(STAGES.EASY);
