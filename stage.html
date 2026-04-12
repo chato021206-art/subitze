@@ -50,7 +50,7 @@
 .tutorial-overlay {
   position: absolute; inset: 0; z-index: 15;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: rgba(255,248,232,0.6); pointer-events: all;
+  background: rgba(255,255,255,0.92); pointer-events: all;
   animation: fadeIn 0.3s;
 }
 .tutorial-hint-top {
@@ -4031,8 +4031,11 @@ function gameLoop() {
   const now = Date.now();
   const dt = (now - GS.lastTick)/1000;
   GS.lastTick = now;
-  GS.elapsed += dt;
-  GS.totalTime += dt;
+  // チュートリアル表示中はタイマー停止
+  if(!_tutorialOv) {
+    GS.elapsed += dt;
+    GS.totalTime += dt;
+  }
 
   const s = survivalMode ? SURVIVAL_LEVELS[survivalLevel] : (drillMode ? DRILL_CONFIG : (brainMode ? BRAIN_CONFIG : STAGES[curDiff][curIdx]));
   const tl = getTimeLimit(s);
