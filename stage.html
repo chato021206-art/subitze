@@ -730,73 +730,72 @@ body {
 }
 #result-overlay.show { display: flex; animation: fadeIn 0.3s; }
 .result-bg { position: absolute; inset: 0; background: rgba(255,248,232,0.92); backdrop-filter: blur(8px); }
+/* ---- Result card ---- */
 .result-card {
-  position: relative; z-index: 1; width: 88%; max-width: 380px;
-  background: #fff; border-radius: 24px; padding: 28px 24px; text-align: center;
-  box-shadow: 0 8px 0 rgba(0,0,0,0.08);
+  position: relative; z-index: 1; width: 90%; max-width: 360px;
+  background: #fff; border-radius: 28px; padding: 24px 20px 20px; text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
   animation: cardSlide 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
-  max-height: 82vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  max-height: 85vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 @keyframes cardSlide { 0%{transform:translateY(40px) scale(0.9);opacity:0} 100%{transform:translateY(0) scale(1);opacity:1} }
 
 .r-enemy-defeated {
-  width: 64px; height: 64px; margin: 0 auto 8px;
-  animation: defeatSpin 1s ease-out;
-  opacity: 0.3; filter: grayscale(0.8);
+  width: 48px; height: 48px; margin: 0 auto 6px;
+  animation: defeatBounce 0.6s ease-out;
 }
 .r-enemy-defeated svg { width: 100%; height: 100%; }
-@keyframes defeatSpin {
-  0% { transform: scale(1.3) rotate(0deg); opacity: 1; filter: grayscale(0); }
-  100% { transform: scale(1) rotate(360deg); opacity: 0.3; filter: grayscale(0.8); }
+@keyframes defeatBounce {
+  0% { transform: scale(1.5); opacity: 0; }
+  60% { transform: scale(0.9); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .r-stage-lbl {
-  font-size: 11px; font-weight: 900; color: #fff; letter-spacing: 1px;
-  background: #555; padding: 3px 14px; border-radius: 20px; display: inline-block; margin-bottom: 8px;
+  font-size: 10px; font-weight: 900; color: #888; letter-spacing: 1.5px;
+  margin-bottom: 2px;
 }
 .r-clear-txt {
-  font-size: 26px; font-weight: 900; margin-bottom: 4px; letter-spacing: -1px;
+  font-size: 22px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px;
 }
 .r-clear-txt.cleared { color: var(--duo-green); }
-.r-perfect { font-size: 18px; font-weight: 900; color: var(--duo-gold); margin-bottom: 8px; animation: perfectShine 1.5s ease-in-out infinite; }
-@keyframes perfectShine { 0%,100%{text-shadow:0 0 8px rgba(255,200,0,0.3)} 50%{text-shadow:0 0 20px rgba(255,200,0,0.6)} }
+.r-perfect { font-size: 14px; font-weight: 900; color: var(--duo-gold); margin-bottom: 6px; animation: perfectShine 1.5s ease-in-out infinite; }
+@keyframes perfectShine { 0%,100%{text-shadow:0 0 6px rgba(255,200,0,0.2)} 50%{text-shadow:0 0 16px rgba(255,200,0,0.5)} }
 
-.r-stars { display: flex; justify-content: center; gap: 6px; margin-bottom: 14px; }
-.r-star { font-size: 40px; opacity: 0; transform: scale(0) rotate(-30deg); }
-.r-star.show { animation: starPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
-.r-star.dim { filter: grayscale(1); opacity: 0.15 !important; transform: scale(1) !important; }
+.r-stars { display: flex; justify-content: center; gap: 4px; margin-bottom: 6px; }
+.r-star { font-size: 36px; opacity: 0; transform: scale(0) rotate(-20deg); }
+.r-star.show { animation: starPop 0.35s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+.r-star.dim { filter: grayscale(1); opacity: 0.12 !important; transform: scale(1) !important; }
 @keyframes starPop {
-  0%{transform:scale(0) rotate(-30deg);opacity:0}
-  60%{transform:scale(1.3) rotate(5deg);opacity:1}
+  0%{transform:scale(0) rotate(-20deg);opacity:0}
+  60%{transform:scale(1.2) rotate(3deg);opacity:1}
   100%{transform:scale(1) rotate(0);opacity:1}
 }
 
-/* XP summary (Duolingo-style) */
 .r-xp-summary {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  margin: 12px 0; padding: 10px 20px; background: #FFF8E8; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin: 8px auto; padding: 8px 16px; background: #FFF8E8; border-radius: 14px;
+  width: fit-content;
 }
-.r-xp-icon { font-size: 28px; }
-.r-xp-val { font-size: 28px; font-weight: 900; color: var(--duo-gold); font-family: var(--font-num); }
-.r-xp-label { font-size: 13px; font-weight: 700; color: #999; }
+.r-xp-icon { font-size: 20px; }
+.r-xp-val { font-size: 22px; font-weight: 900; color: var(--duo-gold); font-family: var(--font-num); }
+.r-xp-label { font-size: 11px; font-weight: 700; color: #C0A060; }
 
-/* Rating bars */
-.r-rating-bars { margin: 8px 0; }
-.r-rating-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; font-size: 11px; font-weight: 900; }
-.r-rating-label { width: 65px; text-align: right; }
-.r-rating-bar-outer { flex: 1; height: 10px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
-.r-rating-bar-inner { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
-.r-rating-count { width: 18px; font-size: 11px; color: #bbb; }
+.r-rating-bars { margin: 6px 0; }
+.r-rating-row { display: flex; align-items: center; gap: 5px; margin: 2px 0; font-size: 10px; font-weight: 900; }
+.r-rating-label { width: 58px; text-align: right; letter-spacing: 0.5px; }
+.r-rating-bar-outer { flex: 1; height: 8px; background: #f0f0f0; border-radius: 8px; overflow: hidden; }
+.r-rating-bar-inner { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
+.r-rating-count { width: 16px; font-size: 10px; color: #bbb; }
 
 .r-detail {
-  display: flex; justify-content: center; gap: 16px; margin: 8px 0; font-size: 12px; font-weight: 900;
-  color: #bbb;
+  display: flex; justify-content: center; gap: 12px; margin: 4px 0; font-size: 11px; font-weight: 700;
+  color: #ccc;
 }
 .r-record {
-  color: var(--duo-gold); font-weight: 900; font-size: 15px; margin: 6px 0;
-  background: #FFF8E8; padding: 4px 14px; border-radius: 16px; display: inline-block;
+  color: var(--duo-gold); font-weight: 900; font-size: 13px; margin: 4px 0;
+  display: none;
 }
-.r-record { display: none; }
 .r-unlock {
   font-size: 15px; font-weight: 900; color: #7c3aed; margin: 8px 0; display: none;
   animation: fadeIn 0.5s; background: #F3EDFF; padding: 6px 16px; border-radius: 16px;
@@ -1166,11 +1165,11 @@ body {
 .col-recent-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
 .col-recent-row::-webkit-scrollbar { display: none; }
 
-.r-btns { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
+.r-btns { display: flex; gap: 8px; margin-top: 12px; justify-content: center; flex-wrap: wrap; }
 .rbtn {
-  padding: 14px 28px; border-radius: 16px; font-family: var(--font-ui);
-  font-size: 15px; font-weight: 900; cursor: pointer; transition: all 0.15s;
-  border: none; box-shadow: 0 4px 0 rgba(0,0,0,0.1); border-bottom: 4px solid rgba(0,0,0,0.15);
+  padding: 12px 24px; border-radius: 14px; font-family: var(--font-ui);
+  font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.15s;
+  border: none; box-shadow: 0 3px 0 rgba(0,0,0,0.1); border-bottom: 3px solid rgba(0,0,0,0.15);
 }
 .rbtn:active { transform: translateY(3px); box-shadow: none; border-bottom-width: 0; }
 .rbtn-retry { background: #E5E5E5; color: #777; border-bottom-color: #CCCCCC; }
@@ -1743,13 +1742,15 @@ body {
     <div id="r-clear" class="r-clear-txt cleared">STAGE CLEAR!</div>
     <div id="r-perfect" class="r-perfect" style="display:none">✨ PERFECT!! ✨</div>
     <div id="r-stars" class="r-stars"></div>
-    <div id="r-xp" class="r-xp-summary">
-      <div class="r-xp-icon">⚡</div>
-      <div><span id="r-xp-val" class="r-xp-val">0</span> <span class="r-xp-label">XP</span><span id="r-xp-bonus" style="font-size:12px;color:#CE82FF;font-weight:900;margin-left:6px"></span></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;">
+      <div id="r-xp" class="r-xp-summary">
+        <div class="r-xp-icon">⚡</div>
+        <div><span id="r-xp-val" class="r-xp-val">0</span> <span class="r-xp-label">XP</span><span id="r-xp-bonus" style="font-size:10px;color:#CE82FF;font-weight:900;margin-left:4px"></span></div>
+      </div>
+      <div style="font-size:10px;color:#ccc;font-weight:700;">|</div>
+      <div><span id="r-score" style="font-size:18px;font-weight:900;color:#999;font-family:var(--font-num)">0</span><span id="r-score-unit" style="font-size:10px;color:#ccc;font-weight:700;margin-left:2px">ch</span></div>
     </div>
-    <div id="r-level-bar" style="width:80%;margin:6px auto 10px;"></div>
-    <div style="font-size:11px;color:#aaa;font-weight:900;letter-spacing:2px">SCORE</div>
-    <div><span id="r-score" style="font-size:28px;font-weight:900;color:#555;font-family:var(--font-num)">0</span> <span id="r-score-unit" style="font-size:12px;color:#bbb;font-weight:700">ch</span></div>
+    <div id="r-level-bar" style="width:75%;margin:4px auto 8px;"></div>
     <div id="r-ratings" class="r-rating-bars"></div>
     <div id="r-detail" class="r-detail"></div>
     <div id="r-record" class="r-record">🏆 NEW RECORD!</div>
