@@ -4743,9 +4743,9 @@ function gameOver(result) {
 
   if(droppedCard) {
     // Show card drop fullscreen first, then result
-    setTimeout(() => showCardDropOverlay(droppedCard, () => showResult(ch, stars, isNew, droppedCard)), 600);
+    setTimeout(() => showCardDropOverlay(droppedCard, () => showResult(ch, stars, isNew, droppedCard, starScore)), 600);
   } else {
-    setTimeout(() => showResult(ch, stars, isNew, null), 600);
+    setTimeout(() => showResult(ch, stars, isNew, null, starScore), 600);
   }
 }
 
@@ -4912,7 +4912,8 @@ function showSkillMap() {
 }
 
 /* =============== RESULT =============== */
-function showResult(score, stars, isNew, droppedCard) {
+function showResult(score, stars, isNew, droppedCard, starScore) {
+  starScore = starScore || stars; // fallback to integer stars
   const enemy = ENEMIES[curDiff][curIdx];
   document.getElementById('r-enemy').innerHTML = enemy.svg();
   document.getElementById('r-lbl').textContent = curDiff + ' — STAGE ' + (curIdx+1);
