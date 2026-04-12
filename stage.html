@@ -600,10 +600,10 @@ body {
   0% { transform: scale(0) rotate(20deg); opacity: 0; }
   100% { transform: scale(1) rotate(0); opacity: 1; }
 }
-/* High-count layouts (e.g. ULTIMATE+) skip the scale/rotate cost */
+/* Dense layouts: keep the 3D look (box-shadow) but swap the heavy
+   scale/rotate animation for an instant fade so blocks pop in as a single group. */
 .dense-layout .s-block {
   animation: blockFadeIn 0.12s ease-out both;
-  box-shadow: none;
 }
 .s-block.brain-block {
   background: #FFF8F0 !important; border-color: #F5C8A0 !important;
@@ -820,8 +820,37 @@ body {
   color: #bbb;
 }
 .r-record {
-  color: var(--duo-gold); font-weight: 900; font-size: 15px; margin: 6px 0;
+  color: #fff;
+  font-weight: 900;
+  font-size: 32px;
+  letter-spacing: 2px;
+  margin: 14px 0;
+  padding: 14px 28px;
   display: none;
+  background: linear-gradient(135deg, #FFC800 0%, #FFB000 45%, #FF8A00 100%);
+  border: 4px solid #FFE080;
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 4px rgba(255, 200, 0, 0.25),
+    0 8px 24px rgba(255, 140, 0, 0.45),
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+  text-shadow:
+    0 2px 0 rgba(180, 80, 0, 0.7),
+    0 0 16px rgba(255, 220, 120, 0.9);
+  transform: scale(0) rotate(-8deg);
+  animation: rRecordPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             rRecordShine 2.5s ease-in-out 0.8s infinite;
+  white-space: nowrap;
+}
+@keyframes rRecordPop {
+  0%   { transform: scale(0) rotate(-8deg); opacity: 0; }
+  55%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes rRecordShine {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.15); }
 }
 .r-unlock {
   font-size: 15px; font-weight: 900; color: #7c3aed; margin: 8px 0; display: none;
@@ -4403,9 +4432,10 @@ function renderBlocks() {
   if(!GS.current||GS.current.n===null) return;
   const dc = DC[curDiff];
   const n = GS.current.n;
-  // Dense layouts (large block counts or ULTIMATE family) drop the scale/rotate animation to avoid stutter
+  // All non-brain layouts use the dense fast path (instant fade-in, no stagger).
+  // This matches the ULTIMATE-style "pop" appearance across all difficulties.
   const _diffBase = curDiff.replace(/[+▲]/g,'');
-  const _dense = n >= 24 || _diffBase === 'ULTIMATE';
+  const _dense = !brainMode;
   el.classList.toggle('dense-layout', _dense);
   const _delayStep = _dense ? 0 : 0.015;
 
