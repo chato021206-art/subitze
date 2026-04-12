@@ -4913,8 +4913,12 @@ function showSkillMap() {
 
 /* =============== RESULT =============== */
 function showResult(score, stars, isNew, droppedCard, starScore) {
+  try {
   starScore = starScore || stars; // fallback to integer stars
-  const enemy = ENEMIES[curDiff][curIdx];
+  if(typeof starScore !== 'number' || isNaN(starScore)) starScore = stars || 1;
+  const baseDiff = curDiff.replace(/[+▲]/g,'');
+  const enemies = ENEMIES[curDiff] || ENEMIES[baseDiff] || ENEMIES['EASY'];
+  const enemy = enemies[curIdx] || enemies[0];
   document.getElementById('r-enemy').innerHTML = enemy.svg();
   document.getElementById('r-lbl').textContent = curDiff + ' — STAGE ' + (curIdx+1);
   document.getElementById('r-clear').textContent = 'STAGE CLEAR!';
@@ -5039,6 +5043,11 @@ function showResult(score, stars, isNew, droppedCard, starScore) {
   // Confetti
   if(stars>=2) launchConfetti(stars===3?100:40);
   if(isPerfect) setTimeout(()=>launchConfetti(60), 800);
+  } catch(e) {
+    console.error('showResult error:', e);
+    // Ensure result screen shows even on error
+    document.getElementById('result-overlay').classList.add('show');
+  }
 }
 
 function launchConfetti(count) {
