@@ -105,16 +105,24 @@ Background: a cosmic apiary — tiny beehives attached to stars, connected by
 golden light-threads. Space bees buzz around. Jars of golden star honey on
 floating shelves. Warm golden honey-light fills the scene.""" },
 
-  'ultimate_plus_8': { 'frame': 'common', 'prompt': S + """Character: A brilliant white-gold (NOT jet-black) dog — the "White Hole" variant.
-Glossy radiant white-platinum body that EMITS light instead of absorbing it. A
-bright golden aura surrounds it. Small pointed ears with golden tips. A fluffy
-tail wagging with pure joy — first time EVER wagging. Large sparkling warm golden
-eyes with RADIANT BURST highlights (light exploding outward). Its nose touches
-the nose of a tiny black dog silhouette (its black hole friend from the base card).
-Expression: overwhelming joy, tears of happiness — loneliness finally ended.
-Background: the boundary between a black hole and a white hole — half the scene
-is dark with purple accretion disk, half is brilliant white-gold light. The two
-dogs meet at the exact center. The most emotional scene in the game.""" },
+  'ultimate_plus_8': { 'frame': 'common', 'prompt': S + """Character: A divine three-eyed guardian dog deity — the "Liberated Mahakara"
+white-light variant. Glossy radiant white-platinum body that EMITS soft holy
+light instead of absorbing it. A warm golden lotus aura halo behind its head.
+Small pointed ears with golden tips. A fluffy tail curled gracefully, with
+golden sparkles drifting from its tip. THREE EYES: two large sparkling warm
+golden eyes in normal positions, plus a THIRD EYE vertically centered on its
+forehead, larger and glowing with brilliant white-gold mystical light, marked
+with a tiny golden bindi dot above it. All three eyes have RADIANT MANDALA
+highlights (concentric rings of light like a sacred geometric pattern). It
+sits in a peaceful meditation pose on a giant glowing golden lotus flower
+floating in space. Tiny golden prayer beads float around its neck. Its small
+front paws are pressed gently together as if in blessing. Expression: serene,
+compassionate, deeply enlightened — the opposite of the lonely howl. A single
+tear of golden joy on its cheek. Background: a sacred cosmic temple in deep
+space. Golden mandala patterns of light radiate outward filling the sky.
+Distant galaxies form a halo. Floating lotus petals drift through the scene.
+Warm golden divine light fills everything. The atmosphere of cosmic
+enlightenment and infinite compassion.""" },
 
   'ultimate_plus_9': { 'frame': 'rare', 'prompt': S + """Character: A soft pastel-purple (NOT dark rainbow) dragon — the playful variant.
 Glossy pale lavender-purple body with soft pastel star patterns instead of

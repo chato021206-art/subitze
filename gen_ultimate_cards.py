@@ -115,9 +115,14 @@ line extends to the next star. Magical constellation-weaving atmosphere.""" },
   'ultimate_8': { 'frame': 'common', 'prompt': S + """Scene: A cute round dog/wolf creature with glossy jet-black body so dark it
 seems to absorb light. A faint purple-violet aura/glow outlines its silhouette.
 Small pointed ears. A fluffy tail with a glowing purple tip — the only color.
-Large sparkling eyes with EVENT HORIZON highlights (a bright ring of light
-around a dark center, like the accretion disk of a black hole). It sits at the
-edge of a massive black hole, head tilted up in a small lonely howl. Gravity
+A thick fluffy mane of soft fur around its chest and neck (like a lion's ruff
+or a Pomeranian's chest fluff), extra puffy and huggable.
+THREE EYES: two large sparkling eyes in normal positions, plus a THIRD EYE
+vertically centered on its forehead — the third eye glows with bright purple
+mystical light, slightly larger and more intense than the other two. All three
+eyes have EVENT HORIZON highlights (a bright ring of light around a dark
+center, like the accretion disk of a black hole). It sits at the edge of a
+massive black hole, head tilted up in a small lonely howl. Gravity
 distortion bends the starlight around it. Despite looking fearsome, its
 expression is deeply lonely and yearning for connection. A single tear of
 purple light on its cheek. Background: the edge of a black hole — an enormous
