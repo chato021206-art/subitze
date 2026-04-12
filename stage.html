@@ -1737,11 +1737,11 @@ body {
 <div id="result-overlay">
   <div class="result-bg" onclick="backToMap()"></div>
   <div class="result-card">
-    <div id="r-enemy" class="r-enemy-defeated"></div>
     <div id="r-lbl" class="r-stage-lbl"></div>
-    <div id="r-clear" class="r-clear-txt cleared">STAGE CLEAR!</div>
-    <div id="r-perfect" class="r-perfect" style="display:none">✨ PERFECT!! ✨</div>
     <div id="r-stars" class="r-stars"></div>
+    <div id="r-clear" class="r-clear-txt cleared">STAGE CLEAR!</div>
+    <div id="r-perfect" class="r-perfect" style="display:none">PERFECT!!</div>
+    <div id="r-enemy" class="r-enemy-defeated"></div>
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;">
       <div id="r-xp" class="r-xp-summary">
         <div class="r-xp-icon">⚡</div>
@@ -1751,11 +1751,11 @@ body {
       <div><span id="r-score" style="font-size:22px;font-weight:900;color:#999;font-family:var(--font-num)">0</span><span id="r-score-unit" style="font-size:12px;color:#ccc;font-weight:700;margin-left:3px">ch</span></div>
     </div>
     <div id="r-level-bar" style="width:85%;margin:6px auto 12px;"></div>
-    <div id="r-ratings" class="r-rating-bars"></div>
-    <div id="r-detail" class="r-detail"></div>
     <div id="r-record" class="r-record">🏆 NEW RECORD!</div>
     <div id="r-unlock" class="r-unlock"></div>
     <div id="r-card-drop" class="r-card-drop"></div>
+    <div id="r-ratings" class="r-rating-bars" style="display:none"></div>
+    <div id="r-detail" class="r-detail" style="display:none"></div>
     <div class="r-btns">
       <button class="rbtn rbtn-retry" onclick="retryStage()">もう一回</button>
       <button id="r-next" class="rbtn rbtn-next" onclick="nextStage()">つぎへ ▶</button>
@@ -5063,9 +5063,7 @@ function showResult(score, stars, isNew, droppedCard, starScore) {
   document.getElementById('result-overlay').classList.add('show');
   if(droppedCard) { updateNewDot(); }
 
-  // Confetti
-  if(stars>=2) launchConfetti(stars===3?100:40);
-  if(isPerfect) setTimeout(()=>launchConfetti(60), 800);
+  // Confetti removed — star score is the hero
   } catch(e) {
     console.error('showResult error:', e);
     // Ensure result screen shows even on error
