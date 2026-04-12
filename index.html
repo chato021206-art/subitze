@@ -622,7 +622,7 @@
         chargesToday: 3, 
         
         totalPlayTime: 0, currentInput: '',
-        statsDetail: { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, good: { count:0, time:0 }, ok: { count:0, time:0 } },
+        statsDetail: { marvelous: { count:0, time:0 }, excellent: { count:0, time:0 }, great: { count:0, time:0 }, ok: { count:0, time:0 } },
         missedLog: [], questionCount: 0, generatedCount: 0, isExtreme: false, isInputBlocked: false,
         currentKbLayout: 'PHONE', 
         saveData: {
@@ -1023,7 +1023,7 @@ let UI = {};
     function startGame() {
         STATE.status = 'PLAYING'; STATE.isInputBlocked = false; STATE.score = 0; STATE.questionCount = 0; STATE.generatedCount = 0;
         STATE.totalPlayTime = 0; STATE.missedLog = []; STATE.queue = []; STATE.currentInput = '';
-        STATE.statsDetail = { marvelous: {count:0,time:0}, excellent: {count:0,time:0}, great: {count:0,time:0}, good: {count:0,time:0}, ok: {count:0,time:0} };
+        STATE.statsDetail = { marvelous: {count:0,time:0}, excellent: {count:0,time:0}, great: {count:0,time:0}, ok: {count:0,time:0} };
         STATE.randomAtPlay = STATE.isRandomMode; STATE.lastCount = null; STATE.lastShapeSig = null; STATE.consecutiveCountValue = 0;
         STATE.fermataUsedInRun = false;
         if(UI.slot1) UI.slot1.style.border = 'none';
@@ -1081,7 +1081,7 @@ let UI = {};
         const pct = Math.max(0, 1 - (STATE.elapsedTime / mode.time));
         const j = mode.judgments; let c = '#a0a0a0';
         if (STATE.elapsedTime <= j.marv) c = '#fff200'; else if (STATE.elapsedTime <= j.exc) c = '#00ffff'; else if (STATE.elapsedTime <= j.great) c = '#00ff2a';
-        else if (j.good && STATE.elapsedTime <= j.good) c = '#ffaa00'; else if (j.ok && STATE.elapsedTime <= j.ok) c = '#b0b0b0'; else c = '#ff0033';
+        else if (j.ok && STATE.elapsedTime <= j.ok) c = '#ffaa00'; else c = '#ff0033';
         
         updateTimerSVG(pct, c);
         STATE.rafId = requestAnimationFrame(gameLoop);

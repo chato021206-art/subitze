@@ -2963,7 +2963,7 @@ let GS = {
   status:'IDLE', queue:[], current:null, qCount:0, genCount:0,
   elapsed:0, lastTick:0, totalTime:0, rafId:null,
   input:'', blocked:false,
-  stats:{ excellent:{c:0,t:0}, great:{c:0,t:0}, good:{c:0,t:0}, ok:{c:0,t:0} },
+  stats:{ excellent:{c:0,t:0}, great:{c:0,t:0}, ok:{c:0,t:0} },
   lastN:null, lastSig:null, consec:0,
   maxCombo:0, xp:0
 };
@@ -3870,7 +3870,7 @@ function beginGame() {
   GS.totalTime = 0; GS.input = ''; GS.xp = 0;
   GS.lastN = null; GS.lastSig = null; GS.consec = 0;
   GS.maxCombo = 0;
-  GS.stats = { excellent:{c:0,t:0}, great:{c:0,t:0}, good:{c:0,t:0}, ok:{c:0,t:0} };
+  GS.stats = { excellent:{c:0,t:0}, great:{c:0,t:0}, ok:{c:0,t:0} };
   sBag = [];
   document.getElementById('input-display').textContent = '';
   document.getElementById('game-blocks').innerHTML = '';
@@ -3947,10 +3947,10 @@ function gameLoop() {
 
   const j = s.j;
   let c;
-  if(GS.elapsed<=j.e) c='#FFC800';
-  else if(GS.elapsed<=j.g) c='#1CB0F6';
-  else if(j.gd&&GS.elapsed<=j.gd) c='#FF9600';
-  else if(GS.elapsed<=tl) c='#CCCCCC';
+  const baseTime = j.g || j.e;  // Great枠 = 基本制限時間
+  if(GS.elapsed<=j.e) c='#FFC800';       // Excellent = 金
+  else if(GS.elapsed<=j.g) c='#1CB0F6';  // Great = 青
+  else if(GS.elapsed<=tl) c='#FF9600';   // 延長帯(GOOD) = オレンジ
   else c='#FF4B4B';
   _timerFill.style.background = c;
 
@@ -4446,8 +4446,7 @@ function checkAns(val) {
     let k='miss', lbl='MISS';
     if(dt<=j.e){k='excellent';lbl='EXCELLENT';}
     else if(dt<=j.g){k='great';lbl='GREAT';}
-    else if(j.gd&&dt<=j.gd){k='good';lbl='GOOD';}
-    else if(dt<=tl){k='ok';lbl='GOOD';}  // 延長帯 = OK
+    else if(dt<=tl){k='ok';lbl='GOOD';}  // 延長帯 = GOOD
     else{handleMiss('SLOW',val,GS.current.n);return;}
     GS.stats[k].c++; GS.stats[k].t+=eff;
 
@@ -4493,7 +4492,7 @@ function checkAns(val) {
     }
 
     // XP gain — difficulty multiplier + level bonus + streak bonus
-    const baseXP = {excellent:12,great:10,good:8,ok:5}[k];
+    const baseXP = {excellent:12,great:10,ok:5}[k];
     const diffMult = survivalMode ? (survivalLevel + 1) : ({'EASY':1,'NORMAL':2,'HARD':3,'EXTREME':5,'EASY+':1.5,'NORMAL+':3,'HARD+':4.5,'EXTREME+':7.5,'ULTIMATE':10,'ULTIMATE+':15}[curDiff]||1);
     const lvBonus = 1 + (getLevel().level - 1) * 0.025;
     const streakBonus = 1 + getStreakXPBonus() / 100;
@@ -4709,7 +4708,7 @@ function gameOver(result) {
   if(ch>CAP_CH) ch=CAP_CH;
 
   let stars = 1;
-  const hasLow = (GS.stats.good.c+GS.stats.ok.c)>0;
+  const hasLow = (GS.stats.ok.c)>0;
   const hasGreat = GS.stats.great.c>0;
   if(!hasLow) stars = 2;
   if(!hasLow&&!hasGreat) stars = 3;
@@ -4908,7 +4907,7 @@ function showResult(score, stars, isNew, droppedCard) {
   document.getElementById('r-clear').textContent = 'STAGE CLEAR!';
   document.getElementById('r-clear').className = 'r-clear-txt cleared';
 
-  const isPerfect = stars === 3 && (GS.stats.great.c + GS.stats.good.c + GS.stats.ok.c) === 0;
+  const isPerfect = stars === 3 && (GS.stats.great.c + GS.stats.ok.c) === 0;
   document.getElementById('r-perfect').style.display = isPerfect ? 'block' : 'none';
 
   // Stars
@@ -4935,8 +4934,7 @@ function showResult(score, stars, isNew, droppedCard) {
   const rData = [
     {k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},
     {k:'great',lbl:'GREAT',c:'#1CB0F6'},
-    {k:'good',lbl:'GOOD',c:'#FF9600'},
-    {k:'ok',lbl:'GOOD',c:'#CCCCCC'}
+    {k:'ok',lbl:'GOOD',c:'#FF9600'}
   ];
   rData.forEach((r,ri) => {
     const cnt = GS.stats[r.k].c;
@@ -5524,7 +5522,7 @@ function drillEnd(result) {
 
     const ratings = document.getElementById('r-ratings');
     ratings.innerHTML = '';
-    [{k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},{k:'great',lbl:'GREAT',c:'#1CB0F6'},{k:'good',lbl:'GOOD',c:'#FF9600'},{k:'ok',lbl:'GOOD',c:'#CCCCCC'}].forEach((r,ri) => {
+    [{k:'excellent',lbl:'EXCELLENT',c:'#FFC800'},{k:'great',lbl:'GREAT',c:'#1CB0F6'},{k:'ok',lbl:'GOOD',c:'#FF9600'}].forEach((r,ri) => {
       const cnt = GS.stats[r.k].c;
       if(!cnt && ri >= 2) return;
       const row = document.createElement('div');
