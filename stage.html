@@ -6057,7 +6057,7 @@ function retryStage(fromFail) {
   // ミス後の赤ボタンからのリトライのみ、かつ1回限りサポート発動
   if(fromFail && !_supportUsed) {
     _supportMode = true;
-    _supportLeft = 2;
+    _supportLeft = 1;
     _supportUsed = true;
     _comfortNumbers = getComfortNumbers();
   }
