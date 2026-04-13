@@ -597,9 +597,16 @@ body {
   0% { transform: scale(0) rotate(20deg); opacity: 0; }
   100% { transform: scale(1) rotate(0); opacity: 1; }
 }
-/* Dense layouts: keep the 3D look (box-shadow) but swap the heavy
-   scale/rotate animation for an instant fade so blocks pop in as a single group. */
+/* Dense layouts: drop per-block box-shadow and animation to avoid jank when
+   rendering 60~120 blocks at once (e.g. EXTREME+/ULTIMATE+ at cols>=11).
+   Fade-in is applied once at the cluster level instead of per-block. */
 .dense-layout .s-block {
+  box-shadow: none;
+  animation: none;
+}
+.dense-layout .s-cluster,
+.dense-layout .pulse-container,
+.dense-layout .random-layout {
   animation: blockFadeIn 0.12s ease-out both;
 }
 .s-block.brain-block {
@@ -2448,11 +2455,15 @@ let _thumbDB = null;
 function _openThumbDB() {
   return new Promise((res, rej) => {
     if(!window.indexedDB) return rej(new Error('no idb'));
-    const r = indexedDB.open('snow_thumbs', 2);
+    // v3: extreme_8 等のカード画像差し替え時に古い Blob が返る問題を解消するため
+    //     既存ストアを削除して作り直し、全カード画像を強制再取得する。
+    const r = indexedDB.open('snow_thumbs', 3);
     r.onupgradeneeded = (e) => {
       const db = e.target.result;
-      if(!db.objectStoreNames.contains('thumbs')) db.createObjectStore('thumbs');
-      if(!db.objectStoreNames.contains('full'))   db.createObjectStore('full');
+      if(db.objectStoreNames.contains('thumbs')) db.deleteObjectStore('thumbs');
+      if(db.objectStoreNames.contains('full'))   db.deleteObjectStore('full');
+      db.createObjectStore('thumbs');
+      db.createObjectStore('full');
     };
     r.onsuccess = () => res(r.result);
     r.onerror   = () => rej(r.error);
